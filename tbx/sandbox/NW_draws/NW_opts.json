@@ -1,0 +1,12 @@
+{
+  "priorsexogenous": 0,
+  "user_ar": 1,
+  "lambda1": 0.1,
+  "lambda3": 1,
+  "lambda4": 100,
+  "prior": 21,
+  "p": 4,
+  "const": true,
+  "It": 2000,
+  "Bu": 1000
+}
