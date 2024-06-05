@@ -1,12 +1,20 @@
 {
   "priorsexogenous": 0,
+  "frequency":2,    
   "user_ar": 1,
   "lambda1": 0.1,
   "lambda3": 1,
   "lambda4": 100,
   "prior": 21,
-  "p": 4,
+  "lags": 4,
   "const": true,
   "It": 2000,
-  "Bu": 1000
+  "Bu": 1000,
+  "F":1,
+  "Fband": 0.95,
+  "startdate":"1974q1",
+  "enddate": "2014q4",
+  "Fstartdate":"2015q1",
+  "Fenddate":"2016q4",
+  "Fendsmpl":1 
 }
