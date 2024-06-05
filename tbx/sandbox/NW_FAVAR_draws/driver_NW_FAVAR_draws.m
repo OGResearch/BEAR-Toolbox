@@ -1,9 +1,3 @@
-
-%% Loading data
-data_endo = readmatrix("data_endo.csv");
-data_exo = readmatrix("data_exo.csv");
-
-load("FAVAR.mat")
 %% Setting up opt structure
 fileName = "NW_FAVAR_opts.json"; % filename in JSON extension.
 str      = fileread(fileName); % dedicated for reading files as text.
