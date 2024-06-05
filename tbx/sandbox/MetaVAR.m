@@ -13,8 +13,17 @@ classdef MetaVAR
     end
 
     properties (Dependent, Hidden)
-        NumEndogenousColumns    % Number of endogenous data columns
-        NumExogenousColumns     % Number of exogenous data columns
+        % Number of endogenous data columns
+        NumEndogenousColumns
+
+        % Number of exogenous data columns
+        NumExogenousColumns
+
+        % Number of columns in the LHS data array
+        NumLhsColumns
+
+        % Number of columns in the RHS data array
+        NumRhsColumns
 
         % Transition matrices
         SizeA
@@ -42,8 +51,8 @@ classdef MetaVAR
             end
             % Constructor method to initialize the MetaVAR object
             if nargin > 0
-                this.EndogenousItems = item.fromStrings(endogenousItems);
-                this.ExogenousItems = item.fromStrings(options.ExogenousItems);
+                this.EndogenousItems = item.fromUserInput(endogenousItems);
+                this.ExogenousItems = item.fromUserInput(options.ExogenousItems);
                 if options.Constant
                     this.ExogenousItems{end+1} = item.Constant();
                 end
@@ -90,7 +99,9 @@ classdef MetaVAR
                 X(inxMissing, :) = [];
             end
         end%
+    end
 
+    methods
         function num = get.NumEndogenousColumns(this)
             num = 0;
             for i = 1:numel(this.EndogenousItems)
@@ -104,9 +115,15 @@ classdef MetaVAR
                 num = num + this.ExogenousItems{i}.NumColumns;
             end
         end%
-    end
 
-    methods
+        function num = get.NumLhsColumns(this)
+            num = this.NumEndogenousColumns;
+        end%
+
+        function num = get.NumRhsColumns(this)
+            num = this.NumEndogenousColumns*this.Order + this.NumExogenousColumns;
+        end%
+
         function siz = get.SizeA(this)
             numEndogenousColumns = this.NumEndogenousColumns;
             siz = [numEndogenousColumns, numEndogenousColumns, this.Order];
