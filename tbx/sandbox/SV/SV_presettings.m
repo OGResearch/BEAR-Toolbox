@@ -1,7 +1,7 @@
 clear all
 %% set options
 %addpath(genpath('C:\Users\balint.parragi\BEAR-toolbox-6\tbx'))
-addpath(genpath('../'))
+addpath(genpath('../../'))
 
 excelFile = fullfile(bearroot(),'default_bear_data.xlsx') ;
 %Choose VAR type
