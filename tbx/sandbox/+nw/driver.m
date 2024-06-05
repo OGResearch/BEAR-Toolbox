@@ -1,11 +1,11 @@
 
 %% Loading data
-Y = readmatrix("Y.csv");
-X = readmatrix("X.csv");
+Y = readmatrix("+nw/Y.csv");
+X = readmatrix("+nw/X.csv");
 
 % load("data.mat")
 %% Setting up opt structure
-fileName = "NW_opts.json"; % filename in JSON extension.
+fileName = "+nw/opts.json"; % filename in JSON extension.
 str      = fileread(fileName); % dedicated for reading files as text.
 opt      = jsondecode(str);
 
@@ -29,4 +29,5 @@ opt      = jsondecode(str);
 % opt.Bu = 1000;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% getting the draws
-[beta_gibbs, sigma_gibbs] = get_NW_draws(Y, X, opt);
+[beta_gibbs, sigma_gibbs] = nw.get_draws(Y, X, opt);
+
