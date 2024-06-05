@@ -4,11 +4,14 @@ function outArray = retrieveData(inTable, names, periods, options)
     arguments
         inTable timetable
         names (1, :) string
-        periods datetime
+        periods (1, :) datetime
         options.Variant (1, 1) double = 1
+        options.Shift (1, 1) double = 0
     end
 
     tablePeriods = inTable.Properties.RowTimes;
+    periods = tablex.resolvePeriods(inTable, periods, shift=options.Shift);
+
     numTablePeriods = numel(tablePeriods);
     numColumns = numel(names);
     numPeriods = numel(periods);

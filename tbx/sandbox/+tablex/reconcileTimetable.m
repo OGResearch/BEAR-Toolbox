@@ -1,8 +1,23 @@
 
-function outTable = reconcileTimetable(inTable, freq)
+function outTable = reconcileTimetable(inTable, options)
+
+    arguments
+        inTable timetable
+        options.Frequency (1, 1) double = Frequency.INTEGER
+        options.Trim (1, 1) logical = true
+    end
 
     if height(inTable) == 0
         return
+    end
+
+    if isequaln(options.Frequency, NaN)
+        freq = datex.frequency(timeColumn(1));
+        if isequaln(freq, NaN)
+            error("Cannot determine time frequency of the time column");
+        end
+    else
+        freq = options.Frequency;
     end
 
     fh = datex.Backend.getFrequencyHandlerFromFrequency(freq);
@@ -35,7 +50,10 @@ function outTable = reconcileTimetable(inTable, freq)
         storeData{end+1} = array;
     end
 
-    outTable = timetable(newPeriods, storeData{:}, variableNames=variableNames);
+    outTable = timetable(storeData{:}, rowTimes=newPeriods, variableNames=variableNames);
+    if options.Trim
+        outTable = tablex.trim(outTable);
+    end
 
 end%
 

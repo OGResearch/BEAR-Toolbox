@@ -1,9 +1,12 @@
 
-function tt = fromTable(plainTable, options)
+function [tt, freq] = fromTable(plainTable, options)
 
     arguments
         plainTable table
         options.TimeRow (1, 1) string = "Time"
+        options.Frequency (1, 1) double = NaN
+        options.PeriodConstructor = @datex.fromSdmx
+        options.Trim (1, 1) logical = true
     end
 
     if height(plainTable) == 0
@@ -12,11 +15,21 @@ function tt = fromTable(plainTable, options)
 
     timeColumn = plainTable.(options.TimeRow);
     if isstring(timeColumn) || iscellstr(timeColumn)
-        timeColumn = datex.fromSdmx(timeColumn);
+        timeColumn = options.PeriodConstructor(timeColumn);
+    end
+
+    if isequaln(options.Frequency, NaN)
+        freq = datex.frequency(timeColumn(1));
+        if isequaln(freq, NaN)
+            error("Cannot determine time frequency of the time column");
+        end
+    else
+        freq = options.Frequency;
     end
 
     plainTable = removevars(plainTable, options.TimeRow);
     tt = table2timetable(plainTable, rowTimes=timeColumn);
+    tt = tablex.reconcileTimetable(tt, frequency=freq, trim=options.Trim);
 
 end%
 

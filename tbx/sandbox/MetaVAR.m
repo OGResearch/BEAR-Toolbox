@@ -35,16 +35,16 @@ classdef MetaVAR
     methods
         function this = MetaVAR(endogenousItems, options)
             arguments
-                endogenousItems (1, :) string
-                options.ExogenousItems (1, :) string = string.empty(1, 0)
+                endogenousItems (1, :)
+                options.ExogenousItems (1, :) = string.empty(1, 0)
                 options.Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
-                options.IncludeConstant (1, 1) logical = false
+                options.Constant (1, 1) logical = false
             end
             % Constructor method to initialize the MetaVAR object
             if nargin > 0
                 this.EndogenousItems = item.fromStrings(endogenousItems);
                 this.ExogenousItems = item.fromStrings(options.ExogenousItems);
-                if options.IncludeConstant
+                if options.Constant
                     this.ExogenousItems{end+1} = item.Constant();
                 end
                 this.Order = options.Order;
@@ -55,7 +55,7 @@ classdef MetaVAR
             arguments
                 this
                 dataTable timetable
-                periods (1, :) datetime
+                periods (1, :)
                 options.RemoveMissing (1, 1) logical = true
                 options.Variant (1, 1) double = 1
             end
@@ -67,22 +67,21 @@ classdef MetaVAR
             % LHS array - current endogenous items
             for i = 1:numel(this.EndogenousItems)
                 item = this.EndogenousItems{i};
-                Y = [Y, item.retrieveData(dataTable, periods, variant=options.Variant)];
+                Y = [Y, item.getData(dataTable, periods, variant=options.Variant)];
             end
 
             % RHS array - lags of endogenous items
             for lag = 1:this.Order
-                shiftedPeriods = periods - lag;
                 for i = 1:numel(this.EndogenousItems)
                     item = this.EndogenousItems{i};
-                    X = [X, item.retrieveData(dataTable, shiftedPeriods, variant=options.Variant)];
+                    X = [X, item.getData(dataTable, periods, variant=options.Variant, shift=-lag)];
                 end
             end
 
             % RHS array - exogenous items
             for i = 1:numel(this.ExogenousItems)
                 item = this.ExogenousItems{i};
-                X = [X, item.retrieveData(dataTable, periods, variant=options.Variant)];
+                X = [X, item.getData(dataTable, periods, variant=options.Variant)];
             end
 
             if options.RemoveMissing

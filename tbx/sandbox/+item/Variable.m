@@ -24,13 +24,14 @@ classdef Variable < item.Abstract
                 inTable timetable
                 periods (1, :) datetime
                 options.Variant (1, 1) double = 1
+                options.Shift (1, 1) double = 0
             end
 
-            outArray = tablex.getData( ...
+            outArray = tablex.retrieveData( ...
                 inTable, this.Name, periods ...
                 , variant=options.Variant ...
+                , shift=options.Shift ...
             );
-
         end%
 
         function name = get.DisplayName(this)
