@@ -29,15 +29,19 @@ classdef AbstractEstimator < handle
             numParameters = size(this.Presampled, 1);
         end%
 
-        function theta = nextPresampled(this, varargin)
-            this.PresampledCounter = this.PresampledCounter + 1;
-            if this.PresampledCounter > this.NumPresampled
-                error("Presampled draws have been exhausted");
+        function theta = nextPresampled(this, numRequested)
+            arguments
+                this
+                numRequested (1, 1) double = 1
             end
-            theta = this.Presampled(:, this.PresampledCounter+1);
+            if this.PresampledCounter + numRequested > this.NumPresampled
+                error("Presampled draws not sufficient to satisfy the request");
+            end
+            theta = this.Presampled(:, this.PresampledCounter+(1:numRequested));
+            this.PresampledCounter = this.PresampledCounter + numRequested;
         end%
 
-        function resetPresampled(this)
+        function resetPresampledCounter(this)
             this.PresampledCounter = 0;
         end%
 
@@ -56,10 +60,10 @@ classdef AbstractEstimator < handle
                 meta (1, 1) var.Meta
                 dataTable (:, :) timetable
                 periods (1, :) datetime
-                options.BurnIn (1, 1) double = NaN
+                options.Burnin (1, 1) double = NaN
             end
             YX = meta.getData(dataTable, periods);
-            this.Sampler = this.initializeAdapter(meta, YX, burnin=options.BurnIn);
+            this.Sampler = this.initializeAdapter(meta, YX, burnin=options.Burnin);
         end%
     end
 

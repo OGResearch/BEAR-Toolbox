@@ -39,13 +39,27 @@ classdef ...
             opt.It = options.Burnin + numPresample;
             opt.Bu = options.Burnin;
 
-            [T, n] = size(Y);
-            [~ , k] = size(X);
+            numEndogenousColumns = meta.NumEndogenousColumns;
+            numExogenousColumns = meta.NumExogenousColumns;
+            numPeriods = size(Y, 1);
+
+            T = numPeriods;
+            n = meta.NumLhsColumns;
+            k = meta.NumRhsColumns;
+            p = meta.Order;
+
+            % [T, n] = size(Y);
+            % [~ , k] = size(X);
+
             q = n*k;
-            m = k - n * meta.Order;
+            m = k - n * p;
 
             % individual priors 0 for default
-            priorexo = repmat(this.PriorSettings.Exogenous, n, m);
+            priorexo = repmat( ...
+                this.PriorSettings.Exogenous ...
+                , numEndogenousColumns ...
+                , numExogenousColumns ...
+            );
 
             %create a vector for AR hyperparamters
             ar = ones(n, 1) * this.PriorSettings.Autoregressive;
@@ -56,11 +70,12 @@ classdef ...
             %setting up prior
             [B0, beta0, phi0, S0, alpha0] = bear.nwprior(ar, arvar, opt.lambda1, opt.lambda3, opt.lambda4, n, m, opt.p, k, q, ...
                 opt.prior, priorexo);
+
             % obtain posterior distribution parameters
             [Bbar, betabar, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, X, Y, n, T, k);
-            [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, n, k);
 
             function theta = sampler__()
+                % [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, n, k);
                 B = bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
                 sigma = bear.iwdraw(Sbar,alphabar);
                 theta = [B(:); sigma(:)];

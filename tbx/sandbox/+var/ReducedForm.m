@@ -36,16 +36,60 @@ classdef ...
             [varargout{1:nargout}] = this.Estimator.Sampler();
         end%
 
+        function system = sampleSystem(this, varargin)
+            theta = this.Estimator.Sampler();
+            meta = this.Meta;
+            A = reshape(theta(meta.IndexA), meta.SizeA);
+            C = reshape(theta(meta.IndexC), meta.SizeC);
+            Sigma = reshape(theta(meta.IndexSigma), meta.SizeSigma);
+            system = {A, C, Sigma};
+        end%
+
         function varargout = presample(this, varargin)
             [varargout{1:nargout}] = this.Estimator.presample(varargin{:});
         end%
 
         function varargout = nextPresampled(this, varargin)
-            [varargout{1:nargout}] = this.Estimator.nextPresampled(varargin{:});
+            theta = this.Estimator.nextPresampled(varargin{:});
         end%
 
-        function varargout = resetPresampled(this, varargin)
-            [varargout{1:nargout}] = this.Estimator.resetPresampled(varargin{:});
+        function varargout = resetPresampledCounter(this, varargin)
+            [varargout{1:nargout}] = this.Estimator.resetPresampledCounter(varargin{:});
+        end%
+
+        function outTable = forecast(this, inTable, span, options)
+            arguments
+                this
+                inTable timetable
+                span (1, :) datetime
+                options.Variant (1, 1) double = 1
+            end
+
+            span = datex.span(span(1), span(end));
+            YX = this.Meta.getData( ...
+                inTable, periods ...
+                , removeMissing=false ...
+                , variant=options.Variant ...
+            );
+            Y = this.simulate(YX);
+        end%
+
+        function Y = simulate(this, YX)
+            arguments
+                this
+                inYX (2, 1) cell
+            end
+            system = this.sampleSystem();
+            [A, C, Sigma] = system{:};
+            [Y, X] = YX{:};
+            numPeriods = size(Y, 1);
+            numY = size(Y, 2);
+            for t = 1 : numPeriods
+                Y(t, :) = C*X(t, :);
+                if t < numPeriods
+                    X(t+1, 1:numY) = Y(t, :);
+                end
+            end
         end%
 
         function display(this)
@@ -59,6 +103,7 @@ classdef ...
         function disp(this)
             this.display();
         end%
+
     end
 
 end
