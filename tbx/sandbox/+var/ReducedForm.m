@@ -84,6 +84,7 @@ classdef ...
             [Y, X] = YX{:};
             numPeriods = size(Y, 1);
             numY = size(Y, 2);
+            x = 
             for t = 1 : numPeriods
                 Y(t, :) = C*X(t, :);
                 if t < numPeriods

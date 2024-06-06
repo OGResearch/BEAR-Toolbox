@@ -1,17 +1,17 @@
 
-function ct = new(rowNames, columnNames, periods, fillValue)
+function ct = new(rowNames, columnNames, periods, initValue)
 
     arguments
         rowNames (1, :) string
         columnNames (1, :) string
-        periods (1, :)
-        fillValue (1, 1)
+        periods (1, :) datetime
+        initValue (1, 1) = NaN
     end
 
     numRows = numel(rowNames);
     numColumns = numel(columnNames);
     numPeriods = numel(periods);
-    placeholder = repmat(fillValue, numRows, numPeriods);
+    placeholder = repmat(initValue, numRows, numPeriods);
     placeholders = repmat({placeholder}, 1, numColumns);
 
     ct = table( ...
