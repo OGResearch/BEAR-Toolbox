@@ -1,18 +1,33 @@
 
-classdef MetaVAR
+classdef ...
+    (CaseInsensitiveProperties=true) ...
+    Meta
 
-    properties
+    properties (Dependent)
+        % Diplay of endogenous names
+        Endogenous
+
+        % Diplay of exogenous names
+        Exogenous
+    end
+
+    properties (Hidden)
         % Names of endogenous variables
         EndogenousItems (1, :) cell
 
         % Names of exogenous variables
         ExogenousItems (1, :) cell = cell.empty(1, 0)
+    end
 
+    properties
         % Order of the VAR model
         Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
     end
 
     properties (Dependent, Hidden)
+        % Number of endogenous variables
+        HasConstant
+
         % Number of endogenous data columns
         NumEndogenousColumns
 
@@ -42,25 +57,26 @@ classdef MetaVAR
     end
 
     methods
-        function this = MetaVAR(endogenousItems, options)
+        function this = Meta(options)
             arguments
-                endogenousItems (1, :)
-                options.ExogenousItems (1, :) = string.empty(1, 0)
+                options.Endogenous (1, :) = string.empty(1, 0)
+                options.Exogenous (1, :) = string.empty(1, 0)
                 options.Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
                 options.Constant (1, 1) logical = false
             end
-            % Constructor method to initialize the MetaVAR object
-            if nargin > 0
-                this.EndogenousItems = item.fromUserInput(endogenousItems);
-                this.ExogenousItems = item.fromUserInput(options.ExogenousItems);
-                if options.Constant
-                    this.ExogenousItems{end+1} = item.Constant();
-                end
-                this.Order = options.Order;
+
+            if isempty(options.Endogenous)
+                error("At least one endogenous variable must be specified");
             end
+            this.EndogenousItems = item.fromUserInput(options.Endogenous);
+            this.ExogenousItems = item.fromUserInput(options.Exogenous);
+            if options.Constant
+                this.ExogenousItems{end+1} = item.Constant();
+            end
+            this.Order = options.Order;
         end%
 
-        function [Y, X] = getData(this, dataTable, periods, options)
+        function YX = getData(this, dataTable, periods, options)
             arguments
                 this
                 dataTable timetable
@@ -98,10 +114,22 @@ classdef MetaVAR
                 Y(inxMissing, :) = [];
                 X(inxMissing, :) = [];
             end
+
+            YX = {Y, X};
         end%
     end
 
     methods
+        function flag = get.HasConstant(this)
+            for item = this.ExogenousItems
+                if isa(item{:}, "item.Constant")
+                    flag = true;
+                    return
+                end
+            end
+            flag = false;
+        end%
+
         function num = get.NumEndogenousColumns(this)
             num = 0;
             for i = 1:numel(this.EndogenousItems)
@@ -160,6 +188,22 @@ classdef MetaVAR
 
         function ind = get.IndexSigma(this)
             ind = this.NumelA + this.NumelC + (1 : this.NumelSigma);
+        end%
+
+        function repr = get.Endogenous(this)
+            numEndogenousItems = numel(this.EndogenousItems);
+            repr = cell(1, numEndogenousItems);
+            for i = 1:numEndogenousItems
+                repr{i} = this.EndogenousItems{i}.DisplayName;
+            end
+        end%
+
+        function repr = get.Exogenous(this)
+            numExogenousItems = numel(this.ExogenousItems);
+            repr = cell(1, numExogenousItems);
+            for i = 1:numExogenousItems
+                repr{i} = this.ExogenousItems{i}.DisplayName;
+            end
         end%
     end
 

@@ -1,4 +1,4 @@
-function [beta_gibbs, sigma_gibbs] = get_NW_draws(Ystar, Xstar,opt)
+function [beta_gibbs, sigma_gibbs] = get_NW_draws(Ystar, Xstar, opt)
 
     %get size of the matrices
     [Tstar, n] = size(Ystar);
@@ -28,3 +28,4 @@ function [beta_gibbs, sigma_gibbs] = get_NW_draws(Ystar, Xstar,opt)
     [beta_gibbs,sigma_gibbs] = bear.nwgibbs(opt.It,opt.Bu,Bbar,phibar,Sbar,alphabar,alphatilde,n,k);
 
 end
+

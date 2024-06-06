@@ -4,7 +4,11 @@ function dt = shift(dt, by)
         return
     end
 
-    fh = datex.Backend.getFrequencyHandlerFromDatetime(dt);
+    if isempty(dt)
+        return
+    end
+
+    fh = datex.Backend.getFrequencyHandlerFromDatetime(dt(1));
     serial = fh.serialFromDatetime(dt);
     serial = serial + by;
     dt = fh.datetimeFromSerial(serial);

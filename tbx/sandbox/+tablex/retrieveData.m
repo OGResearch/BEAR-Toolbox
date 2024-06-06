@@ -21,7 +21,7 @@ function outArray = retrieveData(inTable, names, periods, options)
     startSerial = fh.serialFromDatetime(tablePeriods(1));
     requestedSerials = fh.serialFromDatetime(periods);
     positions = requestedSerials - startSerial + 1;
-    positions(positions < 0 | positions > numTablePeriods) = numTablePeriods + 1;
+    positions(positions <= 0 | positions > numTablePeriods) = numTablePeriods + 1;
 
     for n = names
         x = inTable.(n)(:, options.Variant);
