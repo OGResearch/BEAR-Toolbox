@@ -4,7 +4,8 @@ function [beta_gibbs, sigma_gibbs] = get_NW_draws(Ystar, Xstar, opt)
     [Tstar, n] = size(Ystar);
     [~ , k] = size(Xstar);
     q = n*k;
-    m = k - n*opt.p;
+    p = opt.lags;
+    m = k - n*p;
 
     % individual priors 0 for default
     for ii=1:n
@@ -18,10 +19,10 @@ function [beta_gibbs, sigma_gibbs] = get_NW_draws(Ystar, Xstar, opt)
 
 
     %variance from univariate OLS for priors
-    [arvar] = bear.arloop(Ystar,opt.const,opt.p,n);
+    [arvar] = bear.arloop(Ystar,opt.const,p,n);
 
     %setting up prior
-    [B0,beta0,phi0,S0,alpha0] = bear.nwprior(ar,arvar,opt.lambda1,opt.lambda3,opt.lambda4,n,m,opt.p,k,q,...
+    [B0,beta0,phi0,S0,alpha0] = bear.nwprior(ar,arvar,opt.lambda1,opt.lambda3,opt.lambda4,n,m,p,k,q,...
         opt.prior,priorexo);
     % obtain posterior distribution parameters
     [Bbar,betabar,phibar,Sbar,alphabar,alphatilde] = bear.nwpost(B0,phi0,S0,alpha0,Xstar,Ystar,n,Tstar,k);
