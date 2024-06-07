@@ -1,22 +1,25 @@
 
 classdef ...
     (CaseInsensitiveProperties=true) ...
-    Meta
+    Meta < handle
 
     properties (Dependent)
         % Diplay of endogenous names
-        Endogenous
+        EndogenousNames
 
         % Diplay of exogenous names
-        Exogenous
+        ExogenousNames
     end
 
     properties (Hidden)
-        % Names of endogenous variables
+        % Endogenous items
         EndogenousItems (1, :) cell
 
-        % Names of exogenous variables
+        % Exogenous items
         ExogenousItems (1, :) cell = cell.empty(1, 0)
+
+        % Residual prefix
+        ResidualPrefix (1, 1) string = "res_"
     end
 
     properties
@@ -24,7 +27,7 @@ classdef ...
         Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
     end
 
-    properties (Dependent, Hidden)
+    properties (Hidden, SetAccess=private)
         % Number of endogenous variables
         HasConstant
 
@@ -43,17 +46,25 @@ classdef ...
         % Transition matrices
         SizeA
         NumelA
-        IndexA
 
         % Multipliers of exogenous variables
         SizeC
         NumelC
-        IndexC
 
         % Covariance matrix of reduced-form residuals
         SizeSigma
         NumelSigma
-        IndexSigma
+
+        % Combined transition matrices and multipliers
+        SizeB
+        NumelB
+
+        % Number of elements in the vector of parameters
+        NumelTheta
+    end
+
+    properties (Dependent, Hidden)
+        ResidualNames
     end
 
     methods
@@ -74,15 +85,36 @@ classdef ...
                 this.ExogenousItems{end+1} = item.Constant();
             end
             this.Order = options.Order;
+            this.populateProperties();
         end%
 
-        function YX = getData(this, dataTable, periods, options)
+        function populateProperties(this)
+            this.assignHasConstant();
+            this.assignNumEndogenousColumns();
+            this.assignNumExogenousColumns();
+            this.assignNumLhsColumns();
+            this.assignNumRhsColumns();
+
+            this.assignSizeA();
+            this.assignSizeC();
+            this.assignSizeSigma();
+            this.assignSizeB();
+
+            this.assignNumelA();
+            this.assignNumelC();
+            this.assignNumelSigma();
+            this.assignNumelB();
+
+            this.assignNumelTheta();
+        end%
+
+        function YX = getDataYX(this, dataTable, periods, options)
             arguments
                 this
                 dataTable timetable
                 periods (1, :)
                 options.RemoveMissing (1, 1) logical = true
-                options.Variant (1, 1) double = 1
+                options.Variant (1, :) double = 1
             end
 
             numPeriods = numel(periods);
@@ -117,93 +149,135 @@ classdef ...
 
             YX = {Y, X};
         end%
+
+        function A = ayeFromTheta(this, theta)
+            B = reshape(theta(1:this.NumelB), this.SizeB);
+            A = B(1:this.SizeA(1), :);
+        end%
+
+        function [A, C] = ayeCeeFromTheta(this, theta)
+            B = reshape(theta(1:this.NumelB), this.SizeB);
+            A = B(1:this.SizeA(1), :);
+            C = B(this.SizeA(1)+1:end, :);
+        end%
+
+        function Sigma = sigmaFromTheta(this, theta)
+            Sigma = reshape(theta(this.NumelB+1:end), this.SizeSigma);
+        end%
+
+        function [A, C, Sigma] = ayeCeeSigmaFromTheta(this, theta)
+            B = reshape(theta(1:this.NumelB), this.SizeB);
+            A = B(1:this.SizeA(1), :);
+            C = B(this.SizeA(1)+1:end, :);
+            Sigma = reshape(theta(this.NumelB+1:end), this.SizeSigma);
+        end%
     end
 
     methods
-        function flag = get.HasConstant(this)
+        function assignHasConstant(this)
+            flag = false;
             for item = this.ExogenousItems
                 if isa(item{:}, "item.Constant")
                     flag = true;
-                    return
                 end
             end
-            flag = false;
+            this.HasConstant = flag;
         end%
 
-        function num = get.NumEndogenousColumns(this)
+        function assignNumEndogenousColumns(this)
             num = 0;
             for i = 1:numel(this.EndogenousItems)
                 num = num + this.EndogenousItems{i}.NumColumns;
             end
+            this.NumEndogenousColumns = num;
         end%
 
-        function num = get.NumExogenousColumns(this)
+        function assignNumExogenousColumns(this)
             num = 0;
             for i = 1:numel(this.ExogenousItems)
                 num = num + this.ExogenousItems{i}.NumColumns;
             end
+            this.NumExogenousColumns = num;
         end%
 
-        function num = get.NumLhsColumns(this)
-            num = this.NumEndogenousColumns;
+        function assignNumLhsColumns(this)
+            this.NumLhsColumns = this.NumEndogenousColumns;
         end%
 
-        function num = get.NumRhsColumns(this)
-            num = this.NumEndogenousColumns*this.Order + this.NumExogenousColumns;
+        function assignNumRhsColumns(this)
+            this.NumRhsColumns = ...
+                + this.Order*this.NumEndogenousColumns ...
+                + this.NumExogenousColumns;
         end%
 
-        function siz = get.SizeA(this)
-            numEndogenousColumns = this.NumEndogenousColumns;
-            siz = [numEndogenousColumns, numEndogenousColumns, this.Order];
+        function assignSizeA(this)
+            this.SizeA = [ ...
+                this.Order * this.NumEndogenousColumns, ...
+                this.NumEndogenousColumns, ...
+            ]
         end%
 
-        function num = get.NumelA(this)
-            num = prod(this.SizeA);
+        function assignSizeC(this)
+            this.SizeC = [ ...
+                this.NumExogenousColumns, ...
+                this.NumEndogenousColumns, ...
+            ];
         end%
 
-        function ind = get.IndexA(this)
-            ind = 1 : this.NumelA;
+        function assignSizeSigma(this)
+            this.SizeSigma = [ ...
+                this.NumEndogenousColumns, ...
+                this.NumEndogenousColumns, ...
+            ];
         end%
 
-        function siz = get.SizeC(this)
-            siz = [this.NumEndogenousColumns, this.NumExogenousColumns];
+        function assignSizeB(this)
+            this.SizeB = [ ...
+                this.SizeA(1) + this.SizeC(1), ...
+                this.NumEndogenousColumns, ...
+            ];
         end%
 
-        function num = get.NumelC(this)
-            num = prod(this.SizeC);
+        function assignNumelA(this)
+            this.NumelA = prod(this.SizeA);
         end%
 
-        function ind = get.IndexC(this)
-            ind = this.NumelA + (1 : this.NumelC);
+        function assignNumelC(this)
+            this.NumelC = prod(this.SizeC);
         end%
 
-        function siz = get.SizeSigma(this)
-            numEndogenousColumns = this.NumEndogenousColumns;
-            siz = [numEndogenousColumns, numEndogenousColumns];
+        function assignNumelSigma(this)
+            this.NumelSigma = prod(this.SizeSigma);
         end%
 
-        function num = get.NumelSigma(this)
-            num = prod(this.SizeSigma);
+        function assignNumelB(this)
+            this.NumelB = this.NumelA + this.NumelC;
         end%
 
-        function ind = get.IndexSigma(this)
-            ind = this.NumelA + this.NumelC + (1 : this.NumelSigma);
+        function assignNumelTheta(this)
+            this.NumelTheta = this.NumelB + this.NumelSigma;
         end%
+    end
 
-        function repr = get.Endogenous(this)
+    methods
+        function repr = get.EndogenousNames(this)
             numEndogenousItems = numel(this.EndogenousItems);
-            repr = cell(1, numEndogenousItems);
+            repr = string.empty(1, 0);
             for i = 1:numEndogenousItems
-                repr{i} = this.EndogenousItems{i}.DisplayName;
+                repr = [repr, this.EndogenousItems{i}.DisplayName];
             end
         end%
 
-        function repr = get.Exogenous(this)
+        function repr = get.ExogenousNames(this)
             numExogenousItems = numel(this.ExogenousItems);
-            repr = cell(1, numExogenousItems);
+            repr = string.empty(1, 0);
             for i = 1:numExogenousItems
-                repr{i} = this.ExogenousItems{i}.DisplayName;
+                repr = [repr, this.ExogenousItems{i}.DisplayName];
             end
+        end%
+
+        function names = get.ResidualNames(this)
+            names = this.ResidualPrefix + this.EndogenousNames;
         end%
     end
 

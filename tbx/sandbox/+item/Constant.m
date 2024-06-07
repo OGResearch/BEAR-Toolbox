@@ -11,11 +11,12 @@ classdef Constant < item.AbstractFixed
                 this
                 dataTable timetable
                 periods (1, :) datetime
-                options.Variant (1, 1) double = 1
+                options.Variant (1, :) double = 1
             end
 
+            numVariants = numel(options.Variant);
             numPeriods = numel(periods);
-            dataColumns = ones(numPeriods, 1);
+            dataColumns = ones(numPeriods, 1, numVariants);
         end%
     end
 

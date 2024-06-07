@@ -8,7 +8,7 @@ classdef ...
             this.PriorSettings = var.settings.NormalWishartPriorSettings(varargin{:});
         end%
 
-        function samplerHandle = initializeAdapter(this, meta, YX, options)
+        function initializeSampler(this, meta, YX, options)
             arguments
                 this
                 meta (1, 1) var.Meta
@@ -74,14 +74,17 @@ classdef ...
             % obtain posterior distribution parameters
             [Bbar, betabar, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, X, Y, n, T, k);
 
+            this.SamplerCounter = uint64(0);
+
             function theta = sampler()
                 % [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, n, k);
                 B = bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
                 sigma = bear.iwdraw(Sbar,alphabar);
                 theta = [B(:); sigma(:)];
+                this.SamplerCounter = this.SamplerCounter + 1;
             end%
 
-            samplerHandle = @sampler;
+            this.Sampler = @sampler;
         end%
     end
 
