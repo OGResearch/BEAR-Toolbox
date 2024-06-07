@@ -17,4 +17,4 @@ favar    = jsondecode(str);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% getting the draws
-[beta_gibbs, sigma_gibbs, favar] = nw_favar.get_draws(opts,favar);
+[sample, favar] = nw_favar.get_draws(opts,favar);
