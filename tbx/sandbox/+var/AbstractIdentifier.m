@@ -1,10 +1,10 @@
 
-classdef AbstractEstimator < handle
+classdef AbstractIdentifier < handle
 
     properties
-        PriorSettings
+        IdentificationSettings
         Sampler = []
-        SamplerCounter (1, 1) uint64 = 0
+        SamplerCounter (1,1) uint32 = 0
     end
 
     methods (Abstract)
@@ -26,7 +26,6 @@ classdef AbstractEstimator < handle
         function flag = beenInitialized(this)
             flag = ~isempty(this.Sampler);
         end%
-
     end
 
 end

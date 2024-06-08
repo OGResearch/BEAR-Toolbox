@@ -1,12 +1,5 @@
 
-function Y = forecast(A, C, YX, U)
-
-    arguments
-        A (:, :) double
-        C (:, :) double
-        YX (1, 2) cell
-        U (:, :) double
-    end
+function [Y, init] = forecast(A, C, YX, U)
 
     [Y, X] = YX{:};
 
@@ -20,6 +13,12 @@ function Y = forecast(A, C, YX, U)
     numYY = numY * order;
 
     yy = X(1, 1:numYY);
+
+    if nargout > 1
+        init = transpose(reshape(yy, numY, order));
+        init = init(end:-1:1, :);
+    end
+
     XX = X(:, numYY+1:end);
     XX_C = XX * C;
 

@@ -34,15 +34,13 @@ classdef ...
     methods
         function this = ReducedForm(options)
             arguments
-                options.Meta (1, :) cell
-                options.Priors (1, :) cell
+                options.Meta (1, 1) var.Meta
+                options.Prior (1, :) var.AbstractEstimator
+                options.Dummies
+                options.Factors
             end
-            this.Meta = var.Meta(options.Meta{:});
-            this.Estimator = this.resolvePriorOptions(options.Priors{:});
-        end%
-
-        function estimator = resolvePriorOptions(this, distributionName, varargin)
-            estimator = this.ESTIMATOR_DISPATCHER.(lower(distributionName))(varargin{:});
+            this.Meta = options.Meta;
+            this.Estimator = options.Prior;
         end%
 
         function varargout = initialize(this, varargin)
@@ -96,8 +94,10 @@ classdef ...
                 this
                 inTable timetable
                 span (1, :) datetime
+
                 options.Variant (1, 1) double = 1
                 options.StochasticResiduals (1, 1) logical = true
+                options.IncludeInitial (1, 1) logical = true
             end
 
             meta = this.Meta;
@@ -114,6 +114,8 @@ classdef ...
 
             this.resetPresampledCounter();
             numPresampled = this.NumPresampled;
+
+            Init = nan(meta.Order, meta.NumLhsColumns, numPresampled);
             Y = nan(numPeriods, meta.NumLhsColumns, numPresampled);
             U = nan(numPeriods, meta.NumLhsColumns, numPresampled);
 
@@ -126,14 +128,22 @@ classdef ...
                     , stochasticResiduals=options.StochasticResiduals ...
                 );
 
-                y = var.system.forecast(A, C, YX, u);
+                [y, init] = var.system.forecast(A, C, YX, u);
 
                 U(:, :, i) = u;
                 Y(:, :, i) = y;
+                Init(:, :, i) = init;
+            end
+
+            outSpan = span;
+            if options.IncludeInitial
+                Y = [Init; Y];
+                U = [nan(meta.Order, meta.NumLhsColumns, numPresampled); U];
+                outSpan = datex.span(datex.shift(span(1), -meta.Order), span(end));
             end
 
             outNames = [meta.EndogenousNames, meta.ResidualNames];
-            outTable = tablex.fromNumericArray([Y, U], outNames, span);
+            outTable = tablex.fromNumericArray([Y, U], outNames, outSpan);
         end%
     end
 

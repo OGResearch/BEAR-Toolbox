@@ -5,6 +5,7 @@ function outArray = retrieveDataAsCellArray(inTable, names, periods, options)
         inTable timetable
         names (1, :) string
         periods (1, :) datetime
+
         options.Variant (1, :) = 1
         options.Shift (1, 1) double = 0
     end
