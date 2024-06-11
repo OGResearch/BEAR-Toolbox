@@ -1,17 +1,17 @@
 
 classdef ...
     NormalWishartEstimator ...
-    < var.AbstractEstimator
+    < reducedForm.AbstractEstimator
 
     methods
         function this = NormalWishartEstimator(varargin)
-            this.PriorSettings = var.settings.NormalWishartPriorSettings(varargin{:});
+            this.PriorSettings = reducedForm.settings.NormalWishartPriorSettings(varargin{:});
         end%
 
         function initializeSampler(this, meta, YX)
             arguments
                 this
-                meta (1, 1) var.Meta
+                meta (1, 1) reducedForm.Meta
                 YX (1, 2) cell
             end
             this.Sampler = this.adapterForSampler(meta, YX);

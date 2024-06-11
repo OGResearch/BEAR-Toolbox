@@ -2,21 +2,22 @@
 
 close all
 clear
+addpath ../bear
 
 
 hist = tablex.fromCsv("exampleData.csv");
 
 dataSpan = tablex.span(hist);
 
-meta = var.Meta( ...
+rm = reducedForm.Meta( ...
     endogenous=["DOM_GDP", "DOM_CPI", "STN"] ...
     , order=4 ...
     , constant=true ...
 )
 
-prior = var.NormalWishartEstimator();
+prior = reducedForm.NormalWishartEstimator();
 
-v = var.ReducedForm(meta=meta, prior=prior);
+v = reducedForm.Model(meta=rm, prior=prior);
 
 % YX = v.Meta.getDataYX(hist, dataSpan);
 % oldY = readmatrix("+nw/Y.csv");
@@ -25,6 +26,12 @@ v = var.ReducedForm(meta=meta, prior=prior);
 % max(abs(Y - oldY), [], "all")
 
 v.initialize(hist, dataSpan);
+
+sm = structural.Meta(rm);
+
+id = structural.Cholesky();
+
+s = structural.Model(meta=sm, reducedForm=v, identifier=id);
 
 rng(0);
 

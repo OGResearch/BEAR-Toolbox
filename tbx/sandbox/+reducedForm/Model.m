@@ -1,11 +1,11 @@
 
 classdef ...
     (CaseInsensitiveProperties=true) ...
-    ReducedForm < handle
+    Model < handle
 
     properties (Constant, Hidden)
         ESTIMATOR_DISPATCHER = struct( ...
-            lower("NormalWishart"), @var.NormalWishartEstimator ...
+            lower("NormalWishart"), @reducedForm.NormalWishartEstimator ...
         )
     end
 
@@ -32,10 +32,10 @@ classdef ...
     end
 
     methods
-        function this = ReducedForm(options)
+        function this = Model(options)
             arguments
-                options.Meta (1, 1) var.Meta
-                options.Prior (1, :) var.AbstractEstimator
+                options.Meta (1, 1) reducedForm.Meta
+                options.Prior (1, :) reducedForm.AbstractEstimator
                 options.Dummies
                 options.Factors
             end
@@ -81,7 +81,7 @@ classdef ...
                 while true
                     theta = inSampler();
                     A = meta.ayeFromTheta(theta);
-                    if var.system.stability(A, threshold)
+                    if reducedForm.system.stability(A, threshold)
                         break
                     end
                 end
@@ -123,12 +123,12 @@ classdef ...
                 system = this.nextPresampledSystem();
                 [A, C, Sigma] = system{:};
 
-                u = var.system.sampleResiduals( ...
+                u = reducedForm.system.sampleResiduals( ...
                     Sigma, numPeriods ...
                     , stochasticResiduals=options.StochasticResiduals ...
                 );
 
-                [y, init] = var.system.forecast(A, C, YX, u);
+                [y, init] = reducedForm.system.forecast(A, C, YX, u);
 
                 U(:, :, i) = u;
                 Y(:, :, i) = y;

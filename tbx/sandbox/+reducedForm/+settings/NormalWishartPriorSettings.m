@@ -1,15 +1,12 @@
 
 classdef ...
     (CaseInsensitiveProperties=true) ...
-    CommonIdentificationSettings ...
-    < var.settings.AbstractSettings
-
-    properties
-        StdScale (1, :) double = 1
-    end
+    NormalWishartPriorSettings ...
+    < reducedForm.settings.CommonPriorSettings
 
     methods
         function this = modifyDefaults(this)
+            this.Sigma = "ar";
         end%
     end
 

@@ -1,14 +1,19 @@
 
+% CommonPriorSettings  Default values for common prior distribution settings
+
 classdef ...
     (CaseInsensitiveProperties=true) ...
     CommonPriorSettings ...
-    < var.settings.AbstractSettings
+    < reducedForm.settings.AbstractSettings
 
     properties
+        % Number of burn-in draws
         Burnin (1, 1) double = 0
 
+        %
         Exogenous (1, 1) logical = false
 
+        %
         Autoregressive (1, 1) double = 0.8
 
         Lambda1 double = 0.1
@@ -20,6 +25,7 @@ classdef ...
         Lambda7 double = 0.001
         Lambda8 double = 1
 
+        % Prior type for the covariance matrix of residuals
         Sigma (1, 1) string {ismember(Sigma, ["eye", "ar", "var"])} = "eye"
     end
 

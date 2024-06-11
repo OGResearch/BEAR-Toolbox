@@ -1,10 +1,10 @@
 
-classdef AbstractIdentifier < handle
+classdef AbstractEstimator < handle
 
     properties
-        IdentificationSettings
+        PriorSettings
         Sampler = []
-        SamplerCounter (1,1) uint32 = 0
+        SamplerCounter (1, 1) uint64 = 0
     end
 
     methods (Abstract)
@@ -12,10 +12,10 @@ classdef AbstractIdentifier < handle
     end
 
     methods
-        function varargout = initialize(this, meta, dataTable, periods)
+        function YX = initialize(this, meta, dataTable, periods)
             arguments
                 this
-                meta (1, 1) var.Meta
+                meta (1, 1) reducedForm.Meta
                 dataTable (:, :) timetable
                 periods (1, :) datetime
             end
@@ -26,6 +26,7 @@ classdef AbstractIdentifier < handle
         function flag = beenInitialized(this)
             flag = ~isempty(this.Sampler);
         end%
+
     end
 
 end

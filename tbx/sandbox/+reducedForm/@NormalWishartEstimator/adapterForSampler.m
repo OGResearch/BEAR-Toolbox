@@ -3,7 +3,7 @@ function outSampler = adapterForSampler(this, meta, YX)
 
     arguments
         this
-        meta var.Meta
+        meta reducedForm.Meta
         YX (1, 2) cell
     end
 
