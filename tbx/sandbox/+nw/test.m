@@ -2,6 +2,8 @@
 
 close all
 clear
+clear classes
+rehash path
 addpath ../bear
 
 
@@ -9,29 +11,33 @@ hist = tablex.fromCsv("exampleData.csv");
 
 dataSpan = tablex.span(hist);
 
-rm = reducedForm.Meta( ...
+meta = model.ReducedForm.Meta( ...
     endogenous=["DOM_GDP", "DOM_CPI", "STN"] ...
     , order=4 ...
     , constant=true ...
 )
 
-prior = reducedForm.NormalWishartEstimator();
+prior = prior.NormalWishart();
 
-v = reducedForm.Model(meta=rm, prior=prior);
+d1 = dummies.InitialObservations(tightness=2);
+d2 = dummies.Minnesota(ExogenousTightness=30);
+d3 = dummies.LongRun(Tightness=0.45);
+d4 = dummies.SumCoefficients(Tightness=0.45);
 
-% YX = v.Meta.getDataYX(hist, dataSpan);
-% oldY = readmatrix("+nw/Y.csv");
-% oldX = readmatrix("+nw/X.csv");
-% [Y, X] = YX{:};
-% max(abs(Y - oldY), [], "all")
+allDummies = {d1, d2, d3, d4};
+return
+
+v = model.ReducedForm(meta=meta, estimator=prior, dummies=allDummies);
+
+return
 
 v.initialize(hist, dataSpan);
 
-sm = structural.Meta(rm);
-
-id = structural.Cholesky();
-
-s = structural.Model(meta=sm, reducedForm=v, identifier=id);
+% sm = structural.Meta(rm);
+% 
+% id = structural.Cholesky();
+% 
+% s = structural.Model(meta=sm, reducedForm=v, identifier=id);
 
 rng(0);
 
@@ -43,8 +49,10 @@ v.Estimator.SamplerCounter
 % v.Estimator.SamplerCounter
 
 endHist = dataSpan(end);
-startForecast = datex.shift(endHist, -11);
-endForecast = datex.shift(endHist, 0);
+% startForecast = datex.shift(endHist, -11);
+% endForecast = datex.shift(endHist, 0);
+startForecast = datex.shift(endHist, 1);
+endForecast = datex.shift(endHist, 100);
 forecastSpan = datex.span(startForecast, endForecast);
 
 

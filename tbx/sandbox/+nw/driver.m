@@ -25,7 +25,7 @@ numBurnins = 1000;
 
 opt = struct();
 opt.priorsexogenous = priorSettings.Exogenous;
-opt.user_ar = priorSettings.Autoregressive;
+opt.user_ar = priorSettings.Autoregression;
 opt.lambda1 = priorSettings.Lambda1;
 opt.lambda3 = priorSettings.Lambda3;
 opt.lambda4 = priorSettings.Lambda4;
