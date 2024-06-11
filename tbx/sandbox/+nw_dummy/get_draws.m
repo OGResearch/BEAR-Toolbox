@@ -25,9 +25,11 @@ if (opts.VARtype==2) && opts.lrp==1
     H=bear.loadH(pref);
 end
 
-[Ystar, ystar, Xstar, Tstar, Ydum, ydum, Xdum, Tdum]=nw_dummy.gendummy_local(data_endo,data_exo,Y,X,n,m,p,T,opts.const,...
-    opts.lambda1,opts.lambda3, opts.lambda4,opts.lambda6,opts.lambda7,opts.lambda8,...
-    opts.scoeff,opts.iobs,opts.lrp,opts.mindum, H, ar, arvar, priorexo);
+[Ystar, ystar, Xstar, Tstar, Ydum, ydum, Xdum, Tdum] = ...
+    bear.gendummy(data_endo,data_exo,Y,X,n,m,p,T,opts.const,opts.lambda6,opts.lambda7,opts.lambda8,opts.scoeff,opts.iobs,opts.lrp,H);
+
+
+[Ystar,Xstar,Tstar]=bear.doprior(Ystar,Xstar,n,m,p,Tstar,ar,arvar,opts.lambda1,opts.lambda3,opts.lambda4,priorexo);
 
 %setting up prior
 [B0,beta0,phi0,S0,alpha0] = bear.nwprior(ar,arvar,opts.lambda1,opts.lambda3,opts.lambda4,n,m,p,k,q,...
