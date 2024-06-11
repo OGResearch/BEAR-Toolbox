@@ -1,9 +1,13 @@
 
+
 close all
 clear
 clear classes
 rehash path
 addpath ../bear
+
+hist = tablex.fromCsv("exampleData.csv");
+dataSpan = tablex.span(hist);
 
 d1 = dummies.InitialObservations(tightness=2);
 d2 = dummies.Minnesota(ExogenousTightness=30);
@@ -24,7 +28,11 @@ v = model.ReducedForm( ...
     dummies={d1, d2, d3, d4} ...
 );
 
+
 opt = dummies.populateLegacyOptions(v.Dummies);
+YLX = v.getDataYLX(hist, dataSpan);
+
+% [Ystar, LXstar] = csaba_wonderful_function(opt, YLX)
 
 disp(opt)
 

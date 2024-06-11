@@ -45,6 +45,10 @@ classdef ReducedForm < handle
             this.Estimator = options.Estimator;
         end%
 
+        function YLX = getDataYLX(this, dataTable, periods, varargin)
+            YLX = this.Meta.getDataYLX(dataTable, periods);
+        end%
+
         function varargout = initialize(this, dataTable, periods, varargin)
             YLX = this.Meta.getDataYLX(dataTable, periods);
             [varargout{1:nargout}] = this.Estimator.initialize(this.Meta, YLX, varargin{:});

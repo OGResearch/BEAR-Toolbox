@@ -19,34 +19,15 @@ meta = model.ReducedForm.Meta( ...
 
 prior = prior.NormalWishart();
 
-d1 = dummies.InitialObservations(tightness=2);
-d2 = dummies.Minnesota(ExogenousTightness=30);
-d3 = dummies.LongRun(Tightness=0.45);
-d4 = dummies.SumCoefficients(Tightness=0.45);
-
-allDummies = {d1, d2, d3, d4};
-return
-
-v = model.ReducedForm(meta=meta, estimator=prior, dummies=allDummies);
-
-return
+v = model.ReducedForm(meta=meta, estimator=prior);
 
 v.initialize(hist, dataSpan);
-
-% sm = structural.Meta(rm);
-% 
-% id = structural.Cholesky();
-% 
-% s = structural.Model(meta=sm, reducedForm=v, identifier=id);
 
 rng(0);
 
 N = 1000;
 v.presample(N, stability="stationary");
 v.Estimator.SamplerCounter
-
-% v.presample(N, stability="stationary");
-% v.Estimator.SamplerCounter
 
 endHist = dataSpan(end);
 % startForecast = datex.shift(endHist, -11);

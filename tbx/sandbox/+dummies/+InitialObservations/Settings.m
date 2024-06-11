@@ -1,9 +1,15 @@
 
 classdef (CaseInsensitiveProperties=true) Settings < dummies.common.Settings
 
+    properties (Constant)
+        Present = true
+    end
+
+
     properties
         LegacyOptionMapping = [
             "Tightness", "lambda7"
+            "Present", "iobs"
         ]
     end
 

@@ -1,6 +1,10 @@
 
 classdef (CaseInsensitiveProperties=true) Settings < dummies.common.Settings
 
+    properties (Constant)
+        Presence (1, 1) double = 51
+    end
+
     properties
         LagDecay (1, 1) double = 1
         ExogenousTightness (1, 1) double = 100
@@ -10,9 +14,10 @@ classdef (CaseInsensitiveProperties=true) Settings < dummies.common.Settings
     properties
         LegacyOptionMapping = [
             "Tightness", "lambda1"
-            "LagDecay", "lambda2"
-            "ExogenousTightness", "lambda3"
+            "LagDecay", "lambda3"
+            "ExogenousTightness", "lambda4"
             "Autoregression", "ar"
+            "Presence", "prior"
         ]
     end
 
