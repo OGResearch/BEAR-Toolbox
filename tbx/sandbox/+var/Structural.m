@@ -1,5 +1,0 @@
-
-classdef Structural
-
-end
-

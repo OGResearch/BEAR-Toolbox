@@ -6,7 +6,7 @@ function eigenvalues = eigenvalues(A, options)
         options.Sort (1, 1) logical = true
     end
 
-    AA = var.system.companion(A);
+    AA = reducedForm.system.companion(A);
     eigenvalues = eig(AA);
 
     if options.Sort

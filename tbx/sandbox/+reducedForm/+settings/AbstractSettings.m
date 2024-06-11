@@ -1,10 +1,10 @@
 
 classdef ...
     (Abstract, CaseInsensitiveProperties=true) ...
-    AbstractPriorSettings
+    AbstractSettings
 
     methods
-        function this = AbstractPriorSettings(varargin)
+        function this = AbstractSettings(varargin)
             this = this.modifyDefaults();
             for i = 1:2:numel(varargin)
                 this.(varargin{i}) = varargin{i+1};

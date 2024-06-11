@@ -3,7 +3,7 @@ classdef AbstractEstimator < handle
 
     properties
         PriorSettings
-        Sampler
+        Sampler = []
         SamplerCounter (1, 1) uint64 = 0
     end
 
@@ -12,17 +12,21 @@ classdef AbstractEstimator < handle
     end
 
     methods
-        function varargout = initialize(this, meta, dataTable, periods, options)
+        function YX = initialize(this, meta, dataTable, periods)
             arguments
                 this
-                meta (1, 1) var.Meta
+                meta (1, 1) reducedForm.Meta
                 dataTable (:, :) timetable
                 periods (1, :) datetime
-                options.Burnin (1, 1) double = NaN
             end
             YX = meta.getDataYX(dataTable, periods);
-            this.initializeSampler(meta, YX, burnin=options.Burnin);
+            this.initializeSampler(meta, YX);
         end%
+
+        function flag = beenInitialized(this)
+            flag = ~isempty(this.Sampler);
+        end%
+
     end
 
 end

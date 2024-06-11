@@ -2,26 +2,36 @@
 
 close all
 clear
+addpath ../bear
 
 
 hist = tablex.fromCsv("exampleData.csv");
 
 dataSpan = tablex.span(hist);
 
-v = var.ReducedForm( ...
-    meta={"endogenous", ["DOM_GDP", "DOM_CPI", "STN"], "order", 4, "constant", true, } ...
-    , priors={"NormalWishart", } ...
-);
+rm = reducedForm.Meta( ...
+    endogenous=["DOM_GDP", "DOM_CPI", "STN"] ...
+    , order=4 ...
+    , constant=true ...
+)
 
-YX = v.Meta.getDataYX(hist, dataSpan);
+prior = reducedForm.NormalWishartEstimator();
 
-oldY = readmatrix("+nw/Y.csv");
-oldX = readmatrix("+nw/X.csv");
+v = reducedForm.Model(meta=rm, prior=prior);
 
-[Y, X] = YX{:};
-max(abs(Y - oldY), [], "all")
+% YX = v.Meta.getDataYX(hist, dataSpan);
+% oldY = readmatrix("+nw/Y.csv");
+% oldX = readmatrix("+nw/X.csv");
+% [Y, X] = YX{:};
+% max(abs(Y - oldY), [], "all")
 
 v.initialize(hist, dataSpan);
+
+sm = structural.Meta(rm);
+
+id = structural.Cholesky();
+
+s = structural.Model(meta=sm, reducedForm=v, identifier=id);
 
 rng(0);
 
@@ -33,9 +43,10 @@ v.Estimator.SamplerCounter
 % v.Estimator.SamplerCounter
 
 endHist = dataSpan(end);
-startForecast = datex.shift(endHist, 1);
-endForecast = datex.shift(endHist, 12);
+startForecast = datex.shift(endHist, -11);
+endForecast = datex.shift(endHist, 0);
 forecastSpan = datex.span(startForecast, endForecast);
+
 
 fcast = v.forecast(hist, forecastSpan);
 clippedHist = tablex.clip(hist, endHist, endHist);
@@ -50,9 +61,10 @@ tiledlayout(2, 2);
 for n = ["DOM_GDP", "DOM_CPI", "STN"]
     nexttile();
     hold on
-    h = plot(fcastPrctiles.Time, fcastPrctiles.(n));
+    h = tablex.plot(fcastPrctiles, n);
     set(h, {"lineStyle"}, {":"; "-"; ":"}, "lineWidth", 3, "color", [0.5, 0.8, 0.8]);
-    plot(hist.Time, hist.(n), color="black", lineWidth=2);
+    h = tablex.plot(hist, n);
+    set(h, color="black", lineWidth=2);
 end
 
 

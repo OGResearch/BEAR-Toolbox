@@ -1,11 +1,11 @@
 
 classdef ...
     (CaseInsensitiveProperties=true) ...
-    ReducedForm < handle
+    Model < handle
 
     properties (Constant, Hidden)
         ESTIMATOR_DISPATCHER = struct( ...
-            lower("NormalWishart"), @var.NormalWishartEstimator ...
+            lower("NormalWishart"), @reducedForm.NormalWishartEstimator ...
         )
     end
 
@@ -32,17 +32,15 @@ classdef ...
     end
 
     methods
-        function this = ReducedForm(options)
+        function this = Model(options)
             arguments
-                options.Meta (1, :) cell
-                options.Priors (1, :) cell
+                options.Meta (1, 1) reducedForm.Meta
+                options.Prior (1, :) reducedForm.AbstractEstimator
+                options.Dummies
+                options.Factors
             end
-            this.Meta = var.Meta(options.Meta{:});
-            this.Estimator = this.resolvePriorOptions(options.Priors{:});
-        end%
-
-        function estimator = resolvePriorOptions(this, distributionName, varargin)
-            estimator = this.ESTIMATOR_DISPATCHER.(lower(distributionName))(varargin{:});
+            this.Meta = options.Meta;
+            this.Estimator = options.Prior;
         end%
 
         function varargout = initialize(this, varargin)
@@ -83,7 +81,7 @@ classdef ...
                 while true
                     theta = inSampler();
                     A = meta.ayeFromTheta(theta);
-                    if var.system.stability(A, threshold)
+                    if reducedForm.system.stability(A, threshold)
                         break
                     end
                 end
@@ -96,8 +94,10 @@ classdef ...
                 this
                 inTable timetable
                 span (1, :) datetime
+
                 options.Variant (1, 1) double = 1
                 options.StochasticResiduals (1, 1) logical = true
+                options.IncludeInitial (1, 1) logical = true
             end
 
             meta = this.Meta;
@@ -114,6 +114,8 @@ classdef ...
 
             this.resetPresampledCounter();
             numPresampled = this.NumPresampled;
+
+            Init = nan(meta.Order, meta.NumLhsColumns, numPresampled);
             Y = nan(numPeriods, meta.NumLhsColumns, numPresampled);
             U = nan(numPeriods, meta.NumLhsColumns, numPresampled);
 
@@ -121,19 +123,27 @@ classdef ...
                 system = this.nextPresampledSystem();
                 [A, C, Sigma] = system{:};
 
-                u = var.system.sampleResiduals( ...
+                u = reducedForm.system.sampleResiduals( ...
                     Sigma, numPeriods ...
                     , stochasticResiduals=options.StochasticResiduals ...
                 );
 
-                y = var.system.forecast(A, C, YX, u);
+                [y, init] = reducedForm.system.forecast(A, C, YX, u);
 
                 U(:, :, i) = u;
                 Y(:, :, i) = y;
+                Init(:, :, i) = init;
+            end
+
+            outSpan = span;
+            if options.IncludeInitial
+                Y = [Init; Y];
+                U = [nan(meta.Order, meta.NumLhsColumns, numPresampled); U];
+                outSpan = datex.span(datex.shift(span(1), -meta.Order), span(end));
             end
 
             outNames = [meta.EndogenousNames, meta.ResidualNames];
-            outTable = tablex.fromNumericArray([Y, U], outNames, span);
+            outTable = tablex.fromNumericArray([Y, U], outNames, outSpan);
         end%
     end
 
