@@ -36,7 +36,7 @@ startForecast = datex.shift(endHist, 1);
 endForecast = datex.shift(endHist, 8);
 forecastSpan = datex.span(startForecast, endForecast);
 
-
+rng(0);
 fcast = v.forecast(hist, forecastSpan);
 clippedHist = tablex.clip(hist, endHist, endHist);
 

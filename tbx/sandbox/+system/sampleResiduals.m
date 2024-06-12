@@ -9,8 +9,10 @@ function U = sampleResiduals(Sigma, numPeriods, options)
 
     numU = size(Sigma, 1);
     if options.StochasticResiduals
-        P = cholcov(Sigma);
-        U = randn(numPeriods, numU) * P;
+        Sigma = (Sigma + Sigma') / 2;
+        P = chol(Sigma);
+        Z = randn(numU, numPeriods)';
+        U = Z * P;
     else
         U = zeros(numPeriods, numU);
     end
