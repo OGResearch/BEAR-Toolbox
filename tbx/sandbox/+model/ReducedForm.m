@@ -135,7 +135,8 @@ classdef ReducedForm < handle
                     , stochasticResiduals=options.StochasticResiduals ...
                 );
 
-                [y, init] = system.forecast(A, C, YLX, u);
+                y = system.forecast(A, C, YLX, u);
+                init = system.extractInitial(YLX);
 
                 U(:, :, i) = u;
                 Y(:, :, i) = y;
