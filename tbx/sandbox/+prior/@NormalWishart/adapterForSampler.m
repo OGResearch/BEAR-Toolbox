@@ -8,6 +8,7 @@ function outSampler = adapterForSampler(this, meta, YLX)
     end
 
     [Y, L, X] = YLX{:};
+    init = system.extractInitial(YLX);
 
     options.Burnin = 0;
     numPresample = 1;
@@ -40,18 +41,22 @@ function outSampler = adapterForSampler(this, meta, YLX)
     LX = [L, X];
 
     opt.p = p;
+    priorexo = this.Settings.Exogenous;
 
     % individual priors 0 for default
-    priorexo = repmat( ...
-        this.Settings.Exogenous ...
-        , n, m ...
-    );
+    if isscalar(priorexo)
+        priorexo = repmat(priorexo, n, m);
+    end
+
+    if isscalar(opt.lambda4)
+        opt.lambda4 = repmat(opt.lambda4, n, m);
+    end
 
     %create a vector for AR hyperparamters
     ar = ones(n, 1) * this.Settings.Autoregression;
 
     %variance from univariate OLS for priors
-    arvar = bear.arloop(Y, opt.const, opt.p, n);
+    arvar = bear.arloop([init; Y], opt.const, opt.p, n);
 
     %setting up prior
     [B0, beta0, phi0, S0, alpha0] = bear.nwprior(ar, arvar, opt.lambda1, opt.lambda3, opt.lambda4, n, m, opt.p, k, q, ...

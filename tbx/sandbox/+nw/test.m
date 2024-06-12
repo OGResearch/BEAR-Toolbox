@@ -17,7 +17,7 @@ meta = model.ReducedForm.Meta( ...
     , constant=true ...
 )
 
-prior = prior.NormalWishart();
+prior = prior.NormalWishart(autoregression=1);
 
 v = model.ReducedForm(meta=meta, estimator=prior);
 
