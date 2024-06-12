@@ -25,7 +25,7 @@ v.initialize(hist, dataSpan);
 
 rng(0);
 
-N = 1000;
+N = 10000;
 v.presample(N, stability="stationary");
 v.Estimator.SamplerCounter
 
@@ -33,14 +33,14 @@ endHist = dataSpan(end);
 % startForecast = datex.shift(endHist, -11);
 % endForecast = datex.shift(endHist, 0);
 startForecast = datex.shift(endHist, 1);
-endForecast = datex.shift(endHist, 100);
+endForecast = datex.shift(endHist, 8);
 forecastSpan = datex.span(startForecast, endForecast);
 
 
 fcast = v.forecast(hist, forecastSpan);
 clippedHist = tablex.clip(hist, endHist, endHist);
 
-fcastPrctiles = tablex.apply(fcast, @(x) prctile(x, [5, 50, 95], 2));
+fcastPrctiles = tablex.apply(fcast, @(x) prctile(x, [5, 45, 50, 55, 95], 2));
 fcastPrctiles = tablex.merge(clippedHist, fcastPrctiles);
 
 fcastMean = tablex.apply(fcast, @(x) mean(x, 2));
@@ -51,7 +51,7 @@ for n = ["DOM_GDP", "DOM_CPI", "STN"]
     nexttile();
     hold on
     h = tablex.plot(fcastPrctiles, n);
-    set(h, {"lineStyle"}, {":"; "-"; ":"}, "lineWidth", 3, "color", [0.5, 0.8, 0.8]);
+    set(h, {"lineStyle"}, {":"; ":"; "-"; ":"; ":"}, "lineWidth", 3, "color", [0.5, 0.8, 0.8]);
     h = tablex.plot(hist, n);
     set(h, color="black", lineWidth=2);
 end
