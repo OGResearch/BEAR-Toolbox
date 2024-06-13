@@ -16,5 +16,8 @@
   "enddate": "2014q4",
   "Fstartdate":"2015q1",
   "Fenddate":"2016q4",
-  "Fendsmpl":1 
+  "Fendsmpl":1,
+  "IRFperiods":20,
+  "IRFband":0.95,
+  "IRFt":2
 }
