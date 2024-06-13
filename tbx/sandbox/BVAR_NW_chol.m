@@ -68,9 +68,9 @@ lambda8 = 1;
 % (61=Mean-adjusted BVAR) Scale up the variance of the prior of factor f
 priorf = 100;
 % total number of iterations for the Gibbs sampler
-It = 2000;
+It = 10000;
 % number of burn-in iterations for the Gibbs sampler
-Bu = 1000;
+Bu = 0;
 % hyperparameter optimisation by grid search (1=yes, 0=no)
 hogs = 0;
 % block exogeneity (1=yes, 0=no)
@@ -89,7 +89,7 @@ F = 1;
 % activate forecast error variance decomposition (1=yes, 0=no)
 FEVD = 1;
 % activate historical decomposition (1=yes, 0=no)
-HD = 0;
+HD = 1;
 HDall = 0;
 % activate conditional forecasts (1=yes, 0=no)
 CF = 1;
@@ -103,7 +103,7 @@ strctident.CorrelShock = ''; % exact labelname of the shock defined in one of th
 strctident.CorrelInstrument = ''; % provide the IV variable in excel sheet "IV"
 
 % activate forecast evaluation (1=yes, 0=no)
-Feval = 1;
+Feval = 0;
 % type of conditional forecasts
 % 1=standard (all shocks), 2=standard (shock-specific)
 % 3=tilting (median), 4=tilting (interval)
