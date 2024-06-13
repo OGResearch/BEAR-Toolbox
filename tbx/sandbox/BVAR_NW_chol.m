@@ -235,14 +235,14 @@ for iteration=1:numt % beginning of forecasting loop
     % implement any dummy observation extensions that may have been selected
     [Ystar,ystar,Xstar,Tstar,Ydum,ydum,Xdum,Tdum] = ...
             bear.gendummy(data_endo,data_exo,Y,X,n,m,p,T,const,lambda6,lambda7,lambda8,scoeff,iobs,lrp,H);
-
+rng(0)
     % set prior values
     [B0,beta0,phi0,S0,alpha0] = bear.nwprior(ar,arvar,lambda1,lambda3,lambda4,n,m,p,k,q,prior,priorexo);
     % obtain posterior distribution parameters
     [Bbar,betabar,phibar,Sbar,alphabar,alphatilde] = bear.nwpost(B0,phi0,S0,alpha0,Xstar,Ystar,n,Tstar,k);
     [beta_gibbs,sigma_gibbs] = bear.nwgibbs(It,Bu,Bbar,phibar,Sbar,alphabar,alphatilde,n,k);
     [beta_median,B_median,beta_std,beta_lbound,beta_ubound,sigma_median] = bear.nwestimates(betabar,phibar,Sbar,alphabar,alphatilde,n,k,cband);
-
+keyboard
 
     %% BLOCK 3: MODEL EVALUATION
     [logml,log10ml,ml] = bear.nwmlik(Xstar,Xdum,Ydum,n,Tstar,Tdum,k,B0,phi0,S0,alpha0,Sbar,alphabar,scoeff,iobs);
