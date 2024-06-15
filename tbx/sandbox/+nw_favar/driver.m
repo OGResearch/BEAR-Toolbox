@@ -4,7 +4,12 @@ str      = fileread(fileName); % dedicated for reading files as text.
 tmp      = jsondecode(str);
 
 opts = BEARsettings(tmp.VARtype, 'ExcelFile', fullfile(bearroot(), tmp.Datafolder,tmp.Datafile));
-fn = fieldnames(tmp);
+
+fn = fieldnames(opts);
+[a,b]=ismember(fieldnames(opts),fieldnames(tmp));
+fn = fn(a);
+opts.Bu = tmp.Bu;
+
 for ii = 1:numel(fieldnames(tmp))
     try
     opts.(fn{ii}) = tmp.(fn{ii});
