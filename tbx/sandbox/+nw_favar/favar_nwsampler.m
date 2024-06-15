@@ -5,6 +5,7 @@ function [sample, fv]=favar_nwsampler(It,n,m,p,k,T,q,lags,ar,lambda1,lambda3,lam
     favarplotX_index = prep.favarplotX_index;
     onestep          = prep.onestep;
     XY               = prep.XY;
+    FY               = prep.FY;
     L                = prep.L;
     Sigma            = prep.Sigma;
     indexnM          = prep.indexnM;

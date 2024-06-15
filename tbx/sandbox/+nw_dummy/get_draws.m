@@ -4,7 +4,7 @@ function [beta_gibbs, sigma_gibbs] =...
 pref = struct('excelFile', opts.excelFile);
 
 
-[Bhat, betahat, sigmahat, X, Xbar, Y, y, EPS, eps, n, m, p, T, k, q]=bear.olsvar(data_endo,data_exo,opts.const,opts.lags);
+[B  
 
 %variance from univariate OLS for priors
 [arvar] = bear.arloop(Y,opts.const,p,n);
