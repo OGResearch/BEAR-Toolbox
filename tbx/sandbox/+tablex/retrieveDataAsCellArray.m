@@ -7,6 +7,7 @@ function outArray = retrieveDataAsCellArray(inTable, names, periods, options)
         periods (1, :) datetime
 
         options.Variant (1, :) = 1
+        options.Dims (1, :) cell = cell.empty(1, 0)
         options.Shift (1, 1) double = 0
     end
 
@@ -24,15 +25,25 @@ function outArray = retrieveDataAsCellArray(inTable, names, periods, options)
     fh = datex.Backend.getFrequencyHandlerFromDatetime(tableStartPeriod);
     startSerial = fh.serialFromDatetime(tableStartPeriod);
     requestedSerials = fh.serialFromDatetime(periods);
-    positions = requestedSerials - startSerial + 1;
-    positions(positions <= 0 | positions > numTablePeriods) = numTablePeriods + 1;
+    rows = requestedSerials - startSerial + 1;
+    rows(rows <= 0 | rows > numTablePeriods) = numTablePeriods + 1;
 
     outArray = cell(1, numNames);
+    customDims = 3 + (0 : numel(options.Dims)-1);
     for i = 1 : numNames
         name = names(i);
-        x = inTable.(name)(:, options.Variant);
-        x(end+1, :) = NaN;
-        outArray{i} = x(positions, :);
+        data = inTable.(name);
+
+        ndimsData = ndims(data);
+        ref = repmat({':'}, 1, ndimsData);
+        ref{2} = options.Variant;
+        ref(customDims) = options.Dims;
+        data = data(ref{:});
+
+        data(end+1, :) = NaN;
+        ref = repmat({':'}, 1, ndimsData);
+        ref{1} = rows;
+        outArray{i} = data(ref{:});
     end
 
 end%

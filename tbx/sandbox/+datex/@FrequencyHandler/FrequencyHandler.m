@@ -1,8 +1,11 @@
+
 classdef (Abstract) FrequencyHandler
 
     properties (Abstract, Constant)
         SdmxPattern
         SdmxLen
+        LegacyPattern
+        LegacyLen
     end
 
     methods (Abstract)
@@ -14,14 +17,24 @@ classdef (Abstract) FrequencyHandler
             tf = isequal(this.Format, dt.Format);
         end%
 
-        function flag = validateSdmx(this, sdmx)
+        function flag = validateSdmx(this, dateString)
             arguments
                 this
-                sdmx (1, 1) string
+                dateString (1, 1) string
             end
             flag = ...
-                strlength(sdmx) == this.SdmxLen ...
-                && ~isempty(extract(sdmx, this.SdmxPattern));
+                strlength(dateString) == this.SdmxLen ...
+                && ~isempty(extract(dateString, this.SdmxPattern));
+        end%
+
+        function flag = validateLegacy(this, dateString)
+            arguments
+                this
+                dateString (1, 1) string
+            end
+            flag = ...
+                strlength(dateString) == this.LegacyLen ...
+                && ~isempty(extract(dateString, this.LegacyPattern));
         end%
     end
 

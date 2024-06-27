@@ -3,9 +3,6 @@
 
 classdef (CaseInsensitiveProperties=true) Settings < settings.Base
 
-    properties
-        Tightness = NaN
-    end
 
     properties (Abstract)
         LegacyOptionMapping (:, 2) string

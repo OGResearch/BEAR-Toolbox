@@ -7,7 +7,8 @@ function plotHandle = plot(table, names, options)
 
         options.Periods = Inf
         options.Axes = []
-        options.Variant = ":"
+        options.Variant = ':'
+        options.Dims (1, :) cell = cell.empty(1, 0)
         options.PlotSettings (1, :) cell = {}
     end
 
@@ -25,7 +26,7 @@ function plotHandle = plot(table, names, options)
         ax = {options.Axes};
     end
 
-    dataCell = tablex.retrieveDataAsCellArray(table, names, periods, variant=options.Variant);
+    dataCell = tablex.retrieveDataAsCellArray(table, names, periods, variant=options.Variant, dims=options.Dims);
     plotHandle = plot(ax{:}, periods, [dataCell{:}], options.PlotSettings{:});
 
 end%

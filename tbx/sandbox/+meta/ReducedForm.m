@@ -1,7 +1,7 @@
 
-% model.ReducedForm.Meta  Meta class for reduced-form VAR models
+% meta.ReducedForm  Meta class for reduced-form VAR models
 
-classdef Meta < handle
+classdef ReducedForm < handle
 
     properties (Dependent)
         % Diplay of endogenous names
@@ -68,18 +68,18 @@ classdef Meta < handle
     end
 
     methods
-        function this = Meta(options)
+        function this = ReducedForm(options)
             arguments
                 options.Endogenous (1, :) = string.empty(1, 0)
                 options.Exogenous (1, :) = string.empty(1, 0)
                 options.Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
-                options.Constant (1, 1) logical = false
+                options.Constant (1, 1) logical = true
             end
-
+            %
             if isempty(options.Endogenous)
                 error("At least one endogenous variable must be specified");
             end
-
+            %
             this.EndogenousItems = item.fromUserInput(options.Endogenous);
             this.ExogenousItems = item.fromUserInput(options.Exogenous);
             if options.Constant
@@ -109,6 +109,30 @@ classdef Meta < handle
             this.assignNumelTheta();
         end%
 
+        function initYLX = getInitYLX(this, dataTable, periods, options)
+            arguments
+                this
+                dataTable timetable
+                periods (1, :)
+                options.Variant (1, :) double = 1
+            end
+            %
+            % Create initial condition span
+            order = this.Order;
+            startPeriod = periods(1);
+            initSpan = datex.span( ...
+                datex.shift(startPeriod, -order) ...
+                ,  datex.shift(startPeriod, -1) ...
+            );
+            %
+            % Call getDataYLX to get initial condition data
+            initYLX = this.getDataYLX( ...
+                dataTable, initSpan ...
+                , variant=options.Variant ...
+                , removeMissing=false ...
+            );
+        end%
+
         function YLX = getDataYLX(this, dataTable, periods, options)
             arguments
                 this
@@ -117,18 +141,18 @@ classdef Meta < handle
                 options.RemoveMissing (1, 1) logical = true
                 options.Variant (1, :) double = 1
             end
-
+            %
             numPeriods = numel(periods);
             Y = nan(numPeriods, 0);
             L = nan(numPeriods, 0);
             X = nan(numPeriods, 0);
-
+            %
             % LHS array - current endogenous items
             for i = 1:numel(this.EndogenousItems)
                 item = this.EndogenousItems{i};
                 Y = [Y, item.getData(dataTable, periods, variant=options.Variant)];
             end
-
+            %
             % RHS array - lags of endogenous items
             for lag = 1:this.Order
                 for i = 1:numel(this.EndogenousItems)
@@ -136,43 +160,60 @@ classdef Meta < handle
                     L = [L, item.getData(dataTable, periods, variant=options.Variant, shift=-lag)];
                 end
             end
-
+            %
             % RHS array - exogenous items
             for i = 1:numel(this.ExogenousItems)
                 item = this.ExogenousItems{i};
                 X = [X, item.getData(dataTable, periods, variant=options.Variant)];
             end
-
+            %
+            % Remove rows with missing observations to prepare the data for
+            % estimation
             if options.RemoveMissing
                 inxMissing = any(isnan(Y), 2) | any(isnan(L), 2) | any(isnan(X), 2);
                 Y(inxMissing, :) = [];
                 L(inxMissing, :) = [];
                 X(inxMissing, :) = [];
             end
-
+            %
             YLX = {Y, L, X};
         end%
 
-        function A = ayeFromTheta(this, theta)
-            B = reshape(theta(1:this.NumelB), this.SizeB);
+        function emptyYLX = createEmptyYLX(this)
+            numY = this.NumEndogenousColumns;
+            numL = this.NumEndogenousColumns * this.Order;
+            numX = this.NumExogenousColumns;
+            numT = 0;
+            emptyYLX = { ...
+                nan(numT, numY), ...
+                nan(numT, numL), ...
+                nan(numT, numX), ...
+            };
+        end%
+
+        function A = ayeFromSample(this, sample)
+            B = reshape(sample{1}, this.SizeB);
             A = B(1:this.SizeA(1), :);
         end%
 
-        function [A, C] = ayeCeeFromTheta(this, theta)
-            B = reshape(theta(1:this.NumelB), this.SizeB);
+        function [A, C] = ayeCeeFromSample(this, sample)
+            B = reshape(sample{1}, this.SizeB);
             A = B(1:this.SizeA(1), :);
             C = B(this.SizeA(1)+1:end, :);
         end%
 
-        function Sigma = sigmaFromTheta(this, theta)
-            Sigma = reshape(theta(this.NumelB+1:end), this.SizeSigma);
+        function Sigma = sigmaFromSample(this, sample)
+            Sigma = reshape(sample{2}, this.SizeSigma);
         end%
 
-        function [A, C, Sigma] = ayeCeeSigmaFromTheta(this, theta)
-            B = reshape(theta(1:this.NumelB), this.SizeB);
-            A = B(1:this.SizeA(1), :);
-            C = B(this.SizeA(1)+1:end, :);
-            Sigma = reshape(theta(this.NumelB+1:end), this.SizeSigma);
+        function system = systemFromSample(this, sample)
+            [A, C] = this.ayeCeeFromSample(sample);
+            Sigma = reshape(sample{2}, this.SizeSigma);
+            system = {A, C, Sigma};
+        end%
+
+        function sample = preallocateRedSample(this, numSamples)
+            sample = {nan(this.NumelB, numSamples), nan(this.NumelSigma, numSamples)};
         end%
     end
 

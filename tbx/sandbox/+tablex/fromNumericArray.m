@@ -1,19 +1,46 @@
 
 
-function tt = fromNumericArray(dataArray, names, periods)
+function outTable = fromNumericArray(dataArray, names, rows, variantDim)
 
     arguments
-        dataArray (:, :, :) double
+        dataArray double
         names (1, :) string
-        periods (:, 1) datetime
+        rows (:, 1)
+        variantDim (1, 1) double
     end
 
-    numData = size(dataArray, 2);
-    dataCell = cell(1, numData);
-    for i = 1 : numData
-        dataCell{i} = permute(dataArray(:, i, :), [1, 3, 2]);
+    if isdatetime(rows)
+        tableConstructor = @(dataCell, rows, names) timetable( ...
+            dataCell{:}, rowTimes=rows, variableNames=names ...
+        );
+    elseif ~ismissing(rows)
+        tableConstructor = @(dataCell, rows, names) table( ...
+            dataCell{:}, rowNames=rows, variableNames=names ...
+        );
+    else
+        tableConstructor = @(dataCell, rows, names) table( ...
+            dataCell{:}, variableNames=names ...
+        );
     end
-    tt = timetable(dataCell{:}, rowTimes=periods, variableNames=names);
+
+    numVariables = size(dataArray, 2);
+    ndimsData = ndims(dataArray);
+
+    dataCell = cell(1, numVariables);
+    ref = repmat({':'}, 1, ndimsData);
+    if variantDim==2
+        permutation = 1 : ndimsData;
+    else
+        permutation = [1, variantDim, setdiff(3:ndimsData, variantDim), 2];
+    end
+    for i = 1 : numVariables
+        ref{2} = i;
+        dataCell{i} = permute(dataArray(ref{:}), permutation);
+    end
+
+    outTable = tableConstructor(dataCell, rows, names);
+    numHigherDims = max(ndimsData-3, 0);
+    outTable = tablex.addCustom(outTable, "HigherDims", cell(1, numHigherDims));
 
 end%
 

@@ -5,8 +5,17 @@ classdef Base < handle
 
     properties
         Settings
-        Sampler = []
+    end
+
+    properties
+        Preallocator
+        Sampler
         SamplerCounter (1,1) uint32 = 0
+    end
+
+    properties (Dependent)
+        Gamma
+        VarVec
     end
 
     methods (Abstract)
@@ -14,25 +23,55 @@ classdef Base < handle
     end
 
     methods
-        function varargout = initialize(this, meta, reducedForm, dataTable, periods)
+        function varargout = initialize(this, reducedForm, YLX)
             arguments
                 this
-                meta (1, 1) structural.Meta
                 reducedForm (1, 1) reducedForm.Model
-                dataTable (:, :) timetable
-                periods (1, :) datetime
+                YLX (1, 3) cell
             end
-
-            if ~reducedForm.Estimator.beenInitialized()
-                YLX = reducedForm.Estimator.initialize(reducedForm.Meta, dataTable, periods);
-            else
-                YLX = reducedForm.Meta.getDataYLX(dataTable, periods);
-            end
-            this.initializeSampler(meta, reducedForm);
+            this.initializeSampler(reducedForm);
         end%
 
         function flag = beenInitialized(this)
-            flag = ~isempty(this.Sampler);
+            flag = ~isempty(this.Sampler) && ~isempty(this.Preallocator);
+        end%
+
+        function initializePreallocator(this, YLX)
+            [Y, L, X] = YLX{:};
+            numY = size(Y, 2);
+            numD = numY * numY;
+            %
+            if this.Settings.TimeVariant
+                numPeriods = numT;
+            else
+                numPeriods = 1;
+            end
+            %
+            function sample = preallocator(numDraws)
+                sample = { ...
+                    nan(numPeriods, numDraws, numD) ...
+                };
+            end%
+            %
+            this.Preallocator = @preallocator;
+        end%
+
+        function finalizeFromMetaAndReducedForm(this, strMeta, redModel)
+            numY = redModel.Meta.NumEndogenousColumns;
+            this.Settings.TimeVariant = redModel.Estimator.Settings.TimeVariant;
+            if isscalar(this.Settings.StdVec)
+                this.Settings.StdVec = repmat(this.Settings.StdVec, numY, 1);
+            end
+        end%
+    end
+
+    methods
+        function Gamma = get.Gamma(this)
+            Gamma = diag(this.VarVec);
+        end%
+
+        function VarVec = get.VarVec(this)
+            VarVec = this.Settings.StdVec .^ 2;
         end%
     end
 

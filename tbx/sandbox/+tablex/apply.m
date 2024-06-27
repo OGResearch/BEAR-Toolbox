@@ -6,7 +6,7 @@ function outTable = apply(inTable, func, varargin)
     periods = tablex.span(inTable);
     data = tablex.retrieveDataAsCellArray(inTable, names, periods, variant=":");
 
-    for i = 1:numel(data)
+    for i = 1 : numel(data)
         data{i} = func(data{i});
     end
 

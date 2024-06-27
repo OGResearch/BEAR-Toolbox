@@ -1,14 +1,15 @@
 
-function flag = stability(A, threshold)
+function [flag, eigvals] = stability(A, threshold)
 
     arguments
         A (:, :) double
         threshold (1, 1) double = (1 - 1e-10)
     end
 
-    AA = system.companion(A);
-    absEigvals = abs(eig(AA));
-    flag = all(absEigvals <= threshold);
+    AA = system.companionA(A);
+    eigvals = eig(AA);
+    maxAbsEigvals = max(abs(eigvals));
+    flag = maxAbsEigvals <= threshold;
 
 end%
 

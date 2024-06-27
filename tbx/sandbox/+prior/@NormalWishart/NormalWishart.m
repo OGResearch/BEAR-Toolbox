@@ -6,13 +6,13 @@ classdef NormalWishart < prior.Base
             this.Settings = prior.NormalWishart.Settings(varargin{:});
         end%
 
-        function initialize(this, meta, YLX)
+        function initializeSampler(this, YLX)
             arguments
                 this
-                meta (1, 1) model.ReducedForm.Meta
                 YLX (1, 3) cell
             end
-            this.Sampler = this.adapterForSampler(meta, YLX);
+            %
+            this.Sampler = this.adapterForSampler(YLX);
         end%
     end
 

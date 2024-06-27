@@ -6,27 +6,68 @@ addpath ../bear
 
 hist = tablex.fromCsv("exampleData.csv");
 dataSpan = tablex.span(hist);
+startData = dataSpan(1);
+endData = dataSpan(end);
 
-d1 = dummies.InitialObservations(tightness=2);
-d2 = dummies.Minnesota(ExogenousTightness=30);
-d3 = dummies.LongRun(Tightness=0.45);
-d4 = dummies.SumCoefficients(Tightness=0.45);
+estimSpan = datex.span(datex.shift(startData, 4), endData);
 
-meta = model.ReducedForm.Meta( ...
-    endogenous=["DOM_GDP", "DOM_CPI", "STN"] ...
+d1 = dummies.InitialObservations(lambda=2);
+% d2 = dummies.Minnesota(exogenousTightness=30);
+
+endogenous = ["DOM_GDP", "DOM_CPI", "STN"];
+
+metaR = meta.ReducedForm( ...
+    endogenous=endogenous ...
     , order=4 ...
     , constant=true ...
 );
 
-prior = prior.NormalWishart();
+
+H = [1, 0, 0; 0, 1, 1; 0, -1, 1];
+
+H = constable.new(rowNames=endogenous, columnNames=endogenous, initValue=0);
+H{"DOM_GDP", "DOM_GDP"} = 1;
+H{"DOM_CPI", ["DOM_CPI", "STN"]} = [1, 1];
+H{"STN", ["DOM_CPI", "STN"]} = [-1, 1];
+
+d3 = dummies.LongRun(lambda=100, constraints=H);
+
+d4 = dummies.SumCoefficients(lambda=0.45);
+
+initYLX = metaR.getInitYLX(hist, estimSpan);
+
+dummiesYLX1 = d1.generate(initYLX);
+dummiesYLX3 = d3.generate(initYLX);
+dummiesYLX4 = d4.generate(initYLX);
 
 
-v = model.ReducedForm( ...
-    meta=meta, ...
-    estimator=prior, ...
-    dummies={d1, d2, d3, d4} ...
+estimator = prior.NormalWishart();
+
+v0 = model.ReducedForm( ...
+    meta=metaR ...
+    , estimator=estimator ...
 );
 
+v1 = model.ReducedForm( ...
+    meta=metaR ...
+    , estimator=estimator ...
+    , dummies={d1, d3, } ...
+);
+
+
+N = 1000;
+
+rng(0);
+v0.initialize(hist, estimSpan);
+v0.presample(N);
+v0.Estimator.SamplerCounter
+
+rng(0);
+v1.initialize(hist, estimSpan);
+v1.presample(N);
+v1.Estimator.SamplerCounter
+
+return
 
 opt = dummies.populateLegacyOptions(v.Dummies);
 YLX = v.getDataYLX(hist, dataSpan);

@@ -1,14 +1,13 @@
 
-
-function tt = fromCellArray(dataCell, names, periods)
+function tt = fromCellArray(dataCell, names, rows)
 
     arguments
         dataCell (:, :) cell
         names (1, :) string
-        periods (:, 1) datetime
+        rows (:, 1)
     end
 
-    tt = timetable(dataCell{:}, rowTimes=periods, variableNames=names);
+    tt = timetable(dataCell{:}, rowTimes=rows, variableNames=names);
 
 end%
 
