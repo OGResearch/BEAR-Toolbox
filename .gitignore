@@ -1,3 +1,4 @@
 results/
 *.mat
 mkdocs/site
+.DS_Store

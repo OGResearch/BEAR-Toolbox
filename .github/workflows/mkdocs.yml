@@ -1,0 +1,73 @@
+name: Build pages
+
+on:
+  - workflow_dispatch
+
+
+jobs:
+
+  mkdocs-build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install mkdocs-material
+        run: |
+          pip install \
+            mkdocs-material \
+            mkdocs-awesome-pages-plugin \
+            mkdocs-toc-plugin \
+
+      - name: Populate documentation files
+        run: |
+          echo "Populating documentation files"
+
+      - name: Build static site
+        run: |
+          mkdocs build
+
+      - name: Upload site as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./site
+          name: site
+
+
+  deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: mkdocs-build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Download site artifact from previous job
+        uses: actions/download-artifact@v3
+        with:
+          name: site
+          path: ./site
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
+
