@@ -24,6 +24,7 @@ jobs:
             mkdocs-material \
             mkdocs-awesome-pages-plugin \
             mkdocs-toc-plugin \
+            rich
 
       - name: Populate documentation files
         run: |
