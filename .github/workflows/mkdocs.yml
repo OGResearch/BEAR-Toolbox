@@ -24,7 +24,8 @@ jobs:
             mkdocs-material \
             mkdocs-awesome-pages-plugin \
             mkdocs-toc-plugin \
-            rich
+            rich \
+            GitPython
 
       - name: Populate documentation files
         run: |
