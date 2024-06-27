@@ -31,12 +31,13 @@ jobs:
 
       - name: Build static site
         run: |
+          cd $GITHUB_WORKSPACE/mkdocs
           mkdocs build
 
       - name: Upload site as artifact
         uses: actions/upload-artifact@v3
         with:
-          path: ./site
+          path: ./mkdocs/site
           name: site
 
 
@@ -60,12 +61,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: site
-          path: ./site
+          path: ./mkdocs/site
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./site
+          path: ./mkdocs/site
 
       - name: Deploy to GitHub Pages
         id: deployment
