@@ -10,6 +10,6 @@ str      = fileread(fileName); % dedicated for reading files as text.
 opt      = jsondecode(str);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% getting the draws
-[beta_gibbs, omega_gibbs, F_gibbs, L_gibbs, phi_gibbs, sigma_gibbs, lambda_t_gibbs ,sigma_t_gibbs, sbar] = ...
+[beta_gibbs,beta_gibbs_in, omega_gibbs,sigma_gibbs, F_gibbs, L_gibbs, phi_gibbs, sigma_gibbs_in, lambda_t_gibbs ,sigma_t_gibbs, sbar, forecast_record] = ...
     tv.get_draws_and_forecast(data_endo_table, data_exo, opt);
 

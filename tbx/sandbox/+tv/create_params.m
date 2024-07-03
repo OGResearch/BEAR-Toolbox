@@ -1,0 +1,50 @@
+function [beta_gibbs, sigma_gibbs]=create_params(It,Bu,beta_gibbs_in,omega_gibbs,F_gibbs,phi_gibbs,L_gibbs,...
+    gamma,sbar,Fstartlocation,Fperiods,n,q)
+
+
+% then start simulations
+% repeat the process a number of times equal to the number of simulations retained from Gibbs sampling
+for ii=1:It-Bu
+
+% step 3: draw beta, omega and sigma and F from their posterior distributions
+% draw beta
+beta=beta_gibbs_in{Fstartlocation-1,1}(:,ii);
+
+% draw omega
+omega=omega_gibbs(:,ii);
+% create a choleski of omega, the variance matrix for the law of motion
+cholomega=sparse(diag(omega));
+% draw F from its posterior distribution
+F=sparse(F_gibbs(:,:,ii));
+% step 4: draw phi from its posterior
+phi=phi_gibbs(ii,:)';
+% also, compute the pre-sample value of lambda, the stochastic volatility process
+lambda=L_gibbs(Fstartlocation-1,:,ii)';
+
+
+   % then generate forecasts recursively
+   % for each iteration ii, repeat the process for periods T+1 to T+h
+   for jj=1:Fperiods
+
+   % update beta
+   beta=beta+cholomega*randn(q,1);
+   beta_gibbs(ii,jj,:,:) = beta;    
+   % update lambda_t and obtain Lambda_t
+   % loop over variables
+      for kk=1:n
+      lambda(kk,1)=gamma*lambda(kk,1)+phi(kk,1)^0.5*randn;
+      end
+   % obtain Lambda_t
+   Lambda=sparse(diag(sbar.*exp(lambda)));
+   
+   
+   % recover sigma_t and draw the residuals
+   sigma_gibbs(ii,jj,:,:)=full(F*Lambda*F');
+
+
+   % step 8: repeat until values are obtained for T+h
+   end
+   
+% step 9: repeat until It-Bu iterations are obtained
+end
+
