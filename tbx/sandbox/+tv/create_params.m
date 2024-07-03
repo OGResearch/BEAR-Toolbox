@@ -1,7 +1,8 @@
 function [beta_gibbs, sigma_gibbs]=create_params(It,Bu,beta_gibbs_in,omega_gibbs,F_gibbs,phi_gibbs,L_gibbs,...
     gamma,sbar,Fstartlocation,Fperiods,n,q)
 
-
+sigma_gibbs = cell(Fperiods,1);
+beta_gibbs = cell(Fperiods,1);
 % then start simulations
 % repeat the process a number of times equal to the number of simulations retained from Gibbs sampling
 for ii=1:It-Bu

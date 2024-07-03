@@ -1,6 +1,7 @@
 function [forecast_record]=forecast(data_endo_a,data_exo_p,beta_gibbs,sigma_gibbs,Fperiods,n,p,k,const)
 
 
+forecast_record = cell(n,1);
 ni = size(beta_gibbs{1,1}(:,:),2);
 
 % other preliminary tasks: generate the matrix of predicted exogenous variables
@@ -68,3 +69,4 @@ Y=data_endo_a(end-p+1:end,:);
 % step 9: repeat until It-Bu iterations are obtained
 end
 
+end
