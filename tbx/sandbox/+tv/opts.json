@@ -19,12 +19,9 @@
 "PriorExcel":0, 
 "priorsexogenous":0, 
 "F":1,
-"Fstartdate":"2017q2",  
-"Fenddate":"2020q1",    
-"Fendsmpl":0,           
-"Feval":1,              
-"hstep":1,              
-"window_size":0,        
-"evaluation_size":0.5,  
+"Fstartdate":"2020q2",  
+"Fenddate":"2024q4",    
+"Fendsmpl":1,                    
+"hstep":1,                     
 "Fband":0.68    
 }
