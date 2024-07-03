@@ -1,7 +1,7 @@
 function [forecast_record]=forecast(data_endo_a,data_exo_p,beta_gibbs,sigma_gibbs,Fperiods,n,p,k,const)
 
 
-ni = size(beta_gibbs,1);
+ni = size(beta_gibbs{1,1}(:,:),2);
 
 % other preliminary tasks: generate the matrix of predicted exogenous variables
 % if the constant has been retained, augment the matrices of exogenous with a column of ones:
@@ -26,7 +26,7 @@ Y=data_endo_a(end-p+1:end,:);
    for jj=1:Fperiods
 
    % reshape it to obtain B
-   B=reshape(beta_gibbs(ii,jj,:),k,n);
+   B=reshape(beta_gibbs{jj,1}(:,ii),k,n);
        
    % use the function lagx to obtain the matrix temp
    temp=bear.lagx(Y,p-1);
@@ -41,7 +41,7 @@ Y=data_endo_a(end-p+1:end,:);
    
    
    % recover sigma_t and draw the residuals
-   sigma=reshape(sigma_gibbs(ii,jj,:,:),n,n);
+   sigma=reshape(sigma_gibbs{jj,1}(:,:,ii),n,n);
    % draw the vector of residuals
    res=bear.trns(chol(bear.nspd(sigma),'Lower')*randn(n,1));
 
