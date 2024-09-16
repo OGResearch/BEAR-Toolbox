@@ -2,6 +2,14 @@
 
 function outTable = apply(inTable, func, varargin)
 
+    arguments
+        inTable timetable
+        func function_handle
+    end
+    arguments (Repeating)
+        varargin
+    end
+
     names = string(inTable.Properties.VariableNames);
     periods = tablex.span(inTable);
     data = tablex.retrieveDataAsCellArray(inTable, names, periods, variant=":");

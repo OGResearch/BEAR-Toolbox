@@ -5,15 +5,23 @@ classdef Structural < handle
 
     properties
         % Diplay of shock names
-        ShockNames (1, :) string = string.empty(1, 0)
+        ShockNames (1, :) string
+    end
+
+    properties (Dependent)
+        NumShocks
     end
 
     methods
-        function this = Structural(options)
+        function this = Structural(shockNames)
             arguments
-                options.ShockNames (1, :) = string.empty(1, 0)
+                shockNames (1, :)
             end
-            this.ShockNames = reshape(string(options.ShockNames), 1, [ ]);
+            this.ShockNames = reshape(string(shockNames), 1, []);
+        end%
+
+        function num = get.NumShocks(this)
+            num = numel(this.ShockNames);
         end%
     end
 

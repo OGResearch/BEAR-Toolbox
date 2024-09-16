@@ -22,7 +22,7 @@ classdef ReducedForm < handle
         Presampled (1, 2) cell = cell(1, 2)
         PresampledCounter (1, 1) double = 0
         ExogenousMean (1, :) double
-        EstimationPeriods (1, :) datetime
+        EstimationSpan (1, :) datetime
     end
 
     properties (Hidden)
@@ -54,12 +54,12 @@ classdef ReducedForm < handle
             end 
         end%
 
-        function YLX = getDataYLX(this, dataTable, periods, varargin)
-            YLX = this.Meta.getDataYLX(dataTable, periods);
+        function YLX = getDataYLX(this, varargin)
+            YLX = this.Meta.getDataYLX(varargin{:});
         end%
 
         function [YLX, initYLX, dummiesYLX] = initialize(this, dataTable, periods)
-            this.EstimationPeriods = periods;
+            this.EstimationSpan = periods;
             YLX = this.Meta.getDataYLX(dataTable, periods);
             initYLX = this.Meta.getInitYLX(dataTable, periods);
             this.estimateExogenousMean(YLX, initYLX);
@@ -262,6 +262,28 @@ classdef ReducedForm < handle
             end
             this.resetPresampledCounter();
         end%
+
+        function residTable = residuals(this, dataTable)
+            periods = this.EstimationSpan;
+            numPeriods = numel(periods);
+            dataYLX = this.getDataYLX(dataTable, periods, removeMissing=false);
+            numResiduals = this.Meta.NumResidualColumns;
+            %
+            this.resetPresampledCounter();
+            numPresampled = this.NumPresampled;
+            residualData = nan(numPeriods, numResiduals, numPresampled);
+            residData = repmat({nan(numPeriods, numPresampled)}, 1, numResiduals);
+            for i = 1 : numPresampled
+                redSystem = this.nextPresampledSystem();
+                [A, C, Sigma] = redSystem{:};
+                U = system.residuals(A, C, dataYLX);
+                for j = 1 : numResiduals
+                    residData{j}(:, i) = U(:, j);
+                end
+            end
+            residTable = tablex.fromCellArray(residData, this.Meta.ResidualNames, periods);
+        end%
+
     end
 
 end

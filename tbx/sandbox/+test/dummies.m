@@ -41,7 +41,7 @@ dummiesYLX3 = d3.generate(initYLX);
 dummiesYLX4 = d4.generate(initYLX);
 
 
-estimator = prior.NormalWishart();
+estimator = estimator.NormalWishart();
 
 v0 = model.ReducedForm( ...
     meta=metaR ...

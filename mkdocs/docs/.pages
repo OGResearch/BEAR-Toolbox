@@ -4,9 +4,10 @@ nav:
         - index.md
         - Install: install.md
         - Overview: overview.md
-    - Algorithms: algorithms
+    - Model specification: specs
     - Graphical user interface: gui
     - Command line interface: cli
+    - Algorithms: algorithms
     - Examples: examples
     - Tutorials: tutorials
     - Other resources: resources

@@ -19,7 +19,7 @@ classdef ReducedForm < handle
         ExogenousItems (1, :) cell = cell.empty(1, 0)
 
         % Residual prefix
-        ResidualPrefix (1, 1) string = "res_"
+        ResidualPrefix (1, 1) string = "resid_"
     end
 
     properties
@@ -65,6 +65,7 @@ classdef ReducedForm < handle
 
     properties (Dependent, Hidden)
         ResidualNames
+        NumResidualColumns
     end
 
     methods
@@ -133,7 +134,7 @@ classdef ReducedForm < handle
             );
         end%
 
-        function YLX = getDataYLX(this, dataTable, periods, options)
+        function [YLX, periods] = getDataYLX(this, dataTable, periods, options)
             arguments
                 this
                 dataTable timetable
@@ -174,6 +175,7 @@ classdef ReducedForm < handle
                 Y(inxMissing, :) = [];
                 L(inxMissing, :) = [];
                 X(inxMissing, :) = [];
+                periods(inxMissing) = [];
             end
             %
             YLX = {Y, L, X};
@@ -322,6 +324,10 @@ classdef ReducedForm < handle
 
         function names = get.ResidualNames(this)
             names = this.ResidualPrefix + this.EndogenousNames;
+        end%
+
+        function names = get.NumResidualColumns(this)
+            names = this.NumEndogenousColumns;
         end%
     end
 

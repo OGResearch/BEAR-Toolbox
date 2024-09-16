@@ -21,9 +21,15 @@ dates       = table2array(data_endo_table(:,1));
 [arvar] = bear.arloop(data_endo_a,opt.const,p,n);
 [yt, y, Xt, Xbart, Xbar] = bear.tvbvarmat(Y,X,n,q,T);
 [chi, psi, kappa, S, H, I_tau, G, I_om, f0, upsilon0] = bear.tvbvar2prior(arvar,n,q,T,opt.gamma);
+
 [beta_gibbs_in, omega_gibbs, F_gibbs, L_gibbs, phi_gibbs, sigma_gibbs_in, lambda_t_gibbs ,sigma_t_gibbs, sbar]...
          = bear.tvbvar2gibbs(G,sigmahat,T,chi,psi,kappa,betahat,q,n,...
         opt.It,opt.Bu,I_tau,I_om,H,Xbar,y,opt.alpha0,yt,Xbart,upsilon0,f0,opt.delta0,opt.gamma,opt.pick,opt.pickf);
+
+% beta_gibbs
+% sigma_t_gibbs
+
+keyboard
 
 [Fstartlocation, Fperiods] = nw.get_fcast_rng(dates,opt);
 Fstartlocation = Fstartlocation-opt.lags;
