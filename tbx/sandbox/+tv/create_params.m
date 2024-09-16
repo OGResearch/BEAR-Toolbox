@@ -1,7 +1,8 @@
 function [beta_gibbs, sigma_gibbs]=create_params(It,Bu,beta_gibbs_in,omega_gibbs,F_gibbs,phi_gibbs,L_gibbs,...
     gamma,sbar,Fstartlocation,Fperiods,n,q)
 
-
+sigma_gibbs = cell(Fperiods,1);
+beta_gibbs = cell(Fperiods,1);
 % then start simulations
 % repeat the process a number of times equal to the number of simulations retained from Gibbs sampling
 for ii=1:It-Bu
@@ -28,7 +29,7 @@ lambda=L_gibbs(Fstartlocation-1,:,ii)';
 
    % update beta
    beta=beta+cholomega*randn(q,1);
-   beta_gibbs(ii,jj,:,:) = beta;    
+   beta_gibbs{jj,1}(:,ii) = beta;    
    % update lambda_t and obtain Lambda_t
    % loop over variables
       for kk=1:n
@@ -39,7 +40,7 @@ lambda=L_gibbs(Fstartlocation-1,:,ii)';
    
    
    % recover sigma_t and draw the residuals
-   sigma_gibbs(ii,jj,:,:)=full(F*Lambda*F');
+   sigma_gibbs{jj,1}(:,:,ii)=full(F*Lambda*F');
 
 
    % step 8: repeat until values are obtained for T+h
