@@ -108,8 +108,7 @@ end
 % rotate Factors, compute new loadings for onestep, twostep estimation
 data_endo_orig = data_endo;
 [data_endo,~]=bear.favar_gensample3(data_endo_orig,favar);
-    
-    
+   
        
 %%%% stationarity test
 % endostrings=endo(favar.variablestrings_exfactors,1);

@@ -16,6 +16,10 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         % 
         Exogenous (:, :) logical = false
 
+        % 
+        BlockExogenous (:, :) logical = false
+
+
         % Autoregression
         Autoregression (:, 1) double = 0.8
 
@@ -25,8 +29,6 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         Lambda4 (:, :) double = 100
         Lambda5 double = 0.001
 
-        % Prior type for the covariance matrix of residuals
-        Sigma (1, 1) string {ismember(Sigma, ["eye", "ar", "var"])} = "eye"
     end
 
 end
