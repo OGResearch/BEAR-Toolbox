@@ -35,7 +35,7 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         function this = Base(meta, varargin)
             this = this@settings.Base(varargin{:});
             numY = meta.NumEndogenousColumns;
-            numX = meta.NumExogenousColumns;;
+            numX = meta.NumExogenousColumns;
             this.HasConstant = meta.HasConstant;
             if isscalar(this.Exogenous)
                 this.Exogenous = repmat(this.Exogenous, numY, numX);
