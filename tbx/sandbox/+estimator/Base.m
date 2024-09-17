@@ -17,9 +17,9 @@ classdef Base < handle
     end
 
     methods
-        function this = Base(varargin)
+        function this = Base(meta, varargin)
             className = extractAfter(class(this), "estimator.");
-            this.Settings = estimator.settings.(className)(varargin{:});
+            this.Settings = estimator.settings.(className)(meta, varargin{:});
         end%
 
 
@@ -54,21 +54,6 @@ classdef Base < handle
                 };
             end%
             this.Preallocator = @preallocator;
-        end%
-
-        function finalizeFromMeta(this, meta)
-            numY = meta.NumEndogenousColumns;
-            numX = meta.NumExogenousColumns;;
-            this.Settings.HasConstant = meta.HasConstant;
-            if isscalar(this.Settings.Exogenous)
-                this.Settings.Exogenous = repmat(this.Settings.Exogenous, numY, numX);
-            end
-            if isscalar(this.Settings.Lambda4)
-                this.Settings.Lambda4 = repmat(this.Settings.Lambda4, numY, numX);
-            end
-            if isscalar(this.Settings.Autoregression)
-                this.Settings.Autoregression = repmat(this.Settings.Autoregression, numY, 1);
-            end
         end%
     end
 

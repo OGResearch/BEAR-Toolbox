@@ -48,7 +48,6 @@ classdef ReducedForm < handle
             this.Meta = options.Meta;
             this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
-            this.Estimator.finalizeFromMeta(this.Meta);
             if ~isnan(options.StabilityThreshold)
                 this.StabilityThreshold = options.StabilityThreshold;
             end 

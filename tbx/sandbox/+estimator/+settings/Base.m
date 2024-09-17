@@ -29,5 +29,23 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         Sigma (1, 1) string {ismember(Sigma, ["eye", "ar", "var"])} = "eye"
     end
 
+    methods
+        function this = Base(meta, varargin)
+            this = this@settings.Base(varargin{:});
+            numY = meta.NumEndogenousColumns;
+            numX = meta.NumExogenousColumns;;
+            this.HasConstant = meta.HasConstant;
+            if isscalar(this.Exogenous)
+                this.Exogenous = repmat(this.Exogenous, numY, numX);
+            end
+            if isscalar(this.Lambda4)
+                this.Lambda4 = repmat(this.Lambda4, numY, numX);
+            end
+            if isscalar(this.Autoregression)
+                this.Autoregression = repmat(this.Autoregression, numY, 1);
+            end
+        end%
+    end
+
 end
 
