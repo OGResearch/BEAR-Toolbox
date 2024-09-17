@@ -78,6 +78,7 @@ classdef NormalDiffuse < estimator.Base
             %setting up prior
             [beta0, omega0] = bear.ndprior(ar, arvar, opts.lambda1, opts.lambda2, opts.lambda3, opts.lambda4, opts.lambda5, ...
                 n, m, p, k, q, opts.bex, blockexo, priorexo);
+            
             invomega0 = diag(1./diag(omega0));
             B = Bhat;
 
@@ -88,7 +89,7 @@ classdef NormalDiffuse < estimator.Base
             function redSample = sampler()
                 % draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.6.10)
-                Shat = (Y - X*B)'*(Y - X*B);
+                Shat = (Y - LX*B)'*(Y - LX*B);
                 % Correct potential asymmetries due to rounding errors from Matlab
                 C = chol(bear.nspd(Shat));
                 Shat = C'*C;
@@ -103,13 +104,13 @@ classdef NormalDiffuse < estimator.Base
                 invsigma = invC*invC';
                 
                 % then obtain the omegabar matrix
-                invomegabar = invomega0 + kron(invsigma, X'*X);
+                invomegabar = invomega0 + kron(invsigma, LX'*LX);
                 C = chol(bear.nspd(invomegabar));
                 invC = C\speye(q);
                 omegabar = invC*invC';
                 
                 % following, obtain betabar
-                betabar = omegabar*(invomega0*beta0 + kron(invsigma,X')*y);
+                betabar = omegabar*(invomega0*beta0 + kron(invsigma,LX')*Y(:));
                 
                 % draw from N(betabar,omegabar);
                 beta = betabar + chol(bear.nspd(omegabar),'lower')*mvnrnd(zeros(q,1),eye(q))';
