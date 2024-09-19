@@ -3,9 +3,7 @@ function [sample, favar] = get_draws_new(data_endo_table, data_exo, informationd
 %% load data and get factors
 data_endo_raw = table2array(data_endo_table(:,2:end));
 
-[startlocation, favar] = nw_favar.gen_favar(opts, favar, informationdata,informationnames);
-[data_endo, favar] = ...
-    nw_favar.gensample_favar(opts, data_endo_raw, favar, startlocation);
+[data_endo, favar] = favars.get_favar_endo(opts, data_endo_raw, favar, informationdata, informationnames);
 
 %% getting X and Y matrices for gibbs sampler
 [Bhat, ~, ~, X, ~, Y, ~, EPS, ~, n, m, p, T, k, q] = bear.olsvar(data_endo,data_exo,opts.const,opts.lags);
