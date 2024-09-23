@@ -106,7 +106,7 @@ classdef NormalWishart_FAVAR < estimator.Base
                     FY = bear.favar_demean(FY);
                     
                     % Sample autoregressive coefficients B
-                    temp = bear.lagx(FY, p);
+                    temp = bear.lagx(FY, opt.p);
                     Y = temp(:, 1:n);
 
                     % set prior values, new with every iteration for onestep only
@@ -124,7 +124,7 @@ classdef NormalWishart_FAVAR < estimator.Base
                 while stationary == 0
                 
                     B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, k, n);
-                    [stationary] = bear.checkstable(B(:), n, p, size(B, 1)); %switches stationary to 0, if the draw is not stationary
+                    [stationary] = bear.checkstable(B(:), n, opt.p, size(B, 1)); %switches stationary to 0, if the draw is not stationary
                 
                 end
                 
@@ -138,7 +138,7 @@ classdef NormalWishart_FAVAR < estimator.Base
                 if onestep == 1
                     sigma_ss(1:n, 1:n) = sigma;
                     % Sample Sigma and L
-                    [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, onestep, n, favar_X, FY, a0, b0, T, p, L0);
+                    [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, onestep, n, favar_X, FY, a0, b0, T, opt.p, L0);
                 end
 
                 R2 = bear.favar_R2(favarX, FY, L, favarplotX_index);
