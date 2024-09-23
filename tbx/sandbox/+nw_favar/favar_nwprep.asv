@@ -1,4 +1,4 @@
-function [prep] = favar_nwprep(n, m, p, k, T, q, data_endo, ar, arvar, ...
+function [prep] = favar_nwprep(Bhat, EPS, n, m, p, k, T, q, data_endo, ar, arvar, ...
                     lambda1, lambda3, lambda4, prior, priorexo, favar, Y, X)
         
     if favar.onestep == 1
@@ -15,17 +15,16 @@ function [prep] = favar_nwprep(n, m, p, k, T, q, data_endo, ar, arvar, ...
     
     % state-space representation
     if favar.onestep == 1
-
-        Bhat = (X'*X)\(X'*Y);
-        EPS  = Y - X*Bhat;
         prep.B_ss = [Bhat'; eye(n*(p - 1)) zeros(n*(p - 1), n)];
-        prep.sigma_ss = [(1/T)*(EPS'*EPS) zeros(n, n*(p - 1)); zeros(n*(p - 1), n*p)];
+        sigmahat  = (1/T)*(EPS'*EPS);
+        prep.sigma_ss = [sigmahat zeros(n, n*(p - 1)); zeros(n*(p - 1), n*p)];
        
         prep.Bbar = [];
         prep.phibar = [];
         prep.Sbar = [];
         prep.alphabar = [];  
         prep.alphatilde = [];
+    
     
     elseif favar.onestep == 0
     
@@ -37,7 +36,6 @@ function [prep] = favar_nwprep(n, m, p, k, T, q, data_endo, ar, arvar, ...
     
         prep.B_ss = [];
         prep.sigma_ss = [];
-
     end
 
 end

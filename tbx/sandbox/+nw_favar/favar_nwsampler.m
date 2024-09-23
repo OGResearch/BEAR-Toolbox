@@ -1,20 +1,30 @@
-function [sample, fv]=favar_nwsampler(It,n,m,p,k,T,q,lags,ar,lambda1,lambda3,lambda4,prior,priorexo,const,data_exo,favar,Y,X,prep)
+function [sample, fv]=favar_nwsampler(It,n,m,p,k,T,q,ar,lambda1,lambda3,lambda4,prior,priorexo,const,data_exo,favar,Y,X,prep)
     
+    favarX           = favar.X(:,favar.plotX_index); 
+    favarplotX_index = favar.plotX_index; 
+    onestep          = favar.onestep; 
+    XZ0mean          = zeros(n*opt.p,1);            
+    XZ0var           = favar.L0*eye(n*opt.p);
+    XY               = favar.XY; 
+    L                = favar.L;
+    Sigma            = bear.nspd(favar.Sigma);
+    favar_X          = favar.favar_X;
+    nfactorvar       = favar.nfactorvar;
+    numpc            = favar.numpc;
 
-    favarX           = prep.favarX;
-    favarplotX_index = prep.favarplotX_index;
-    onestep          = prep.onestep;
-    XY               = prep.XY;
-    FY               = prep.FY;
-    L                = prep.L;
-    Sigma            = prep.Sigma;
-    indexnM          = prep.indexnM;
-    XZ0mean          = prep.XZ0mean;
-    XZ0var           = prep.XZ0var;
-    favar_X          = prep.favar_X;
-    L0               = prep.L0;
-    a0               = prep.a0;
-    b0               = prep.b0;
+    L0               = favar.L0;
+    a0               = favar.a0; 
+    b0               = favar.b0;
+
+    B_ss             = prep.B_ss;
+    sigma_ss         = prep.sigma_ss;
+
+    Bbar             = prep.Bbar;
+    phibar           = prep.phibar;
+    Sbar             = prep.Sbar;
+    alphabar         = prep.alphabar;  
+    alphatilde       = prep.alphatilde;
+
     beta_gibbs      = prep.beta_gibbs;
     sigma_gibbs     = prep.sigma_gibbs;
     X_gibbs         = prep.X_gibbs;
@@ -22,17 +32,6 @@ function [sample, fv]=favar_nwsampler(It,n,m,p,k,T,q,lags,ar,lambda1,lambda3,lam
     FY_gibbs        = prep.FY_gibbs;
     L_gibbs         = prep.L_gibbs;
     R2_gibbs        = prep.R2_gibbs;
-    B_ss            = prep.B_ss;
-    sigma_ss        = prep.sigma_ss;
-
-    Bbar            = prep.Bbar;
-    phibar          = prep.phibar;
-    Sbar            = prep.Sbar;
-    alphabar        = prep.alphabar;  
-    alphatilde      = prep.alphatilde;
-
-    nfactorvar      = favar.nfactorvar;
-    numpc           = favar.numpc;
 
     for ii = 1:It
         [sample, fv] = smplr();
@@ -47,7 +46,7 @@ function [sample, fv] = smplr()
         % demean generated factors
         FY=bear.favar_demean(FY);
         % Sample autoregressive coefficients B
-        [~,~,~,X,~,Y]=bear.olsvar(FY,data_exo,const,lags);
+        [~,~,~,X,~,Y]=bear.olsvar(FY,data_exo,const,p);
         [arvar]=bear.arloop(FY,const,p,n);
         % set prior values, new with every iteration for onestep only
         [B0,~,phi0,S0,alpha0]=bear.nwprior(ar,arvar,lambda1,lambda3,lambda4,n,m,p,k,q,prior,priorexo);
@@ -59,7 +58,7 @@ function [sample, fv] = smplr()
     stationary=0;
     while stationary==0
         B=bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
-        [stationary]=bear.checkstable(B(:),n,lags,size(B,1)); %switches stationary to 0, if the draw is not stationary
+        [stationary]=bear.checkstable(B(:),n,p,size(B,1)); %switches stationary to 0, if the draw is not stationary
     end
     
     if onestep==1
@@ -72,7 +71,7 @@ function [sample, fv] = smplr()
     if onestep==1
         sigma_ss(1:n,1:n)=sigma;
         % Sample Sigma and L
-        [Sigma,L]=bear.favar_SigmaL(Sigma,L,nfactorvar,numpc,onestep,n,favar_X,FY,a0,b0,T,lags,L0);
+        [Sigma,L]=bear.favar_SigmaL(Sigma,L,nfactorvar,numpc,onestep,n,favar_X,FY,a0,b0,T,p,L0);
     end
     
         % values of vector beta

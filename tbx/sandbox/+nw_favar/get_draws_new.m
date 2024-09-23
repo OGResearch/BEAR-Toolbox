@@ -6,7 +6,7 @@ data_endo_raw = table2array(data_endo_table(:,2:end));
 [data_endo, favar] = favars.get_favar_endo(opts, data_endo_raw, favar, informationdata, informationnames);
 
 %% getting X and Y matrices for gibbs sampler
-[Bhat, ~, ~, X, ~, Y, ~, EPS, ~, n, m, p, T, k, q] = bear.olsvar(data_endo,data_exo,opts.const,opts.lags);
+[~, ~, ~, X, ~, Y, ~, ~, ~, n, m, p, T, k, q] = bear.olsvar(data_endo,data_exo,opts.const,opts.lags);
 
 % individual priors 0 for default
 for ii=1:n
@@ -22,8 +22,8 @@ opts.lambda4 = tmp;
 %% estimating the FAVAR
 %create a vector for AR hyperparamters
 ar = ones(n,1)*opts.ar;
-
-[prep,favar] = nw_favar.favar_nwprep(Bhat,EPS,n,m,p,k,T,q,opts.lags,data_endo,ar,arvar,...
+    
+[prep] = nw_favar.favar_nwprep(n,m,p,k,T,q,opts.lags,data_endo,ar,arvar,...
     opts.lambda1,opts.lambda3,opts.lambda4,opts.prior,priorexo,favar,Y,X);
 
 [sample, fv] = nw_favar.favar_nwsampler(opts.It,n,m,p,k,T,q,opts.lags,ar,...
