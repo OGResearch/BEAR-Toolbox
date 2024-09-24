@@ -10,6 +10,9 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         % Model has a constant term
         HasConstant (1, 1) logical = true
 
+        % Number of lags
+        Order (1, 1) double = 1
+
         % Number of burn-in draws
         Burnin (1, 1) double = 0
 
@@ -37,6 +40,7 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
             numY = meta.NumEndogenousColumns;
             numX = meta.NumExogenousColumns;
             this.HasConstant = meta.HasConstant;
+            this.Order = meta.Order;
             if isscalar(this.Exogenous)
                 this.Exogenous = repmat(this.Exogenous, numY, numX);
             end

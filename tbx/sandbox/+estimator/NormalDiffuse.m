@@ -2,24 +2,23 @@
 classdef NormalDiffuse < estimator.Base
 
     methods
-        function initializeSampler(this, YLX)
+        function initializeSampler(this, YXZ)
             arguments
                 this
-                YLX (1, 3) cell
+                YXZ (1, 3) cell
             end
-            this.Sampler = this.adapterForSampler(YLX);
+            this.Sampler = this.adapterForSampler(YXZ);
         end%
 
 
-        function outSampler = adapterForSampler(this, YLX)
+        function outSampler = adapterForSampler(this, YXZ)
             %[
             arguments
                 this
-                YLX (1, 3) cell
+                YXZ (1, 3) cell
             end
 
-            [Y, L, X] = YLX{:};
-            init = system.extractInitial(YLX);
+            [Y_long, X_long, ~] = YXZ{:};
 
             options.Burnin = 0;
             numPresample = 1;
@@ -43,21 +42,12 @@ classdef NormalDiffuse < estimator.Base
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
             opt.const = this.Settings.HasConstant;
+            opt.p = this.Settings.Order;
 
             opt.bex  = this.Settings.BlockExogenous;
 
-            T = size(Y, 1);
-            n = size(Y, 2);
-            m = size(X, 2);
-            pn = size(L, 2);
-            p = pn / n;
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
 
-            k = n * p + m;
-            q = n * k;
-            % m = k - n * p;
-            LX = [L, X];
-
-            opt.p = p;
             priorexo = this.Settings.Exogenous;
 
             % individual priors 0 for default
@@ -72,12 +62,12 @@ classdef NormalDiffuse < estimator.Base
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            % arvar = bear.arloop([init; Y], opt.const, opt.p, n);
-            arvar = bear.arloop([init; Y], opt.const, opt.p, n);
+            % arvar = bear.arloop(Y_long, opt.const, opt.p, n);
+            arvar = bear.arloop(Y_long, opt.const, opt.p, n);
 
             %setting up prior
-            [beta0, omega0] = bear.ndprior(ar, arvar, opts.lambda1, opts.lambda2, opts.lambda3, opts.lambda4, opts.lambda5, ...
-                n, m, p, k, q, opts.bex, blockexo, priorexo);
+            [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, opt.lambda5, ...
+                n, m, opt.p, k, q, opt.bex, blockexo, priorexo);
             
             invomega0 = diag(1./diag(omega0));
             B = Bhat;
@@ -95,7 +85,7 @@ classdef NormalDiffuse < estimator.Base
                 Shat = C'*C;
                 
                 % next draw from IW(Shat,T)
-                sigma = bear.iwdraw(Shat,T);
+                sigma = bear.iwdraw(Shat, T);
                 
                 % Continue iteration by drawing beta from a multivariate Normal, conditional on sigma obtained in current iteration
                 % first invert sigma
@@ -110,7 +100,7 @@ classdef NormalDiffuse < estimator.Base
                 omegabar = invC*invC';
                 
                 % following, obtain betabar
-                betabar = omegabar*(invomega0*beta0 + kron(invsigma,LX')*Y(:));
+                betabar = omegabar*(invomega0*beta0 + kron(invsigma, LX')*Y(:));
                 
                 % draw from N(betabar,omegabar);
                 beta = betabar + chol(bear.nspd(omegabar),'lower')*mvnrnd(zeros(q,1),eye(q))';

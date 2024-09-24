@@ -13,7 +13,7 @@ classdef Base < handle
     end
 
     methods (Abstract)
-        initializeSampler(this, meta, YLX)
+        initializeSampler(this, meta, YXZ)
     end
 
     methods
@@ -28,18 +28,19 @@ classdef Base < handle
         end%
 
 
-        function initialize(this, YLX)
-            this.initializePreallocator(YLX);
-            this.initializeSampler(YLX);
+        function initialize(this, meta, YXZ)
+            this.initializePreallocator(meta, YXZ);
+            this.initializeSampler(YXZ);
         end%
 
 
-        function initializePreallocator(this, YLX)
-            [Y, L, X] = YLX{:};
-            numY = size(Y, 2);
-            numL = size(L, 2);
-            numX = size(X, 2);
-            numT = size(Y, 1);
+        function initializePreallocator(this, meta, YXZ)
+            [Y, ~, ~] = YXZ{:};
+            numT = size(Y, 1) - meta.Order;
+            numY = meta.NumEndogenousColumns;
+            numL = meta.NumEndogenousColumns * meta.Order;
+            numX = this.NumExogenousColumns;
+
             numBeta = numY * (numL + numX);
             numSigma = numY * numY;
             if this.Settings.TimeVariant
