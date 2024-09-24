@@ -39,7 +39,7 @@ classdef Base < handle
             numT = size(Y, 1) - meta.Order;
             numY = meta.NumEndogenousColumns;
             numL = meta.NumEndogenousColumns * meta.Order;
-            numX = this.NumExogenousColumns;
+            numX = meta.NumExogenousColumns;
 
             numBeta = numY * (numL + numX);
             numSigma = numY * numY;
