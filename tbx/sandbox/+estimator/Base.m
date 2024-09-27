@@ -13,13 +13,13 @@ classdef Base < handle
     end
 
     methods (Abstract)
-        initializeSampler(this, meta, YLX)
+        initializeSampler(this, meta, YXZ)
     end
 
     methods
-        function this = Base(varargin)
+        function this = Base(meta, varargin)
             className = extractAfter(class(this), "estimator.");
-            this.Settings = estimator.settings.(className)(varargin{:});
+            this.Settings = estimator.settings.(className)(meta, varargin{:});
         end%
 
 
@@ -28,18 +28,19 @@ classdef Base < handle
         end%
 
 
-        function initialize(this, YLX)
-            this.initializePreallocator(YLX);
-            this.initializeSampler(YLX);
+        function initialize(this, meta, YXZ)
+            this.initializePreallocator(meta, YXZ);
+            this.initializeSampler(YXZ);
         end%
 
 
-        function initializePreallocator(this, YLX)
-            [Y, L, X] = YLX{:};
-            numY = size(Y, 2);
-            numL = size(L, 2);
-            numX = size(X, 2);
-            numT = size(Y, 1);
+        function initializePreallocator(this, meta, YXZ)
+            [Y, ~, ~] = YXZ{:};
+            numT = size(Y, 1) - meta.Order;
+            numY = meta.NumEndogenousColumns;
+            numL = meta.NumEndogenousColumns * meta.Order;
+            numX = meta.NumExogenousColumns;
+
             numBeta = numY * (numL + numX);
             numSigma = numY * numY;
             if this.Settings.TimeVariant
@@ -54,21 +55,6 @@ classdef Base < handle
                 };
             end%
             this.Preallocator = @preallocator;
-        end%
-
-        function finalizeFromMeta(this, meta)
-            numY = meta.NumEndogenousColumns;
-            numX = meta.NumExogenousColumns;;
-            this.Settings.HasConstant = meta.HasConstant;
-            if isscalar(this.Settings.Exogenous)
-                this.Settings.Exogenous = repmat(this.Settings.Exogenous, numY, numX);
-            end
-            if isscalar(this.Settings.Lambda4)
-                this.Settings.Lambda4 = repmat(this.Settings.Lambda4, numY, numX);
-            end
-            if isscalar(this.Settings.Autoregression)
-                this.Settings.Autoregression = repmat(this.Settings.Autoregression, numY, 1);
-            end
         end%
     end
 

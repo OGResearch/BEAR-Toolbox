@@ -7,6 +7,7 @@
   "startdate":"1959m2",
   "enddate": "2001m8",
   "varendo": "factor1 factor2 factor3 FYFF",  
+  "varexo": "",  
   "ar": 0.8,
   "lambda1": 1,
   "lambda3": 1,

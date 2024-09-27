@@ -15,7 +15,7 @@
 "plotXshock":"FYFF",
 "levels":1, 
 "retransres":1, 
-"IRFplot":1, 
+"IRFplot":0, 
 "FEVDplot":1, 
 "HDplot":0
 }

@@ -10,11 +10,18 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         % Model has a constant term
         HasConstant (1, 1) logical = true
 
+        % Number of lags
+        Order (1, 1) double = 1
+
         % Number of burn-in draws
         Burnin (1, 1) double = 0
 
         % 
         Exogenous (:, :) logical = false
+
+        % 
+        BlockExogenous (:, :) logical = false
+
 
         % Autoregression
         Autoregression (:, 1) double = 0.8
@@ -25,8 +32,25 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         Lambda4 (:, :) double = 100
         Lambda5 double = 0.001
 
-        % Prior type for the covariance matrix of residuals
-        Sigma (1, 1) string {ismember(Sigma, ["eye", "ar", "var"])} = "eye"
+    end
+
+    methods
+        function this = Base(meta, varargin)
+            this = this@settings.Base(varargin{:});
+            numY = meta.NumEndogenousColumns;
+            numX = meta.NumExogenousColumns;
+            this.HasConstant = meta.HasConstant;
+            this.Order = meta.Order;
+            if isscalar(this.Exogenous)
+                this.Exogenous = repmat(this.Exogenous, numY, numX);
+            end
+            if isscalar(this.Lambda4)
+                this.Lambda4 = repmat(this.Lambda4, numY, numX);
+            end
+            if isscalar(this.Autoregression)
+                this.Autoregression = repmat(this.Autoregression, numY, 1);
+            end
+        end%
     end
 
 end
