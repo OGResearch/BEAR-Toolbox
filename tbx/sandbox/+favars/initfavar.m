@@ -1,7 +1,7 @@
 function favar = initfavar(favar)
 
 %% set up FAVAR
-favar.plotX=bear.utils.fixstring(favar.plotX);
+favar.plotX = bear.utils.fixstring(favar.plotX);
 favar.IRFplotXshock=favar.plotXshock;
 if favar.blocks == 1 || favar.slowfast == 1
     favar.blocknames=bear.utils.fixstring(favar.blocknames);

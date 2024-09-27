@@ -2,26 +2,31 @@
 classdef NormalWishart_FAVAR < estimator.Base
 
     methods
-        function initializeSampler(this, YLX, favar)
+        function initializeSampler(this, YXZ, favar)
             arguments
                 this
-                YLX (1, 3) cell
+                YXZ (1, 3) cell
                 favar struct
             end
-            this.Sampler = this.adapterForSampler(YLX, favar); %Q: where should we initialize YLX and the favar?
+            this.Sampler = this.adapterForSampler(YXZ, favar); %Q: where should we initialize YXZ and the favar?
         end%
 
 
-        function outSampler = adapterForSampler(this, YLX, favar)
+        function outSampler = adapterForSampler(this, YXZ, favar)
             %[
             arguments
                 this
-                YLX (1, 3) cell
+                YXZ (1, 3) cell
                 favar struct 
             end
 
-            [Y, L, X] = YLX{:};
-            init = system.extractInitial(YLX);
+            [Y_long, X_long, Z_long] = YXZ{:};
+
+            opt.const = this.Settings.HasConstant;
+            opt.p = this.Settings.Order;
+
+            [FY_long, favar] = favars.get_favar_endo(opt, Y_long, favar, Z_long, informationnames);
+            [~, ~, ~, LX, ~, ~, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(FY_long, X_long, opt.const, opt.p);
 
             options.Burnin = 0;
             numPresample = 1;
@@ -40,29 +45,18 @@ classdef NormalWishart_FAVAR < estimator.Base
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
             opt.const = this.Settings.HasConstant;
-            T = size(Y, 1);
-            n = size(Y, 2);
-            m = size(X, 2);
+            opt.p = this.Settings.Order;
 
-            pn = size(L, 2);
-            p = pn / n;
-
-            k = n * p + m;
-            q = n * k;
-            % m = k - n * p;
-            LX = [L, X];
-
-            opt.p = p;
             priorexo = this.Settings.Exogenous;
 
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            arvar = bear.arloop([init; Y], opt.const, opt.p, n);
+            arvar = bear.arloop(FY_long, opt.const, opt.p, n);
 
             %setting up prior
-            [prep] = nw_favar.favar_nwprep(n, m, opt.p, k, T, q, [init; Y], ar, arvar,...
-                                opt.lambda1, opt.lambda3, opt.lambda4, opt.prior, priorexo, favar, Y, LX);
+            [prep] = nw_favar.favar_nwprep(n, m, opt.p, k, T, q, FY_long, ar, arvar,...
+                                opt.lambda1, opt.lambda3, opt.lambda4, opt.prior, priorexo, favar, LX);
    
             favarX           = favar.X(:,favar.plotX_index); 
             favarplotX_index = favar.plotX_index; 

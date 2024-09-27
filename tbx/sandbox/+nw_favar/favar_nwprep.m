@@ -1,5 +1,5 @@
 function [prep] = favar_nwprep(n, m, p, k, T, q, data_endo, ar, arvar, ...
-                    lambda1, lambda3, lambda4, prior, priorexo, favar, Y, X)
+                    lambda1, lambda3, lambda4, prior, priorexo, favar, X)
         
     if favar.onestep == 1
         prep.indexnM = favar.indexnM;
@@ -12,7 +12,10 @@ function [prep] = favar_nwprep(n, m, p, k, T, q, data_endo, ar, arvar, ...
     else
         prep.FY = [];
     end
-    
+
+    temp = bear.lagx(data_endo, p);
+    Y = temp(:,1:n);
+ 
     % state-space representation
     if favar.onestep == 1
 
