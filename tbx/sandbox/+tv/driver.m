@@ -1,4 +1,4 @@
-
+%%This piece of package is an extract of the estimation oand forecast of genric Time varying model i.e timevarying parameters and stds (TV2 in BEAR)
 %% Loading data
 data_endo_table = readtable("+tv/data_endo.csv");
 data_exo = readmatrix("+tv/data_exo.csv");
