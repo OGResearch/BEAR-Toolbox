@@ -1,4 +1,4 @@
-function [theta_median,theta_std,theta_lbound,theta_ubound,sigma_median,Ymat,y, Xtilde,theta_gibbs,sigma_gibbs,sigmatilde_gibbs,Zeta_gibbs,phi_gibbs,B_gibbs,Xi,thetabar,N,n,m,p,T,d,k] = driver_estimation_panel_factor_dynamic(data_endo,data_exo,const,lags,It,Bu,cband,alpha0,delta0,pick,pickf,rho,gamma,a0,b0,psi)
+function [theta_median,theta_std,theta_lbound,theta_ubound,sigma_median,Ymat,y, Xtilde,theta_gibbs,sigma_gibbs,sigmatilde_gibbs,Zeta_gibbs,phi_gibbs,B_gibbs,Xi,thetabar,N,n,m,p,T,d,k,q,d1,d2,d3,d4,d5] = driver_estimation_panel_factor_dynamic(data_endo,data_exo,const,lags,It,Bu,cband,alpha0,delta0,pick,pickf,rho,gamma,a0,b0,psi)
 
     % compute preliminary elements
     [Ymat,Xmat,N,n,m,p,T,k,q,h]=bear.panel6prelim(data_endo,data_exo,const,lags);
