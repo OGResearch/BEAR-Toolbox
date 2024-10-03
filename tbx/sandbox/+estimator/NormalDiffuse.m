@@ -46,7 +46,7 @@ classdef NormalDiffuse < estimator.Base
 
             opt.bex  = this.Settings.BlockExogenous;
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
 
             priorexo = this.Settings.Exogenous;
 
