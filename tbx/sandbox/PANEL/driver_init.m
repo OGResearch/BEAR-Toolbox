@@ -39,33 +39,33 @@ Bu=1000;
 pick = false;
 % frequency of iteration picking (e.g. pickf=20 implies that only 1 out of 20 iterations will be retained)
 pickf=20;
-% autoregressive coefficient
+% autoregressive coefficient (panel 1,2,3,4,5,6)
 ar = 0.8;
-% hyperparameter: lambda1
+% hyperparameter: lambda1 (panel 3)
 lambda1 = 0.1;
-% hyperparameter: lambda2
+% hyperparameter: lambda2 (panel 4)
 lambda2 = 0.5;
-% hyperparameter: lambda3
+% hyperparameter: lambda3 (panel 4)
 lambda3 = 1;
-% hyperparameter: lambda4
+% hyperparameter: lambda4 (panel 1,3,4,5,6)
 lambda4 = 100;
-% hyperparameter: s0
+% hyperparameter: s0 (panel 4)
 s0 = 0.001;
-% hyperparameter: v0
+% hyperparameter: v0 (panel 4)
 v0 = 0.001;
-% AR coefficient on residual variance: gamma
+% AR coefficient on residual variance: gamma (panel 6)
 gamma = 0.85;
-% IG shape on residual variance: alpha0
+% IG shape on residual variance: alpha0 (panel 5,6)
 alpha0 = 1000;
-% % IG scale on residual variance: delta0
+% % IG scale on residual variance: delta0 (panel 5,6)
 delta0 = 1;
-% % hyperparameter: a0
+% % hyperparameter: a0  (panel 6)
 a0 = 1000;
-% % hyperparameter: b0
+% % hyperparameter: b0 (panel 6)
 b0 = 1;
-% % hyperparameter: rho
+% % hyperparameter: rho (panel 6)
 rho = 0.75;
-% % hyperparameter: psi
+% % hyperparameter: psi (panel 6)
 psi = 0.1;
 
 %% Application options
@@ -87,8 +87,9 @@ CF = 1;
 % 4 - Random eff. hierarchy
 % 5 - Factor static
 % 6 - Factor dynamic 
-% structural identification (1=none, 2=Choleski, 3=triangular factorisation, 4=sign restrictions)
-% allowed combinations
+
+% IRFt structural identification (1=none, 2=Choleski, 3=triangular factorisation, 4=sign restrictions)
+% allowed IRFt combinations
 % panel 1 (1-3)
 % panel 2 (1-4)
 % panel 3 (1-4)
