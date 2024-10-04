@@ -27,6 +27,7 @@ function outSampler = lj_panel_rand_eff_hier_smpl(data_endo,data_exo,const,lags,
     end
 
     % initial value for b
+    % Actually not used!!!
     b=(1/N)*sum(beta_init,2);
 
     % initial value for lambda1
@@ -67,6 +68,7 @@ function outSampler = lj_panel_rand_eff_hier_smpl(data_endo,data_exo,const,lags,
       % step 4: draw the series of betas
       % first obtain the inverse of sigmab
       invsigmab=diag(1./diag(sigmab));
+      
       % then loop over units
       for ii=1:N
 
