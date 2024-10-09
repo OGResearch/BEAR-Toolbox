@@ -25,7 +25,7 @@ results_path = fullfile(fileparts(mfilename('fullpath')),'results');
 % to output results in excel
 results = 1;
 % output charts
-plot = 1;
+pplot = 1;
 % save matlab workspace (1=yes, 0=no (default))
 workspace = 0;
 
