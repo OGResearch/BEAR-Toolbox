@@ -1,4 +1,4 @@
-function outSampler = lj_panel_rand_eff_hier_smpl(data_endo,data_exo,const,lags,lambda2,lambda3,lambda4,It,Bu,s0,v0,pick,pickf)
+function [outSampler, X, Y] = lj_panel_rand_eff_hier_smpl(data_endo,data_exo,const,lags,lambda2,lambda3,lambda4,It,Bu,s0,v0,pick,pickf)
 
     % compute preliminary elements
     [Xi, Xibar, Xbar, Yi, yi, y, N, n, m, p, T, k, q, h]=bear.panel4prelim(data_endo,data_exo,const,lags);
@@ -43,7 +43,7 @@ function outSampler = lj_panel_rand_eff_hier_smpl(data_endo,data_exo,const,lags,
     beta = beta_init;
 
     % sampler will be a function
-    function [beta_gibbs, sigma_gibbs] = sampler()
+    function smpl = sampler()
 
       % step 2: obtain b
       % first compute betam, the mean value of the betas over all units
@@ -110,6 +110,9 @@ function outSampler = lj_panel_rand_eff_hier_smpl(data_endo,data_exo,const,lags,
       beta_mean=b;
       sigma_mean=bear.vec(mean(sigma,3));
       lambda_posterior=lambda1;
+      smpl = struct();
+      smpl.beta = beta_gibbs;
+      smpl.sigma = sigma_gibbs;
       
     end
 

@@ -41,7 +41,7 @@ function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,
     % finally, initiate eyetheta
     eyetheta=kron(speye(T),theta);
 
-    function [beta_gibbs, sigma_gibbs] = sampler()
+    function smpl = sampler()
 
         % step 2: obtain sigmatilde
         % compute Sbar
@@ -82,6 +82,9 @@ function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,
         sigma_gibbs = bear.vec(sigma);
         % recalculate beta_gibbs
         beta_gibbs = Xi*theta;
+
+        smpl.beta = beta_gibbs;
+        smpl.sigma = sigma_gibbs;
     end
     
     outSampler = @sampler;

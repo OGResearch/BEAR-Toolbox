@@ -1,22 +1,20 @@
-function [beta_draw] = lj_panel_factor_dynamic_drawer(Zeta_gibbs, phi_gibbs, B_gibbs, theta_gibbs, thetabar, Xi, d, rho, gama, Flocation, Fperiods, iSample)
+function [beta_draw] = lj_panel_factor_dynamic_drawer(smpl, thetabar, Xi, rho, gama, Flocation, Fperiods)
 
   % identify the final period for which we are creating a path
   finalp=Flocation;
 
-  % order number of the sample we are asking for
-  ii = iSample;
-
+  d = size(thetabar,1);
   % recover B
-  B=reshape(B_gibbs(:,ii),d,d);
+  B=reshape(smpl.B,d,d);
   % obtain its choleski factor as the square of each diagonal element
   cholB=diag(diag(B).^0.5);
 
   % draw sigmatilde and phi
-  phi=phi_gibbs(1,ii);
+  phi=smpl.phi;
 
   % get requested theta and zeta samples for period Flocation
-  theta=theta_gibbs(:,ii,finalp);
-  zeta=Zeta_gibbs(finalp,ii);
+  theta=smpl.theta(:,finalp);
+  zeta=smpl.Zeta(finalp);
 
   % initiate the record draws
   h = size(Xi,1);

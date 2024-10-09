@@ -31,11 +31,12 @@ function outSampler = lj_panel_factor_dynamic_smpl(data_endo,data_exo,const,lags
     % initial value for phi
     phi=0.001;
 
-    function [sigmatilde_gibbs, Zeta_gibbs, phi_gibbs, B_gibbs, theta_gibbs, sigma_gibbs] = sampler()
+    function smpl = sampler()
       % step 2: obtain sigmatilde
       % compute Sbar
       % because using a loop is slow, express the summation as a matrix product
       % compute in matrix form the series of residuals yt-Xt*thetat
+      % TODO optimization - check sparse, is it needed
       eps=sparse(reshape(y-Xtilde*Theta,N*n,T));
       % create a diagonal matrix for which each diagonal entry is a zeta value
       zetamat=sparse(diag(exp(-Zeta)));
@@ -199,6 +200,14 @@ function outSampler = lj_panel_factor_dynamic_smpl(data_endo,data_exo,const,lags
       temp=kron(exp(Zeta),bear.vec(sigmatilde));
       sigma_gibbs=reshape(temp,(N*n)^2,T);
 
+      smpl            = struct();
+      smpl.sigmatilde = sigmatilde_gibbs;
+      smpl.Zeta       = Zeta_gibbs;
+      smpl.phi        = phi_gibbs;
+      smpl.B          = B_gibbs;
+      smpl.theta      = theta_gibbs;
+      smpl.sigma      = sigma_gibbs;
+      
     end
 
     outSampler = @sampler;
