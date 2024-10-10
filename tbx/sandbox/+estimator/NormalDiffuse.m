@@ -28,7 +28,7 @@ classdef NormalDiffuse < estimator.Base
             opt.priorsexogenous = this.Settings.Exogenous;
             opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
-            opt.lambda2 = this.Settings.Lambda2;            
+            opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
@@ -46,7 +46,7 @@ classdef NormalDiffuse < estimator.Base
 
             opt.bex  = this.Settings.BlockExogenous;
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
 
             priorexo = this.Settings.Exogenous;
 
@@ -68,7 +68,7 @@ classdef NormalDiffuse < estimator.Base
             %setting up prior
             [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, opt.lambda5, ...
                 n, m, opt.p, k, q, opt.bex, blockexo, priorexo);
-            
+
             invomega0 = diag(1./diag(omega0));
             B = Bhat;
 
@@ -83,31 +83,31 @@ classdef NormalDiffuse < estimator.Base
                 % Correct potential asymmetries due to rounding errors from Matlab
                 C = chol(bear.nspd(Shat));
                 Shat = C'*C;
-                
+
                 % next draw from IW(Shat,T)
                 sigma = bear.iwdraw(Shat, T);
-                
+
                 % Continue iteration by drawing beta from a multivariate Normal, conditional on sigma obtained in current iteration
                 % first invert sigma
                 C = chol(bear.nspd(sigma));
                 invC = C\speye(n);
                 invsigma = invC*invC';
-                
+
                 % then obtain the omegabar matrix
                 invomegabar = invomega0 + kron(invsigma, LX'*LX);
                 C = chol(bear.nspd(invomegabar));
                 invC = C\speye(q);
                 omegabar = invC*invC';
-                
+
                 % following, obtain betabar
                 betabar = omegabar*(invomega0*beta0 + kron(invsigma, LX')*Y(:));
-                
+
                 % draw from N(betabar,omegabar);
                 beta = betabar + chol(bear.nspd(omegabar),'lower')*mvnrnd(zeros(q,1),eye(q))';
-                
+
                 % update matrix B with each draw
                 B = reshape(beta,size(B));
-               
+
                 redSample = {reshape(B, 1, 1, []), reshape(sigma, 1, 1, [])};
                 this.SamplerCounter = this.SamplerCounter + 1;
             end

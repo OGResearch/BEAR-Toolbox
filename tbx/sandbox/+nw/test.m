@@ -27,8 +27,7 @@ metaR = meta.ReducedForm( ...
     , constant=config.meta.constant ...
 );
 
-
-estimator = estimator.(config.estimator.method)(autoregression=1);
+estimator = estimator.NormalWishart(metaR, autoregression=1);
 
 r = model.ReducedForm(meta=metaR, estimator=estimator);
 

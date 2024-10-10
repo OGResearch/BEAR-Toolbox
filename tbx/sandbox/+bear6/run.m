@@ -6,7 +6,8 @@ function master = run(getConfigOptions)
         getConfigOptions.ConfigStruct
     end
 
-    configStruct = bear6.getConfigStruct(namedargs2cell(getConfigOptions);
+    cellArgs = namedargs2cell(getConfigOptions);
+    configStruct = bear6.getConfigStruct(cellArgs{:});
     master = bear6.Master(configStruct);
     master.readInputData();
     master.setDates();
