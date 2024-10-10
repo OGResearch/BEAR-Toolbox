@@ -30,7 +30,7 @@ for iteration=1:numt % beginning of forecasting loop
     % call sampler to get one gibbs sample
     smpl = outSampler();
     % get data in X and Y format to have something to play with
-    [Y, X] = lj_get_XY_format(data_endo,const,lags);
+    [Y, X] = lj_get_XY_format(data_endo,data_exo,const,lags);
 
     % dirty part - call this just to generate dimensions
     [~, ~, ~, ~, ~, ~, N, n, m, p, T, ~, ~, ~]=bear.panel3prelim(data_endo,data_exo,const,lags);
@@ -41,5 +41,5 @@ for iteration=1:numt % beginning of forecasting loop
     % test if it works
     eps = Y - X*B;
 
-    lj_simulate(Y,X,B,Fperiods,lags,N,n);
+    lj_simulate(Y,X,B,Fperiods,lags,N,n,m);
   end

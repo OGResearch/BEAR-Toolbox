@@ -1,4 +1,4 @@
-function Xsim = simulate(Y,X,B,Fperiods,lags,N,n)
+function Xsim = simulate(Y,X,B,Fperiods,lags,N,n,m)
 
   p = lags;
   % fcast
@@ -18,7 +18,7 @@ function Xsim = simulate(Y,X,B,Fperiods,lags,N,n)
     % preparation of X matrices has to be run for each country separately and then merged
     for j = 1:N
       temp=bear.lagx(Ysim(:,(j-1)*N+1:j*N),p-1);
-      X = [X temp(end,:)];
+      X = [X [temp(end,:) zeros(1,m)]];
     end
     yp = X*B;
     Ysim = [Ysim;yp];

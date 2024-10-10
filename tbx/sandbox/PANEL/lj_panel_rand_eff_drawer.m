@@ -15,7 +15,7 @@ function [B,Sigma] = lj_panel_rand_eff_drawer(smpl,N,n,p,m)
     for ii = 1:N
       beta_temp = reshape(beta(:,ii),(n*p+m),n);
       % remove exogenous
-      B = blkdiag(B, beta_temp(1:n*p,:));
+      B = blkdiag(B, beta_temp);
     end
     Sigma = sigma;
 end
