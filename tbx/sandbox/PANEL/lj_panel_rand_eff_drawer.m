@@ -10,12 +10,15 @@ function [B,Sigma] = lj_panel_rand_eff_drawer(smpl,N,n,p,m)
     
     beta = smpl.beta;
     sigma = smpl.sigma;
+    
     % B = zeros(N*n*(n*p+m),(n*N));
     B = [];
+    Sigma = [];
     for ii = 1:N
       beta_temp = reshape(beta(:,ii),(n*p+m),n);
-      % remove exogenous
+      sigma_temp = reshape(sigma(:,ii),n,n);
+      % Pack in blocks
       B = blkdiag(B, beta_temp);
+      Sigma = blkdiag(Sigma,sigma_temp);
     end
-    Sigma = sigma;
 end
