@@ -89,7 +89,7 @@ classdef NormalWishart_FAVAR < estimator.Base
 
             this.SamplerCounter = uint64(0);
 
-            function redSample = sampler()
+            function smpl = sampler()
 
                 if onestep == 1
                     
@@ -137,8 +137,12 @@ classdef NormalWishart_FAVAR < estimator.Base
 
                 R2 = bear.favar_R2(favarX, FY, L, favarplotX_index);
 
-                redSample = {reshape(B, 1, 1, []), reshape(sigma, 1, 1, []), reshape(LX, 1, 1, []), reshape(FY, 1, 1, []),...
-                    reshape(L, 1, 1, []) , reshape(R2, 1, 1, [])};
+                smpl.B = B;
+                smpl.sigma = sigma;
+                smpl.LX = LX;
+                smpl.FY = FY;
+                smpl.L = L;
+                smpl.R2 = R2;
                 this.SamplerCounter = this.SamplerCounter + 1;
             
             end%
