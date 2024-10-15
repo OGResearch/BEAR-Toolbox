@@ -71,11 +71,12 @@ classdef NormalWishart < estimator.Base
 
             this.SamplerCounter = uint64(0);
 
-            function redSample = sampler()
+            function smpl = sampler()
                 % [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, n, k);
                 B = bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
                 sigma = bear.iwdraw(Sbar,alphabar);
-                redSample = {reshape(B, 1, 1, []), reshape(sigma, 1, 1, [])};
+                smpl.B = B;
+                smpl.sigma = sigma;
                 this.SamplerCounter = this.SamplerCounter + 1;
             end%
 

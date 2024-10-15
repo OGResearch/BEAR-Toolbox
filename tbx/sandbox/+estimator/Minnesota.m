@@ -74,9 +74,10 @@ classdef Minnesota < estimator.Base
 
             this.SamplerCounter = uint64(0);
 
-            function redSample = sampler()
+            function smpl = sampler()
                 beta = betabar + chol(bear.nspd(omegabar), 'lower') * randn(q,1);
-                redSample = {reshape(beta, 1, 1, []), reshape(sigma, 1, 1, [])};
+                smpl.beta = beta;
+                smpl.sigma = sigma;
                 this.SamplerCounter = this.SamplerCounter + 1;
             end%
 
