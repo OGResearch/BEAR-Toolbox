@@ -3,12 +3,12 @@ function [sample, fv]=favar_nwsampler(It,n,m,p,k,T,q,ar,lambda1,lambda3,lambda4,
     favarX           = favar.X(:,favar.plotX_index); 
     favarplotX_index = favar.plotX_index; 
     onestep          = favar.onestep; 
-    XZ0mean          = zeros(n*opt.p,1);            
-    XZ0var           = favar.L0*eye(n*opt.p);
+    XZ0mean          = zeros(n*p,1);            
+    XZ0var           = favar.L0*eye(n*p);
     XY               = favar.XY; 
     L                = favar.L;
     Sigma            = bear.nspd(favar.Sigma);
-    favar_X          = favar.favar_X;
+    favar_X          = favar.X;
     nfactorvar       = favar.nfactorvar;
     numpc            = favar.numpc;
 
@@ -19,19 +19,20 @@ function [sample, fv]=favar_nwsampler(It,n,m,p,k,T,q,ar,lambda1,lambda3,lambda4,
     B_ss             = prep.B_ss;
     sigma_ss         = prep.sigma_ss;
 
+    FY               = prep.FY;
     Bbar             = prep.Bbar;
     phibar           = prep.phibar;
     Sbar             = prep.Sbar;
     alphabar         = prep.alphabar;  
     alphatilde       = prep.alphatilde;
 
-    beta_gibbs      = prep.beta_gibbs;
-    sigma_gibbs     = prep.sigma_gibbs;
-    X_gibbs         = prep.X_gibbs;
-    Y_gibbs         = prep.Y_gibbs;
-    FY_gibbs        = prep.FY_gibbs;
-    L_gibbs         = prep.L_gibbs;
-    R2_gibbs        = prep.R2_gibbs;
+    beta_gibbs = zeros(size(Bbar(:),1),It);
+    sigma_gibbs = zeros(size(Sbar(:),1),It);
+    X_gibbs = zeros(size(X(:),1),It);
+    Y_gibbs = zeros(size(Y(:),1),It);
+    FY_gibbs = zeros(size(prep.FY(:),1),It);
+    L_gibbs = zeros(size(L(:),1),It);
+    R2_gibbs = zeros(size(favarX,2),It);
 
     for ii = 1:It
         [sample, fv] = smplr();
