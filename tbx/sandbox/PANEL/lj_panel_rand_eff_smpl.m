@@ -1,7 +1,22 @@
-function outSampler = lj_panel_rand_eff_smpl(data_endo,data_exo,const,lags,lambda1)
+function outSampler = lj_panel_rand_eff_smpl(meta, hyper, longY, longX, longZ)
+
+    % input
+    % meta - model specific meta parameters
+    % hyper - model specific hyper parameters
+    % longY - matrix with endogenous variables (whole sample)
+    % longX - matrix with exogenous variables (whole sample)
+    % longZ - matrix with reducibles (whole sample, used for factor models)
+
+    % output
+    % outSampler - sampler function
+    
+    const = meta.flagConst;
+    lags  = meta.numLags;
+
+    lambda1 = hyper.lambda1;
 
     % compute preliminary elements
-    [Xi, Xibar, Xbar, Yi, yi, y, N, n, m, p, T, k, q, h]=bear.panel3prelim(data_endo,data_exo,const,lags);
+    [Xi, Xibar, Xbar, Yi, yi, y, N, n, m, p, T, k, q, h]=bear.panel3prelim(longY,longX,const,lags);
 
     % obtain prior elements
     [b, bbar, sigeps]=bear.panel3prior(Xibar,Xbar,yi,y,N,q);
