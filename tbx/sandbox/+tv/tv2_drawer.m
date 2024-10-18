@@ -54,7 +54,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
 
            % update lambda_t and obtain Lambda_t
            % loop over variables
-           for kk=1:numEn
+           for kk = 1:numEn
                lambda(kk, 1) = gamma * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
            end
 
