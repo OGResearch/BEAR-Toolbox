@@ -79,7 +79,7 @@ function outSampler = adapterSampler(this, YXZ)
     epst = zeros(numEn , 1 , estimLength);
 
 
-    function smpl  =  sampler()
+    function sampleStruct  =  sampler()
     
         % step 4: draw B
         invomegabar = H' * kron(I_tau, invomega) * H + Xbar' * invsigmabar * Xbar;
@@ -228,16 +228,16 @@ function outSampler = adapterSampler(this, YXZ)
         end
     
         % record the results
-        smpl.beta = mat2cell(B,repmat(sizeB,estimLength,1));
-        smpl.omega = diag(omega);
-        smpl.F = F;
-        smpl.L = mat2cell(L, ones(estimLength, 1), 3);
-        smpl.phi = phi;
-        smpl.sigma_avg = sigma(:);
+        sampleStruct.beta = mat2cell(B,repmat(sizeB,estimLength,1));
+        sampleStruct.omega = diag(omega);
+        sampleStruct.F = F;
+        sampleStruct.L = mat2cell(L, ones(estimLength, 1), 3);
+        sampleStruct.phi = phi;
+        sampleStruct.sigma_avg = sigma(:);
     
         for jj = 1:estimLength
-            smpl.lambda_t{jj, 1}(:, :) = lambda_t(:, :, jj);
-            smpl.sigma_t{jj, 1}(:, :) = sigma_t(:, :, jj);
+            sampleStruct.lambda_t{jj, 1}(:, :) = lambda_t(:, :, jj);
+            sampleStruct.sigma_t{jj, 1}(:, :) = sigma_t(:, :, jj);
         end
     end
 
