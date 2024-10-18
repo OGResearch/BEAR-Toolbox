@@ -1,4 +1,4 @@
-function [A, C, Sigma] = lj_panel_rand_eff_hier_drawer(smpl,numCountries,numEndog,numLags,numExog)
+function [A, C, Sigma] = lj_panel_ols_drawer(smpl,numCountries,numEndog,numLags,numExog)
     % input 
     % smpl - one sample (gibbs sampling) that contains:
     % smpl.beta - one sample of beta gibbs
@@ -9,7 +9,7 @@ function [A, C, Sigma] = lj_panel_rand_eff_hier_drawer(smpl,numCountries,numEndo
     % C - tranformed matrix of parameters in front of exogenous and constant
     % Sigma - transformed matrix of variance covariance of shocks
     % Y = (L)Y*A + X*C + eps
-    
+
     beta = smpl.beta;
     sigma = smpl.sigma;
     
@@ -20,19 +20,18 @@ function [A, C, Sigma] = lj_panel_rand_eff_hier_drawer(smpl,numCountries,numEndo
     Sigma = [];
 
     for ii = 1:numCountries
-
       beta_temp = reshape(...
-                beta(:,ii),...
-                numEndog*numLags+numExog,...
-                numEndog...
-                );
+              beta,...
+              numEndog*numLags+numExog,...
+              numEndog...
+              );
 
       sigma_temp = reshape(...
-                sigma(:,ii),...
-                numEndog,...
-                numEndog...
-                );
-
+              sigma,...
+              numEndog,...
+              numEndog...
+              );
+              
       % Pack in blocks
       a_temp = beta_temp(1:numEndog*numLags,:);
 
@@ -41,9 +40,9 @@ function [A, C, Sigma] = lj_panel_rand_eff_hier_drawer(smpl,numCountries,numEndo
       A = blkdiag(A, a_temp);
 
       C = [C, c_temp];
-      
+
       Sigma = blkdiag(Sigma,sigma_temp);
 
     end
-    
+
 end
