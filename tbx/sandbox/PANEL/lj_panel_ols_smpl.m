@@ -1,7 +1,15 @@
-function outSampler = lj_panel_ols_smpl(data_endo,data_exo,const,lags)
+function outSampler = lj_panel_ols_smpl(this, meta, longYXZ)
+
+    % output
+    % outSampler - sampler function
+    
+    const = meta.flagConst;
+    lags  = meta.numLags;
+
+    [longY, longX, ~] = longYXZ{:};
 
     % compute preliminary elements
-    [X, Y, N, n, m, p, T, k, q]=bear.panel1prelim(data_endo,data_exo,const,lags);
+    [X, Y, N, n, m, p, T, k, q]=bear.panel1prelim(longY,longX,const,lags);
 
     % obtain the estimates for the model
     [bhat, sigmahatb, sigmahat]=bear.panel1estimates(X,Y,N,n,q,k,T);
