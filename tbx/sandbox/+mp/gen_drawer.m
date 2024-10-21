@@ -35,14 +35,14 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         % draw beta
         beta = sampleStruct.beta;
         B = reshape(beta, numBRows, numEn);                        
-        drawStruct.As = cell(IRFperiods, 1);
-        drawStruct.Cs = cell(IRFperiods, 1);
+        As = B(1:numARows, :);
+        Cs = B(numARows + 1:end, :);
 
         % then generate forecasts recursively
         % for each iteration ii, repeat the process for periods T+1 to T+h
         for jj = 1:IRFperiods    
-               drawStruct.As{jj,1}(:, :) = B(1:numARows, :);
-               drawStruct.Cs{jj,1}(:, :) = B(numARows + 1:end, :); 
+               drawStruct.As{jj,1}(:, :) = As;
+               drawStruct.Cs{jj,1}(:, :) = Cs; 
         end
        
         drawStruct.Sigma = reshape(sampleStruct.sigma, numEn, numEn);   

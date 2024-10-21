@@ -38,7 +38,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
             
             % update beta
             drawStruct.As{jj, 1}(:, :) = B(1:numARows, :);
-            Cs{jj, 1}(:, :) = B(numARows + 1:end, :); 
+            drawStruct.Cs{jj, 1}(:, :) = B(numARows + 1:end, :); 
 
             for kk = 1:numEn
                 lambda(kk, 1) = gamma(kk, 1) * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
@@ -48,27 +48,30 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
             Lambda = sparse(diag(sbar .* exp(lambda)));
            
             % recover sigma_t and draw the residuals
-            Sigmas{jj, 1}(:, :) = full(F * Lambda * F');
+           drawStruct. Sigmas{jj, 1}(:, :) = full(F * Lambda * F');
         end
     end
 
-    function [As, Cs, Sigma] = identifierDrawer(sampleStruct)
+    function drawStruct = identifierDrawer(sampleStruct)
     
         beta = sampleStruct.beta;
         % reshape it to obtain B
         B = reshape(beta, numBRows, numEn);
                         
-        drawStruct.As =cell(IRFperiods, 1);
-        Cs = cell(IRFperiods, 1);
+        drawStruct.As = cell(IRFperiods, 1);
+        drawStruct.Cs = cell(IRFperiods, 1);
+
+        As = B(1:numARows, :);
+        Cs = B(numARows + 1:end, :);
 
         % then generate forecasts recursively
         % for each iteration ii, repeat the process for periods T+1 to T+h
         for jj = 1:IRFperiods
-               drawStruct.As{jj,1}(:, :) = B(1:numARows, :);
-               Cs{jj,1}(:, :) = B(numARows + 1:end, :); 
+               drawStruct.As{jj,1}(:, :) = As;
+               drawStruct.Cs{jj,1}(:, :) = Cs; 
         end
        
-        Sigma = reshape(sampleStruct.sigma_avg, numEn, numEn);   
+        drawStruct.Sigma = reshape(sampleStruct.sigma_avg, numEn, numEn);   
     end
 
     outUnconditionalDrawer = @unconditionalDrawer;
