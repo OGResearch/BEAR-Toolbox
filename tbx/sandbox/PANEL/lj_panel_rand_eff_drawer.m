@@ -81,21 +81,61 @@ function lj_panel_rand_eff_drawer(this, meta)
 
     function draw = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
 
-        % call the identificationDrawer as for the time invariant models, results are almost the same
-        drawIdent = identificationDrawer(sampleStruct, forecastHorizon);
+        smpl = sampleStruct;
+        beta = smpl.beta;
+        sigma = smpl.sigma;
+        
+        % initialization
+        A = [];
+        C = [];
 
+        Sigma = [];
+
+        % initialize the output
+        As = cell(forecastHorizon,1);
+        Cs = cell(forecastHorizon,1);
         Sigmas  = cell(forecastHorizon,1);
+
+        % iterate over countries
+        for ii = 1:numCountries
+
+            beta_temp = reshape(...
+                    beta(:,ii),...
+                    numEndog*numLags+numExog,...
+                    numEndog...
+                    );
+
+            sigma_temp = reshape(...
+                    sigma(:,ii),...
+                    numEndog,...
+                    numEndog...
+                    );
+                    
+            % Pack in blocks
+            a_temp = beta_temp(1:numEndog*numLags,:);
+
+            c_temp = beta_temp(numEndog*numLags+1:end,:);
+
+            A = blkdiag(A, a_temp);
+
+            C = [C, c_temp];
+
+            Sigma = blkdiag(Sigma,sigma_temp);
+
+        end
 
         % pack the output
         for tt = 1:forecastHorizon
 
-            Sigmas{tt} = drawIdent.Sigma;
+            As{tt} = A;
+            Cs{tt} = C;
+            Sigmas{tt} = Sigma;
 
         end
-
+   
         draw = struct();
-        draw.A = drawIdent.A;
-        draw.C = drawIdent.C;
+        draw.A = As;
+        draw.C = Cs;
         draw.Sigma = Sigmas;
 
     end

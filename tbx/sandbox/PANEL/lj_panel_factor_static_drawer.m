@@ -70,21 +70,51 @@ function lj_panel_factor_static_drawer(this, meta)
 
     function draw = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
 
-        % call the identificationDrawer as for the time invariant models, results are almost the same
-        drawIdent = identificationDrawer(sampleStruct, forecastHorizon);
+        smpl = sampleStruct;
+        beta = smpl.beta;
+        sigma = smpl.sigma;
+        
+        % initialization
+        A = [];
+        C = [];
 
+        Sigma = [];
+
+        % initialize the output
+        As =cell(forecastHorizon,1);
+        Cs = cell(forecastHorizon,1);
         Sigmas  = cell(forecastHorizon,1);
+
+        k = numCountries*numEndog*numLags+numExog;
+
+        B = reshape(beta,k, numCountries*numEndog);
+
+        B_reshuffled = zeros(numCountries*numEndog*numLags+numExog,numCountries*numEndog);
+
+        % reshaffle B_draw to map the proper order
+        for ee = 1:numCountries
+            for kk=1:numLags
+                B_reshuffled((ee-1)*numEndog*numLags+(kk-1)*numEndog+1:(ee-1)*numEndog*numLags+kk*numEndog,:) = B((kk-1)*numCountries*numEndog+(ee-1)*numEndog+1:(kk-1)*numCountries*numEndog+ee*numEndog,:);
+            end
+        end
+
+        A = B_reshuffled(1:numEndog*numLags*numCountries,:);
+        C = B(numEndog*numLags*numCountries+1:end,:);
+        
+        Sigma = reshape(sigma,numEndog*numCountries,numEndog*numCountries);
 
         % pack the output
         for tt = 1:forecastHorizon
 
+            As{tt} = A;
+            Cs{tt} = C;
             Sigmas{tt} = drawIdent.Sigma;
 
         end
 
         draw = struct();
-        draw.A = drawIdent.A;
-        draw.C = drawIdent.C;
+        draw.A = As;
+        draw.C = Cs;
         draw.Sigma = Sigmas;
 
     end
