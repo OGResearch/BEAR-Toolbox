@@ -25,13 +25,9 @@ classdef Ordinary < estimator.Base
             opt.It = options.Burnin + numPresample;
             opt.Bu = options.Burnin;
 
-            opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
-
             opt.const = this.Settings.HasConstant;
             opt.p = this.Settings.Order;
             
-            opt.bex  = this.Settings.BlockExogenous;
-
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, numBRows, ~] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
 
             %setting up prior
@@ -52,6 +48,7 @@ classdef Ordinary < estimator.Base
                 sampleStruct.sigma = sigma(:);
 
                 this.SamplerCounter = this.SamplerCounter + 1;
+                
             end%
 
             outSampler = @sampler;
