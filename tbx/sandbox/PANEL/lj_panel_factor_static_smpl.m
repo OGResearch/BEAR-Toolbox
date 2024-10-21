@@ -1,7 +1,15 @@
-function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,It,Bu,alpha0,delta0,pick,pickf)
+function outSampler = lj_panel_factor_static_smpl(this, meta, longY, longX, longZ)
+
+    const = meta.flagConst;
+    lags  = meta.numLags;
+
+    alpha0 = this.Settings.alpha0;
+    delta0 = this.Settings.delta0;
+    Bu = this.Settings.Bu;
+
 
     % compute preliminary elements
-    [Ymat, Xmat, N, n, m, p, T, k, q, h]=bear.panel5prelim(data_endo,data_exo,const,lags);
+    [Ymat, Xmat, numCountries, numEndog, numExog, numLags, T, k, q, h]=bear.panel5prelim(longY,longX,const,lags);
 
     % use this informations to recreate beta from theta
     % Xmat dimension (Tx(Nnp+m)) - one big matrix
@@ -10,12 +18,12 @@ function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,
     % B = Xi*theta
 
     % obtain prior elements
-    [d1, d2, d3, d4, d5, d, Xi1, Xi2, Xi3, Xi4, Xi5, Xi, Y, y, Xtilde, Xdot, theta0, Theta0]=bear.panel5prior(N,n,p,m,k,q,h,T,Ymat,Xmat);
+    [~, ~, ~, ~, ~, d, ~, ~, ~, ~, ~, Xi, Y, y, Xtilde, Xdot, theta0, Theta0]=bear.panel5prior(numCountries,numEndog,numLags,numExog,k,q,h,T,Ymat,Xmat);
 
     % start preparing for a sampler
     % compute first  preliminary elements
     % compute alphabar
-    alphabar=N*n*T+alpha0;
+    alphabar=numCountries*numEndog*T+alpha0;
     % compute the inverse Theta0
     invTheta0=sparse(diag(1./diag(Theta0)));
     % initiate the Gibbs sampler
@@ -23,21 +31,27 @@ function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,
     % step 1: compute initial values
     % initial value for theta (use OLS values)
     theta=(Xtilde*Xtilde')\(Xtilde*y);
+
     % initial value for sigmatilde (use residuals form OLS values)
     eps=y-Xtilde'*theta;
-    eps=reshape(eps,T,N*n);
+    eps=reshape(eps,T,numCountries*numEndog);
     sigmatilde=eps'*eps;
+
     % initiate value for the sigma, the scaling term for the errors
     sig=1;
+
     % initiate value for the matrix sigma, the residual variance-covariance matrix
     sigma=sig*sigmatilde;
+
     % initiate value for eyesigma
     % compute the inverse of sigma
     C=bear.trns(chol(bear.nspd(sigma),'Lower'));
-    invC=C\speye(N*n);
+    invC=C\speye(numCountries*numEndog);
     invsigma=invC*invC';
+
     % then compute eyesigma
     eyesigma=kron(speye(T),invsigma);
+
     % finally, initiate eyetheta
     eyetheta=kron(speye(T),theta);
 
@@ -51,7 +65,7 @@ function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,
         % step 3: obtain sig
         % compute the inverse of sigmatilde
         C=bear.trns(chol(bear.nspd(sigmatilde),'Lower'));
-        invC=C\speye(N*n);
+        invC=C\speye(numCountries*numEndog);
         invsigmatilde=invC*invC';
         % compute deltabar
         deltabar=trace((Y-Xdot*eyetheta)*(Y-Xdot*eyetheta)'*invsigmatilde)+delta0;
@@ -61,7 +75,7 @@ function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,
         % step 4: compute sigma and eyesigma
         sigma=sig*sigmatilde;
         C=bear.trns(chol(bear.nspd(sigma),'Lower'));
-        invC=C\speye(N*n);
+        invC=C\speye(numCountries*numEndog);
         invsigma=invC*invC';
         eyesigma=kron(speye(T),invsigma);
 
@@ -87,11 +101,10 @@ function outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,lags,
         smpl.sigma = sigma_gibbs;
     end
     
+    % burn first Bu sample before returning sampler
+    for count=1:Bu
+        sampler();
+    end
+
     outSampler = @sampler;
-
-    % run the Gibbs sampler
-    % [theta_gibbs,sigma_gibbs,sigmatilde_gibbs,sig_gibbs]=bear.panel5gibbs(y,Y,Xtilde,Xdot,N,n,T,d,theta0,Theta0,alpha0,delta0,It,Bu,pick,pickf);
-
-    % compute posterior estimates
-    % [theta_median,theta_std,theta_lbound,theta_ubound,sigma_median]=bear.panel5estimates(d,N,n,theta_gibbs,sigma_gibbs,cband);
 end
