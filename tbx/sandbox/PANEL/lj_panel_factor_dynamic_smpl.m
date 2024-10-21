@@ -1,4 +1,4 @@
-function outSampler = lj_panel_factor_dynamic_smpl(this, meta, longY, longX, longZ)
+function outSampler = lj_panel_factor_dynamic_smpl(this, meta, longYXZ)
 
 
     const         = meta.flagConst;
@@ -13,6 +13,7 @@ function outSampler = lj_panel_factor_dynamic_smpl(this, meta, longY, longX, lon
     b0            = this.Settings.b0;
 
 
+    [longY, longX, ~] = longYXZ{:};
     % compute preliminary elements
     [Ymat,Xmat,N,n,m,p,T,k,q,h]=bear.panel6prelim(longY,longX,const,numLags);
 
