@@ -13,8 +13,8 @@ classdef ReducedForm < handle
 
     properties
         Meta
+        DataHolder
         Dummies (1, :) cell = cell.empty(1, 0)
-        Factors
         Estimator
     end
 
@@ -28,6 +28,10 @@ classdef ReducedForm < handle
         StabilityThreshold (1, 1) double = model.ReducedForm.DEFAULT_STABILITY_THRESHOLD
     end
 
+    properties (Hidden, SetAccess = protected)
+        LongYXZ (1, 3) cell
+    end
+
     properties (Dependent)
         StabilityThresholdString (1, 1) string
         NumPresampled (1, 1) double
@@ -39,12 +43,13 @@ classdef ReducedForm < handle
         function this = ReducedForm(options)
             arguments
                 options.Meta (1, 1) meta.ReducedForm
-                options.Estimator
+                options.Data (1, 1) data.DataHolder
+                options.Estimator (1, 1) estimator.Base
                 options.Dummies (1, :) cell = cell.empty(1, 0)
-                options.Factors
                 options.StabilityThreshold (1, 1) double = NaN
             end
             this.Meta = options.Meta;
+            this.DataHolder = options.Data;
             this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
             if ~isnan(options.StabilityThreshold)
@@ -57,12 +62,15 @@ classdef ReducedForm < handle
             YLX = this.Meta.getDataYLX(varargin{:});
         end%
 
-        function [longYXZ, dummiesYLX, indivDummiesYLX] = initialize(this, dataTable)
-            longYXZ = this.Meta.getLongYXZ(dataTable, this.Meta.ShortSpan);
+        function [longYXZ, dummiesYLX, indivDummiesYLX] = initialize(this)
+            shortSpan = this.Meta.ShortSpan;
+            longSpan = datex.longSpanFromShortSpan(shortSpan, this.Meta.Order);
+            longYXZ = this.DataHolder.getYXZ(longSpan);
             this.estimateExogenousMean(longYXZ);
             initYXZ = this.Meta.initYXZFromLongYXZ(longYXZ);
             [dummiesYLX, indivDummiesYLX] = this.generateDummiesYLX(initYXZ);
             this.Estimator.initialize(this.Meta, longYXZ, dummiesYLX);
+            this.LongYXZ = longYXZ;
         end%
 
         function estimateExogenousMean(this, longYXZ)
@@ -132,58 +140,53 @@ classdef ReducedForm < handle
             outSampler = @samplerWithStabilityCheck;
         end%
 
-        function outTable = forecast(this, inTable, span, options)
+        function outTable = forecast(this, forecastSpan, options)
             arguments
                 this
-                inTable timetable
-                span (1, :) datetime
+                forecastSpan (1, :) datetime
                 %
-                options.Variant (1, 1) double = 1
                 options.StochasticResiduals (1, 1) logical = true
                 options.IncludeInitial (1, 1) logical = true
             end
             %
             meta = this.Meta;
-            estimator = this.Estimator;
+            forecastStart = forecastSpan(1);
+            forecastEnd = forecastSpan(end);
+            shortForecastSpan = datex.span(forecastStart, forecastEnd);
+            this.checkForecastSpan(forecastStart, forecastEnd);
+            forecastStartIndex = datex.diff(forecastStart, meta.ShortStart) + 1;
             %
-            span = datex.span(span(1), span(end));
-            numPeriods = numel(span);
+            forecastHorizon = numel(shortForecastSpan);
+            longForecastSpan = datex.longSpanFromShortSpan(shortForecastSpan, meta.Order);
             %
-            YLX = meta.getDataYLX( ...
-                inTable, span ...
-                , removeMissing=false ...
-                , variant=options.Variant ...
-            );
+            longYXZ = this.DataHolder.getYXZ(longForecastSpan);
             %
-            this.resetPresampledIndex();
             numPresampled = this.NumPresampled;
+            this.resetPresampledIndex();
             %
-            Init = nan(meta.Order, meta.NumLhsColumns, numPresampled);
-            Y = nan(numPeriods, meta.NumLhsColumns, numPresampled);
-            U = nan(numPeriods, meta.NumLhsColumns, numPresampled);
+            Y0 = nan(meta.Order, meta.NumEndogenousNames, numPresampled);
+            Y = nan(forecastHorizon, meta.NumEndogenousNames, numPresampled);
+            U = nan(forecastHorizon, meta.NumEndogenousNames, numPresampled);
             %
             for i = 1 : numPresampled
-                redSystem = this.nextPresampledSystem();
-                [A, C, Sigma] = redSystem{:};
+                sample = this.Presampled{i};
+                draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
                 %
                 u = system.sampleResiduals( ...
-                    Sigma, numPeriods ...
+                    draw.Sigma ...
                     , stochasticResiduals=options.StochasticResiduals ...
                 );
-                %
-                y = system.forecast(A, C, YLX, u);
-                init = system.extractInitial(YLX);
-                %
+                [y, init] = system.forecast(draw.A, draw.C, longYXZ, u, meta.HasIntercept, meta.Order);
                 U(:, :, i) = u;
                 Y(:, :, i) = y;
-                Init(:, :, i) = init;
+                Y0(:, :, i) = init;
             end
             %
-            outSpan = span;
+            outSpan = shortForecastSpan;
             if options.IncludeInitial
-                Y = [Init; Y];
-                U = [nan(meta.Order, meta.NumLhsColumns, numPresampled); U];
-                outSpan = datex.span(datex.shift(span(1), -meta.Order), span(end));
+                Y = [Y0; Y];
+                U = [nan(meta.Order, size(U, 2), numPresampled); U];
+                outSpan = longForecastSpan;
             end
             %
             outNames = [meta.EndogenousNames, meta.ResidualNames];
@@ -211,28 +214,6 @@ classdef ReducedForm < handle
             num = numel(this.Dummies);
         end%
 
-        function presampled = nextPresampled(this, numRequested)
-            arguments
-                this
-                numRequested (1, 1) double = 1
-            end
-            if this.PresampledIndex + numRequested > this.NumPresampled
-                error("Presampled draws not sufficient to satisfy the request");
-            end
-            sizePresampled = numel(this.Presampled);
-            presampled = cell(1, sizePresampled);
-            index = this.PresampledIndex + (1 : numRequested);
-            for i = 1 : sizePresampled
-                presampled{i} = this.Presampled{i}(:, index, :);
-            end
-            this.PresampledIndex = this.PresampledIndex + numRequested;
-        end%
-
-        function redSystem = nextPresampledSystem(this)
-            sample = this.nextPresampled();
-            redSystem = this.Meta.systemFromSample(sample);
-        end%
-
         function resetPresampledIndex(this)
             this.PresampledIndex = 0;
         end%
@@ -251,27 +232,39 @@ classdef ReducedForm < handle
             this.resetPresampledIndex();
         end%
 
-        function residTable = residuals(this, dataTable)
-            periods = this.EstimationSpan;
-            numPeriods = numel(periods);
-            dataYLX = this.getDataYLX(dataTable, periods, removeMissing=false);
-            numResiduals = this.Meta.NumResidualNames;
-            %
-            this.resetPresampledIndex();
-            numPresampled = this.NumPresampled;
-            residualData = nan(numPeriods, numResiduals, numPresampled);
-            residData = repmat({nan(numPeriods, numPresampled)}, 1, numResiduals);
-            for i = 1 : numPresampled
-                redSystem = this.nextPresampledSystem();
-                [A, C, Sigma] = redSystem{:};
-                U = system.residuals(A, C, dataYLX);
-                for j = 1 : numResiduals
-                    residData{j}(:, i) = U(:, j);
-                end
-            end
-            residTable = tablex.fromCellArray(residData, this.Meta.ResidualNames, periods);
+        function residTable = residuals(this)
+            % periods = this.EstimationSpan;
+            % numPeriods = numel(periods);
+            % dataYLX = this.getDataYLX(dataTable, periods, removeMissing=false);
+            % numResiduals = this.Meta.NumResidualNames;
+            % %
+            % this.resetPresampledIndex();
+            % numPresampled = this.NumPresampled;
+            % residualData = nan(numPeriods, numResiduals, numPresampled);
+            % residData = repmat({nan(numPeriods, numPresampled)}, 1, numResiduals);
+            % for i = 1 : numPresampled
+            %     redSystem = this.nextPresampledSystem();
+            %     [A, C, Sigma] = redSystem{:};
+            %     U = system.residuals(A, C, dataYLX);
+            %     for j = 1 : numResiduals
+            %         residData{j}(:, i) = U(:, j);
+            %     end
+            % end
+            % residTable = tablex.fromCellArray(residData, this.Meta.ResidualNames, periods);
         end%
 
+        function checkForecastSpan(this, forecastStart, forecastEnd)
+            beforeStart = datex.shift(forecastStart, -1);
+            if ~any(beforeStart == this.Meta.ShortSpan)
+                error("Forecast start period out of range");
+            end
+            if ~this.Meta.HasExogenous
+                return
+            end
+            if ~any(forecastEnd == this.DataHolder.Span)
+                error("Forecast end period out of range");
+            end
+        end%
     end
 
 end

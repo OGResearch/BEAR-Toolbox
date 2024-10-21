@@ -8,6 +8,7 @@ classdef Base < handle
     properties
         Sampler
         SamplerCounter (1, 1) uint64 = 0
+        HistoryDrawer
         UnconditionalDrawer
         ConditionalDrawer
         IdentificationDrawer

@@ -13,8 +13,8 @@ classdef ReducedForm < handle
         % Names of exogenous variables
         ExogenousNames (1, :) string
 
-        % Names of variables to be reduced to factors
-        ReducibleNames (1, :) string
+        % Names of reducible variables
+        ReducibleNames (1, :) string = string.empty(1, 0)
 
         % Residual prefix
         ResidualPrefix (1, 1) string = "resid"
@@ -24,6 +24,9 @@ classdef ReducedForm < handle
 
         % Presence of an intercept (constant) in the model
         HasIntercept (1, 1) logical
+
+        % Number of factors to be formed from reducibles
+        NumFactors (1, 1) double {mustBeInteger, mustBePositive} = 1
     end
 
     properties (Hidden, SetAccess=protected)
@@ -52,6 +55,8 @@ classdef ReducedForm < handle
         NumUnits
         NumEndogenousConcepts
 
+        EstimationStart
+        EstimationEnd
         LongStart
         LongEnd
         LongSpan
@@ -61,119 +66,49 @@ classdef ReducedForm < handle
         function this = ReducedForm(options)
             arguments
                 options.EndogenousConcepts (1, :) string {mustBeNonempty}
-                options.ShortSpan (1, :) datetime {mustBeNonempty}
+                options.EstimationSpan (1, :) datetime {mustBeNonempty}
 
                 options.ExogenousNames (1, :) string = string.empty(1, 0)
-                options.ReducibleNames (1, :) string = string.empty(1, 0)
                 options.Units (1, :) string = ""
                 options.Order (1, 1) double {mustBePositive, mustBeInteger} = 1
                 options.Intercept (1, 1) logical = true
             end
             %
             this.EndogenousConcepts = options.EndogenousConcepts;
-            this.ShortSpan = datex.span(options.ShortSpan(1), options.ShortSpan(end));
+            this.ShortSpan = datex.span(options.EstimationSpan(1), options.EstimationSpan(end));
             if isempty(this.ShortSpan)
                 error("Estimation span must be non-empty");
             end
             %
             this.Units = options.Units;
             this.ExogenousNames = options.ExogenousNames;
-            this.ReducibleNames = options.ReducibleNames;
             this.HasIntercept = options.Intercept;
             this.Order = options.Order;
         end%
 
-        function data = getLongY(this, varargin)
-            data = this.getLongData(this.EndogenousNames, varargin{:});
+        function longYXZ = getLongYXZ(this, varargin)
+            longYXZ = this.getSomeYXZ(@datex.longSpanFromShortSpan, varargin{:});
         end%
 
-        function data = getLongX(this, varargin)
-            data = this.getLongData(this.ExogenousNames, varargin{:});
+        function initYXZ = getInitYXZ(this, varargin)
+            initYXZ = this.getSomeYXZ(@datex.initSpanFromShortSpan, varargin{:});
         end%
 
-        function data = getLongZ(this, varargin)
-            data = this.getLongData(this.ReducibleNames, varargin{:});
-        end%
-
-        function YXZ = getLongYXZ(this, varargin)
-            YXZ = {
-                this.getLongY(varargin{:}) ...
-                , this.getLongX(varargin{:}) ...
-                , this.getLongZ(varargin{:}) ...
-            };
-        end%
-
-        function data = getInitY(this, varargin)
-            data = this.getInitData(this.EndogenousNames, varargin{:});
-        end%
-
-        function data = getInitX(this, varargin)
-            data = this.getInitData(this.ExogenousNames, varargin{:});
-        end%
-
-        function data = getInitZ(this, varargin)
-            data = this.getInitData(this.ReducibleNames, varargin{:});
-        end%
-
-        function YXZ = getInitYXZ(this, varargin)
-            YXZ = {
-                this.getInitY(varargin{:}) ...
-                , this.getInitX(varargin{:}) ...
-                , this.getInitZ(varargin{:}) ...
-            };
-        end%
-
-        function data = getLongData(this, names, dataTable, shortSpan, options)
+        function someYXZ = getSomeYXZ(this, someSpanFromShortSpan, dataTable, shortSpan, varargin)
             arguments
                 this
-                names (1, :) string
+                someSpanFromShortSpan (1, 1) function_handle
                 dataTable timetable
                 shortSpan (1, :) datetime
-                options.Variant (1, :) double {mustBePositive, mustBeInteger} = 1
             end
-            longSpan = this.longSpanFromShortSpan(shortSpan);
-            data = tablex.retrieveData( ...
-                dataTable, names, longSpan ...
-                , variant=options.Variant ...
-            );
-        end%
-
-        function data = getInitData(this, names, dataTable, shortSpan, options)
-            arguments
-                this
-                names (1, :) string
-                dataTable timetable
-                shortSpan (1, :) datetime
-                options.Variant (1, :) double {mustBePositive, mustBeInteger} = 1
+            arguments (Repeating)
+                varargin
             end
-            initSpan = this.initSpanFromShortSpan(shortSpan);
-            data = tablex.retrieveData( ...
-                dataTable, names, initSpan ...
-                , variant=options.Variant ...
-                , shift=0 ...
-            );
-        end%
-
-        function longSpan = longSpanFromShortSpan(this, shortSpan)
-            arguments
-                this
-                shortSpan (1, :) datetime
-            end
-            shortStart = shortSpan(1);
-            longStart = datex.shift(shortStart, -this.Order);
-            longEnd = shortSpan(end);
-            longSpan = datex.span(longStart, longEnd);
-        end%
-
-        function initSpan = initSpanFromShortSpan(this, shortSpan)
-            arguments
-                this
-                shortSpan (1, :) datetime
-            end
-            shortStart = shortSpan(1);
-            initStart = datex.shift(shortStart, -this.Order);
-            initEnd = datex.shift(shortStart, -1);
-            initSpan = datex.span(initStart, initEnd);
+            someSpan = someSpanFromShortSpan(shortSpan, this.Order);
+            someY = tablex.retrieveData(dataTable, this.EndogenousNames, someSpan, varargin{:});
+            someX = tablex.retrieveData(dataTable, this.ExogenousNames, someSpan, varargin{:});
+            someZ = tablex.retrieveData(dataTable, this.ReducibleNames, someSpan, varargin{:});
+            someYXZ = {someY, someX, someZ};
         end%
 
         function initYXZ = initYXZFromLongYXZ(this, longXYZ)
@@ -352,6 +287,14 @@ classdef ReducedForm < handle
         end%
 
         function end_ = get.ShortEnd(this)
+            end_ = this.ShortSpan(end);
+        end%
+
+        function start = get.EstimationStart(this)
+            start = this.ShortSpan(1);
+        end%
+
+        function end_ = get.EstimationEnd(this)
             end_ = this.ShortSpan(end);
         end%
 

@@ -83,6 +83,16 @@ classdef NormalWishart < estimator.Base
             %[
             numY = meta.NumEndogenousNames;
             order = meta.Order;
+            estimationHorizon = numel(meta.ShortSpan);
+            %
+            function draw = historyDrawer(sample)
+                A = sample.B(1:numY*order, :);
+                C = sample.B(numY*order+1:end, :);
+                draw = struct();
+                draw.A = repmat({A}, estimationHorizon, 1);
+                draw.C = repmat({C}, estimationHorizon, 1);
+                draw.Sigma = repmat({sample.Sigma}, estimationHorizon, 1);
+            end%
             %
             function draw = unconditionalDrawer(sample, start, horizon)
                 A = sample.B(1:numY*order, :);
@@ -93,16 +103,18 @@ classdef NormalWishart < estimator.Base
                 draw.Sigma = repmat({sample.Sigma}, horizon, 1);
             end%
             %
-            function draw = identificationDrawer(sample, horizon)
+            function draw = identificationDrawer(sample)
                 A = sample.B(1:numY*order, :);
+                %
                 draw = struct();
                 draw.A = repmat({A}, horizon, 1);
                 draw.Sigma = sample.Sigma;
             end%
             %
+            this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.ConditionalDrawer = [];
-            this.IdentificationDrawer = @identificationDrawer;
+            this.IdentificationDrawer = []; %@identificationDrawer;
             %]
         end%
     end
