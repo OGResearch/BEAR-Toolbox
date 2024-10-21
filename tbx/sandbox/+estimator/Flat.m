@@ -66,7 +66,7 @@ classdef Flat < estimator.Base
                 betabar = omegabar * (kron(invsigma, LX') * Y(:));
 
                 % draw from N(betabar,omegabar);
-                beta = betabar + chol(bear.nspd(omegabar),'lower') * mvnrnd(zeros(sizeB,1),eye(sizeB))';
+                beta = betabar + chol(bear.nspd(omegabar),'lower') * mvnrnd(zeros(sizeB, 1), eye(sizeB))';
 
                 sampleStruct.beta = beta;
                 sampleStruct.sigma = sigma;

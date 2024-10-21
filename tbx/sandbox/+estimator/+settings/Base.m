@@ -4,9 +4,7 @@
 classdef (CaseInsensitiveProperties=true) Base < settings.Base
 
     properties
-        % Time-variant parameter estimation
-        TimeVariant (1, 1) logical = false
-
+        
         % Model has a constant term
         HasConstant (1, 1) logical = true
 
