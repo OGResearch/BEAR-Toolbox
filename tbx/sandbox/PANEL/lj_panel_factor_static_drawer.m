@@ -1,5 +1,5 @@
-function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_rand_eff_drawer(this, meta)
-
+function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_drawer(this, meta)
+    
     numCountries = meta.numCountries;
     numEndog     = meta.numEndog;
     numLags      = meta.numLags;
@@ -22,7 +22,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_rand_eff_drawe
         % C - tranformed matrix of parameters in front of exogenous and constant
         % Sigma - transformed matrix of variance covariance of shocks
         % Y = (L)Y*A + X*C + eps
-          
+
         smpl = sampleStruct;
         beta = smpl.beta;
         sigma = smpl.sigma;
@@ -37,33 +37,23 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_rand_eff_drawe
         As = cell(IRFperiods,1);
         Cs = cell(IRFperiods,1);
 
-        % iterate over countries
-        for ii = 1:numCountries
+        k = numCountries*numEndog*numLags+numExog;
 
-            beta_temp = reshape(...
-                    beta(:,ii),...
-                    numEndog*numLags+numExog,...
-                    numEndog...
-                    );
+        B = reshape(beta,k, numCountries*numEndog);
 
-            sigma_temp = reshape(...
-                    sigma(:,ii),...
-                    numEndog,...
-                    numEndog...
-                    );
-                    
-            % Pack in blocks
-            a_temp = beta_temp(1:numEndog*numLags,:);
+        B_reshuffled = zeros(numCountries*numEndog*numLags+numExog,numCountries*numEndog);
 
-            c_temp = beta_temp(numEndog*numLags+1:end,:);
-
-            A = blkdiag(A, a_temp);
-
-            C = [C, c_temp];
-
-            Sigma = blkdiag(Sigma,sigma_temp);
-
+        % reshaffle B_draw to map the proper order
+        for ee = 1:numCountries
+            for kk=1:numLags
+                B_reshuffled((ee-1)*numEndog*numLags+(kk-1)*numEndog+1:(ee-1)*numEndog*numLags+kk*numEndog,:) = B((kk-1)*numCountries*numEndog+(ee-1)*numEndog+1:(kk-1)*numCountries*numEndog+ee*numEndog,:);
+            end
         end
+
+        A = B_reshuffled(1:numEndog*numLags*numCountries,:);
+        C = B(numEndog*numLags*numCountries+1:end,:);
+        
+        Sigma = reshape(sigma,numEndog*numCountries,numEndog*numCountries);
 
         % pack the output
         for tt = 1:IRFperiods
@@ -74,7 +64,6 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_rand_eff_drawe
         end
 
     end
-
 
     function [As, Cs, Sigmas] = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
 
