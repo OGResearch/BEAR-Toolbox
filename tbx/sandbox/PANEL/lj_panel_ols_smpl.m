@@ -32,6 +32,7 @@ function outSampler = lj_panel_ols_smpl(this, meta, longYXZ)
       smpl = struct();
       smpl.beta = beta;
       smpl.sigma = sigmahat;
+      smpl.bhat = bhat;
 
     end
 

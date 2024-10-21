@@ -81,7 +81,7 @@ function lj_panel_ols_drawer(this, meta)
     function draw = unconditionalDrawer(sampleStruct, forecastStart, forecastHorizon)
 
         smpl = sampleStruct;
-        beta = smpl.beta;
+        beta = smpl.bhat; % forecast is using mean OLS fixed parameters, no draws
         sigma = smpl.sigma;
         
         % initialization
