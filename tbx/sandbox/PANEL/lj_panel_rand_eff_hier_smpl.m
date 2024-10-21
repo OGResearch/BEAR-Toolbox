@@ -1,4 +1,4 @@
-function outSampler = lj_panel_rand_eff_hier_smpl(this, meta, longY, longX, longZ)
+function outSampler = lj_panel_rand_eff_hier_smpl(this, meta, longYXZ)
 
     % input
     % meta - model specific meta parameters
@@ -20,8 +20,10 @@ function outSampler = lj_panel_rand_eff_hier_smpl(this, meta, longY, longX, long
     v0 = this.Settings.v0;
     Bu = this.Settings.Bu;
 
+    [longY, longX, ~] = longYXZ{:};
+
     % compute preliminary elements
-    [Xi, ~, ~, Yi, ~, y, numCountries, numEndog, numExog, numLags, T, ~, ~, ~]=bear.panel4prelim(longY,longX,const,lags);
+    [Xi, ~, ~, Yi, ~, ~, numCountries, numEndog, numExog, numLags, T, ~, ~, ~]=bear.panel4prelim(longY,longX,const,lags);
 
     % determine k, the number of parameters to estimate in each equation
     k=numEndog*numLags+numExog;
