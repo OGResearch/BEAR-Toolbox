@@ -1,5 +1,5 @@
 
-function outArray = retrieveDataAsCellArray(inTable, names, periods, options)
+function [outArray, periods] = retrieveDataAsCellArray(inTable, names, periods, options)
 
     arguments
         inTable timetable

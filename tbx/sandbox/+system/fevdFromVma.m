@@ -1,8 +1,6 @@
 
 function Y = fevdFromVma(Y, varVec, shockIndex)
 
-    jjj
-
     numPeriods = size(Y, 1);
     numY = size(Y, 2);
     numShocks = size(varVec, 2);

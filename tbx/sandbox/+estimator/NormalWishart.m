@@ -1,24 +1,22 @@
 
 classdef NormalWishart < estimator.Base
 
+    properties
+        CanHaveDummies = true
+        CanHaveReducibles = false
+    end
+
     methods
-        function initializeSampler(this, YXZ)
-            arguments
-                this
-                YXZ (1, 3) cell
-            end
-            this.Sampler = this.adapterForSampler(YXZ);
-        end%
-
-
-        function outSampler = adapterForSampler(this, YXZ)
+        function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
                 this
-                YXZ (1, 3) cell
+                meta (1, 1) meta.ReducedForm
+                longYXZ (1, 3) cell
+                dummiesYLX (1, 3) cell
             end
 
-            [Y_long, X_long, ~] = YXZ{:};
+            [longY, longX, ~] = longYXZ{:};
 
             options.Burnin = 0;
             numPresample = 1;
@@ -39,10 +37,10 @@ classdef NormalWishart < estimator.Base
             sigmaAdapter.ar = 21;
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
-            opt.const = this.Settings.HasConstant;
-            opt.p = this.Settings.Order;
-           
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
+            opt.const = meta.HasIntercept;
+            opt.p = meta.Order;
+
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(longY, longX, opt.const, opt.p);
 
             priorexo = this.Settings.Exogenous;
 
@@ -58,7 +56,7 @@ classdef NormalWishart < estimator.Base
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            arvar = bear.arloop(Y_long, opt.const, opt.p, n);
+            arvar = bear.arloop(longY, opt.const, opt.p, n);
 
             %setting up prior
             [B0, ~, phi0, S0, alpha0] = bear.nwprior(ar, arvar, opt.lambda1, opt.lambda3, opt.lambda4, n, m, opt.p, k, q, ...
@@ -66,24 +64,45 @@ classdef NormalWishart < estimator.Base
 
             % obtain posterior distribution parameters
             [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, n, T, k);
-
-            %===============================================================================
-
-            this.SamplerCounter = uint64(0);
-
-            function smpl = sampler()
+            %
+            function sample = sampler()
                 % [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, n, k);
-                B = bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
-                sigma = bear.iwdraw(Sbar,alphabar);
-                smpl.B = B;
-                smpl.sigma = sigma;
+                B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, k, n);
+                Sigma = bear.iwdraw(Sbar, alphabar);
+                sample.B = B;
+                sample.Sigma = Sigma;
                 this.SamplerCounter = this.SamplerCounter + 1;
             end%
+            %
+            this.Sampler = @sampler;
+            %]
+        end%
 
-            outSampler = @sampler;
 
-            %===============================================================================
-
+        function createDrawers(this, meta)
+            %[
+            numY = meta.NumEndogenousNames;
+            order = meta.Order;
+            %
+            function draw = unconditionalDrawer(sample, start, horizon)
+                A = sample.B(1:numY*order, :);
+                C = sample.B(numY*order+1:end, :);
+                draw = struct();
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
+                draw.Sigma = repmat({sample.Sigma}, horizon, 1);
+            end%
+            %
+            function draw = identificationDrawer(sample, horizon)
+                A = sample.B(1:numY*order, :);
+                draw = struct();
+                draw.A = repmat({A}, horizon, 1);
+                draw.Sigma = sample.Sigma;
+            end%
+            %
+            this.UnconditionalDrawer = @unconditionalDrawer;
+            this.ConditionalDrawer = [];
+            this.IdentificationDrawer = @identificationDrawer;
             %]
         end%
     end

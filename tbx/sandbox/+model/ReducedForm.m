@@ -19,10 +19,9 @@ classdef ReducedForm < handle
     end
 
     properties
-        Presampled (1, 2) cell = cell(1, 2)
-        PresampledCounter (1, 1) double = 0
+        Presampled (1, :) cell = cell.empty(1, 0)
+        PresampledIndex (1, 1) double = 0
         ExogenousMean (1, :) double
-        EstimationSpan (1, :) datetime
     end
 
     properties (Hidden)
@@ -50,32 +49,30 @@ classdef ReducedForm < handle
             this.Estimator = options.Estimator;
             if ~isnan(options.StabilityThreshold)
                 this.StabilityThreshold = options.StabilityThreshold;
-            end 
+            end
+            this.Estimator.checkMetaConsistency(this.Meta);
         end%
 
         function YLX = getDataYLX(this, varargin)
             YLX = this.Meta.getDataYLX(varargin{:});
         end%
 
-        function [YLX, initYLX, dummiesYLX] = initialize(this, dataTable, periods)
-            this.EstimationSpan = periods;
-            YLX = this.Meta.getDataYLX(dataTable, periods);
-            initYLX = this.Meta.getInitYLX(dataTable, periods);
-            this.estimateExogenousMean(YLX, initYLX);
-            dummiesYLX = this.generateDummiesYLS(dataTable, periods);
-            allYLX = system.mergeYLX(dummiesYLX, YLX);
-            this.Estimator.initialize(allYLX);
+        function [longYXZ, dummiesYLX, indivDummiesYLX] = initialize(this, dataTable)
+            longYXZ = this.Meta.getLongYXZ(dataTable, this.Meta.ShortSpan);
+            this.estimateExogenousMean(longYXZ);
+            initYXZ = this.Meta.initYXZFromLongYXZ(longYXZ);
+            [dummiesYLX, indivDummiesYLX] = this.generateDummiesYLX(initYXZ);
+            this.Estimator.initialize(this.Meta, longYXZ, dummiesYLX);
         end%
 
-        function estimateExogenousMean(this, YLX, initYLX)
-            X = YLX{3};
-            initX = initYLX{3};
-            this.ExogenousMean = mean([initX; X], 1, "omitNaN");
+        function estimateExogenousMean(this, longYXZ)
+            [~, longX, ~] = longYXZ{:};
+            this.ExogenousMean = mean(longX, 1, "omitNaN");
         end%
 
         function ameanY = asymptoticMean(this)
             % TODO: Reimplement for time-varying models
-            this.resetPresampledCounter();
+            this.resetPresampledIndex();
             numPresampled = this.NumPresampled;
             ameanX = this.ExogenousMean;
             ameanY = nan(1, this.Meta.NumLhsColumns, numPresampled);
@@ -90,14 +87,13 @@ classdef ReducedForm < handle
             );
         end%
 
-        function [allDummiesYLX, individualDummiesYLX] = generateDummiesYLS(this, dataTable, periods)
-            initYLX = this.Meta.getInitYLX(dataTable, periods);
-            individualDummiesYLX = cell(1, this.NumDummies);
+        function [allDummiesYLX, indivDummiesYLX] = generateDummiesYLX(this, initYLX)
+            indivDummiesYLX = cell(1, this.NumDummies);
             for i = 1 : this.NumDummies
-                individualDummiesYLX{i} = this.Dummies{i}.generate(initYLX);
+                indivDummiesYLX{i} = this.Dummies{i}.generate(this.Meta, initYLX);
             end
             allDummiesYLX = this.Meta.createEmptyYLX();
-            allDummiesYLX = system.mergeYLX(allDummiesYLX, individualDummiesYLX{:});
+            allDummiesYLX = system.mergeDataCells(allDummiesYLX, indivDummiesYLX{:});
         end%
 
         function sampler = getSampler(this)
@@ -159,7 +155,7 @@ classdef ReducedForm < handle
                 , variant=options.Variant ...
             );
             %
-            this.resetPresampledCounter();
+            this.resetPresampledIndex();
             numPresampled = this.NumPresampled;
             %
             Init = nan(meta.Order, meta.NumLhsColumns, numPresampled);
@@ -204,7 +200,7 @@ classdef ReducedForm < handle
         end%
 
         function num = get.NumPresampled(this)
-            num = size(this.Presampled{1}, 2);
+            num = numel(this.Presampled);
         end%
 
         function flag = get.HasDummies(this)
@@ -220,16 +216,16 @@ classdef ReducedForm < handle
                 this
                 numRequested (1, 1) double = 1
             end
-            if this.PresampledCounter + numRequested > this.NumPresampled
+            if this.PresampledIndex + numRequested > this.NumPresampled
                 error("Presampled draws not sufficient to satisfy the request");
             end
             sizePresampled = numel(this.Presampled);
             presampled = cell(1, sizePresampled);
-            index = this.PresampledCounter + (1 : numRequested);
+            index = this.PresampledIndex + (1 : numRequested);
             for i = 1 : sizePresampled
                 presampled{i} = this.Presampled{i}(:, index, :);
             end
-            this.PresampledCounter = this.PresampledCounter + numRequested;
+            this.PresampledIndex = this.PresampledIndex + numRequested;
         end%
 
         function redSystem = nextPresampledSystem(this)
@@ -237,38 +233,31 @@ classdef ReducedForm < handle
             redSystem = this.Meta.systemFromSample(sample);
         end%
 
-        function resetPresampledCounter(this)
-            this.PresampledCounter = 0;
+        function resetPresampledIndex(this)
+            this.PresampledIndex = 0;
         end%
 
         function preallocatePresampled(this, numPresampled)
-            this.Presampled = this.Estimator.Preallocator(numPresampled);
-            this.resetPresampledCounter();
+            this.Presampled = cell(1, numPresampled);
+            this.resetPresampledIndex();
         end%
 
-        function savePresampled(this, sample, index)
-            for j = 1 : numel(this.Presampled)
-                this.Presampled{j}(:, index, :) = sample{j};
-            end
-        end%
-
-        function presampled = presample(this, numPresampled)
+        function presample(this, numPresampled)
             this.preallocatePresampled(numPresampled);
             sampler = this.getSampler();
             for i = 1 : numPresampled
-                sample = sampler();
-                this.savePresampled(sample, i);
+                this.Presampled{1, i} = sampler();
             end
-            this.resetPresampledCounter();
+            this.resetPresampledIndex();
         end%
 
         function residTable = residuals(this, dataTable)
             periods = this.EstimationSpan;
             numPeriods = numel(periods);
             dataYLX = this.getDataYLX(dataTable, periods, removeMissing=false);
-            numResiduals = this.Meta.NumResidualColumns;
+            numResiduals = this.Meta.NumResidualNames;
             %
-            this.resetPresampledCounter();
+            this.resetPresampledIndex();
             numPresampled = this.NumPresampled;
             residualData = nan(numPeriods, numResiduals, numPresampled);
             residData = repmat({nan(numPeriods, numPresampled)}, 1, numResiduals);

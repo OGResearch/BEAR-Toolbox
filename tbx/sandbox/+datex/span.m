@@ -2,9 +2,17 @@
 function dt = span(from, until, step)
 
     arguments
-        from (1, 1) datetime
-        until (1, 1) datetime
+        from (1, 1)
+        until (1, 1)
         step (1, 1) double {mustBeInteger, mustBeMember(step, [1, -1])} = 1
+    end
+
+    if isstring(from)
+        from = datex.fromSdmx(from);
+    end
+
+    if isstring(until)
+        until = datex.fromSdmx(until);
     end
 
     handler = datex.Backend.getFrequencyHandlerFromDatetime(from);

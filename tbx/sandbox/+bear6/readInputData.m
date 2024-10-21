@@ -1,5 +1,5 @@
 
-function dataTable = readInputData(config)
+function dataTable = readInputData(dataConfig)
 
     INPUT_DATA_READER = struct( ...
         "csv", @tablex.fromCsv ...
@@ -7,12 +7,8 @@ function dataTable = readInputData(config)
 
     dataTable = [];
 
-    if isfield(config, "data") && ~isempty(config.data)
-        data = config.data;
-        reader = INPUT_DATA_READER.(lower(data.format));
-        dataTable = reader(data.source);
-        return
-    end
+    reader = INPUT_DATA_READER.(lower(dataConfig.format));
+    dataTable = reader(dataConfig.source);
 
 end%
 

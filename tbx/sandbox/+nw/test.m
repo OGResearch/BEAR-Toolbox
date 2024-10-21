@@ -10,13 +10,29 @@ rng(0);
 
 pctileFunc = @(x) prctile(x, [5, 50, 95], 2);
 
-master = bear6.run(configFile="+nw/config.toml");
-config = master.Config;
+% master = bear6.run(configStruct=configStruct);
+% config = master.Config;
+
+config = struct();
+
+config.data = struct( ...
+    "format", "csv", ...
+    "source", "exampleData.csv" ...
+);
+
+config.meta = struct( ...
+    "endogenous", ["DOM_GDP", "DOM_CPI", "STN"], ...
+    "shocks", ["shock1", "shock2", "shock3"], ...
+    "order", 4, ...
+    "estimationStart", "1975-Q1", ...
+    "estimationEnd", "2014-Q4", ...
+    "intercept", true ...
+);
 
 % histLegacy = tablex.fromCsv("exampleDataLegacy.csv", dateFormat="legacy");
 % hist = tablex.fromCsv("exampleData.csv");
 
-hist = master.InputData;
+hist = bear6.readInputData(config.data);
 
 dataSpan = tablex.span(hist);
 estimSpan = dataSpan;
@@ -24,15 +40,17 @@ estimSpan = dataSpan;
 metaR = meta.ReducedForm( ...
     endogenous=config.meta.endogenous ...
     , order=config.meta.order ...
-    , constant=config.meta.constant ...
+    , intercept=config.meta.intercept ...
+    , shortSpan=datex.span("1975-Q1", "2014-Q4") ...
 );
 
 estimator = estimator.NormalWishart(metaR, autoregression=1);
 
-r = model.ReducedForm(meta=metaR, estimator=estimator);
+r = model.ReducedForm(meta=metaR, estimator=estimator, stabilityThreshold=Inf);
 
-r.initialize(hist, estimSpan);
-% r.presample(100);
+r.initialize(hist);
+
+r.presample(100);
 residTbl = r.residuals(hist);
 
 % id = identifier.Triangular(stdVec=1);

@@ -6,56 +6,68 @@ classdef Base < handle
     end
 
     properties
-        Preallocator
         Sampler
         SamplerCounter (1, 1) uint64 = 0
-        EstimationSpan (1, :) datetime
+        UnconditionalDrawer
+        ConditionalDrawer
+        IdentificationDrawer
+    end
+
+    properties (Dependent)
+        ShortClassName
+    end
+
+    properties (Abstract)
+        CanHaveDummies
+        CanHaveReducibles
     end
 
     methods (Abstract)
-        initializeSampler(this, meta, YXZ)
+        initializeSampler(this, meta, longYXZ, dummiesYLX)
+        createDrawers(this, meta)
     end
 
     methods
         function this = Base(meta, varargin)
-            className = extractAfter(class(this), "estimator.");
-            this.Settings = estimator.settings.(className)(meta, varargin{:});
+            this.Settings = estimator.settings.(this.ShortClassName)(meta, varargin{:});
         end%
-
 
         function flag = beenInitialized(this)
-            flag = ~isempty(this.Sampler) && ~isempty(this.Preallocator);
+            flag = ~isempty(this.Sampler) && ~isempty(this.Drawer);
         end%
 
-
-        function initialize(this, meta, YXZ)
-            this.initializePreallocator(meta, YXZ);
-            this.initializeSampler(YXZ);
+        function initialize(this, meta, longYXZ, dummiesYLX)
+            this.initializeSampler(meta, longYXZ, dummiesYLX);
+            this.createDrawers(meta);
         end%
 
+        function name = get.ShortClassName(this)
+            name = extractAfter(class(this), "estimator.");
+        end%
 
-        function initializePreallocator(this, meta, YXZ)
-            [Y, ~, ~] = YXZ{:};
-            numT = size(Y, 1) - meta.Order;
-            numY = meta.NumEndogenousColumns;
-            numL = meta.NumEndogenousColumns * meta.Order;
-            numX = meta.NumExogenousColumns;
+        function checkMetaConsistency(this, meta)
+            this.checkCanHaveReducibles(meta);
+            this.checkCanHaveDummies(meta);
+        end%
 
-            numBeta = numY * (numL + numX);
-            numSigma = numY * numY;
-            if this.Settings.TimeVariant
-                numPeriods = numT;
-            else
-                numPeriods = 1;
+        function checkCanHaveReducibles(this, meta)
+            if ~this.CanHaveReducibles && meta.HasReducibles
+                error( ...
+                    "Estimator %s does not allow for reduciables and factors" ...
+                    , this.ShortClassName ...
+                );
             end
-            function sample = preallocator(numDraws)
-                sample = {
-                    nan(numPeriods, numDraws, numBeta), ...
-                    nan(numPeriods, numDraws, numSigma), ...
-                };
-            end%
-            this.Preallocator = @preallocator;
         end%
+
+        function checkCanHaveDummies(this, meta)
+            if ~this.CanHaveDummies && meta.HasDummies
+                error( ...
+                    "Estimator %s does not allow for dummy observations" ...
+                    , this.ShortClassName ...
+                );
+            end
+        end%
+
     end
 
 end

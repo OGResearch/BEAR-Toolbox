@@ -3,111 +3,197 @@
 
 classdef ReducedForm < handle
 
-    properties (Dependent)
-        % Diplay of endogenous names
-        EndogenousNames
+    properties (SetAccess=protected)
+        % Endogenous concepts
+        EndogenousConcepts (1, :) string
 
-        % Diplay of exogenous names
-        ExogenousNames
-    end
+        % Units in panel models
+        Units (1, :) string = ""
 
-    properties (Hidden)
-        % Endogenous items
-        EndogenousItems (1, :) cell
+        % Names of exogenous variables
+        ExogenousNames (1, :) string
 
-        % Exogenous items
-        ExogenousItems (1, :) cell = cell.empty(1, 0)
+        % Names of variables to be reduced to factors
+        ReducibleNames (1, :) string
 
         % Residual prefix
-        ResidualPrefix (1, 1) string = "resid_"
-    end
+        ResidualPrefix (1, 1) string = "resid"
 
-    properties
         % Order of the VAR model
         Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
+
+        % Presence of an intercept (constant) in the model
+        HasIntercept (1, 1) logical
     end
 
-    properties (Hidden, SetAccess=private)
-        % Number of endogenous variables
-        HasConstant
+    properties (Hidden, SetAccess=protected)
+        % Span of fitted data
+        ShortSpan
 
-        % Number of endogenous data columns
-        NumEndogenousColumns
+        % Separator
+        SEPARATOR = "_"
+    end
 
-        % Number of exogenous data columns
-        NumExogenousColumns
-
-        % Number of columns in the LHS data array
-        NumLhsColumns
-
-        % Number of columns in the RHS data array
-        NumRhsColumns
-
-        % Transition matrices
-        SizeA
-        NumelA
-
-        % Multipliers of exogenous variables
-        SizeC
-        NumelC
-
-        % Covariance matrix of reduced-form residuals
-        SizeSigma
-        NumelSigma
-
-        % Combined transition matrices and multipliers
-        SizeB
-        NumelB
-
-        % Number of elements in the vector of parameters
-        NumelTheta
+    properties (Dependent)
+        ShortStart
+        ShortEnd
     end
 
     properties (Dependent, Hidden)
+        EndogenousNames
         ResidualNames
-        NumResidualColumns
+        HasExogenous
+        HasReducibles
+        HasUnits
+
+        NumEndogenousNames
+        NumExogenousNames
+        NumReducibleNames
+        NumUnits
+        NumEndogenousConcepts
+
+        LongStart
+        LongEnd
+        LongSpan
     end
 
     methods
         function this = ReducedForm(options)
             arguments
-                options.Endogenous (1, :) = string.empty(1, 0)
-                options.Exogenous (1, :) = string.empty(1, 0)
-                options.Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
-                options.Constant (1, 1) logical = true
+                options.EndogenousConcepts (1, :) string {mustBeNonempty}
+                options.ShortSpan (1, :) datetime {mustBeNonempty}
+
+                options.ExogenousNames (1, :) string = string.empty(1, 0)
+                options.ReducibleNames (1, :) string = string.empty(1, 0)
+                options.Units (1, :) string = ""
+                options.Order (1, 1) double {mustBePositive, mustBeInteger} = 1
+                options.Intercept (1, 1) logical = true
             end
             %
-            if isempty(options.Endogenous)
-                error("At least one endogenous variable must be specified");
+            this.EndogenousConcepts = options.EndogenousConcepts;
+            this.ShortSpan = datex.span(options.ShortSpan(1), options.ShortSpan(end));
+            if isempty(this.ShortSpan)
+                error("Estimation span must be non-empty");
             end
             %
-            this.EndogenousItems = item.fromUserInput(options.Endogenous);
-            this.ExogenousItems = item.fromUserInput(options.Exogenous);
-            if options.Constant
-                this.ExogenousItems{end+1} = item.Constant();
-            end
+            this.Units = options.Units;
+            this.ExogenousNames = options.ExogenousNames;
+            this.ReducibleNames = options.ReducibleNames;
+            this.HasIntercept = options.Intercept;
             this.Order = options.Order;
-            this.populateProperties();
         end%
 
-        function populateProperties(this)
-            this.assignHasConstant();
-            this.assignNumEndogenousColumns();
-            this.assignNumExogenousColumns();
-            this.assignNumLhsColumns();
-            this.assignNumRhsColumns();
+        function data = getLongY(this, varargin)
+            data = this.getLongData(this.EndogenousNames, varargin{:});
+        end%
 
-            this.assignSizeA();
-            this.assignSizeC();
-            this.assignSizeSigma();
-            this.assignSizeB();
+        function data = getLongX(this, varargin)
+            data = this.getLongData(this.ExogenousNames, varargin{:});
+        end%
 
-            this.assignNumelA();
-            this.assignNumelC();
-            this.assignNumelSigma();
-            this.assignNumelB();
+        function data = getLongZ(this, varargin)
+            data = this.getLongData(this.ReducibleNames, varargin{:});
+        end%
 
-            this.assignNumelTheta();
+        function YXZ = getLongYXZ(this, varargin)
+            YXZ = {
+                this.getLongY(varargin{:}) ...
+                , this.getLongX(varargin{:}) ...
+                , this.getLongZ(varargin{:}) ...
+            };
+        end%
+
+        function data = getInitY(this, varargin)
+            data = this.getInitData(this.EndogenousNames, varargin{:});
+        end%
+
+        function data = getInitX(this, varargin)
+            data = this.getInitData(this.ExogenousNames, varargin{:});
+        end%
+
+        function data = getInitZ(this, varargin)
+            data = this.getInitData(this.ReducibleNames, varargin{:});
+        end%
+
+        function YXZ = getInitYXZ(this, varargin)
+            YXZ = {
+                this.getInitY(varargin{:}) ...
+                , this.getInitX(varargin{:}) ...
+                , this.getInitZ(varargin{:}) ...
+            };
+        end%
+
+        function data = getLongData(this, names, dataTable, shortSpan, options)
+            arguments
+                this
+                names (1, :) string
+                dataTable timetable
+                shortSpan (1, :) datetime
+                options.Variant (1, :) double {mustBePositive, mustBeInteger} = 1
+            end
+            longSpan = this.longSpanFromShortSpan(shortSpan);
+            data = tablex.retrieveData( ...
+                dataTable, names, longSpan ...
+                , variant=options.Variant ...
+            );
+        end%
+
+        function data = getInitData(this, names, dataTable, shortSpan, options)
+            arguments
+                this
+                names (1, :) string
+                dataTable timetable
+                shortSpan (1, :) datetime
+                options.Variant (1, :) double {mustBePositive, mustBeInteger} = 1
+            end
+            initSpan = this.initSpanFromShortSpan(shortSpan);
+            data = tablex.retrieveData( ...
+                dataTable, names, initSpan ...
+                , variant=options.Variant ...
+                , shift=0 ...
+            );
+        end%
+
+        function longSpan = longSpanFromShortSpan(this, shortSpan)
+            arguments
+                this
+                shortSpan (1, :) datetime
+            end
+            shortStart = shortSpan(1);
+            longStart = datex.shift(shortStart, -this.Order);
+            longEnd = shortSpan(end);
+            longSpan = datex.span(longStart, longEnd);
+        end%
+
+        function initSpan = initSpanFromShortSpan(this, shortSpan)
+            arguments
+                this
+                shortSpan (1, :) datetime
+            end
+            shortStart = shortSpan(1);
+            initStart = datex.shift(shortStart, -this.Order);
+            initEnd = datex.shift(shortStart, -1);
+            initSpan = datex.span(initStart, initEnd);
+        end%
+
+        function initYXZ = initYXZFromLongYXZ(this, longXYZ)
+            arguments
+                this
+                longXYZ (1, 3) cell
+            end
+            initYXZ = {
+                this.initDataFromLongData(longXYZ{1}) ...
+                , this.initDataFromLongData(longXYZ{2}) ...
+                , this.initDataFromLongData(longXYZ{3}) ...
+            };
+        end%
+
+        function initData = initDataFromLongData(this, longData)
+            arguments
+                this
+                longData (:, :) double
+            end
+            initData = longData(1:this.Order, :);
         end%
 
         function initYLX = getInitYLX(this, dataTable, periods, options)
@@ -182,14 +268,24 @@ classdef ReducedForm < handle
         end%
 
         function emptyYLX = createEmptyYLX(this)
-            numY = this.NumEndogenousColumns;
-            numL = this.NumEndogenousColumns * this.Order;
-            numX = this.NumExogenousColumns;
-            numT = 0;
+            numY = this.NumEndogenousNames;
+            numL = this.NumEndogenousNames * this.Order;
+            numX = this.NumExogenousNames;
             emptyYLX = { ...
-                nan(numT, numY), ...
-                nan(numT, numL), ...
-                nan(numT, numX), ...
+                zeros(0, numY), ...
+                zeros(0, numL), ...
+                zeros(0, numX), ...
+            };
+        end%
+
+        function emptyYXZ = createEmptyYXZ(this)
+            numY = this.NumEndogenousNames;
+            numX = this.NumExogenousNames;
+            numZ = this.NumReducibleNames;
+            emptyYXZ = { ...
+                zeros(0, numY), ...
+                zeros(0, numX), ...
+                zeros(0, numZ), ...
             };
         end%
 
@@ -220,114 +316,82 @@ classdef ReducedForm < handle
     end
 
     methods
-        function assignHasConstant(this)
-            flag = false;
-            for item = this.ExogenousItems
-                if isa(item{:}, "item.Constant")
-                    flag = true;
-                end
-            end
-            this.HasConstant = flag;
-        end%
-
-        function assignNumEndogenousColumns(this)
-            num = 0;
-            for i = 1:numel(this.EndogenousItems)
-                num = num + this.EndogenousItems{i}.NumColumns;
-            end
-            this.NumEndogenousColumns = num;
-        end%
-
-        function assignNumExogenousColumns(this)
-            num = 0;
-            for i = 1:numel(this.ExogenousItems)
-                num = num + this.ExogenousItems{i}.NumColumns;
-            end
-            this.NumExogenousColumns = num;
-        end%
-
-        function assignNumLhsColumns(this)
-            this.NumLhsColumns = this.NumEndogenousColumns;
-        end%
-
-        function assignNumRhsColumns(this)
-            this.NumRhsColumns = ...
-                + this.Order*this.NumEndogenousColumns ...
-                + this.NumExogenousColumns;
-        end%
-
-        function assignSizeA(this)
-            this.SizeA = [ ...
-                this.Order * this.NumEndogenousColumns, ...
-                this.NumEndogenousColumns, ...
-            ];
-        end%
-
-        function assignSizeC(this)
-            this.SizeC = [ ...
-                this.NumExogenousColumns, ...
-                this.NumEndogenousColumns, ...
-            ];
-        end%
-
-        function assignSizeSigma(this)
-            this.SizeSigma = [ ...
-                this.NumEndogenousColumns, ...
-                this.NumEndogenousColumns, ...
-            ];
-        end%
-
-        function assignSizeB(this)
-            this.SizeB = [ ...
-                this.SizeA(1) + this.SizeC(1), ...
-                this.NumEndogenousColumns, ...
-            ];
-        end%
-
-        function assignNumelA(this)
-            this.NumelA = prod(this.SizeA);
-        end%
-
-        function assignNumelC(this)
-            this.NumelC = prod(this.SizeC);
-        end%
-
-        function assignNumelSigma(this)
-            this.NumelSigma = prod(this.SizeSigma);
-        end%
-
-        function assignNumelB(this)
-            this.NumelB = this.NumelA + this.NumelC;
-        end%
-
-        function assignNumelTheta(this)
-            this.NumelTheta = this.NumelB + this.NumelSigma;
-        end%
-    end
-
-    methods
-        function repr = get.EndogenousNames(this)
-            numEndogenousItems = numel(this.EndogenousItems);
-            repr = string.empty(1, 0);
-            for i = 1:numEndogenousItems
-                repr = [repr, this.EndogenousItems{i}.DisplayName];
-            end
-        end%
-
-        function repr = get.ExogenousNames(this)
-            numExogenousItems = numel(this.ExogenousItems);
-            repr = string.empty(1, 0);
-            for i = 1:numExogenousItems
-                repr = [repr, this.ExogenousItems{i}.DisplayName];
+        function names = get.EndogenousNames(this)
+            names = string.empty(1, 0);
+            for unit = this.Units
+                names = [names, this.concatenate(unit, this.EndogenousConcepts)];
             end
         end%
 
         function names = get.ResidualNames(this)
-            names = this.ResidualPrefix + this.EndogenousNames;
+            names = this.concatenate(this.ResidualPrefix, this.EndogenousNames);
         end%
 
-        function names = get.NumResidualColumns(this)
-            names = this.NumEndogenousColumns;
+        function num = get.NumEndogenousNames(this)
+            num = this.NumEndogenousConcepts * this.NumUnits;
+        end%
+
+        function num = get.NumExogenousNames(this)
+            num = numel(this.ExogenousNames);
+        end%
+
+        function num = get.NumReducibleNames(this)
+            num = numel(this.ReducibleNames);
+        end%
+
+        function num = get.NumUnits(this)
+            num = numel(this.Units);
+        end%
+
+        function num = get.NumEndogenousConcepts(this)
+            num = numel(this.EndogenousConcepts);
+        end%
+
+        function start = get.ShortStart(this)
+            start = this.ShortSpan(1);
+        end%
+
+        function end_ = get.ShortEnd(this)
+            end_ = this.ShortSpan(end);
+        end%
+
+        function start = get.LongStart(this)
+            start = datex.shift(this.ShortStart, -this.Order);
+        end%
+
+        function end_ = get.LongEnd(this)
+            end_ = this.ShortEnd;
+        end%
+
+        function span = get.LongSpan(this)
+            span = datex.span(this.LongStart, this.LongEnd);
+        end%
+
+        function out = get.HasExogenous(this)
+            out = ~isempty(this.ExogenousNames);
+        end%
+
+        function out = get.HasReducibles(this)
+            out = ~isempty(this.ReducibleNames);
+        end%
+
+        function out = get.HasUnits(this)
+            out = ~isequal(this.Units, "");
+        end%
+    end
+
+    methods (Access=protected)
+        function fullNames = concatenate(this, prefix, names)
+            arguments
+                this
+                prefix (1, 1) string
+                names (1, :) string
+            end
+            if prefix == ""
+                fullNames = names;
+                return
+            end
+            fullNames = prefix + this.SEPARATOR + names;
         end%
     end
 

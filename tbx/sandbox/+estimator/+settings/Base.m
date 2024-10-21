@@ -37,15 +37,14 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
     methods
         function this = Base(meta, varargin)
             this = this@settings.Base(varargin{:});
-            numY = meta.NumEndogenousColumns;
-            numX = meta.NumExogenousColumns;
-            this.HasConstant = meta.HasConstant;
-            this.Order = meta.Order;
+            numY = meta.NumEndogenousNames;
+            numX = meta.NumExogenousNames;
+            numXI = numX + double(meta.HasIntercept);
             if isscalar(this.Exogenous)
-                this.Exogenous = repmat(this.Exogenous, numY, numX);
+                this.Exogenous = repmat(this.Exogenous, numY, numXI);
             end
             if isscalar(this.Lambda4)
-                this.Lambda4 = repmat(this.Lambda4, numY, numX);
+                this.Lambda4 = repmat(this.Lambda4, numY, numXI);
             end
             if isscalar(this.Autoregression)
                 this.Autoregression = repmat(this.Autoregression, numY, 1);

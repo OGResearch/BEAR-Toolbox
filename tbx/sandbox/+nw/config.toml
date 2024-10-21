@@ -1,11 +1,12 @@
 
-[data]
-
-    format = "csv"
-    source = "exampleData.csv"
-
-    startPeriod = -inf
-    endPeriod = inf
+{
+    "data":
+    {
+        "format": "csv",
+        "source": "exampleData.csv",
+        "startPeriod": null,
+        "endPeriod": null
+    },
 
 
 #===============================================================================

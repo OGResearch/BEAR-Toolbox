@@ -1,15 +1,12 @@
 
-classdef (CaseInsensitiveProperties=true) LongRun < dummies.Common
+classdef (CaseInsensitiveProperties=true) LongRun < settings.Base
 
-    properties 
+    properties
+        Lambda (1, 1) double = 1
         Constraints (:, :)
     end
 
     methods
-        function this = modifyDefaults(this)
-            this.Lambda = 1;
-        end%
-
         function this = postprocessSettings(this)
             if istable(this.Constraints)
                 this.Constraints = this.Constraints{:,:};
@@ -22,13 +19,16 @@ classdef (CaseInsensitiveProperties=true) LongRun < dummies.Common
             end
         end%
 
-        function dummiesYLX = generate(this, initYLX)
-            [numY, numL, numX, ~, order] = system.getDimensionsFromYLX(initYLX);
-            [initY, ~, ~] = initYLX{:};
+        function dummiesYLX = generate(this, meta, initYXZ)
+            numY = meta.NumEndogenousNames;
+            numX = meta.NumExogenousNames;
+            order = meta.Order;
+            lambda = this.Lambda;
+            %
+            [initY, ~, ~] = initYXZ{:};
             H = this.Constraints;
             invH = inv(H);
             meanY = transpose(mean(initY, 1));
-            lambda = this.Lambda;
             dummiesY = [];
             for ii = 1 : numY
                 add = (H(ii, :) * meanY / lambda) * invH(:, ii);
@@ -36,6 +36,7 @@ classdef (CaseInsensitiveProperties=true) LongRun < dummies.Common
             end
             dummiesL = repmat(dummiesY, 1, order);
             dummiesX = zeros(numY, numX);
+            %
             dummiesYLX = {dummiesY, dummiesL, dummiesX};
         end%
     end

@@ -1,11 +1,12 @@
 
 function outArray = retrieveData(varargin)
 
-    cellArray = tablex.retrieveDataAsCellArray(varargin{:});
+    [cellArray, periods] = tablex.retrieveDataAsCellArray(varargin{:});
     for i = 1 : numel(cellArray)
         cellArray{i} = permute(cellArray{i}, [1, 3, 2]);
     end
-    outArray = [cellArray{:}];
+    numPeriods = numel(periods);
+    outArray = [zeros(numPeriods, 0), cellArray{:}];
 
 end%
 
