@@ -9,9 +9,17 @@ function outSampler = adapterSampler(this, YXZ)
     [Y_long, X_long, ~] = YXZ{:};
 
     opt.const = this.Settings.HasConstant;
-    opt.lags = this.Settings.Order;   
-    alpha0 = this.Settings.alpha0;
-    delta0 = this.Settings.delta0;
+    opt.lags = this.Settings.Order;  
+    opt.lambda1 = this.Settings.Lambda1;
+    opt.lambda2 = this.Settings.Lambda2;    
+    opt.lambda3 = this.Settings.Lambda3;
+    opt.lambda4 = this.Settings.Lambda4;
+    opt.lambda5 = this.Settings.Lambda5; 
+    opt.priorsexogenous = this.Settings.Exogenous;
+
+    opt.alpha0 = this.Settings.alpha0;
+    opt.delta0 = this.Settings.delta0;
+    opt.gamma0 = this.Settings.gamma0;
 
     [~, betahat, sigmahat, X, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
         bear.olsvar(Y_long, X_long, opt.const, opt.lags);
@@ -44,7 +52,7 @@ function outSampler = adapterSampler(this, YXZ)
     [beta0, omega0, I_o, omega, f0, upsilon0] = bear.stvol2prior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3,...
         opt.lambda4, opt.lambda5, numEn, numEx, p, estimLength, numBRows, sizeB, opt.bex, blockexo, priorexo);
 
-    alphabar = estimLength + alpha0;
+    alphabar = estimLength + opt.alpha0;
 
     % initial value for beta
     beta = betahat;
@@ -178,7 +186,7 @@ function outSampler = adapterSampler(this, YXZ)
             zetabar = 1 / ((1 / phi(1, zz)) * L(1:estimLength - 1, zz)' * L(1:estimLength - 1, zz) + 1 / zeta0);
         
             % estimate zetabar
-            gammabar = zetabar * ((1 / phi(1, zz)) * L(2:estimLength, zz)'*L(1:estimLength - 1, zz) + gamma0 / zeta0);
+            gammabar = zetabar * ((1 / phi(1, zz)) * L(2:estimLength, zz)'*L(1:estimLength - 1, zz) + opt.gamma0 / zeta0);
             
             % draw the value gamma_i
             gamma(1, zz) = gammabar + zetabar^0.5 * randn;
@@ -194,7 +202,7 @@ function outSampler = adapterSampler(this, YXZ)
         for zz = 1:numEn
             
            % estimate deltabar
-            deltabar = L(:, zz)' * G{zz, 1}' * I_o * G{zz, 1} * L(:, zz) + delta0;
+            deltabar = L(:, zz)' * G{zz, 1}' * I_o * G{zz, 1} * L(:, zz) + opt.delta0;
             
             % draw the value phi_i
             phi(1, zz) = bear.igrandn(alphabar / 2, deltabar / 2);

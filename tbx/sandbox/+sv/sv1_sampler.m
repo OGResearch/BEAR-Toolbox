@@ -10,10 +10,17 @@ function outSampler = adapterSampler(this, YXZ)
 
     opt.const = this.Settings.HasConstant;
     opt.lags = this.Settings.Order;  
+    opt.lambda1 = this.Settings.Lambda1;
+    opt.lambda2 = this.Settings.Lambda2;    
+    opt.lambda3 = this.Settings.Lambda3;
+    opt.lambda4 = this.Settings.Lambda4;
+    opt.lambda5 = this.Settings.Lambda5;
+    opt.priorsexogenous = this.Settings.Exogenous;
 
-    gamma = this.Settings.gamma;
-    alpha0 = this.Settings.alpha0;
-    delta0 = this.Settings.delta0;
+
+    opt.gamma = this.Settings.gamma;
+    opt.alpha0 = this.Settings.alpha0;
+    opt.delta0 = this.Settings.delta0;
 
     [~, betahat, sigmahat, X, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
         bear.olsvar(Y_long, X_long, opt.const, opt.lags);
@@ -51,7 +58,7 @@ function outSampler = adapterSampler(this, YXZ)
     GIG = G' * I_o * G;
     
     % compute alphabar
-    alphabar = T + alpha0;
+    alphabar = T + opt.alpha0;
     
     % step 1: determine initial values for the algorithm
     
@@ -175,7 +182,7 @@ function outSampler = adapterSampler(this, YXZ)
         % draw the parameters in turn
         for zz = 1:numEn
             % estimate deltabar
-            deltabar = L(:, zz)' * GIG * L(:, zz) + delta0;
+            deltabar = L(:, zz)' * GIG * L(:, zz) + opt.delta0;
             % draw the value phi_i
             phi(1, zz) = bear.igrandn(alphabar / 2, deltabar / 2);
         end
@@ -191,18 +198,18 @@ function outSampler = adapterSampler(this, YXZ)
                 % the definitions of lambdabar and phibar varies with the period,  thus define them first
                 % if the period is the first period
                 if kk == 1
-                    lambdabar = (gamma * L(2, zz)) / (1 / omega + gamma^2);
-                    phibar = phi(1, zz) / (1 / omega + gamma^2);
+                    lambdabar = (opt.gamma * L(2, zz)) / (1 / omega + opt.gamma^2);
+                    phibar = phi(1, zz) / (1 / omega + opt.gamma^2);
                     
                     % if the period is the final period
                 elseif kk == estimLength
-                    lambdabar = gamma * L(estimLength - 1, zz);
+                    lambdabar = opt.gamma * L(estimLength - 1, zz);
                     phibar = phi(1, zz);
                     
                     % if the period is any period in - between
                 else
-                    lambdabar = (gamma / (1 + gamma^2)) * (L(kk - 1, zz) + L(kk + 1, zz));
-                    phibar = phi(1, zz) / (1 + gamma^2);
+                    lambdabar = (opt.gamma / (1 + opt.gamma^2)) * (L(kk - 1, zz) + L(kk + 1, zz));
+                    phibar = phi(1, zz) / (1 + opt.gamma^2);
                 end
 
                 % now draw the candidate
@@ -232,7 +239,6 @@ function outSampler = adapterSampler(this, YXZ)
         sampleStruct.L = mat2cell(L, ones(estimLength, 1), 3);
         sampleStruct.phi = phi;
         sampleStruct.sigma_avg = sigma(:);
-        sampleStruct.gamma = gamma;
         sampleStruct.sbar = sbar;
 
         for zz = 1:estimLength
