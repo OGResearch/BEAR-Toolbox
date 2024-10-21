@@ -1,4 +1,4 @@
-function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_drawer(this, meta)
+function lj_panel_factor_static_drawer(this, meta)
     
     numCountries = meta.numCountries;
     numEndog     = meta.numEndog;
@@ -8,9 +8,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_
     %IRF periods
     IRFperiods = meta.IRFperiods;
 
-    EstimationSpan = this.EstimationSpan;
-
-    function [As, Cs, Sigma] = identificationDrawer(sampleStruct)
+    function draw = identificationDrawer(sampleStruct)
 
         % input 
         % smpl - one sample (gibbs sampling) that contains:
@@ -18,9 +16,9 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_
         % smpl.sigma - one sample of sigma gibbs
 
         % output
-        % A - transformed matrix of parameters in front of transition variables
-        % C - tranformed matrix of parameters in front of exogenous and constant
-        % Sigma - transformed matrix of variance covariance of shocks
+        % draw.A - transformed matrix of parameters in front of transition variables
+        % draw.C - tranformed matrix of parameters in front of exogenous and constant
+        % draw.Sigma - transformed matrix of variance covariance of shocks
         % Y = (L)Y*A + X*C + eps
 
         smpl = sampleStruct;
@@ -63,27 +61,67 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_
 
         end
 
+        draw = struct();
+        draw.A = As;
+        draw.C = Cs;
+        draw.Sigma = Sigma;
+
     end
 
-    function [As, Cs, Sigmas] = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
+    function draw = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
 
-        % call the identificationDrawer as for the time invariant models, results are almost the same
-        [As, Cs, Sigma] = identificationDrawer(sampleStruct, forecastHorizon);
+        smpl = sampleStruct;
+        beta = smpl.beta;
+        sigma = smpl.sigma;
+        
+        % initialization
+        A = [];
+        C = [];
 
+        Sigma = [];
+
+        % initialize the output
+        As =cell(forecastHorizon,1);
+        Cs = cell(forecastHorizon,1);
         Sigmas  = cell(forecastHorizon,1);
+
+        k = numCountries*numEndog*numLags+numExog;
+
+        B = reshape(beta,k, numCountries*numEndog);
+
+        B_reshuffled = zeros(numCountries*numEndog*numLags+numExog,numCountries*numEndog);
+
+        % reshaffle B_draw to map the proper order
+        for ee = 1:numCountries
+            for kk=1:numLags
+                B_reshuffled((ee-1)*numEndog*numLags+(kk-1)*numEndog+1:(ee-1)*numEndog*numLags+kk*numEndog,:) = B((kk-1)*numCountries*numEndog+(ee-1)*numEndog+1:(kk-1)*numCountries*numEndog+ee*numEndog,:);
+            end
+        end
+
+        A = B_reshuffled(1:numEndog*numLags*numCountries,:);
+        C = B(numEndog*numLags*numCountries+1:end,:);
+        
+        Sigma = reshape(sigma,numEndog*numCountries,numEndog*numCountries);
 
         % pack the output
         for tt = 1:forecastHorizon
 
-            Sigmas{tt} = Sigma;
+            As{tt} = A;
+            Cs{tt} = C;
+            Sigmas{tt} = drawIdent.Sigma;
 
         end
+
+        draw = struct();
+        draw.A = As;
+        draw.C = Cs;
+        draw.Sigma = Sigmas;
 
     end
 
     % return function calls
-    outIdentifierDrawer = @identificationDrawer;
+    this.IdentificationDrawer = @identificationDrawer;
 
-    outUnconditionalDrawer = @unconditionalDrawer;
+    this.UnconditionalDrawer = @unconditionalDrawer;
 
 end

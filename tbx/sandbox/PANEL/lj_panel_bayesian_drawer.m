@@ -1,10 +1,10 @@
-function lj_panel_rand_eff_drawer(this, meta)
+function lj_panel_bayesian_drawer(this, meta)
 
     numCountries = meta.numCountries;
     numEndog     = meta.numEndog;
     numLags      = meta.numLags;
     numExog      = meta.numExog;
-    
+
     %IRF periods
     IRFperiods = meta.IRFperiods;
 
@@ -16,11 +16,11 @@ function lj_panel_rand_eff_drawer(this, meta)
         % smpl.sigma - one sample of sigma gibbs
 
         % output
-        % draw.A - transformed matrix of parameters in front of transition variables
-        % draw.C - tranformed matrix of parameters in front of exogenous and constant
-        % draw.Sigma - transformed matrix of variance covariance of shocks
+        % A - transformed matrix of parameters in front of transition variables
+        % C - tranformed matrix of parameters in front of exogenous and constant
+        % Sigma - transformed matrix of variance covariance of shocks
         % Y = (L)Y*A + X*C + eps
-          
+
         smpl = sampleStruct;
         beta = smpl.beta;
         sigma = smpl.sigma;
@@ -35,26 +35,26 @@ function lj_panel_rand_eff_drawer(this, meta)
         As = cell(IRFperiods,1);
         Cs = cell(IRFperiods,1);
 
-        % iterate over countries
-        for ii = 1:numCountries
-
-            beta_temp = reshape(...
-                    beta(:,ii),...
+        beta_temp = reshape(...
+                    beta,...
                     numEndog*numLags+numExog,...
                     numEndog...
                     );
 
-            sigma_temp = reshape(...
-                    sigma(:,ii),...
+        sigma_temp = reshape(...
+                    sigma,...
                     numEndog,...
                     numEndog...
                     );
-                    
+
+        a_temp = beta_temp(1:numEndog*numLags,:);
+
+        c_temp = beta_temp(numEndog*numLags+1:end,:);
+
+        % iterate over countries
+        for ii = 1:numCountries
+      
             % Pack in blocks
-            a_temp = beta_temp(1:numEndog*numLags,:);
-
-            c_temp = beta_temp(numEndog*numLags+1:end,:);
-
             A = blkdiag(A, a_temp);
 
             C = [C, c_temp];
@@ -75,7 +75,6 @@ function lj_panel_rand_eff_drawer(this, meta)
         draw.A = As;
         draw.C = Cs;
         draw.Sigma = Sigma;
-
     end
 
 
@@ -96,26 +95,26 @@ function lj_panel_rand_eff_drawer(this, meta)
         Cs = cell(forecastHorizon,1);
         Sigmas  = cell(forecastHorizon,1);
 
-        % iterate over countries
-        for ii = 1:numCountries
-
-            beta_temp = reshape(...
-                    beta(:,ii),...
+        beta_temp = reshape(...
+                    beta,...
                     numEndog*numLags+numExog,...
                     numEndog...
                     );
 
-            sigma_temp = reshape(...
-                    sigma(:,ii),...
+        sigma_temp = reshape(...
+                    sigma,...
                     numEndog,...
                     numEndog...
                     );
-                    
+
+        a_temp = beta_temp(1:numEndog*numLags,:);
+
+        c_temp = beta_temp(numEndog*numLags+1:end,:);
+
+        % iterate over countries
+        for ii = 1:numCountries
+      
             % Pack in blocks
-            a_temp = beta_temp(1:numEndog*numLags,:);
-
-            c_temp = beta_temp(numEndog*numLags+1:end,:);
-
             A = blkdiag(A, a_temp);
 
             C = [C, c_temp];
@@ -132,7 +131,7 @@ function lj_panel_rand_eff_drawer(this, meta)
             Sigmas{tt} = Sigma;
 
         end
-   
+
         draw = struct();
         draw.A = As;
         draw.C = Cs;

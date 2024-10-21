@@ -29,7 +29,7 @@ classdef NormalWishart < estimator.Base
             opt.lambda4 = this.Settings.Lambda4;
 
         %     if isscalar(opt.lambda4)
-        %         opt.lambda4 = repmat(opt.lambda4, n, m);
+        %         opt.lambda4 = repmat(opt.lambda4, numEn, numEx);
         %     end
 
             sigmaAdapter = struct();
@@ -40,34 +40,38 @@ classdef NormalWishart < estimator.Base
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(longY, longX, opt.const, opt.p);
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
+                bear.olsvar(longY, longX, opt.const, opt.p);
 
             priorexo = this.Settings.Exogenous;
 
             % individual priors 0 for default
         %     if isscalar(priorexo)
-        %         priorexo = repmat(priorexo, n, m);
+        %         priorexo = repmat(priorexo, numEn, numEx);
         %     end
 
             %create a vector for AR hyperparamters
         %     if isscalar(this.Settings.Autoregression)
-        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, n, 1);
+        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, numEn, 1);
         %     end
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            arvar = bear.arloop(longY, opt.const, opt.p, n);
+            arvar = bear.arloop(longY, opt.const, opt.p, numEn);
 
             %setting up prior
-            [B0, ~, phi0, S0, alpha0] = bear.nwprior(ar, arvar, opt.lambda1, opt.lambda3, opt.lambda4, n, m, opt.p, k, q, ...
-                opt.prior, priorexo);
+            [B0, ~, phi0, S0, alpha0] = bear.nwprior( ...
+                ar, arvar, opt.lambda1, opt.lambda3, opt.lambda4, ...
+                numEn, numEx, opt.p, numBRows, sizeB, opt.prior, priorexo ...
+            );
 
             % obtain posterior distribution parameters
-            [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, n, T, k);
-            %
+            [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, numEn, estimLength, numBRows);
+
+            this.SamplerCounter = uint64(0);
             function sample = sampler()
-                % [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, n, k);
-                B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, k, n);
+                % [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, numEn, numBRows);
+                B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, numBRows, numEn);
                 Sigma = bear.iwdraw(Sbar, alphabar);
                 sample.B = B;
                 sample.Sigma = Sigma;

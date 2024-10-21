@@ -1,8 +1,7 @@
-function outSampler = lj_panel_rand_eff_smpl(this, meta, longY, longX, longZ)
+function outSampler = lj_panel_rand_eff_smpl(this, meta, longYXZ)
 
     % input
     % meta - model specific meta parameters
-    % hyper - model specific hyper parameters
     % longY - matrix with endogenous variables (whole sample)
     % longX - matrix with exogenous variables (whole sample)
     % longZ - matrix with reducibles (whole sample, used for factor models)
@@ -14,6 +13,8 @@ function outSampler = lj_panel_rand_eff_smpl(this, meta, longY, longX, longZ)
     lags  = meta.numLags;
 
     lambda1 = this.Settings.lambda1;
+
+    [longY, longX, ~] = longYXZ{:};
 
     % compute preliminary elements
     [~, Xibar, Xbar, ~, yi, y, N, n, ~, ~, ~, ~, q, h]=bear.panel3prelim(longY,longX,const,lags);
