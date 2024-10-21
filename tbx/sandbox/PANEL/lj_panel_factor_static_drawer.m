@@ -1,4 +1,4 @@
-function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_drawer(this, meta)
+function lj_panel_factor_static_drawer(this, meta)
     
     numCountries = meta.numCountries;
     numEndog     = meta.numEndog;
@@ -8,9 +8,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_
     %IRF periods
     IRFperiods = meta.IRFperiods;
 
-    EstimationSpan = this.EstimationSpan;
-
-    function [As, Cs, Sigma] = identificationDrawer(sampleStruct)
+    function draw = identificationDrawer(sampleStruct)
 
         % input 
         % smpl - one sample (gibbs sampling) that contains:
@@ -18,9 +16,9 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_
         % smpl.sigma - one sample of sigma gibbs
 
         % output
-        % A - transformed matrix of parameters in front of transition variables
-        % C - tranformed matrix of parameters in front of exogenous and constant
-        % Sigma - transformed matrix of variance covariance of shocks
+        % draw.A - transformed matrix of parameters in front of transition variables
+        % draw.C - tranformed matrix of parameters in front of exogenous and constant
+        % draw.Sigma - transformed matrix of variance covariance of shocks
         % Y = (L)Y*A + X*C + eps
 
         smpl = sampleStruct;
@@ -63,27 +61,37 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_factor_static_
 
         end
 
+        draw = struct();
+        draw.A = As;
+        draw.C = Cs;
+        draw.Sigma = Sigma;
+
     end
 
-    function [As, Cs, Sigmas] = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
+    function draw = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
 
         % call the identificationDrawer as for the time invariant models, results are almost the same
-        [As, Cs, Sigma] = identificationDrawer(sampleStruct, forecastHorizon);
+        drawIdent = identificationDrawer(sampleStruct, forecastHorizon);
 
         Sigmas  = cell(forecastHorizon,1);
 
         % pack the output
         for tt = 1:forecastHorizon
 
-            Sigmas{tt} = Sigma;
+            Sigmas{tt} = drawIdent.Sigma;
 
         end
+
+        draw = struct();
+        draw.A = drawIdent.A;
+        draw.C = drawIdent.C;
+        draw.Sigma = Sigmas;
 
     end
 
     % return function calls
-    outIdentifierDrawer = @identificationDrawer;
+    this.IdentificationDrawer = @identificationDrawer;
 
-    outUnconditionalDrawer = @unconditionalDrawer;
+    this.UnconditionalDrawer = @unconditionalDrawer;
 
 end

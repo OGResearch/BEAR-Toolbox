@@ -1,4 +1,4 @@
-function outSampler = lj_panel_factor_static_smpl(this, meta, longY, longX, longZ)
+function outSampler = lj_panel_factor_static_smpl(this, meta, longYXZ)
 
     const = meta.flagConst;
     lags  = meta.numLags;
@@ -7,6 +7,7 @@ function outSampler = lj_panel_factor_static_smpl(this, meta, longY, longX, long
     delta0 = this.Settings.delta0;
     Bu = this.Settings.Bu;
 
+    [longY, longX, ~] = longYXZ{:};
 
     % compute preliminary elements
     [Ymat, Xmat, numCountries, numEndog, numExog, numLags, T, k, q, h]=bear.panel5prelim(longY,longX,const,lags);
