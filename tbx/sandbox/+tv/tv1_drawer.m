@@ -12,7 +12,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         %other settings
         EstimationSpan = this.EstimationSpan;
 
-    function [As, Cs, Sigmas] = unconditionalDrawer(sampleStruct, forecastStart, forecastHorizon )
+    function [drawStruct] = unconditionalDrawer(sampleStruct, forecastStart, forecastHorizon )
     
         startingIndex = numel(EstimationSpan) - datex.diff(EstimationSpan(end), forecastStart) - 1;
 
@@ -27,9 +27,9 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         % create a choleski of omega, the variance matrix for the law of motion
         cholomega = sparse(diag(omega));
 
-        As = cell(forecastHorizon, 1);
-        Cs = cell(forecastHorizon, 1);
-        Sigmas = cell(forecastHorizon, 1);
+        drawStruct.As =cell(forecastHorizon, 1);
+        drawStruct.Cs = cell(forecastHorizon, 1);
+        drawStruct.Sigmas = cell(forecastHorizon, 1);
         Sigma = reshape(sampleStruct.sigma, numEn, numEn);
 
         % then generate forecasts recursively
@@ -38,13 +38,13 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
            % update beta
            beta = beta + cholomega*randn(sizeB, 1);
            B = reshape(beta, numBRows, numEn); 
-           As{jj, 1}(:, :) = B(1:numARows, :);
-           Cs{jj, 1}(:, :) = B(numARows + 1:end, :); 
-           Sigmas{jj, 1}(:, :) = Sigma; 
+           drawStruct.As{jj, 1}(:, :) = B(1:numARows, :);
+           drawStruct.Cs{jj, 1}(:, :) = B(numARows + 1:end, :); 
+           drawStruct.Sigmas{jj, 1}(:, :) = Sigma; 
         end
     end
 
-    function [As, Cs, Sigma] = identifierDrawer(sampleStruct)
+    function [drawStruct] = identifierDrawer(sampleStruct)
     
         startingIndex = numel(EstimationSpan);
 
@@ -58,8 +58,8 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         % create a choleski of omega, the variance matrix for the law of motion
         cholomega = sparse(diag(omega));
                         
-        As = cell(IRFperiods, 1);
-        Cs = cell(IRFperiods, 1);
+        drawStruct.As =cell(IRFperiods, 1);
+        drawStruct.Cs = cell(IRFperiods, 1);
 
         % then generate forecasts recursively
         % for each iteration ii, repeat the process for periods T+1 to T+h
@@ -67,11 +67,11 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
                % update beta
                beta = beta + cholomega*randn(sizeB, 1);
                B = reshape(beta, numBRows, numEn);
-               As{jj,1}(:, :) = B(1:numARows, :);
-               Cs{jj,1}(:, :) = B(numARows + 1:end, :); 
+               drawStruct.As{jj,1}(:, :) = B(1:numARows, :);
+               drawStruct.Cs{jj,1}(:, :) = B(numARows + 1:end, :); 
         end
        
-        Sigma = reshape(sampleStruct.sigma_avg, numEn, numEn);   
+        drawStruct.Sigma = reshape(sampleStruct.sigma_avg, numEn, numEn);   
     end
 
     outUnconditionalDrawer = @unconditionalDrawer;

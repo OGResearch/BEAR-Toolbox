@@ -32,7 +32,7 @@ classdef Minnesota < estimator.Base
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
         %     if isscalar(opt.lambda4)
-        %         opt.lambda4 = repmat(opt.lambda4, n, m);
+        %         opt.lambda4 = repmat(opt.lambda4, numEn, numEx);
         %     end
 
             sigmaAdapter = struct();
@@ -46,38 +46,39 @@ classdef Minnesota < estimator.Base
             
             opt.bex  = this.Settings.BlockExogenous;
 
-           [~, ~, ~, LX, ~, Y, ~, ~, ~, n, m, ~, ~, k, q] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, ~, numBRows, sizeB] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
 
 
             priorexo = this.Settings.Exogenous;
 
             % individual priors 0 for default
         %     if isscalar(priorexo)
-        %         priorexo = repmat(priorexo, n, m);
+        %         priorexo = repmat(priorexo, numEn, numEx);
         %     end
 
             %create a vector for AR hyperparamters
         %     if isscalar(this.Settings.Autoregression)
-        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, n, 1);
+        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, numEn, 1);
         %     end
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-             arvar = bear.arloop(Y_long, opt.const, opt.p, n);
+            arvar = bear.arloop(Y_long, opt.const, opt.p, numEn);
 
             %setting up prior
             [beta0, omega0, sigma] = bear.mprior(ar, arvar, sigmahat, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, ...
-                opt.lambda5, n, m, p, k, q, opt.prior, opt.bex, blockexo, priorexo);
+                opt.lambda5, numEn, numEx, p, numBRows, sizeB, opt.prior, opt.bex, blockexo, priorexo);
+
             % obtain posterior distribution parameters
-            [betabar, omegabar] = bear.mpost(beta0, omega0, sigma, LX, Y(:), q, n);
+            [betabar, omegabar] = bear.mpost(beta0, omega0, sigma, LX, Y(:), sizeB, numEn);
             %===============================================================================
 
             this.SamplerCounter = uint64(0);
 
-            function smpl = sampler()
-                beta = betabar + chol(bear.nspd(omegabar), 'lower') * randn(q,1);
-                smpl.beta = beta;
-                smpl.sigma = sigma;
+            function sampleStruct = sampler()
+                beta = betabar + chol(bear.nspd(omegabar), 'lower') * randn(sizeB, 1);
+                sampleStruct.beta = beta;
+                sampleStruct.sigma = sigma;
                 this.SamplerCounter = this.SamplerCounter + 1;
             end%
 

@@ -20,6 +20,7 @@ function outSampler = adapterSampler(this, YXZ)
     opt.alpha0 = this.Settings.alpha0;
     opt.delta0 = this.Settings.delta0;
     opt.gamma0 = this.Settings.gamma0;
+    opt.zeta0 = this.Settings.zeta0;
 
     [~, betahat, sigmahat, X, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
         bear.olsvar(Y_long, X_long, opt.const, opt.lags);
@@ -183,10 +184,10 @@ function outSampler = adapterSampler(this, YXZ)
         % draw the parameters in turn
         for zz = 1:numEn   
             % estimate zetabar
-            zetabar = 1 / ((1 / phi(1, zz)) * L(1:estimLength - 1, zz)' * L(1:estimLength - 1, zz) + 1 / zeta0);
+            zetabar = 1 / ((1 / phi(1, zz)) * L(1:estimLength - 1, zz)' * L(1:estimLength - 1, zz) + 1 / opt.zeta0);
         
             % estimate zetabar
-            gammabar = zetabar * ((1 / phi(1, zz)) * L(2:estimLength, zz)'*L(1:estimLength - 1, zz) + opt.gamma0 / zeta0);
+            gammabar = zetabar * ((1 / phi(1, zz)) * L(2:estimLength, zz)'*L(1:estimLength - 1, zz) + opt.gamma0 / opt.zeta0);
             
             % draw the value gamma_i
             gamma(1, zz) = gammabar + zetabar^0.5 * randn;
