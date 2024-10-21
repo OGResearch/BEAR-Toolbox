@@ -28,7 +28,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         phi = sampleStruct.phi(1);
         lambda =  sampleStruct.L_gibbs{startingIndex, 1};
 
-        drawStruct.As =cell(forecastHorizon, 1);
+        drawStruct.As = cell(forecastHorizon, 1);
         drawStruct.Cs = cell(forecastHorizon, 1);
         drawStruct.Sigmas = cell(forecastHorizon, 1);
 
@@ -59,7 +59,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         % reshape it to obtain B
         B = reshape(beta, numBRows, numEn);
                         
-        drawStruct.As =cell(IRFperiods, 1);
+        drawStruct.As = cell(IRFperiods, 1);
         drawStruct.Cs = cell(IRFperiods, 1);
         As = B(1:numARows, :);
         Cs = B(numARows + 1:end, :); 

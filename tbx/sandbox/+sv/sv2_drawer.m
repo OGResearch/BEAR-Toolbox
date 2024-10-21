@@ -28,7 +28,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         gamma = sampleStruct.gamma';
         lambda =  sampleStruct.L_gibbs{startingIndex,:}';
 
-        drawStruct.As =cell(forecastHorizon, 1);
+        drawStruct.As = cell(forecastHorizon, 1);
         drawStruct.Cs = cell(forecastHorizon, 1);
         drawStruct.Sigmas = cell(forecastHorizon, 1);
 

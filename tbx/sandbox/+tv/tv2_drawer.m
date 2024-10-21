@@ -39,7 +39,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
           
         sbar = sampleStruct.sbar;
 
-        drawStruct.As =cell(forecastHorizon, 1);
+        drawStruct.As = cell(forecastHorizon, 1);
         drawStruct.Cs = cell(forecastHorizon, 1);
         drawStruct.Sigmas = cell(forecastHorizon, 1);
 
@@ -80,7 +80,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         % create a choleski of omega, the variance matrix for the law of motion
         cholomega = sparse(diag(omega));
                         
-        drawStruct.As =cell(IRFperiods, 1);
+        drawStruct.As = cell(IRFperiods, 1);
         drawStruct.Cs = cell(IRFperiods, 1);
 
         % then generate forecasts recursively
