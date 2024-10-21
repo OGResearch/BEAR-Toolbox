@@ -13,7 +13,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         EstimationSpan = this.EstimationSpan;
 
 
-    function [As, Cs, Sigmas] = unconditionalDrawer(sampleStruct, forecastStart, forecastHorizon )
+    function drawStruct = unconditionalDrawer(sampleStruct, forecastStart, forecastHorizon )
     
         startingIndex = numel(EstimationSpan) - datex.diff(EstimationSpan(end), forecastStart) - 1;
 
@@ -28,7 +28,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         phi = sampleStruct.phi';
         lambda =  sampleStruct.L_gibbs{startingIndex,:}';
 
-        As = cell(forecastHorizon, 1);
+        drawStruct.As =cell(forecastHorizon, 1);
         Cs = cell(forecastHorizon, 1);
         Sigmas = cell(forecastHorizon, 1);
 
@@ -37,7 +37,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         for jj = 1:forecastHorizon
             
             % update beta
-            As{jj, 1}(:, :) = B(1:numARows, :);
+            drawStruct.As{jj, 1}(:, :) = B(1:numARows, :);
             Cs{jj, 1}(:, :) = B(numARows + 1:end, :); 
 
             for kk = 1:numEn
@@ -58,13 +58,13 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         % reshape it to obtain B
         B = reshape(beta, numBRows, numEn);
                         
-        As = cell(IRFperiods, 1);
+        drawStruct.As =cell(IRFperiods, 1);
         Cs = cell(IRFperiods, 1);
 
         % then generate forecasts recursively
         % for each iteration ii, repeat the process for periods T+1 to T+h
         for jj = 1:IRFperiods
-               As{jj,1}(:, :) = B(1:numARows, :);
+               drawStruct.As{jj,1}(:, :) = B(1:numARows, :);
                Cs{jj,1}(:, :) = B(numARows + 1:end, :); 
         end
        

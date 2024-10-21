@@ -34,7 +34,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_rand_eff_hier_
         Sigma = [];
 
         % initialize the output
-        As = cell(IRFperiods,1);
+        drawStruct.As =cell(IRFperiods,1);
         Cs = cell(IRFperiods,1);
 
         for ii = 1:numCountries
@@ -67,13 +67,13 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = lj_panel_rand_eff_hier_
         % pack the output
         for tt = 1:IRFperiods
 
-            As{tt} = A;
+            drawStruct.As{tt} = A;
             Cs{tt} = C;
 
         end
     end
 
-    function [As, Cs, Sigmas] = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
+    function drawStruct = unconditionalDrawer(sampleStruct, forecastStart,forecastHorizon)
 
         % call the identificationDrawer as for the time invariant models, results are almost the same
         [As, Cs, Sigma] = identificationDrawer(sampleStruct, forecastHorizon);
