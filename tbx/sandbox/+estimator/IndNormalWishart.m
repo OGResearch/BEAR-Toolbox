@@ -38,8 +38,8 @@ classdef IndNormalWishart < estimator.Base
         %     end
 
             sigmaAdapter = struct();
-            sigmaAdapter.eye = 22;
-            sigmaAdapter.ar = 21;
+            sigmaAdapter.eye = 32;
+            sigmaAdapter.ar = 31;
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
             opt.const = this.Settings.HasConstant;
