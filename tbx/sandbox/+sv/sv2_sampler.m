@@ -187,7 +187,7 @@ function outSampler = adapterSampler(this, YXZ)
             zetabar = 1 / ((1 / phi(1, zz)) * L(1:estimLength - 1, zz)' * L(1:estimLength - 1, zz) + 1 / opt.zeta0);
         
             % estimate zetabar
-            gammabar = zetabar * ((1 / phi(1, zz)) * L(2:estimLength, zz)'*L(1:estimLength - 1, zz) + opt.gamma0 / zeta0);
+            gammabar = zetabar * ((1 / phi(1, zz)) * L(2:estimLength, zz)'*L(1:estimLength - 1, zz) + opt.gamma0 / opt.zeta0);
             
             % draw the value gamma_i
             gamma(1, zz) = gammabar + zetabar^0.5 * randn;
