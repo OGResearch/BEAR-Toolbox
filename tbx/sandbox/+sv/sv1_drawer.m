@@ -9,6 +9,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         IRFperiods = meta.IRFperiods;
 
         %other settings
+        gamma = this.Settings.gamma;
         EstimationSpan = this.EstimationSpan;
 
 
@@ -25,7 +26,6 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
 
         % step 4: draw phi and gamma from their posteriors
         phi = sampleStruct.phi';
-        gamma = sampleStruct.gamma';
         lambda =  sampleStruct.L_gibbs{startingIndex,:}';
 
         As = cell(forecastHorizon, 1);
@@ -41,7 +41,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
             Cs{jj, 1}(:, :) = B(numARows + 1:end, :); 
 
             for kk = 1:numEn
-                lambda(kk, 1) = gamma(kk, 1) * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
+                lambda(kk, 1) = gamma * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
             end
 
             % obtain Lambda_t
