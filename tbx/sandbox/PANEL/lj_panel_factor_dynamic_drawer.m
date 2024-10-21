@@ -14,6 +14,17 @@ function lj_panel_factor_dynamic_drawer(this, meta)
 
     function draw = identificationDrawer(sampleStruct)
 
+        % input 
+        % smpl - one sample (gibbs sampling) that contains:
+        % smpl.beta - one sample of beta gibbs
+        % smpl.sigma - one sample of sigma gibbs
+
+        % output
+        % draw.A - transformed matrix of parameters in front of transition variables
+        % draw.C - tranformed matrix of parameters in front of exogenous and constant
+        % draw.Sigma - transformed matrix of variance covariance of shocks
+        % Y = (L)Y*A + X*C + eps
+
         % identify the final period for which we are creating a path
         finalp = numel(EstimationSpan);
 
@@ -68,11 +79,12 @@ function lj_panel_factor_dynamic_drawer(this, meta)
             Cs{jj} = B_draw(numCountries*numEndog*numLags+1:end,:);
             % repeat until values are obtained for T+IRFperiods
 
-            draw = struct();
-            draw.A = As;
-            draw.C = Cs;
-            draw.Sigma = Sigma;
         end
+
+        draw = struct();
+        draw.A = As;
+        draw.C = Cs;
+        draw.Sigma = Sigma;
       
     end
 
