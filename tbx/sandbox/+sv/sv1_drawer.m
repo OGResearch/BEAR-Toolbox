@@ -29,8 +29,8 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         lambda =  sampleStruct.L_gibbs{startingIndex,:}';
 
         drawStruct.As =cell(forecastHorizon, 1);
-        Cs = cell(forecastHorizon, 1);
-        Sigmas = cell(forecastHorizon, 1);
+        drawStruct.Cs = cell(forecastHorizon, 1);
+        drawStruct.Sigmas = cell(forecastHorizon, 1);
 
         % then generate forecasts recursively
         % for each iteration ii, repeat the process for periods T+1 to T+h

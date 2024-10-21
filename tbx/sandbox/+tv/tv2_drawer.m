@@ -39,7 +39,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
           
         sbar = sampleStruct.sbar;
 
-        drawStructAs =cell(forecastHorizon, 1);
+        drawStruct.As =cell(forecastHorizon, 1);
         drawStruct.Cs = cell(forecastHorizon, 1);
         drawStruct.Sigmas = cell(forecastHorizon, 1);
 
@@ -49,7 +49,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
            % update beta
            beta = beta + cholomega*randn(sizeB, 1);
            B = reshape(beta, numBRows, numEn); 
-           drawStructAs{jj, 1}(:, :) = B(1:numARows, :);
+           drawStruct.As{jj, 1}(:, :) = B(1:numARows, :);
            drawStruct.Cs{jj, 1}(:, :) = B(numARows + 1:end, :); 
 
            % update lambda_t and obtain Lambda_t
@@ -80,7 +80,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
         % create a choleski of omega, the variance matrix for the law of motion
         cholomega = sparse(diag(omega));
                         
-        drawStructAs =cell(IRFperiods, 1);
+        drawStruct.As =cell(IRFperiods, 1);
         drawStruct.Cs = cell(IRFperiods, 1);
 
         % then generate forecasts recursively
@@ -89,7 +89,7 @@ function [outUnconditionalDrawer, outIdentifierDrawer] = adapterDrawer(this, met
                % update beta
                beta = beta + cholomega*randn(sizeB, 1);
                B = reshape(beta, numBRows, numEn);
-               drawStructAs{jj,1}(:, :) = B(1:numARows, :);
+               drawStruct.As{jj,1}(:, :) = B(1:numARows, :);
                drawStruct.Cs{jj,1}(:, :) = B(numARows + 1:end, :); 
         end
        
