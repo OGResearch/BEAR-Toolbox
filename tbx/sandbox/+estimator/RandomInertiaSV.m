@@ -1,7 +1,7 @@
 classdef RandomInertiaSV < estimator.Base
 
     properties
-        CanHaveDummies = true
+        CanHaveDummies = false
         CanHaveReducibles = false
     end
 
@@ -12,7 +12,7 @@ classdef RandomInertiaSV < estimator.Base
                 this
                 meta (1, 1) meta.ReducedForm
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
             [longY, longX, ~] = longYXZ{:};

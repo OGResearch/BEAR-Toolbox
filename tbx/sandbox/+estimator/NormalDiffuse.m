@@ -41,10 +41,12 @@ classdef NormalDiffuse < estimator.Plain
 
             opt.bex  = this.Settings.BlockExogenous;
 
-            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, ~, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, ~, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
+
+            estimLength = size(Y, 1);
 
             opt.bex = this.Settings.BlockExogenous;
             ar = this.Settings.Autoregression;

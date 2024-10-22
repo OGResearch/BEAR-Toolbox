@@ -1,7 +1,7 @@
 classdef BetaTV < estimator.Base
 
     properties
-        CanHaveDummies = true
+        CanHaveDummies = false
         CanHaveReducibles = false
     end
 
