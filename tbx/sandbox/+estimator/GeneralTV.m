@@ -243,7 +243,7 @@ classdef GeneralTV < estimator.Base
                 sampleStruct.omega = diag(omega);
                 sampleStruct.F = F;
                 sampleStruct.sbar = sbar;
-                sampleStruct.L = mat2cell(L, ones(estimLength, 1), 3);
+                sampleStruct.L = mat2cell(L, ones(estimLength, 1), numEn);
                 sampleStruct.phi = phi;
                 sampleStruct.sigmaAvg = sigma(:);
 

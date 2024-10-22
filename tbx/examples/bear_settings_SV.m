@@ -46,7 +46,7 @@ s.workspace=1;
 
 %% Choice of stochastic volatility model 
 % 1=standard, 
-s.stvol="Standard";
+s.stvol=3;
 
 %% Parameters
 s.ar=0.8;         % hyperparameter: autoregressive coefficient
@@ -59,17 +59,18 @@ s.lambda5=0.001;  % hyperparameter: lambda5
 s.PriorExcel=0;   % set to 1 if you want individual priors, 0 for default
 s.priorsexogenous=0; % set to 1 if you want individual priors, 0 for default
 
-s.It=2000;   % total number of iterations for the Gibbs sampler
-s.Bu=1000;   % number of burn-in iterations for the Gibbs sampler
+s.Bu=0;
+s.It=100;   % total number of iterations for the Gibbs sampler
+   % number of burn-in iterations for the Gibbs sampler
 
 s.bex=0; % block exogeneity (1=yes, 0=no)
 
 %% Model options
-s.IRF=1;          % activate impulse response functions (1=yes, 0=no)
+s.IRF=0;          % activate impulse response functions (1=yes, 0=no)
 s.IRFperiods=20;  % number of periods for impulse response functions
 s.F=1;            % activate unconditional forecasts (1=yes, 0=no)
 s.FEVD=0;         % activate forecast error variance decomposition (1=yes, 0=no)
-s.HD=1;           % activate historical decomposition (1=yes, 0=no)
+s.HD=0;           % activate historical decomposition (1=yes, 0=no)
 s.HDall=0;        % if we want to plot the entire decomposition, all contributions (includes deterministic part)HDall
 s.CF=0;           % activate conditional forecasts (1=yes, 0=no)
 s.CFt=1;          % 1=standard (all shocks), 2=standard (shock-specific), 3=tilting (median), 4=tilting (interval)

@@ -256,7 +256,7 @@ classdef RandomInertiaSV < estimator.Base
                 sampleStruct.beta = beta;
                 sampleStruct.omega = diag(omega);
                 sampleStruct.F = F;
-                sampleStruct.L = mat2cell(L, ones(estimLength, 1), 3);
+                sampleStruct.L = mat2cell(L, ones(estimLength, 1), numEn);
                 sampleStruct.phi = phi;
                 sampleStruct.sigmaAvg = sigma(:);
                 sampleStruct.gamma = gamma;
