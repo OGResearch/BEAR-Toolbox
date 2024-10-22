@@ -60,7 +60,7 @@ classdef Base < handle
             end
         end%
 
-        function checkCanHaveDummies(this, meta)
+        function checkCanHaveDummies(this, dummies)
             if ~this.CanHaveDummies && ~isempty(dummies)
                 error( ...
                     "Estimator %s does not allow for dummy observations" ...
