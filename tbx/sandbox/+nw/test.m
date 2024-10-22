@@ -8,7 +8,7 @@ addpath ../bear
 
 rng(0);
 
-pctileFunc = @(x) prctile(x, [5, 50, 95], 2);
+% pctileFunc = @(x) prctile(x, [5, 50, 95], 2);
 
 % master = bear6.run(configStruct=configStruct);
 % config = master.Config;
@@ -43,7 +43,7 @@ metaR = meta.ReducedForm( ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
 );
 
-estimator = estimator.NormalWishart(metaR, autoregression=1);
+estimator = estimator.NormalWishart(metaR);
 
 dataHolder = data.DataHolder(metaR, inputTable);
 
@@ -62,6 +62,7 @@ fcastEnd = datex.shift(r.Meta.EstimationEnd, +10);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 
 fcastTable = r.forecast(fcastSpan);
+residTable = r.calculateResiduals();
 
 
 % residTbl = r.residuals(hist);

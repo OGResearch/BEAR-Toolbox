@@ -54,9 +54,14 @@ classdef ReducedForm < handle
         NumReducibleNames
         NumUnits
         NumEndogenousConcepts
+        NumResiduals
 
+        EstimationSpan
         EstimationStart
         EstimationEnd
+        InitSpan
+        InitStart
+        InitEnd
         LongStart
         LongEnd
         LongSpan
@@ -282,6 +287,10 @@ classdef ReducedForm < handle
             num = numel(this.EndogenousConcepts);
         end%
 
+        function num = get.NumResiduals(this)
+            num = this.NumEndogenousNames;
+        end%
+
         function start = get.ShortStart(this)
             start = this.ShortSpan(1);
         end%
@@ -290,24 +299,40 @@ classdef ReducedForm < handle
             end_ = this.ShortSpan(end);
         end%
 
-        function start = get.EstimationStart(this)
-            start = this.ShortSpan(1);
+        function out = get.EstimationSpan(this)
+            out = this.ShortSpan;
         end%
 
-        function end_ = get.EstimationEnd(this)
-            end_ = this.ShortSpan(end);
+        function out = get.EstimationStart(this)
+            out = this.ShortSpan(1);
         end%
 
-        function start = get.LongStart(this)
-            start = datex.shift(this.ShortStart, -this.Order);
+        function out = get.EstimationEnd(this)
+            out = this.ShortSpan(end);
         end%
 
-        function end_ = get.LongEnd(this)
-            end_ = this.ShortEnd;
+        function out = get.InitSpan(this)
+            out = datex.span(this.InitStart, this.InitEnd);
         end%
 
-        function span = get.LongSpan(this)
-            span = datex.span(this.LongStart, this.LongEnd);
+        function out = get.InitStart(this)
+            out = datex.shift(this.ShortSpan(1), -this.Order);
+        end%
+
+        function out = get.InitEnd(this)
+            out = datex.shift(this.ShortSpan(1), -1);
+        end%
+
+        function out = get.LongStart(this)
+            out = datex.shift(this.ShortStart, -this.Order);
+        end%
+
+        function out = get.LongEnd(this)
+            out = this.ShortEnd;
+        end%
+
+        function out = get.LongSpan(this)
+            out = datex.span(this.LongStart, this.LongEnd);
         end%
 
         function out = get.HasExogenous(this)

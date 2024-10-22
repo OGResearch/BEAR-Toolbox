@@ -46,9 +46,9 @@ classdef Base < handle
             name = extractAfter(class(this), "estimator.");
         end%
 
-        function checkMetaConsistency(this, meta)
+        function checkConsistency(this, meta, dummies)
             this.checkCanHaveReducibles(meta);
-            this.checkCanHaveDummies(meta);
+            this.checkCanHaveDummies(dummies);
         end%
 
         function checkCanHaveReducibles(this, meta)
@@ -61,7 +61,7 @@ classdef Base < handle
         end%
 
         function checkCanHaveDummies(this, meta)
-            if ~this.CanHaveDummies && meta.HasDummies
+            if ~this.CanHaveDummies && ~isempty(dummies)
                 error( ...
                     "Estimator %s does not allow for dummy observations" ...
                     , this.ShortClassName ...

@@ -11,7 +11,7 @@ classdef Backend
     methods (Static)
         function fh = getFrequencyHandlerFromDatetime(dt)
             arguments
-                dt (1, 1) datetime
+                dt (:, :) datetime
             end
 
             for i = 1 : numel(datex.Backend.FrequencyHandlers)

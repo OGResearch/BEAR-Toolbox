@@ -46,12 +46,20 @@ classdef DataHolder
         end%
 
 
-        function YXZ = getYXZ(this, span)
+        function YXZ = getYXZ(this, options)
             arguments
                 this
-                span (1, :) datetime
+                %
+                options.Span (1, :) datetime = []
+                options.Index (1, :) double = []
             end
-            index = this.getSpanIndex(span);
+            %
+            if ~isempty(options.Index)
+                index = options.Index;
+            else
+                index = this.getSpanIndex(options.Span);
+            end
+            %
             numIndex = numel(index);
             Y = nan(numIndex, size(this.Endogenous, 2));
             X = nan(numIndex, size(this.Exogenous, 2));

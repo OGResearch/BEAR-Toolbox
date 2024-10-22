@@ -1,13 +1,16 @@
 
 
-function outTable = fromNumericArray(dataArray, names, rows, variantDim)
+function outTable = fromNumericArray(dataArray, names, rows, options)
 
     arguments
         dataArray double
         names (1, :) string
         rows (:, 1)
-        variantDim (1, 1) double
+        %
+        options.VariantDim (1, 1) double
     end
+
+    variantDim = options.VariantDim;
 
     if isdatetime(rows)
         tableConstructor = @(dataCell, rows, names) timetable( ...

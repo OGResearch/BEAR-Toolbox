@@ -125,8 +125,7 @@ classdef Structural < handle
 
             outShockNames = this.Meta.ShockNames(shockIndex);
             outNames = this.ReducedForm.Meta.EndogenousNames;
-            variantDim = 4;
-            outTable = tablex.fromNumericArray(Y, outNames, outSpan, variantDim);
+            outTable = tablex.fromNumericArray(Y, outNames, outSpan, variantDim=4);
             outTable = tablex.setCustom(outTable, "HigherDims", {outShockNames});
             this.resetPresampledCounter();
         end%

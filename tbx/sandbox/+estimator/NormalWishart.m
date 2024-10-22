@@ -43,6 +43,9 @@ classdef NormalWishart < estimator.Base
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
+            % LX = add dummies
+            % Y = add dummies
+
             priorexo = this.Settings.Exogenous;
 
             % individual priors 0 for default

@@ -1,14 +1,23 @@
+%{
+%
+% system.forecast  Calculate forecast for reduced-form VARX model
+%
+%}
 
-function [Y, initY] = forecast(A, C, longYXZ, U, hasIntercept, order)
+function [Y, initY] = forecast(A, C, longYXZ, U, options)
 
     arguments
         A (:, 1) cell
         C (:, 1) cell
         longYXZ (1, 3) cell
         U (:, :) double
-        hasIntercept (1, 1) logical
-        order (1, 1) double {mustBeInteger, mustBePositive}
+        %
+        options.HasIntercept % (1, 1) logical
+        options.Order % (1, 1) double {mustBeInteger, mustBePositive}
     end
+
+    hasIntercept = options.HasIntercept;
+    order = options.Order;
 
     horizon = numel(A);
     [longY, longX, ~] = longYXZ{:};
@@ -30,7 +39,7 @@ function [Y, initY] = forecast(A, C, longYXZ, U, hasIntercept, order)
         l = [initY(i, :), l];
     end
 
-    Y =-nan(horizon, numY);
+    Y = nan(horizon, numY);
     for t = 1 : horizon
         y = l * A{t} + X(t, :) * C{t} + U(t, :);
         l = [y, l(1:end-numY)];
