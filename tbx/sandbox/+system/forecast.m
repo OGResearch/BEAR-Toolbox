@@ -24,9 +24,7 @@ function [Y, initY] = forecast(A, C, longYXZ, U, options)
     numY = size(A{1}, 2);
 
     X = longX(order+1:end, :);
-    if hasIntercept
-        X = [X, ones(size(X, 1), 1)];
-    end
+    X = system.addInterceptWhenNeeded(X, hasIntercept);
 
     initY = longY(1:order, :);
 

@@ -54,10 +54,6 @@ classdef ReducedForm < handle
             this.Estimator.checkConsistency(this.Meta, this.Dummies);
         end%
 
-        function YLX = getDataYLX(this, varargin)
-            YLX = this.Meta.getDataYLX(varargin{:});
-        end%
-
         function longYXZ = getLongYXZ(this)
             longYXZ = this.DataHolder.getYXZ(span=this.Meta.LongSpan);
         end%

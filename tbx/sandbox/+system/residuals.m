@@ -26,9 +26,7 @@ function U = residuals(A, C, longYXZ, options)
     end
 
     X = longX(T, :);
-    if hasIntercept
-        X = [X, ones(numT, 1)];
-    end
+    X = system.addInterceptWhenNeeded(X, hasIntercept);
 
     U = nan(size(Y));
     for t = 1 : numT
