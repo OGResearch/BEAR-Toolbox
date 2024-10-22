@@ -22,7 +22,7 @@ classdef Ordinary < estimator.Plain
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
             
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, numBRows, ~] = bear.olsvar(longY, longX, opt.const, opt.p);
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, numBRows, ~] = bear.olsvar(longY, longX, opt.const, opt.p);
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
             %setting up prior
@@ -40,7 +40,7 @@ classdef Ordinary < estimator.Plain
                 sigma = bear.iwdraw(Scap, alphacap);
 
                 sampleStruct.beta = B(:);
-                sampleStruct.sigma = sigma(:);
+                sampleStruct.sigma = sigma;
 
                 this.SamplerCounter = this.SamplerCounter + 1;
                 

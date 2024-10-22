@@ -41,27 +41,24 @@ classdef NormalDiffuse < estimator.Plain
 
             opt.bex  = this.Settings.BlockExogenous;
 
-            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, ~, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
+            opt.bex = this.Settings.BlockExogenous;
+            ar = this.Settings.Autoregression;
             priorexo = this.Settings.Exogenous;
 
-            % individual priors 0 for default
-        %     if isscalar(priorexo)
-        %         priorexo = repmat(priorexo, numEn, numEx);
-        %     end
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
+                bear.olsvar(longY, longX, opt.const, opt.p);
 
-            %create a vector for AR hyperparamters
-        %     if isscalar(this.Settings.Autoregression)
-        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, numEn, 1);
-        %     end
-            ar = this.Settings.Autoregression;
+            arvar =  bear.arloop(longY, opt.const, p, numEn);
 
-            %variance from univariate OLS for priors
-            % arvar = bear.arloop(longY, opt.const, opt.p, numEn);
-            arvar = bear.arloop(longY, opt.const, opt.p, numEn);
+            blockexo  =  [];
+            if  opt.bex == 1
+                [blockexo] = bear.loadbex(endo, pref);
+            end
 
             %setting up prior
             [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, opt.lambda5, ...

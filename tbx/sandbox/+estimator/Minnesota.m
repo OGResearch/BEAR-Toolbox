@@ -45,13 +45,19 @@ classdef Minnesota < estimator.Plain
             
             opt.bex  = this.Settings.BlockExogenous;
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, ~, numBRows, sizeB] = bear.olsvar(longY, longX, opt.const, opt.p);
+            [~, ~, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = bear.olsvar(longY, longX, opt.const, opt.p);
 
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
 
             priorexo = this.Settings.Exogenous;
             ar = this.Settings.Autoregression;
+            opt.bex = this.Settings.BlockExogenous;
+            
+            blockexo  =  [];
+            if  opt.bex == 1
+                [blockexo] = bear.loadbex(endo, pref);
+            end
 
             %variance from univariate OLS for priors
             arvar = bear.arloop(longY, opt.const, opt.p, numEn);

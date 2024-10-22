@@ -43,7 +43,7 @@ metaR = meta.ReducedForm( ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
 );
 
-estimator = estimator.IndNormalWishart(metaR);
+estimator = estimator.Flat(metaR);
 
 dataHolder = data.DataHolder(metaR, inputTable);
 
@@ -59,7 +59,6 @@ r = model.ReducedForm( ...
 
 r.initialize();
 r.presample(100);
-
 
 fcastStart = datex.shift(r.Meta.EstimationEnd, -10);
 fcastEnd = datex.shift(r.Meta.EstimationEnd, +10);
