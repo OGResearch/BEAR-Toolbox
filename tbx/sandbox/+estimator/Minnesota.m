@@ -20,10 +20,7 @@ classdef Minnesota < estimator.Base
 
             [Y_long, X_long, ~] = YXZ{:};
 
-            options.Burnin = 0;
-            numPresample = 1;
-            opt.It = options.Burnin + numPresample;
-            opt.Bu = options.Burnin;
+
 
             opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
@@ -41,8 +38,8 @@ classdef Minnesota < estimator.Base
             sigmaAdapter.full = 13;
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
-            opt.const = this.Settings.HasConstant;
-            opt.p = this.Settings.Order;
+            opt.const = meta.HasIntercept;
+            opt.p = meta.Order;
             
             opt.bex  = this.Settings.BlockExogenous;
 

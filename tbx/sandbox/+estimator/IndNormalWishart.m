@@ -34,8 +34,8 @@ classdef IndNormalWishart < estimator.Base
             sigmaAdapter.ar = 31;
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
-            opt.const = this.Settings.HasConstant;
-            opt.p = this.Settings.Order;
+            opt.const = meta.HasIntercept;
+            opt.p = meta.Order;
 
             [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);

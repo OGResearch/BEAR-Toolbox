@@ -22,8 +22,8 @@ classdef NormalWishart_FAVAR < estimator.Base
 
             [Y_long, X_long, Z_long] = YXZ{:};
 
-            opt.const = this.Settings.HasConstant;
-            opt.p = this.Settings.Order;
+            opt.const = meta.HasIntercept;
+            opt.p = meta.Order;
 
             [FY_long, favar] = favars.get_favar_endo(opt, Y_long, favar, Z_long, informationnames);
             [~, ~, ~, LX, ~, ~, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(FY_long, X_long, opt.const, opt.p);
@@ -44,8 +44,8 @@ classdef NormalWishart_FAVAR < estimator.Base
             sigmaAdapter.ar = 21;
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
-            opt.const = this.Settings.HasConstant;
-            opt.p = this.Settings.Order;
+            opt.const = meta.HasIntercept;
+            opt.p = meta.Order;
 
             priorexo = this.Settings.Exogenous;
 
