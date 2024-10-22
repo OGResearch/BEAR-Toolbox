@@ -6,19 +6,24 @@ classdef (CaseInsensitiveProperties=true) SumCoefficients < settings.Base
     end
 
     methods
-        function dummiesYLX = generate(this, meta, initYXZ)
+
+        function dummiesYLX = generate(this, meta, longYXZ)
             numY = meta.NumEndogenousNames;
-            numX = meta.NumExogenousNames;
+            numX = double(meta.HasIntercept) + meta.NumExogenousNames;
             order = meta.Order;
             lambda = this.Lambda;
             %
-            [initY, ~, ~] = initYXZ{:};
+            [longY, ~, ~] = longYXZ{:};
+            initY = longY(1:order, :);
+            %
             dummiesY = diag(mean(initY, 1, "omitNaN") / lambda);
             dummiesL = kron(ones(1, order), dummiesY);
             dummiesX = zeros(numY, numX);
+            dummiesLX = [dummiesL, dummiesX];
             %
-            dummiesYLX = {dummiesY, dummiesL, dummiesX};
+            dummiesYLX = {dummiesY, dummiesLX};
         end%
+
     end
 
 end

@@ -7,6 +7,7 @@ classdef (CaseInsensitiveProperties=true) LongRun < settings.Base
     end
 
     methods
+
         function this = postprocessSettings(this)
             if istable(this.Constraints)
                 this.Constraints = this.Constraints{:,:};
@@ -19,13 +20,16 @@ classdef (CaseInsensitiveProperties=true) LongRun < settings.Base
             end
         end%
 
-        function dummiesYLX = generate(this, meta, initYXZ)
+
+        function dummiesYLX = generate(this, meta, longYXZ)
             numY = meta.NumEndogenousNames;
-            numX = meta.NumExogenousNames;
+            numX = double(meta.HasIntercept) + meta.NumExogenousNames;
             order = meta.Order;
             lambda = this.Lambda;
             %
-            [initY, ~, ~] = initYXZ{:};
+            [longY, ~, ~] = longYXZ{:};
+            initY = longY(1:order, :);
+            %
             H = this.Constraints;
             invH = inv(H);
             meanY = transpose(mean(initY, 1));
@@ -36,8 +40,9 @@ classdef (CaseInsensitiveProperties=true) LongRun < settings.Base
             end
             dummiesL = repmat(dummiesY, 1, order);
             dummiesX = zeros(numY, numX);
+            dummiesLX = [dummiesL, dummiesX];
             %
-            dummiesYLX = {dummiesY, dummiesL, dummiesX};
+            dummiesYLX = {dummiesY, dummiesLX};
         end%
     end
 

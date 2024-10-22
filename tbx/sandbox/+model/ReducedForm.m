@@ -71,8 +71,7 @@ classdef ReducedForm < handle
             longSpan = datex.longSpanFromShortSpan(shortSpan, this.Meta.Order);
             longYXZ = this.DataHolder.getYXZ(span=longSpan);
             this.estimateExogenousMean(longYXZ);
-            initYXZ = this.Meta.initYXZFromLongYXZ(longYXZ);
-            [dummiesYLX, indivDummiesYLX] = this.generateDummiesYLX(initYXZ);
+            [dummiesYLX, indivDummiesYLX] = this.generateDummiesYLX(longYXZ);
             this.Estimator.initialize(this.Meta, longYXZ, dummiesYLX);
         end%
 
@@ -97,10 +96,10 @@ classdef ReducedForm < handle
             );
         end%
 
-        function [allDummiesYLX, indivDummiesYLX] = generateDummiesYLX(this, initYLX)
+        function [allDummiesYLX, indivDummiesYLX] = generateDummiesYLX(this, longYLX)
             indivDummiesYLX = cell(1, this.NumDummies);
             for i = 1 : this.NumDummies
-                indivDummiesYLX{i} = this.Dummies{i}.generate(this.Meta, initYLX);
+                indivDummiesYLX{i} = this.Dummies{i}.generate(this.Meta, longYLX);
             end
             allDummiesYLX = this.Meta.createEmptyYLX();
             allDummiesYLX = system.mergeDataCells(allDummiesYLX, indivDummiesYLX{:});

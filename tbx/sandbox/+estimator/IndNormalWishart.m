@@ -2,23 +2,15 @@
 classdef IndNormalWishart < estimator.Base
 
     methods
-        function initializeSampler(this, YXZ)
-            arguments
-                this
-                YXZ (1, 3) cell
-            end
-            this.Sampler = this.adapterForSampler(YXZ);
-        end%
-
-
-        function outSampler = adapterForSampler(this, YXZ)
+        function initializeSampler(this, longYXZ, dummiesYLX)
             %[
             arguments
                 this
-                YXZ (1, 3) cell
+                longYXZ (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
-            [Y_long, X_long, ~] = YXZ{:};
+            [longY, longX, ~] = YXZ{:};
 
             options.Burnin = 0;
             numPresample = 1;
@@ -44,9 +36,11 @@ classdef IndNormalWishart < estimator.Base
 
             opt.const = this.Settings.HasConstant;
             opt.p = this.Settings.Order;
-           
+
             [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(Y_long, X_long, opt.const, opt.p);
+                bear.olsvar(longY, longX, opt.const, opt.p);
+
+            [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
             priorexo = this.Settings.Exogenous;
 
@@ -62,7 +56,7 @@ classdef IndNormalWishart < estimator.Base
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            arvar = bear.arloop(Y_long, opt.const, opt.p, numEn);
+            arvar = bear.arloop(longY, opt.const, opt.p, numEn);
 
             %setting up prior
             [beta0, omega0, S0, alpha0] = bear.inwprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, ...
@@ -84,11 +78,11 @@ classdef IndNormalWishart < estimator.Base
             this.SamplerCounter = uint64(0);
 
             function sampleStruct = sampler()
-               
+
                 % Step 3: at iteration ii, first draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.5.15)
                 Shat = (Y - LX * B)' * (Y - LX * B) + S0;
-                
+
                 % Correct potential asymmetries due to rounding errors from Matlab
                 Shat = bear.nspd(Shat);
 
@@ -118,11 +112,11 @@ classdef IndNormalWishart < estimator.Base
 
                 sampleStruct.beta = beta;
                 sampleStruct.sigma = sigma;
-                this.SamplerCounter = this.SamplerCounter + 1;                
+                this.SamplerCounter = this.SamplerCounter + 1;
 
             end%
 
-            outSampler = @sampler;
+            this.Sampler = @sampler;
 
             %===============================================================================
 

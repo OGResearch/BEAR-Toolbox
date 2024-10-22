@@ -13,7 +13,7 @@ classdef NormalWishart < estimator.Base
                 this
                 meta (1, 1) meta.ReducedForm
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
             [longY, longX, ~] = longYXZ{:};
@@ -37,6 +37,8 @@ classdef NormalWishart < estimator.Base
 
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
+
+            [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
             % LX = add dummies
             % Y = add dummies

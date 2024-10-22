@@ -9,9 +9,9 @@ dataSpan = tablex.span(hist);
 startData = dataSpan(1);
 endData = dataSpan(end);
 
-fittedStart = datex.shift(startData, 4);
-fittedEnd = endData;
-fittedSpan = datex.span(fittedStart, fittedEnd);
+estimationStart = datex.shift(startData, 4);
+estimationEnd = endData;
+estimationSpan = datex.span(estimationStart, estimationEnd);
 
 d1 = dummies.InitialObservations(lambda=2);
 d2 = dummies.Minnesota(exogenousLambda=30);
@@ -22,7 +22,7 @@ metaR = meta.ReducedForm( ...
     endogenous=endogenous ...
     , order=4 ...
     , intercept=true ...
-    , fittedSpan=fittedSpan ...
+    , estimationSpan=estimationSpan ...
 );
 
 
@@ -37,12 +37,12 @@ d3 = dummies.LongRun(lambda=100, constraints=H);
 
 d4 = dummies.SumCoefficients(lambda=0.45);
 
-initYXZ = metaR.getInitYXZ(hist, fittedSpan);
+longYXZ = metaR.getLongYXZ(hist, estimationSpan);
 
-dummiesYLX1 = d1.generate(metaR, initYXZ);
-dummiesYLX3 = d3.generate(metaR, initYXZ);
-dummiesYLX2 = d2.generate(metaR, initYXZ);
-dummiesYLX4 = d4.generate(metaR, initYXZ);
+dummiesYLX1 = d1.generate(metaR, longYXZ);
+dummiesYLX2 = d2.generate(metaR, longYXZ);
+dummiesYLX3 = d3.generate(metaR, longYXZ);
+dummiesYLX4 = d4.generate(metaR, longYXZ);
 
 return
 

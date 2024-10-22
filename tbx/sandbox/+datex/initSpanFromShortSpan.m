@@ -1,8 +1,7 @@
 
-function initSpan = initSpanFromShortSpan(this, shortSpan)
+function initSpan = initSpanFromShortSpan(shortSpan, order)
 
     arguments
-        this
         shortSpan (1, :) datetime
         order (1, 1) double {mustBeInteger, mustBePositive}
     end

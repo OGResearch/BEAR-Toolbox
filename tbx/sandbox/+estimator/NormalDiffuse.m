@@ -2,23 +2,15 @@
 classdef NormalDiffuse < estimator.Base
 
     methods
-        function initializeSampler(this, YXZ)
-            arguments
-                this
-                YXZ (1, 3) cell
-            end
-            this.Sampler = this.adapterForSampler(YXZ);
-        end%
-
-
-        function outSampler = adapterForSampler(this, YXZ)
+        function initializeSampler(this, longYXZ, dummiesYLX)
             %[
             arguments
                 this
-                YXZ (1, 3) cell
+                longYXZ (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
-            [Y_long, X_long, ~] = YXZ{:};
+            [longY, longX, ~] = longYXZ{:};
 
             options.Burnin = 0;
             numPresample = 1;
@@ -47,7 +39,9 @@ classdef NormalDiffuse < estimator.Base
             opt.bex  = this.Settings.BlockExogenous;
 
             [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(Y_long, X_long, opt.const, opt.p);
+                bear.olsvar(longY, longX, opt.const, opt.p);
+
+            [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
             priorexo = this.Settings.Exogenous;
 
@@ -63,8 +57,8 @@ classdef NormalDiffuse < estimator.Base
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            % arvar = bear.arloop(Y_long, opt.const, opt.p, numEn);
-            arvar = bear.arloop(Y_long, opt.const, opt.p, numEn);
+            % arvar = bear.arloop(longY, opt.const, opt.p, numEn);
+            arvar = bear.arloop(longY, opt.const, opt.p, numEn);
 
             %setting up prior
             [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, opt.lambda5, ...
@@ -114,7 +108,7 @@ classdef NormalDiffuse < estimator.Base
                 this.SamplerCounter = this.SamplerCounter + 1;
             end
 
-            outSampler = @sampler;
+            this.Sampler = @sampler;
 
             %===============================================================================
 
