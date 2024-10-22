@@ -102,7 +102,8 @@ classdef IndNormalWishart < estimator.Base
                 omegabar = invC * invC';
 
                 % following, obtain betabar
-                betabar = omegabar * (invomega0 * beta0 + kron(invsigma, LX') * y);
+                % betabar = omegabar * (invomega0 * beta0 + kron(invsigma, LX') * y);
+                betabar = omegabar * (invomega0 * beta0 + kron(invsigma, LX') * Y(:));
 
                 % draw from N(betabar,omegabar);
                 beta = betabar + chol(bear.nspd(omegabar), 'lower') * randn(sizeB, 1);
