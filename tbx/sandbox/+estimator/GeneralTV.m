@@ -262,7 +262,7 @@ classdef GeneralTV < estimator.Base
             %sizes
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
-            numBRows = numARows + meta.NumExogenousNames;
+            numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             sizeB = numEn * numBRows;
 
             %IRF periods
