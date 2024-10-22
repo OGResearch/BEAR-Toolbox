@@ -18,11 +18,6 @@ classdef NormalWishart < estimator.Base
 
             [longY, longX, ~] = longYXZ{:};
 
-            options.Burnin = 0;
-            numPresample = 1;
-            opt.It = options.Burnin + numPresample;
-            opt.Bu = options.Burnin;
-
             opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda3 = this.Settings.Lambda3;
