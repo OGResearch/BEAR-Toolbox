@@ -63,5 +63,5 @@ r.presample(100);
 fcastStart = datex.shift(r.Meta.EstimationEnd, -11);
 fcastEnd = datex.shift(r.Meta.EstimationEnd, +0);
 fcastSpan = datex.span(fcastStart, fcastEnd);
-
+rng("default")
 fcastTable = r.forecast(fcastSpan);
