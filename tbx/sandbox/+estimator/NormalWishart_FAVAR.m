@@ -20,19 +20,15 @@ classdef NormalWishart_FAVAR < estimator.Base
                 favar struct 
             end
 
-            [Y_long, X_long, Z_long] = YXZ{:};
+            [longY, longX, Z_long] = YXZ{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            [FY_long, favar] = favars.get_favar_endo(opt, Y_long, favar, Z_long, informationnames);
-            [~, ~, ~, LX, ~, ~, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(FY_long, X_long, opt.const, opt.p);
+            [FlongY, favar] = favars.get_favar_endo(opt, longY, favar, Z_long, informationnames);
+            [~, ~, ~, LX, ~, ~, ~, ~, ~, n, m, ~, T, k, q] = bear.olsvar(FlongY, longX, opt.const, opt.p);
 
-            options.Burnin = 0;
-            numPresample = 1;
 
-            opt.It = options.Burnin + numPresample;
-            opt.Bu = options.Burnin;
 
             opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
@@ -52,10 +48,10 @@ classdef NormalWishart_FAVAR < estimator.Base
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            arvar = bear.arloop(FY_long, opt.const, opt.p, n);
+            arvar = bear.arloop(FlongY, opt.const, opt.p, n);
 
             %setting up prior
-            [prep] = nw_favar.favar_nwprep(n, m, opt.p, k, T, q, FY_long, ar, arvar,...
+            [prep] = nw_favar.favar_nwprep(n, m, opt.p, k, T, q, FlongY, ar, arvar,...
                                 opt.lambda1, opt.lambda3, opt.lambda4, opt.prior, priorexo, favar, LX);
    
             favarX           = favar.X(:,favar.plotX_index); 
@@ -147,7 +143,7 @@ classdef NormalWishart_FAVAR < estimator.Base
             
             end%
 
-            outSampler = @sampler;
+            this.Sampler = @sampler;
 
             %===============================================================================
 

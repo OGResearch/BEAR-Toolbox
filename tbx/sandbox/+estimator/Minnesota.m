@@ -1,24 +1,26 @@
 
-classdef Minnesota < estimator.Base
+classdef Minnesota < estimator.Plain
+
+    properties
+        CanHaveDummies = true
+        CanHaveReducibles = false
+    end
+
 
     methods
-        function initializeSampler(this, YXZ)
-            arguments
-                this
-                YXZ (1, 3) cell
-            end
-            this.Sampler = this.adapterForSampler(YXZ);
-        end%
-
-
-        function outSampler = adapterForSampler(this, YXZ)
+        function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
                 this
-                YXZ (1, 3) cell
+                meta 
+                longYXZ (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
-            [Y_long, X_long, ~] = YXZ{:};
+
+
+
+            [longY, longX, ~] = longYXZ{:};
 
 
 
@@ -43,24 +45,16 @@ classdef Minnesota < estimator.Base
             
             opt.bex  = this.Settings.BlockExogenous;
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, ~, numBRows, sizeB] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, ~, numBRows, sizeB] = bear.olsvar(longY, longX, opt.const, opt.p);
+
+            [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
 
             priorexo = this.Settings.Exogenous;
-
-            % individual priors 0 for default
-        %     if isscalar(priorexo)
-        %         priorexo = repmat(priorexo, numEn, numEx);
-        %     end
-
-            %create a vector for AR hyperparamters
-        %     if isscalar(this.Settings.Autoregression)
-        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, numEn, 1);
-        %     end
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
-            arvar = bear.arloop(Y_long, opt.const, opt.p, numEn);
+            arvar = bear.arloop(longY, opt.const, opt.p, numEn);
 
             %setting up prior
             [beta0, omega0, sigma] = bear.mprior(ar, arvar, sigmahat, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, ...
@@ -79,7 +73,7 @@ classdef Minnesota < estimator.Base
                 this.SamplerCounter = this.SamplerCounter + 1;
             end%
 
-            outSampler = @sampler;
+            this.Sampler = @sampler;
 
             %===============================================================================
 

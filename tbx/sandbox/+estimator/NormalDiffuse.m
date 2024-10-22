@@ -1,11 +1,17 @@
 
-classdef NormalDiffuse < estimator.Base
+classdef NormalDiffuse < estimator.Plain
+
+    properties
+        CanHaveDummies = true
+        CanHaveReducibles = false
+    end
 
     methods
-        function initializeSampler(this, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
                 this
+                meta 
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end

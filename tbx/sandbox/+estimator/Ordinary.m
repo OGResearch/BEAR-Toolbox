@@ -1,30 +1,29 @@
 
-classdef Ordinary < estimator.Base
+classdef Ordinary < estimator.Plain
+
+    properties
+        CanHaveDummies = true
+        CanHaveReducibles = false
+    end
 
     methods
-        function initializeSampler(this, YXZ)
-            arguments
-                this
-                YXZ (1, 3) cell
-            end
-            this.Sampler = this.adapterForSampler(YXZ);
-        end%
-
-
-        function outSampler = adapterForSampler(this, YXZ)
+        function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
                 this
-                YXZ (1, 3) cell
+                meta 
+                longYXZ (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
-            [Y_long, X_long, ~] = YXZ{:};
+            [longY, longX, ~] = longYXZ{:};
 
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
             
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, numBRows, ~] = bear.olsvar(Y_long, X_long, opt.const, opt.p);
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, numBRows, ~] = bear.olsvar(longY, longX, opt.const, opt.p);
+            [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
             %setting up prior
             [Bcap, ~, Scap, alphacap, phicap, alphatop] = bear.dopost(LX, Y, estimLength, numBRows, numEn);
@@ -47,7 +46,7 @@ classdef Ordinary < estimator.Base
                 
             end%
 
-            outSampler = @sampler;
+            this.Sampler = @sampler;
 
             %===============================================================================
 

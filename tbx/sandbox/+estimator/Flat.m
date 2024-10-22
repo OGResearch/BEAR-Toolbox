@@ -1,24 +1,26 @@
 
-classdef Flat < estimator.Base
+classdef Flat < estimator.Plain
+
+    properties
+        CanHaveDummies = true
+        CanHaveReducibles = false
+    end
+    
 
     methods
-        function initializeSampler(this, YXZ)
-            arguments
-                this
-                YXZ (1, 3) cell
-            end
-            this.Sampler = this.adapterForSampler(YXZ);
-        end%
-
-
-        function outSampler = adapterForSampler(this, YXZ)
+        function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
                 this
-                YXZ (1, 3) cell
+                meta 
+                longYXZ (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
-            [Y_long, X_long, ~] = YXZ{:};
+
+
+
+            [longY, longX, ~] = longYXZ{:};
 
 
 
@@ -28,7 +30,7 @@ classdef Flat < estimator.Base
             opt.bex  = this.Settings.BlockExogenous;
 
             [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, ~, sizeB] = ...
-                bear.olsvar(Y_long, X_long, opt.const, opt.p);
+                bear.olsvar(longY, longX, opt.const, opt.p);
 
             B = Bhat;
 
@@ -70,7 +72,7 @@ classdef Flat < estimator.Base
                 this.SamplerCounter = this.SamplerCounter + 1;
             end
 
-            outSampler = @sampler;
+            this.Sampler = @sampler;
 
             %===============================================================================
 

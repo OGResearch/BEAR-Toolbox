@@ -1,22 +1,25 @@
 
-classdef IndNormalWishart < estimator.Base
+classdef IndNormalWishart < estimator.Plain
+
+    properties
+        CanHaveDummies = true
+        CanHaveReducibles = false
+    end
+
 
     methods
-        function initializeSampler(this, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
                 this
+                meta 
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = YXZ{:};
+            [longY, longX, ~] = longYXZ{:};
 
-            options.Burnin = 0;
-            numPresample = 1;
 
-            opt.It = options.Burnin + numPresample;
-            opt.Bu = options.Burnin;
 
             opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
@@ -25,9 +28,7 @@ classdef IndNormalWishart < estimator.Base
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
 
-        %     if isscalar(opt.lambda4)
-        %         opt.lambda4 = repmat(opt.lambda4, numEn, numEx);
-        %     end
+            opt.bex = this.Settings.BlockExogenous;
 
             sigmaAdapter = struct();
             sigmaAdapter.eye = 32;
@@ -37,23 +38,18 @@ classdef IndNormalWishart < estimator.Base
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
             priorexo = this.Settings.Exogenous;
-
-            % individual priors 0 for default
-        %     if isscalar(priorexo)
-        %         priorexo = repmat(priorexo, numEn, numEx);
-        %     end
-
-            %create a vector for AR hyperparamters
-        %     if isscalar(this.Settings.Autoregression)
-        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, numEn, 1);
-        %     end
             ar = this.Settings.Autoregression;
+
+            blockexo  =  [];
+            if  opt.bex == 1
+                [blockexo] = bear.loadbex(endo, pref);
+            end
 
             %variance from univariate OLS for priors
             arvar = bear.arloop(longY, opt.const, opt.p, numEn);

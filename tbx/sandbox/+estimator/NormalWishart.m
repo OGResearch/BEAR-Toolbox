@@ -1,5 +1,5 @@
 
-classdef NormalWishart < estimator.Base
+classdef NormalWishart < estimator.Plain
 
     properties
         CanHaveDummies = true
@@ -45,15 +45,6 @@ classdef NormalWishart < estimator.Base
 
             priorexo = this.Settings.Exogenous;
 
-            % individual priors 0 for default
-        %     if isscalar(priorexo)
-        %         priorexo = repmat(priorexo, numEn, numEx);
-        %     end
-
-            %create a vector for AR hyperparamters
-        %     if isscalar(this.Settings.Autoregression)
-        %         this.Settings.Autoregression = repmat(this.Settings.Autoregression, numEn, 1);
-        %     end
             ar = this.Settings.Autoregression;
 
             %variance from univariate OLS for priors
@@ -70,11 +61,10 @@ classdef NormalWishart < estimator.Base
 
             this.SamplerCounter = uint64(0);
             function sample = sampler()
-                % [beta_gibbs, sigma_gibbs] = bear.nwgibbs(opt.It, opt.Bu, Bbar, phibar, Sbar, alphabar, alphatilde, numEn, numBRows);
                 B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, numBRows, numEn);
-                Sigma = bear.iwdraw(Sbar, alphabar);
-                sample.B = B;
-                sample.Sigma = Sigma;
+                sigma = bear.iwdraw(Sbar, alphabar);
+                sample.beta = B(:);
+                sample.sigma = sigma;
                 this.SamplerCounter = this.SamplerCounter + 1;
             end%
             %
@@ -82,45 +72,6 @@ classdef NormalWishart < estimator.Base
             %]
         end%
 
-
-        function createDrawers(this, meta)
-            %[
-            numY = meta.NumEndogenousNames;
-            order = meta.Order;
-            estimationHorizon = numel(meta.ShortSpan);
-            %
-            function draw = historyDrawer(sample)
-                A = sample.B(1:numY*order, :);
-                C = sample.B(numY*order+1:end, :);
-                draw = struct();
-                draw.A = repmat({A}, estimationHorizon, 1);
-                draw.C = repmat({C}, estimationHorizon, 1);
-                draw.Sigma = repmat({sample.Sigma}, estimationHorizon, 1);
-            end%
-            %
-            function draw = unconditionalDrawer(sample, start, horizon)
-                A = sample.B(1:numY*order, :);
-                C = sample.B(numY*order+1:end, :);
-                draw = struct();
-                draw.A = repmat({A}, horizon, 1);
-                draw.C = repmat({C}, horizon, 1);
-                draw.Sigma = repmat({sample.Sigma}, horizon, 1);
-            end%
-            %
-            function draw = identificationDrawer(sample)
-                A = sample.B(1:numY*order, :);
-                %
-                draw = struct();
-                draw.A = repmat({A}, horizon, 1);
-                draw.Sigma = sample.Sigma;
-            end%
-            %
-            this.HistoryDrawer = @historyDrawer;
-            this.UnconditionalDrawer = @unconditionalDrawer;
-            this.ConditionalDrawer = [];
-            this.IdentificationDrawer = []; %@identificationDrawer;
-            %]
-        end%
     end
 
 end

@@ -30,8 +30,7 @@ classdef CarrieroSV < estimator.Base
             opt.gamma = this.Settings.HeteroskedasticityAutoRegression;
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
             opt.delta0 = this.Settings.HeteroskedasticityScale;
-
-            opt.bex = this.Settings.BlockExogenous;
+            
             opt.ar = this.Settings.Autoregression;
 
             priorexo = this.Settings.Exogenous;
