@@ -20,13 +20,10 @@ classdef Flat < estimator.Base
 
             [Y_long, X_long, ~] = YXZ{:};
 
-            options.Burnin = 0;
-            numPresample = 1;
-            opt.It = options.Burnin + numPresample;
-            opt.Bu = options.Burnin;
 
-            opt.const = this.Settings.HasConstant;
-            opt.p = this.Settings.Order;
+
+            opt.const = meta.HasIntercept;
+            opt.p = meta.Order;
 
             opt.bex  = this.Settings.BlockExogenous;
 

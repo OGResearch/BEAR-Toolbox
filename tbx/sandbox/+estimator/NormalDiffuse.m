@@ -12,10 +12,7 @@ classdef NormalDiffuse < estimator.Base
 
             [longY, longX, ~] = longYXZ{:};
 
-            options.Burnin = 0;
-            numPresample = 1;
-            opt.It = options.Burnin + numPresample;
-            opt.Bu = options.Burnin;
+
 
             opt.priorsexogenous = this.Settings.Exogenous;
             opt.user_ar = this.Settings.Autoregression;
@@ -33,8 +30,8 @@ classdef NormalDiffuse < estimator.Base
             sigmaAdapter.none = 41;
             opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
 
-            opt.const = this.Settings.HasConstant;
-            opt.p = this.Settings.Order;
+            opt.const = meta.HasIntercept;
+            opt.p = meta.Order;
 
             opt.bex  = this.Settings.BlockExogenous;
 
