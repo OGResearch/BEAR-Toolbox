@@ -243,7 +243,7 @@ classdef GeneralTV < estimator.Base
                 sampleStruct.omega = diag(omega);
                 sampleStruct.F = F;
                 sampleStruct.sbar = sbar;
-                sampleStruct.L = mat2cell(L, ones(estimLength, 1), 3);
+                sampleStruct.L = mat2cell(L, ones(estimLength, 1), numEn);
                 sampleStruct.phi = phi;
                 sampleStruct.sigmaAvg = sigma(:);
 
@@ -276,7 +276,7 @@ classdef GeneralTV < estimator.Base
                 %draw beta, omega and sigma and F from their posterior distributions
 
                 % draw beta
-                beta = sampleStruct.beta{startingIndex, 1};
+                beta = sampleStruct.beta{startingIndex - 1, 1};
 
                 % draw omega
                 omega = sampleStruct.omega;
@@ -291,7 +291,7 @@ classdef GeneralTV < estimator.Base
                 phi = sampleStruct.phi';
 
                 % also, compute the pre-sample value of lambda, the stochastic volatility process
-                lambda = sampleStruct.L{startingIndex}';
+                lambda = sampleStruct.L{startingIndex - 1}';
 
                 sbar = sampleStruct.sbar;
 

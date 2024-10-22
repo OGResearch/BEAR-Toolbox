@@ -231,7 +231,7 @@ function outSampler = adapterSampler(this, YXZ)
         sampleStruct.beta = mat2cell(B,repmat(sizeB,estimLength,1));
         sampleStruct.omega = diag(omega);
         sampleStruct.F = F;
-        sampleStruct.L = mat2cell(L, ones(estimLength, 1), 3);
+        sampleStruct.L = mat2cell(L, ones(estimLength, 1), numEn);
         sampleStruct.phi = phi;
         sampleStruct.sigma_avg = sigma(:);
     

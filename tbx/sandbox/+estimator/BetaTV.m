@@ -135,7 +135,7 @@ classdef BetaTV < estimator.Base
                 %draw beta, omega and sigma and F from their posterior distributions
 
                 % draw beta
-                beta = sampleStruct.beta{startingIndex, 1};
+                beta = sampleStruct.beta{startingIndex - 1, 1};
 
                 % draw omega
                 omega = sampleStruct.omega;
