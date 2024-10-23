@@ -15,13 +15,20 @@ classdef (CaseInsensitiveProperties=true) InitialObservations < settings.Base
             initY = longY(1:order, :);
             initX = longX(1:order, :);
             initX = system.addInterceptWhenNeeded(initX, meta.HasIntercept);
+            numPages = size(initY, 3);
             %
             dummiesY = mean(initY, 1, "omitNaN") / lambda;
-            dummiesL = kron(ones(1, order), dummiesY);
-            dummiesX = mean(initX, "omitnan") / lambda;
-            dummiesLX = [dummiesL, dummiesX];
             %
-            dummiesYLX = {dummiesY, dummiesLX};
+            dummiesL = cell(1, numPages);
+            for i = 1 : numPages
+                dummiesL{i} = kron(ones(1, order), dummiesY(:, :, i));
+            end
+            dummiesL = cat(3, dummiesL{:});
+            %
+            dummiesX = mean(initX, "omitnan") / lambda;
+            dummiesX = repmat(dummiesX, 1, 1, numPages);
+            %
+            dummiesYLX = {dummiesY, [dummiesL, dummyX]};
         end%
 
     end

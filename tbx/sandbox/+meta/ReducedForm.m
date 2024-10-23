@@ -213,12 +213,19 @@ classdef ReducedForm < handle
         end%
 
         function emptyYLX = createEmptyYLX(this)
-            numY = this.NumEndogenousNames;
-            numL = this.NumEndogenousNames * this.Order;
+            if this.HasCrossUnits
+                numY = this.NumEndogenousNames;
+                numL = this.NumEndogenousNames * this.Order;
+                numPages = 1;
+            else
+                numY = this.NumEndogenousConcepts;
+                numL = this.NumEndogenousConcepts * this.Order;
+                numPages = this.NumUnits;
+            end
             numX = double(this.HasIntercept) + this.NumExogenousNames;
             emptyYLX = { ...
-                zeros(0, numY), ...
-                zeros(0, numL + numX), ...
+                zeros(0, numY, numPages), ...
+                zeros(0, numL + numX, numPages), ...
             };
         end%
 
@@ -256,6 +263,17 @@ classdef ReducedForm < handle
 
         function sample = preallocateRedSample(this, numSamples)
             sample = {nan(this.NumelB, numSamples), nan(this.NumelSigma, numSamples)};
+        end%
+
+        function dataArray = reshapeCrossUnitData(this, dataArray)
+            arguments
+                this
+                dataArray double
+            end
+            if ~this.HasCrossUnits || this.NumUnits == 1
+                return
+            end
+            dataArray = reshape(dataArray, size(dataArray, 1), [], this.NumUnits);
         end%
     end
 

@@ -8,17 +8,20 @@ function U = sampleResiduals(Sigma, options)
 
     numPeriods = numel(Sigma);
     numU = size(Sigma{1}, 1);
+    numPages = size(Sigma{1}, 3);
 
-    U = zeros(numPeriods, numU);
+    U = zeros(numPeriods, numU, numPages);
     if ~options.StochasticResiduals
         return
     end
 
     for t = 1 : numPeriods
-        Sigma_t = Sigma{t};
-        Sigma_t = (Sigma_t + Sigma_t') / 2;
-        P = cholcov(Sigma_t);
-        U(t, :) = randn(1, numU) * P;
+        for i = 1 : numPages
+            Sigma_ti = Sigma{t}(:, :, i);
+            Sigma_ti = (Sigma_ti + Sigma_ti') / 2;
+            P = cholcov(Sigma_ti);
+            U(t, :, i) = randn(1, numU) * P;
+        end
     end
 
 end%

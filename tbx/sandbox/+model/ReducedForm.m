@@ -62,21 +62,25 @@ classdef ReducedForm < handle
         end%
 
         function longYXZ = getLongYXZ(this)
-            longYXZ = this.DataHolder.getYXZ(span=this.Meta.LongSpan);
+            longYXZ = this.getSomeYXZ(this.Meta.LongSpan);
         end%
 
         function shortYXZ = getShortYXZ(this)
-            shortYXZ = this.DataHolder.getYXZ(span=this.Meta.ShortSpan);
+            shortYXZ = this.getSomeYXZ(this.Meta.ShortSpan);
         end%
 
         function initYXZ = getInitYXZ(this)
-            initYXZ = this.DataHolder.getYXZ(span=this.Meta.InitSpan);
+            initYXZ = this.getSomeYXZ(this.Meta.InitSpan);
+        end%
+
+        function someYXZ = getSomeYXZ(this, span)
+            someYXZ = this.DataHolder.getYXZ(span=span);
+            someYXZ{1} = this.Meta.reshapeCrossUnitData(someYXZ{1});
         end%
 
         function [longYXZ, dummiesYLX, indivDummiesYLX] = initialize(this)
             shortSpan = this.Meta.ShortSpan;
-            longSpan = datex.longSpanFromShortSpan(shortSpan, this.Meta.Order);
-            longYXZ = this.DataHolder.getYXZ(span=longSpan);
+            longYXZ = this.getLongYXZ();
             this.estimateExogenousMean(longYXZ);
             [dummiesYLX, indivDummiesYLX] = this.generateDummiesYLX(longYXZ);
             this.Estimator.initialize(this.Meta, longYXZ, dummiesYLX);
@@ -167,11 +171,12 @@ classdef ReducedForm < handle
             forecastHorizon = numel(shortForecastSpan);
             longForecastSpan = datex.longSpanFromShortSpan(shortForecastSpan, meta.Order);
             %
-            longYXZ = this.DataHolder.getYXZ(span=longForecastSpan);
+            longYXZ = this.getSomeYXZ(longForecastSpan);
             %
             numPresampled = this.NumPresampled;
             this.resetPresampledIndex();
             %
+            % Multiple-unit output data will be always captured as flat
             Y0 = nan(meta.Order, meta.NumEndogenousNames, numPresampled);
             Y = nan(forecastHorizon, meta.NumEndogenousNames, numPresampled);
             U = nan(forecastHorizon, meta.NumEndogenousNames, numPresampled);
@@ -180,19 +185,23 @@ classdef ReducedForm < handle
                 sample = this.Presampled{i};
                 draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
                 %
+                % Multiple-unit data are 3D
                 u = system.sampleResiduals( ...
                     draw.Sigma ...
                     , stochasticResiduals=options.StochasticResiduals ...
                 );
                 %
+                % Multiple-unit data are 3D
                 [y, init] = system.forecast( ...
                     draw.A, draw.C, longYXZ, u ...
                     , hasIntercept=meta.HasIntercept ...
                     , order=meta.Order ...
                 );
-                U(:, :, i) = u;
-                Y(:, :, i) = y;
-                Y0(:, :, i) = init;
+                %
+                % Flatten multiple-unit data back
+                U(:, :, i) = u(:, :);
+                Y(:, :, i) = y(:, :);
+                Y0(:, :, i) = init(:, :);
             end
             %
             outSpan = shortForecastSpan;

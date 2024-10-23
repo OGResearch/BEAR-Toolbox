@@ -24,10 +24,6 @@ classdef DataHolder < handle
             this.Endogenous = tablex.retrieveData(dataTable, meta.EndogenousNames, this.Span, varargin{:});
             this.Exogenous = tablex.retrieveData(dataTable, meta.ExogenousNames, this.Span, varargin{:});
             this.Reducibles = tablex.retrieveData(dataTable, meta.ReducibleNames, this.Span, varargin{:});
-            %
-            if ~meta.HasCrossUnits
-                this.reshapeDataForCrossUnits(meta);
-            end
         end%
 
 
