@@ -3,9 +3,12 @@ classdef StaticCrossPanel < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = true
     end
 
+
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -28,7 +31,7 @@ classdef StaticCrossPanel < estimator.Base
 
             % reshape input endogenous matrix
             longY = reshape(longY,size(longY,1),numEndog,numCountries);
-            
+
             % compute preliminary elements
             [Ymat, Xmat, numCountries, numEndog, numExog, numLags, T, k, q, h]=bear.panel5prelim(longY,longX,const,numLags);
 
@@ -71,7 +74,7 @@ classdef StaticCrossPanel < estimator.Base
             eyetheta=kron(speye(T),theta);
 
             function sampleStruct = sampler()
-                
+
                 % step 2: obtain sigmatilde
                 % compute Sbar
                 Sbar=(1/sig)*(Y-Xdot*eyetheta)*(Y-Xdot*eyetheta)';
@@ -117,7 +120,7 @@ classdef StaticCrossPanel < estimator.Base
                 sampleStruct.sigma = sigma_gibbs;
 
             end
-                
+
             % burn first Bu sample before returning sampler
             for count=1:Bu
                 sampler();
@@ -125,9 +128,12 @@ classdef StaticCrossPanel < estimator.Base
 
             this.Sampler = @sampler;
 
+            %]
         end
 
+
         function createDrawers(this, meta)
+            %[
 
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
@@ -135,11 +141,11 @@ classdef StaticCrossPanel < estimator.Base
             numExog = meta.NumExogenousNames+meta.HasIntercept;
 
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
-                
+
                 smpl = sampleStruct;
                 beta = smpl.beta;
                 sigma = smpl.sigma;
-                
+
                 % initialization
                 A = [];
                 C = [];
@@ -158,7 +164,7 @@ classdef StaticCrossPanel < estimator.Base
                 A = B(1:numEndog*numLags*numCountries,:);
 
                 C = B(numEndog*numLags*numCountries+1:end,:);
-                
+
                 Sigma = reshape(...
                             sigma,...
                             numEndog*numCountries,...
@@ -183,6 +189,11 @@ classdef StaticCrossPanel < estimator.Base
             % this.IdentificationDrawer = [];
 
             this.UnconditionalDrawer = @unconditionalDrawer;
-        end
+
+            %]
+        end%
+
     end
+
 end
+

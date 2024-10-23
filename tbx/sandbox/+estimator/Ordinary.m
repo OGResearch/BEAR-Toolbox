@@ -4,14 +4,18 @@ classdef Ordinary < estimator.Plain
     properties
         CanHaveDummies = true
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
+
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
+
             arguments
                 this
-                meta 
+                meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -21,7 +25,7 @@ classdef Ordinary < estimator.Plain
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
-            
+
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, numBRows, ~] = bear.olsvar(longY, longX, opt.const, opt.p);
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
@@ -45,7 +49,7 @@ classdef Ordinary < estimator.Plain
                 sampleStruct.sigma = sigma;
 
                 this.SamplerCounter = this.SamplerCounter + 1;
-                
+
             end%
 
             this.Sampler = @sampler;
@@ -54,6 +58,7 @@ classdef Ordinary < estimator.Plain
 
             %]
         end%
+
     end
 
 end

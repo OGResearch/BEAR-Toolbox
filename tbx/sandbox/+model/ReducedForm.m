@@ -2,14 +2,13 @@
 classdef ReducedForm < handle
 
     properties (Constant, Hidden)
-
         DEFAULT_STABILITY_THRESHOLD = 1 - 1e-10
 
         ESTIMATOR_DISPATCHER = struct( ...
             lower("NormalWishart"), @red.NormalWishartEstimator ...
         )
-
     end
+
 
     properties
         Meta
@@ -18,15 +17,18 @@ classdef ReducedForm < handle
         Estimator
     end
 
+
     properties
         Presampled (1, :) cell = cell.empty(1, 0)
         PresampledIndex (1, 1) double = 0
         ExogenousMean (1, :) double
     end
 
+
     properties (Hidden)
         StabilityThreshold (1, 1) double = model.ReducedForm.DEFAULT_STABILITY_THRESHOLD
     end
+
 
     properties (Dependent)
         StabilityThresholdString (1, 1) string
@@ -35,23 +37,28 @@ classdef ReducedForm < handle
         NumDummies (1, 1) double
     end
 
+
     methods
+
         function this = ReducedForm(options)
             arguments
                 options.Meta (1, 1) meta.ReducedForm
-                options.DataHolder (1, 1) data.DataHolder
+                options.DataTable (:, :) timetable
                 options.Estimator (1, 1) estimator.Base
                 options.Dummies (1, :) cell = cell.empty(1, 0)
                 options.StabilityThreshold (1, 1) double = NaN
             end
+            %
             this.Meta = options.Meta;
-            this.DataHolder = options.DataHolder;
             this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
             if ~isnan(options.StabilityThreshold)
                 this.StabilityThreshold = options.StabilityThreshold;
             end
             this.Estimator.checkConsistency(this.Meta, this.Dummies);
+            %
+            this.Meta.HasCrossUnits = this.Estimator.HasCrossUnits;
+            this.DataHolder = data.DataHolder(this.Meta, options.DataTable);
         end%
 
         function longYXZ = getLongYXZ(this)
@@ -280,6 +287,7 @@ classdef ReducedForm < handle
                 error("Forecast end period out of range");
             end
         end%
+
     end
 
 end

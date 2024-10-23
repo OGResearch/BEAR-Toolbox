@@ -29,7 +29,12 @@ classdef ReducedForm < handle
         NumFactors (1, 1) double {mustBeInteger, mustBePositive} = 1
     end
 
-    properties (Hidden, SetAccess=protected)
+    properties
+        % True if cross-effects are present in models with multiple units
+        HasCrossUnits (1, 1) logical = false
+    end
+
+    properties (SetAccess=protected)
         % Span of fitted data
         ShortSpan
 
@@ -42,7 +47,7 @@ classdef ReducedForm < handle
         ShortEnd
     end
 
-    properties (Dependent, Hidden)
+    properties (Dependent)
         EndogenousNames
         ResidualNames
         HasExogenous

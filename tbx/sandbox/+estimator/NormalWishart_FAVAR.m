@@ -1,7 +1,15 @@
 
 classdef NormalWishart_FAVAR < estimator.Base
 
+    properties
+        CanHaveDummies = false
+        CanHaveReducibles = false
+        HasCrossUnits = false
+    end
+
+
     methods
+
         function initializeSampler(this, YXZ, favar)
             arguments
                 this
@@ -149,6 +157,7 @@ classdef NormalWishart_FAVAR < estimator.Base
 
             %]
         end%
+
     end
 
 end

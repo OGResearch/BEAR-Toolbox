@@ -4,6 +4,7 @@ classdef Flat < estimator.Plain
     properties
         CanHaveDummies = true
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
     
 

@@ -3,12 +3,15 @@ classdef BetaTV < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
+
 
     methods (Access = protected)
 
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
+
             arguments
                 this
                 meta (1, 1) meta.ReducedForm
@@ -118,9 +121,12 @@ classdef BetaTV < estimator.Base
 
             this.Sampler = @sampler;
 
-        end
+            %]
+        end%
+
 
         function createDrawers(this, meta)
+            %[
 
             %sizes
             numEn = meta.NumEndogenousNames;
@@ -192,8 +198,9 @@ classdef BetaTV < estimator.Base
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
 
-
-        end
+            %]
+        end%
 
     end
 end
+

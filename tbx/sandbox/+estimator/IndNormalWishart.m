@@ -4,10 +4,12 @@ classdef IndNormalWishart < estimator.Plain
     properties
         CanHaveDummies = true
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -119,6 +121,7 @@ classdef IndNormalWishart < estimator.Plain
 
             %]
         end%
+
     end
 
 end

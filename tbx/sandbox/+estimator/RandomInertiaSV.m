@@ -3,9 +3,12 @@ classdef RandomInertiaSV < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
+
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -273,9 +276,12 @@ classdef RandomInertiaSV < estimator.Base
 
             this.Sampler = @sampler;
 
-        end
+            %]
+        end%
+
 
         function createDrawers(this, meta)
+            %[
 
             %sizes
             numEn = meta.NumEndogenousNames;
@@ -342,8 +348,8 @@ classdef RandomInertiaSV < estimator.Base
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
 
-
-        end
+            %]
+        end%
 
     end
 end

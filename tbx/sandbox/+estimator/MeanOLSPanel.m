@@ -3,11 +3,15 @@ classdef MeanOLSPanel < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
+
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
+
             arguments
                 this
                 meta (1, 1) meta.ReducedForm
@@ -24,7 +28,7 @@ classdef MeanOLSPanel < estimator.Base
 
             % reshape input endogenous matrix
             longY = reshape(longY,size(longY,1),numEndog,numCountries);
-            
+
             % compute preliminary elements
             [X, Y, N, n, m, p, T, k, q]=bear.panel1prelim(longY,longX,const,numLags);
 
@@ -32,7 +36,7 @@ classdef MeanOLSPanel < estimator.Base
             [bhat, sigmahatb, sigmahat]=bear.panel1estimates(X,Y,N,n,q,k,T);
 
             function sampleStruct = sampler()
-                
+
                 % draw a random vector beta from its distribution
                 % if the produced VAR model is not stationary, draw another vector, and keep drawing till a stationary VAR is obtained
                 stationary = 0;
@@ -51,12 +55,15 @@ classdef MeanOLSPanel < estimator.Base
                 sampleStruct.bhat = bhat;
 
             end
-                
+
             this.Sampler = @sampler;
 
+            %]
         end
 
+
         function createDrawers(this, meta)
+            %[
 
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
@@ -64,12 +71,12 @@ classdef MeanOLSPanel < estimator.Base
             numExog = meta.NumExogenousNames+meta.HasIntercept;
 
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
-                
+
                 smpl = sampleStruct;
                 beta = smpl.bhat; % forecast is using mean OLS fixed parameters, no draws
                 sigma = eye(numEndog,numEndog);
                 % sigma = smpl.sigma;
-                
+
                 % initialization
                 A = [];
                 C = [];
@@ -99,7 +106,7 @@ classdef MeanOLSPanel < estimator.Base
 
                 % iterate over countries
                 for ii = 1:numCountries
-            
+
                     % Pack in blocks
                     A = blkdiag(A, a_temp);
 
@@ -128,6 +135,10 @@ classdef MeanOLSPanel < estimator.Base
             % this.IdentificationDrawer = [];
 
             this.UnconditionalDrawer = @unconditionalDrawer;
+
+            %]
         end
+
     end
+
 end

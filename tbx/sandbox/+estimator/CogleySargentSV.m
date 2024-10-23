@@ -3,11 +3,15 @@ classdef CogleySargentSV < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
+
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
+
             arguments
                 this
                 meta (1, 1) meta.ReducedForm
@@ -247,9 +251,12 @@ classdef CogleySargentSV < estimator.Base
 
             this.Sampler = @sampler;
 
-        end
+            %]
+        end%
+
 
         function createDrawers(this, meta)
+            %[
 
             %sizes
             numEn = meta.NumEndogenousNames;
@@ -320,8 +327,8 @@ classdef CogleySargentSV < estimator.Base
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
 
-
-        end
+            %]
+        end%
 
     end
 end

@@ -4,6 +4,7 @@ classdef Minnesota < estimator.Plain
     properties
         CanHaveDummies = true
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
 

@@ -4,7 +4,9 @@ classdef NormalDiffuse < estimator.Plain
     properties
         CanHaveDummies = true
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
+
 
     methods
         function initializeSampler(this, meta, longYXZ, dummiesYLX)

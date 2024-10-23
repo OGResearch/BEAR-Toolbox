@@ -22,6 +22,7 @@ classdef Base < handle
     properties (Abstract)
         CanHaveDummies
         CanHaveReducibles
+        HasCrossUnits
     end
 
     methods (Abstract)
@@ -71,20 +72,6 @@ classdef Base < handle
                     , this.ShortClassName ...
                 );
             end
-        end%
-
-        function reorganizeDataHolderWithMultipleUnits(this, dataHolder, meta)
-            arguments
-                this
-                dataHolder (1, 1) data.DataHolder
-                meta (1, 1) meta.ReducedForm
-            end
-            %
-            if numel(meta.Units) == 1
-                return
-            end
-            %
-            dataHolder.Endogenous = reshape(dataHolder.Endogenous, [], meta.NumEndogenousConcepts, meta.NumUnits);
         end%
 
     end

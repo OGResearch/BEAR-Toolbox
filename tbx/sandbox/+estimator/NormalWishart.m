@@ -4,6 +4,7 @@ classdef NormalWishart < estimator.Plain
     properties
         CanHaveDummies = true
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
     methods

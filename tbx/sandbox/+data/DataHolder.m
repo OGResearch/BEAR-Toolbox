@@ -11,20 +11,33 @@ classdef DataHolder < handle
 
     methods
 
-        function this = DataHolder(meta, estimator, inputTable, varargin)
+        function this = DataHolder(meta, dataTable, varargin)
             arguments
                 meta (1, 1) meta.ReducedForm
-                estimator (1, 1) estimator.Base
-                inputTable (:, :) timetable
+                dataTable (:, :) timetable
             end
             arguments (Repeating)
                 varargin
             end
-            this.Span = tablex.span(inputTable);
-            this.Endogenous = tablex.retrieveData(inputTable, meta.EndogenousNames, this.Span, varargin{:});
-            this.Exogenous = tablex.retrieveData(inputTable, meta.ExogenousNames, this.Span, varargin{:});
-            this.Reducibles = tablex.retrieveData(inputTable, meta.ReducibleNames, this.Span, varargin{:});
-            estimator.reorganizeDataHolderWithMultipleUnits(this, meta);
+            %
+            this.Span = tablex.span(dataTable);
+            this.Endogenous = tablex.retrieveData(dataTable, meta.EndogenousNames, this.Span, varargin{:});
+            this.Exogenous = tablex.retrieveData(dataTable, meta.ExogenousNames, this.Span, varargin{:});
+            this.Reducibles = tablex.retrieveData(dataTable, meta.ReducibleNames, this.Span, varargin{:});
+            %
+            if ~meta.HasCrossUnits
+                this.reshapeDataForCrossUnits(meta);
+            end
+        end%
+
+
+        function reshapeDataForCrossUnits(this, meta)
+            arguments
+                this
+                meta (1, 1) meta.ReducedForm
+            end
+            %
+            this.Endogenous = reshape(this.Endogenous, [], meta.NumEndogenousConcepts, meta.NumUnits);
         end%
 
 

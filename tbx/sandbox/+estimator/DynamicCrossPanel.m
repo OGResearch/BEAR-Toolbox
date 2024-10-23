@@ -3,9 +3,11 @@ classdef DynamicCrossPanel < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = true
     end
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -55,7 +57,7 @@ classdef DynamicCrossPanel < estimator.Base
             % step 1: compute initial values
             % initial value for Theta
             Theta=repmat(thetabar,T,1);
-            
+
             % initial value for sigmatilde
             eps=reshape(y-Xtilde*Theta,N*n,T);
             sigmatilde=(1/T)*eps*eps';
@@ -91,7 +93,7 @@ classdef DynamicCrossPanel < estimator.Base
                         zetabar=(phibar/phi)*gama*Zeta(2,1);
 
                     elseif tt==T
-                        phibar=phi;  
+                        phibar=phi;
                         zetabar=gama*Zeta(T-1,1);
 
                     else
@@ -180,7 +182,7 @@ classdef DynamicCrossPanel < estimator.Base
                     % draw b4
                     b4=bear.igrandn(a4bar/2,b4bar/2);
 
-                else 
+                else
                     b4=nan;
                 end
 
@@ -199,7 +201,7 @@ classdef DynamicCrossPanel < estimator.Base
                     % draw b5
                     b5=bear.igrandn(a5bar/2,b5bar/2);
 
-                else 
+                else
                     b5=nan;
                 end
 
@@ -234,7 +236,7 @@ classdef DynamicCrossPanel < estimator.Base
                 phi_gibbs=phi;
                 B_gibbs=B(:);
                 theta_gibbs=reshape(Theta,d,T);
-                % recover sigma for all periods and record      
+                % recover sigma for all periods and record
                 temp=kron(exp(Zeta),bear.vec(sigmatilde));
                 sigma_gibbs=reshape(temp,(N*n)^2,T);
 
@@ -263,7 +265,7 @@ classdef DynamicCrossPanel < estimator.Base
             numEndog = meta.NumEndogenousConcepts;
             numLags = meta.Order;
             numExog = meta.NumExogenousNames+meta.HasIntercept;
-            
+
             %IRF periods
             % IRFperiods = meta.IRFperiods;
 
@@ -271,7 +273,7 @@ classdef DynamicCrossPanel < estimator.Base
             gama = this.Settings.Gamma;
 
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
-        
+
                 % read the input
                 smpl = sampleStruct;
                 B = smpl.B;
@@ -281,51 +283,51 @@ classdef DynamicCrossPanel < estimator.Base
                 theta = smpl.theta(:, startingIndex-1);
                 phi = smpl.phi;
                 zeta = smpl.Zeta(startingIndex-1);
-        
+
                 % initiate the record draws
                 As = cell(forecastHorizon, 1);
                 Cs = cell(forecastHorizon, 1);
                 Sigmas = cell(forecastHorizon, 1);
-        
+
                 % number of factors
                 numFactors = size(thetabar, 1);
-        
+
                 % reshape matrices
                 B = reshape(...
                           B,...
                           numFactors,...
                           numFactors);
-        
+
                 sigmatilde = reshape(...
                             sigmatilde,...
                             numCountries*numEndog,...
                             numCountries*numEndog);
-        
+
                 % obtain its choleski factor as the square of each diagonal element
                 cholB = diag(diag(B).^0.5);
-                
+
                 % generate forecasts recursively
                 % for each iteration jj, repeat the process for periods T+1 to T+forecastHorizon
                 for jj=1:forecastHorizon
-                    
+
                     % update theta
                     % draw the vector of shocks eta
                     eta = cholB*mvnrnd(zeros(numFactors, 1),eye(numFactors))';
                     % update theta from its AR process
                     theta = (1-rho)*thetabar + rho*theta + eta;
-        
+
                     % reconstruct B matrix
                     beta_temp = Xi*theta;
-                    
+
                     B_draw = reshape(...
                             beta_temp,...
                             numCountries*numEndog*numLags+numExog,...
                             numCountries*numEndog);
-        
+
                     % obtain A and C
                     As{jj} = B_draw(1:numCountries*numEndog*numLags, :);
                     Cs{jj} = B_draw(numCountries*numEndog*numLags+1:end, :);
-              
+
                     % update sigma
                     % draw the shock upsilon
                     ups = normrnd(0, phi);
@@ -333,26 +335,27 @@ classdef DynamicCrossPanel < estimator.Base
                     zeta = gama*zeta+ups;
                     % recover sigma
                     sigma = exp(zeta)*sigmatilde;
-              
+
                     % recover sigma_t and draw the residuals
                     Sigmas{jj} = sigma;
-              
+
                     % repeat until values are obtained for T+forecastHorizon
                 end
-        
+
                 drawStruct = struct();
                 drawStruct.A = As;
                 drawStruct.C = Cs;
                 drawStruct.Sigma = Sigmas;
             end
-            
+
 
             % return function calls
             % this.IdentificationDrawer = [];
 
-            this.UnconditionalDrawer = @unconditionalDrawer;
 
-        end
+            this.UnconditionalDrawer = @unconditionalDrawer;
+            %]
+        end%
 
     end
 end
