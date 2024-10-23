@@ -1,4 +1,4 @@
-classdef NormalWishartPanel < estimator.Base
+classdef ZellnerHongPanel < estimator.Base
 
     properties
         CanHaveDummies = false
@@ -22,35 +22,47 @@ classdef NormalWishartPanel < estimator.Base
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
 
-            ar = this.Settings.Autoregression;
+            % ar = this.Settings.Autoregression;
             lambda1 = this.Settings.Lambda1;
-            lambda3 = this.Settings.Lambda3;
-            lambda4 = this.Settings.Lambda4;
-            priorexo = this.Settings.Exogenous;;
+            % lambda3 = this.Settings.Lambda3;
+            % lambda4 = this.Settings.Lambda4;
+            % priorexo = this.Settings.Exogenous;;
 
             % reshape input endogenous matrix
             longY = reshape(longY,size(longY,1),numEndog,numCountries);
             
             % compute preliminary elements
-            [X, ~, Y, ~, N, n, m, p, T, k, q]=bear.panel2prelim(longY,longX,const,numLags,cell(numCountries,1));
+            [~, Xibar, Xbar, ~, yi, y, N, n, ~, ~, ~, ~, q, h]=bear.panel3prelim(longY,longX,const,numLags);
 
-            % obtain prior elements (from a standard normal-Wishart)
-            [B0, beta0, phi0, S0, alpha0]=bear.panel2prior(N,n,m,p,T,k,q,longY,ar,lambda1,lambda3,lambda4,priorexo);
+            % obtain prior elements
+            [~, bbar, sigeps]=bear.panel3prior(Xibar,Xbar,yi,y,N,q);
 
-            % obtain posterior distribution parameters
-            [Bbar, betabar, phibar, Sbar, alphabar, alphatilde]=bear.nwpost(B0,phi0,S0,alpha0,X,Y,n,N*T,k);
+            % compute posterior distribution parameters
+            [omegabarb, betabar]=bear.panel3post(h,Xbar,y,lambda1,bbar,sigeps);
 
             function sampleStruct = sampler()
                 
-                % draw B from a matrix-variate student distribution with location Bbar, scale Sbar and phibar and degrees of freedom alphatilde (step 2)
-                B=bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
+                % draw a random vector beta from N(betabar,omegabarb)
+                % TODO - optimize chol (can be run only once)
+                beta=betabar+chol(bear.nspd(omegabarb),'lower')*mvnrnd(zeros(h,1),eye(h))';
 
-                % then draw sigma from an inverse Wishart distribution with scale matrix Sbar and degrees of freedom alphabar (step 3)
-                sigma=bear.iwdraw(Sbar,alphabar);
+                beta=reshape(beta,q,N);
+                % record values by marginalising over each unit
+                for jj=1:N
+
+                    beta_gibbs(:,jj)=beta(:,jj);
+
+                end
+
+                % obtain a record of draws for sigma, the residual variance-covariance matrix
+                % compute sigma
+                sigma=sigeps*eye(n);
+
+                sigma_gibbs=repmat(sigma(:),[1 N]);
 
                 sampleStruct = struct();
-                sampleStruct.beta = B(:);
-                sampleStruct.sigma = sigma(:);
+                sampleStruct.beta = beta_gibbs;
+                sampleStruct.sigma = sigma_gibbs;
 
             end
                 
@@ -82,25 +94,26 @@ classdef NormalWishartPanel < estimator.Base
                 Cs = cell(forecastHorizon,1);
                 Sigmas  = cell(forecastHorizon,1);
 
-                beta_temp = reshape(...
-                            beta,...
+                % iterate over countries
+                for ii = 1:numCountries
+
+                    beta_temp = reshape(...
+                            beta(:,ii),...
                             numEndog*numLags+numExog,...
                             numEndog...
                             );
 
-                sigma_temp = reshape(...
-                            sigma,...
+                    sigma_temp = reshape(...
+                            sigma(:,ii),...
                             numEndog,...
                             numEndog...
                             );
+                            
+                    % Pack in blocks
+                    a_temp = beta_temp(1:numEndog*numLags,:);
 
-                a_temp = beta_temp(1:numEndog*numLags,:);
+                    c_temp = beta_temp(numEndog*numLags+1:end,:);
 
-                c_temp = beta_temp(numEndog*numLags+1:end,:);
-
-                % iterate over countries
-                for ii = 1:numCountries
-            
                     % Pack in blocks
                     A(:,:,ii) = a_temp;
 
