@@ -76,14 +76,14 @@ classdef DataHolder < handle
             end
             %
             numIndex = numel(index);
-            Y = nan(numIndex, size(this.Endogenous, 2));
-            X = nan(numIndex, size(this.Exogenous, 2));
-            Z = nan(numIndex, size(this.Reducibles, 2));
+            Y = nan(numIndex, size(this.Endogenous, 2), size(this.Endogenous, 3));
+            X = nan(numIndex, size(this.Exogenous, 2), size(this.Exogenous, 3));
+            Z = nan(numIndex, size(this.Reducibles, 2), size(this.Reducibles, 3));
             within = index >= 1 & index <= numel(this.Span);
             indexWithin = index(within);
-            Y(within, :) = this.Endogenous(indexWithin, :);
-            X(within, :) = this.Exogenous(indexWithin, :);
-            Z(within, :) = this.Reducibles(indexWithin, :);
+            Y(within, :, :) = this.Endogenous(indexWithin, :, :);
+            X(within, :, :) = this.Exogenous(indexWithin, :, :);
+            Z(within, :, :) = this.Reducibles(indexWithin, :, :);
             YXZ = {Y, X, Z};
         end%
 
