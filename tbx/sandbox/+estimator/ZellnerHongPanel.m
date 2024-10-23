@@ -25,14 +25,7 @@ classdef ZellnerHongPanel < estimator.Base
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
 
-            % ar = this.Settings.Autoregression;
             lambda1 = this.Settings.Lambda1;
-            % lambda3 = this.Settings.Lambda3;
-            % lambda4 = this.Settings.Lambda4;
-            % priorexo = this.Settings.Exogenous;;
-
-            % reshape input endogenous matrix
-            longY = reshape(longY,size(longY,1),numEndog,numCountries);
             
             % compute preliminary elements
             [~, Xibar, Xbar, ~, yi, y, N, n, ~, ~, ~, ~, q, h]=bear.panel3prelim(longY,longX,const,numLags);

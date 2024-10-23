@@ -26,9 +26,6 @@ classdef MeanOLSPanel < estimator.Base
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
 
-            % reshape input endogenous matrix
-            longY = reshape(longY,size(longY,1),numEndog,numCountries);
-
             % compute preliminary elements
             [X, Y, N, n, m, p, T, k, q]=bear.panel1prelim(longY,longX,const,numLags);
 
@@ -74,8 +71,7 @@ classdef MeanOLSPanel < estimator.Base
 
                 smpl = sampleStruct;
                 beta = smpl.bhat; % forecast is using mean OLS fixed parameters, no draws
-                sigma = eye(numEndog,numEndog);
-                % sigma = smpl.sigma;
+                sigma = smpl.sigma;
 
                 % initialization
                 A = nan(numEndog*numLags,numEndog,numCountries);
