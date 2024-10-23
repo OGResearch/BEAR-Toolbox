@@ -31,8 +31,8 @@ classdef NormalWishartPanel < estimator.Base
             priorexo = this.Settings.Exogenous;;
 
             % reshape input endogenous matrix
-            longY = reshape(longY,size(longY,1),numEndog,numCountries);
-
+            % longY = reshape(longY,size(longY,1),numEndog,numCountries);
+            
             % compute preliminary elements
             [X, ~, Y, ~, N, n, m, p, T, k, q]=bear.panel2prelim(longY,longX,const,numLags,cell(numCountries,1));
 
