@@ -300,17 +300,17 @@ classdef RandomInertiaSV < estimator.Base
                 gamma = sampleStruct.gamma';
                 lambda =  sampleStruct.L{startingIndex - 1, :}';
 
-                drawStruct.A = cell(forecastHorizon, 1);
-                drawStruct.C = cell(forecastHorizon, 1);
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+
+                drawStruct.A = repmat({A}, horizon, 1);
+                drawStruct.C = repmat({C}, horizon, 1);
+
                 drawStruct.Sigma = cell(forecastHorizon, 1);
 
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:forecastHorizon
-
-                    % update beta
-                    drawStruct.A{jj, 1}(:, :) = B(1:numARows, :);
-                    drawStruct.C{jj, 1}(:, :) = B(numARows + 1:end, :);
 
                     for kk = 1:numEn
                         lambda(kk, 1) = gamma(kk, 1) * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
@@ -324,7 +324,23 @@ classdef RandomInertiaSV < estimator.Base
                 end
             end
 
+            function drawStruct = identificationDrawer(sampleStruct, horizon)
+
+                beta = sampleStruct.beta;
+                % reshape it to obtain B
+                B = reshape(beta, numBRows, numEn);
+
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+
+                drawStruct.A = repmat({A}, horizon, 1);
+                drawStruct.C = repmat({C}, horizon, 1);
+                drawStruct.Sigma = repmat({reshape(sampleStruct.sigmaAvg, numEn, numEn)}, horizon, 1);
+
+            end
+
             this.UnconditionalDrawer = @unconditionalDrawer;
+            this.IdentificationDrawer = @identificationDrawer;
 
 
         end

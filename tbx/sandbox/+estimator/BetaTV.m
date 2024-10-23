@@ -6,6 +6,7 @@ classdef BetaTV < estimator.Base
     end
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -118,7 +119,7 @@ classdef BetaTV < estimator.Base
             this.Sampler = @sampler;
 
         end
-        
+
         function createDrawers(this, meta)
 
             %sizes
@@ -160,7 +161,36 @@ classdef BetaTV < estimator.Base
                 end
             end
 
+            function [drawStruct] = identificationDrawer(sampleStruct, horizon)
+
+                %draw beta, omega from their posterior distribution
+                % draw beta
+                beta = sampleStruct.beta{end, 1};
+
+                % draw omega
+                omega = sampleStruct.omega;
+
+                % create a choleski of omega, the variance matrix for the law of motion
+                cholomega = sparse(diag(omega));
+
+                drawStruct.A = cell(horizon, 1);
+                drawStruct.C = cell(horizon, 1);
+
+                % then generate forecasts recursively
+                % for each iteration ii, repeat the process for periods T+1 to T+h
+                for jj = 1:horizon
+                    % update beta
+                    beta = beta + cholomega*randn(sizeB, 1);
+                    B = reshape(beta, numBRows, numEn);
+                    drawStruct.A{jj,1}(:, :) = B(1:numARows, :);
+                    drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);
+                end
+
+                drawStruct.Sigma = repmat({reshape(sampleStruct.sigma, numEn, numEn)}, horizon, 1);
+            end
+
             this.UnconditionalDrawer = @unconditionalDrawer;
+            this.IdentificationDrawer = @identificationDrawer;
 
 
         end
