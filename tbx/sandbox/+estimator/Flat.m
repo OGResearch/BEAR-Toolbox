@@ -29,11 +29,12 @@ classdef Flat < estimator.Plain
 
             opt.bex  = this.Settings.BlockExogenous;
 
-            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, ~, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, ~, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             B = Bhat;
 
+            estimLength = size(Y, 1);
             %===============================================================================
 
             this.SamplerCounter = uint64(0);

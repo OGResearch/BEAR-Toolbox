@@ -22,8 +22,10 @@ classdef Ordinary < estimator.Plain
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
             
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, numBRows, ~] = bear.olsvar(longY, longX, opt.const, opt.p);
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, numBRows, ~] = bear.olsvar(longY, longX, opt.const, opt.p);
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
+
+            estimLength = size(Y, 1);
 
             %setting up prior
             [Bcap, ~, Scap, alphacap, phicap, alphatop] = bear.dopost(LX, Y, estimLength, numBRows, numEn);

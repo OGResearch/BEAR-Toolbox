@@ -12,7 +12,7 @@ classdef DynamicCrossPanel < estimator.Base
                 this
                 meta (1, 1) meta.ReducedForm
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
             [longY, longX, ~] = longYXZ{:};
@@ -32,8 +32,8 @@ classdef DynamicCrossPanel < estimator.Base
             Bu = this.Settings.Burnin;
 
             % reshape input endogenous matrix
-
             longY = reshape(longY,size(longY,1),numEndog,numCountries);
+
             % compute preliminary elements
             [Ymat,Xmat,N,n,m,p,T,k,q,h]=bear.panel6prelim(longY,longX,const,numLags);
 
@@ -232,7 +232,7 @@ classdef DynamicCrossPanel < estimator.Base
                 sigmatilde_gibbs=bear.vec(sigmatilde);
                 Zeta_gibbs=Zeta;
                 phi_gibbs=phi;
-                B_gibbs=B;
+                B_gibbs=B(:);
                 theta_gibbs=reshape(Theta,d,T);
                 % recover sigma for all periods and record      
                 temp=kron(exp(Zeta),bear.vec(sigmatilde));
@@ -260,9 +260,9 @@ classdef DynamicCrossPanel < estimator.Base
         function createDrawers(this, meta)
 
             numCountries = meta.NumUnits;
-            numEndog     = meta.NumEndogenousConcepts;
-            numLags      = meta.Order;
-            numExog      = meta.NumExogenousNames+meta.HasIntercept;
+            numEndog = meta.NumEndogenousConcepts;
+            numLags = meta.Order;
+            numExog = meta.NumExogenousNames+meta.HasIntercept;
             
             %IRF periods
             % IRFperiods = meta.IRFperiods;
@@ -270,7 +270,7 @@ classdef DynamicCrossPanel < estimator.Base
             rho = this.Settings.Rho;
             gama = this.Settings.Gamma;
 
-            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex,forecastHorizon)
+            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
         
                 % read the input
                 smpl = sampleStruct;
@@ -278,17 +278,17 @@ classdef DynamicCrossPanel < estimator.Base
                 sigmatilde = smpl.sigmatilde;
                 thetabar = smpl.thetabar;
                 Xi = smpl.Xi;
-                theta = smpl.theta(:,startingIndex-1);
+                theta = smpl.theta(:, startingIndex-1);
                 phi = smpl.phi;
                 zeta = smpl.Zeta(startingIndex-1);
         
                 % initiate the record draws
-                As = cell(forecastHorizon,1);
-                Cs = cell(forecastHorizon,1);
-                Sigmas = cell(forecastHorizon,1);
+                As = cell(forecastHorizon, 1);
+                Cs = cell(forecastHorizon, 1);
+                Sigmas = cell(forecastHorizon, 1);
         
                 % number of factors
-                numFactors = size(thetabar,1);
+                numFactors = size(thetabar, 1);
         
                 % reshape matrices
                 B = reshape(...
@@ -310,7 +310,7 @@ classdef DynamicCrossPanel < estimator.Base
                     
                     % update theta
                     % draw the vector of shocks eta
-                    eta = cholB*mvnrnd(zeros(numFactors,1),eye(numFactors))';
+                    eta = cholB*mvnrnd(zeros(numFactors, 1),eye(numFactors))';
                     % update theta from its AR process
                     theta = (1-rho)*thetabar + rho*theta + eta;
         
@@ -321,23 +321,14 @@ classdef DynamicCrossPanel < estimator.Base
                             beta_temp,...
                             numCountries*numEndog*numLags+numExog,...
                             numCountries*numEndog);
-              
-                    B_reshuffled = zeros(numCountries*numEndog*numLags+numExog,numCountries*numEndog);
-        
-                    % reshaffle B_draw to map the proper order
-                    for ee = 1:numCountries
-                        for kk = 1:numLags
-                            B_reshuffled((ee-1)*numEndog*numLags+(kk-1)*numEndog+1:(ee-1)*numEndog*numLags+kk*numEndog,:) = B_draw((kk-1)*numCountries*numEndog+(ee-1)*numEndog+1:(kk-1)*numCountries*numEndog+ee*numEndog,:);
-                        end
-                    end
         
                     % obtain A and C
-                    As{jj} = B_draw(1:numCountries*numEndog*numLags,:);
-                    Cs{jj} = B_draw(numCountries*numEndog*numLags+1:end,:);
+                    As{jj} = B_draw(1:numCountries*numEndog*numLags, :);
+                    Cs{jj} = B_draw(numCountries*numEndog*numLags+1:end, :);
               
                     % update sigma
                     % draw the shock upsilon
-                    ups = normrnd(0,phi);
+                    ups = normrnd(0, phi);
                     % update zeta from its AR process
                     zeta = gama*zeta+ups;
                     % recover sigma

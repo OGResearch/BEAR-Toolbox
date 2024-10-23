@@ -35,10 +35,12 @@ classdef NormalWishart < estimator.Plain
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, ~, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
+
+            estimLength = size(Y, 1);
 
             % LX = add dummies
             % Y = add dummies

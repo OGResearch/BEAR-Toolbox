@@ -1,7 +1,7 @@
 classdef CarrieroSV < estimator.Base
 
     properties
-        CanHaveDummies = true
+        CanHaveDummies = false
         CanHaveReducibles = false
     end
 
@@ -12,7 +12,7 @@ classdef CarrieroSV < estimator.Base
                 this
                 meta (1, 1) meta.ReducedForm
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 3) cell
+                dummiesYLX (1, 2) cell
             end
 
             [longY, longX, ~] = longYXZ{:};
@@ -30,7 +30,7 @@ classdef CarrieroSV < estimator.Base
             opt.gamma = this.Settings.HeteroskedasticityAutoRegression;
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
             opt.delta0 = this.Settings.HeteroskedasticityScale;
-            
+
             opt.ar = this.Settings.Autoregression;
 
             priorexo = this.Settings.Exogenous;
@@ -279,20 +279,16 @@ classdef CarrieroSV < estimator.Base
                 lambda =  sampleStruct.L{startingIndex-1, 1};
                 sbar = sampleStruct.sbar;
 
-                drawStruct.A = cell(forecastHorizon, 1);
-                drawStruct.C = cell(forecastHorizon, 1);
                 drawStruct.Sigma = cell(forecastHorizon, 1);
 
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
+                drawStruct.A = repmat({A}, forecastHorizon, 1);
+                drawStruct.C = repmat({C}, forecastHorizon, 1);
 
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods estimLength+1 to estimLength+h
                 for jj = 1:forecastHorizon
-
-                    % update beta
-                    drawStruct.A{jj, 1}(:, :) = A;
-                    drawStruct.C{jj, 1}(:, :) = C;
 
                     lambda = gamma * lambda + phi^0.5 * randn;
 
@@ -304,8 +300,24 @@ classdef CarrieroSV < estimator.Base
                 end
             end
 
-            this.UnconditionalDrawer = @unconditionalDrawer;
+            function drawStruct = identificationDrawer(sampleStruct, horizon)
 
+                beta = sampleStruct.beta;
+                % reshape it to obtain B
+                B = reshape(beta, numBRows, numEn);
+
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+
+                drawStruct.A = repmat({A}, horizon, 1);
+                drawStruct.C = repmat({C}, horizon, 1);
+                drawStruct.Sigma = repmat({reshape(sampleStruct.sigmaAvg, numEn, numEn)}, horizon, 1);
+
+            end
+
+
+            this.UnconditionalDrawer = @unconditionalDrawer;
+            this.IdentificationDrawer = @identificationDrawer;
 
         end
 

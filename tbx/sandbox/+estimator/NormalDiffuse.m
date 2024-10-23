@@ -28,31 +28,19 @@ classdef NormalDiffuse < estimator.Plain
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
 
-        %     if isscalar(opt.lambda4)
-        %         opt.lambda4 = repmat(opt.lambda4, numEn, numEx);
-        %     end
-
-            sigmaAdapter = struct();
-            sigmaAdapter.none = 41;
-            opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
-
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            opt.bex  = this.Settings.BlockExogenous;
-
-            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, ~, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
+            estimLength = size(Y, 1);
+
             opt.bex = this.Settings.BlockExogenous;
             ar = this.Settings.Autoregression;
             priorexo = this.Settings.Exogenous;
-
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
-
             arvar =  bear.arloop(longY, opt.const, p, numEn);
 
             blockexo  =  [];

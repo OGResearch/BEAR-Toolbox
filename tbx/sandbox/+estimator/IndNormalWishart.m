@@ -19,8 +19,6 @@ classdef IndNormalWishart < estimator.Plain
 
             [longY, longX, ~] = longYXZ{:};
 
-
-
             opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
@@ -38,10 +36,12 @@ classdef IndNormalWishart < estimator.Plain
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, estimLength, numBRows, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, ~, ~, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
+
+            estimLength = size(Y, 1);
 
             priorexo = this.Settings.Exogenous;
             ar = this.Settings.Autoregression;
