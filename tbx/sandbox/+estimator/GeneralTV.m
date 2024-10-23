@@ -355,7 +355,6 @@ classdef GeneralTV < estimator.Base
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
 
-
         end
 
     end
