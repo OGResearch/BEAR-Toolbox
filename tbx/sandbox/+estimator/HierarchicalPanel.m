@@ -198,8 +198,8 @@ classdef HierarchicalPanel < estimator.Base
                 Sigma = nan(numEndog, numEndog, numCountries);
 
                 % initialize the output
-                As = cell(forecastHorizon, 1);
-                Cs = cell(forecastHorizon, 1);
+                As = cell(horizon, 1);
+                Cs = cell(horizon, 1);
 
                 % iterate over countries
                 for ii = 1:numCountries
@@ -230,7 +230,7 @@ classdef HierarchicalPanel < estimator.Base
                 end
 
                 % pack the output
-                for tt = 1:forecastHorizon
+                for tt = 1:horizon
 
                     As{tt} = A;
                     Cs{tt} = C;
