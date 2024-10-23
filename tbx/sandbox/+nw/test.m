@@ -22,6 +22,7 @@ config.data = struct( ...
 
 config.meta = struct( ...
     "endogenous", ["DOM_GDP", "DOM_CPI", "STN"], ...
+    "exogenous", ["Oil"], ...
     "order", 4, ...
     "estimationStart", "1975-Q1", ...
     "estimationEnd", "2014-Q4", ...
@@ -31,13 +32,14 @@ config.meta = struct( ...
 % histLegacy = tablex.fromCsv("exampleDataLegacy.csv", dateFormat="legacy");
 % hist = tablex.fromCsv("exampleData.csv");
 
-inputTbl = bear6.readInputData(config.data);
+inputTbx = bear6.readInputData(config.data);
 
-dataSpan = tablex.span(inputTbl);
+dataSpan = tablex.span(inputTbx);
 estimSpan = dataSpan;
 
 metaR = meta.ReducedForm( ...
     endogenous=config.meta.endogenous ...
+    , exogenous=config.meta.exogenous ...
     , order=config.meta.order ...
     , intercept=config.meta.intercept ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
@@ -45,11 +47,11 @@ metaR = meta.ReducedForm( ...
 
 estimator = estimator.NormalWishart(metaR);
 
-dataHolder = data.DataHolder(metaR, inputTbl);
-
 dummy = dummies.Minnesota(exogenousLambda=30);
 
-r = model.ReducedForm( ...
+dataHolder = data.DataHolder(metaR, estimator, inputTbx);
+
+modelR = model.ReducedForm( ...
     meta=metaR ...
     , data=dataHolder ...
     , estimator=estimator ...
@@ -57,19 +59,19 @@ r = model.ReducedForm( ...
     , stabilityThreshold=Inf ...
 )
 
-r.initialize();
-r.presample(100);
+modelR.initialize();
+modelR.presample(100);
 
-fcastStart = datex.shift(r.Meta.EstimationEnd, -10);
-fcastEnd = datex.shift(r.Meta.EstimationEnd, +10);
+fcastStart = datex.shift(modelR.Meta.EstimationEnd, -10);
+fcastEnd = datex.shift(modelR.Meta.EstimationEnd, 0);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 
-fcastTbl = r.forecast(fcastSpan);
-residTbl = r.calculateResiduals();
+fcastTbx = modelR.forecast(fcastSpan);
+residTbx = modelR.calculateResiduals();
+
+metaS = meta.Structural(metaR, identificationHorizon=20)
 
 
-% residTbl = r.residuals(hist);
-% 
 % % id = identifier.Triangular(stdVec=1);
 % 
 % id = identifier.Custom( ...
@@ -77,11 +79,11 @@ residTbl = r.calculateResiduals();
 %     verifiable=config.identifier.settings.verifiable ...
 % );
 % 
-% metaS = meta.Structural(config.meta.shocks);
+
 % 
-% s = model.Structural(meta=metaS, reducedForm=r, identifier=id);
+% s = model.Structural(meta=metaS, reducedForm=modelR, identifier=id);
 % 
-% % r.initialize(hist, estimSpan);
+% % modelR.initialize(hist, estimSpan);
 % s.initialize(hist, estimSpan);
 % s.presample(100);
 % 
@@ -89,16 +91,16 @@ residTbl = r.calculateResiduals();
 % 
 % fevd = s.fevd(shockSpan);
 % 
-% shockTbl = s.simulateShocks(shockSpan);
-% shockPctileTbl = tablex.apply(shockTbl, pctileFunc);
+% shockTbx = s.simulateShocks(shockSpan);
+% shockPctileTbx = tablex.apply(shockTbx, pctileFunc);
 % tiledlayout(3, 3);
-% time = 0 : numel(shockPctileTbl.Time)-1;
+% time = 0 : numel(shockPctileTbx.Time)-1;
 % for n = ["DOM_GDP", "DOM_CPI", "STN"]
 %     for i = 1 : 3
 %         shockName = s.Meta.ShockNames(i);
 %         nexttile();
 %         hold on
-%         data = shockPctileTbl.(n)(:, :, i);
+%         data = shockPctileTbx.(n)(:, :, i);
 %         h = plot(time, data);
 %         set(h, {"lineStyle"}, {":"; "-"; ":"}, "lineWidth", 3, "color", [0.3, 0.6, 0.6]);
 %         title(n + " <-- " + shockName, interpreter="none");
@@ -110,8 +112,8 @@ residTbl = r.calculateResiduals();
 % N = 10000;
 % 
 % disp("Presampling...")
-% r.presample(N);
-% r.Estimator.SamplerCounter
+% modelR.presample(N);
+% modelR.Estimator.SamplerCounter
 % 
 % amean = s.asymptoticMean();
 % 

@@ -1,5 +1,5 @@
 
-classdef DataHolder
+classdef DataHolder < handle
 
     properties
         Span
@@ -11,9 +11,10 @@ classdef DataHolder
 
     methods
 
-        function this = DataHolder(meta, inputTable, varargin)
+        function this = DataHolder(meta, estimator, inputTable, varargin)
             arguments
                 meta (1, 1) meta.ReducedForm
+                estimator (1, 1) estimator.Base
                 inputTable (:, :) timetable
             end
             arguments (Repeating)
@@ -23,6 +24,7 @@ classdef DataHolder
             this.Endogenous = tablex.retrieveData(inputTable, meta.EndogenousNames, this.Span, varargin{:});
             this.Exogenous = tablex.retrieveData(inputTable, meta.ExogenousNames, this.Span, varargin{:});
             this.Reducibles = tablex.retrieveData(inputTable, meta.ReducibleNames, this.Span, varargin{:});
+            estimator.reorganizeDataHolderWithMultipleUnits(this, meta);
         end%
 
 

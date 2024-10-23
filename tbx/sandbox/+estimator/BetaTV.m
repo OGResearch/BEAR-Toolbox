@@ -5,7 +5,7 @@ classdef BetaTV < estimator.Base
         CanHaveReducibles = false
     end
 
-    methods
+    methods (Access = protected)
 
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[

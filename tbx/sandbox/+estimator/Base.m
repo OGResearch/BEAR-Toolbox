@@ -16,6 +16,7 @@ classdef Base < handle
 
     properties (Dependent)
         ShortClassName
+        BeenInitialized
     end
 
     properties (Abstract)
@@ -33,17 +34,20 @@ classdef Base < handle
             this.Settings = estimator.settings.(this.ShortClassName)(meta, varargin{:});
         end%
 
-        function flag = beenInitialized(this)
-            flag = ~isempty(this.Sampler) && ~isempty(this.Drawer);
-        end%
-
         function initialize(this, meta, longYXZ, dummiesYLX)
+            if this.BeenInitialized
+                error("Estimator has already been initialized");
+            end
             this.initializeSampler(meta, longYXZ, dummiesYLX);
             this.createDrawers(meta);
         end%
 
         function name = get.ShortClassName(this)
             name = extractAfter(class(this), "estimator.");
+        end%
+
+        function out = get.BeenInitialized(this)
+            out = ~isempty(this.Sampler);
         end%
 
         function checkConsistency(this, meta, dummies)
@@ -67,6 +71,20 @@ classdef Base < handle
                     , this.ShortClassName ...
                 );
             end
+        end%
+
+        function reorganizeDataHolderWithMultipleUnits(this, dataHolder, meta)
+            arguments
+                this
+                dataHolder (1, 1) data.DataHolder
+                meta (1, 1) meta.ReducedForm
+            end
+            %
+            if numel(meta.Units) == 1
+                return
+            end
+            %
+            dataHolder.Endogenous = reshape(dataHolder.Endogenous, [], meta.NumEndogenousConcepts, meta.NumUnits);
         end%
 
     end

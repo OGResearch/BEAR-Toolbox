@@ -16,9 +16,10 @@ classdef Base < handle
 
 
     properties (Dependent)
-        Gamma
-        StdVec
-        VarVec
+        ShortClassName
+        % Gamma
+        % StdVec
+        % VarVec
     end
 
 
@@ -35,9 +36,9 @@ classdef Base < handle
 
 
     methods
+
         function this = Base(varargin)
-            className = extractAfter(class(this), "identifier.");
-            this.Settings = identifier.settings.(className)(varargin{:});
+            this.Settings = identifier.settings.(this.ShortClassName)(varargin{:});
         end%
 
 
@@ -93,19 +94,25 @@ classdef Base < handle
 
 
     methods
-        function Gamma = get.Gamma(this)
-            Gamma = diag(this.VarVec);
+
+        function out = get.ShortClassName(this)
+            out = extractAfter(class(this), "identifier.");
         end%
 
 
-        function varVec = get.VarVec(this)
-            varVec = this.Settings.StdVec .^ 2;
-        end%
+        % function Gamma = get.Gamma(this)
+        %     Gamma = diag(this.VarVec);
+        % end%
 
 
-        function StdVec = get.StdVec(this)
-            StdVec = this.Settings.StdVec;
-        end%
+        % function varVec = get.VarVec(this)
+        %     varVec = this.Settings.StdVec .^ 2;
+        % end%
+
+
+        % function StdVec = get.StdVec(this)
+        %     StdVec = this.Settings.StdVec;
+        % end%
     end
 
 end

@@ -36,8 +36,8 @@ classdef Structural < handle
         end%
 
         function varargout = initialize(this, varargin)
-            redModel = this.ReducedForm;
-            [YLX, initYLX, dummiesYLX] = redModel.initialize(varargin{:});
+            modelR = this.ReducedForm;
+            [YLX, initYLX, dummiesYLX] = modelR.initialize(varargin{:});
             this.Identifier.initializePreallocator(YLX);
             this.Identifier.initializeSampler(this, YLX);
         end%

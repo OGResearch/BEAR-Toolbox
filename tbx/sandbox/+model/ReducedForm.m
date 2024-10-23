@@ -39,13 +39,13 @@ classdef ReducedForm < handle
         function this = ReducedForm(options)
             arguments
                 options.Meta (1, 1) meta.ReducedForm
-                options.Data (1, 1) data.DataHolder
+                options.DataHolder (1, 1) data.DataHolder
                 options.Estimator (1, 1) estimator.Base
                 options.Dummies (1, :) cell = cell.empty(1, 0)
                 options.StabilityThreshold (1, 1) double = NaN
             end
             this.Meta = options.Meta;
-            this.DataHolder = options.Data;
+            this.DataHolder = options.DataHolder;
             this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
             if ~isnan(options.StabilityThreshold)
