@@ -3,9 +3,11 @@ classdef NormalWishartPanel < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -41,7 +43,7 @@ classdef NormalWishartPanel < estimator.Base
             [Bbar, betabar, phibar, Sbar, alphabar, alphatilde]=bear.nwpost(B0,phi0,S0,alpha0,X,Y,n,N*T,k);
 
             function sampleStruct = sampler()
-                
+
                 % draw B from a matrix-variate student distribution with location Bbar, scale Sbar and phibar and degrees of freedom alphatilde (step 2)
                 B=bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
 
@@ -53,12 +55,14 @@ classdef NormalWishartPanel < estimator.Base
                 sampleStruct.sigma = sigma(:);
 
             end
-                
+
             this.Sampler = @sampler;
 
+            %]
         end
 
         function createDrawers(this, meta)
+            %[
 
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
@@ -66,11 +70,11 @@ classdef NormalWishartPanel < estimator.Base
             numExog = meta.NumExogenousNames+meta.HasIntercept;
 
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
-                
+
                 smpl = sampleStruct;
                 beta = smpl.beta;
                 sigma = smpl.sigma;
-                
+
                 % initialization
                 A = nan(numEndog*numLags,numEndog,numCountries);
                 C = nan(numExog,numEndog,numCountries);
@@ -100,7 +104,7 @@ classdef NormalWishartPanel < estimator.Base
 
                 % iterate over countries
                 for ii = 1:numCountries
-            
+
                     % Pack in blocks
                     A(:,:,ii) = a_temp;
 
@@ -129,6 +133,10 @@ classdef NormalWishartPanel < estimator.Base
             % this.IdentificationDrawer = [];
 
             this.UnconditionalDrawer = @unconditionalDrawer;
-        end
+
+            %]
+        end%
+
     end
 end
+

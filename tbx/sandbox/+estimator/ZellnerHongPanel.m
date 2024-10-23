@@ -3,9 +3,12 @@ classdef ZellnerHongPanel < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
+
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -67,11 +70,12 @@ classdef ZellnerHongPanel < estimator.Base
             end
                 
             this.Sampler = @sampler;
+            %]
+        end%
 
-        end
 
         function createDrawers(this, meta)
-
+            %[
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
             numLags = meta.Order;
@@ -142,6 +146,9 @@ classdef ZellnerHongPanel < estimator.Base
             % this.IdentificationDrawer = [];
 
             this.UnconditionalDrawer = @unconditionalDrawer;
-        end
+            %]
+        end%
+
     end
 end
+

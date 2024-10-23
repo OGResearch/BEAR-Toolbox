@@ -7,6 +7,7 @@ classdef GeneralTV < estimator.Base
     end
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -256,9 +257,12 @@ classdef GeneralTV < estimator.Base
 
             this.Sampler = @sampler;
 
-        end
+            %]
+        end%
+
 
         function createDrawers(this, meta)
+            %[
 
             %sizes
             numEn = meta.NumEndogenousNames;
@@ -321,11 +325,9 @@ classdef GeneralTV < estimator.Base
                     % recover sigma_t and draw the residuals
                     drawStruct.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
-            end
+            end%
 
             function [drawStruct] = identificationDrawer(sampleStruct, horizon)
-
-
                 %draw beta, omega from their posterior distribution
                 % draw beta
                 beta = sampleStruct.beta{end, 1};
@@ -350,12 +352,11 @@ classdef GeneralTV < estimator.Base
                 end
 
                 drawStruct.Sigma = repmat({reshape(sampleStruct.sigmaAvg, numEn, numEn)}, horizon, 1);
-
-            end
+            end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
-
+            %]
         end
 
     end
