@@ -72,10 +72,10 @@ classdef NormalWishartPanel < estimator.Base
                 sigma = smpl.sigma;
                 
                 % initialization
-                A = [];
-                C = [];
+                A = nan(numEndog*numLags,numEndog,numCountries);
+                C = nan(numExog,numEndog,numCountries);
 
-                Sigma = [];
+                Sigma = nan(numEndog,numEndog,numCountries);
 
                 % initialize the output
                 As = cell(forecastHorizon,1);
@@ -102,11 +102,11 @@ classdef NormalWishartPanel < estimator.Base
                 for ii = 1:numCountries
             
                     % Pack in blocks
-                    A = blkdiag(A, a_temp);
+                    A(:,:,ii) = a_temp;
 
-                    C = [C, c_temp];
+                    C(:,:,ii) = c_temp;
 
-                    Sigma = blkdiag(Sigma,sigma_temp);
+                    Sigma(:,:,ii) = sigma_temp;
 
                 end
 

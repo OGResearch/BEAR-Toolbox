@@ -1,4 +1,4 @@
-classdef MeanOLSPanel < estimator.Base
+classdef ZellnerHongPanel < estimator.Base
 
     properties
         CanHaveDummies = false
@@ -22,33 +22,47 @@ classdef MeanOLSPanel < estimator.Base
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
 
+            % ar = this.Settings.Autoregression;
+            lambda1 = this.Settings.Lambda1;
+            % lambda3 = this.Settings.Lambda3;
+            % lambda4 = this.Settings.Lambda4;
+            % priorexo = this.Settings.Exogenous;;
+
             % reshape input endogenous matrix
             longY = reshape(longY,size(longY,1),numEndog,numCountries);
             
             % compute preliminary elements
-            [X, Y, N, n, m, p, T, k, q]=bear.panel1prelim(longY,longX,const,numLags);
+            [~, Xibar, Xbar, ~, yi, y, N, n, ~, ~, ~, ~, q, h]=bear.panel3prelim(longY,longX,const,numLags);
 
-            % obtain the estimates for the model
-            [bhat, sigmahatb, sigmahat]=bear.panel1estimates(X,Y,N,n,q,k,T);
+            % obtain prior elements
+            [~, bbar, sigeps]=bear.panel3prior(Xibar,Xbar,yi,y,N,q);
+
+            % compute posterior distribution parameters
+            [omegabarb, betabar]=bear.panel3post(h,Xbar,y,lambda1,bbar,sigeps);
 
             function sampleStruct = sampler()
                 
-                % draw a random vector beta from its distribution
-                % if the produced VAR model is not stationary, draw another vector, and keep drawing till a stationary VAR is obtained
-                stationary = 0;
+                % draw a random vector beta from N(betabar,omegabarb)
+                % TODO - optimize chol (can be run only once)
+                beta=betabar+chol(bear.nspd(omegabarb),'lower')*mvnrnd(zeros(h,1),eye(h))';
 
-                while stationary==0
+                beta=reshape(beta,q,N);
+                % record values by marginalising over each unit
+                for jj=1:N
 
-                    beta=bhat+chol(bear.nspd(sigmahatb),'lower')*randn(q,1);
-
-                    [stationary,~]=bear.checkstable(beta,n,p,k);
+                    beta_gibbs(:,jj)=beta(:,jj);
 
                 end
 
+                % obtain a record of draws for sigma, the residual variance-covariance matrix
+                % compute sigma
+                sigma=sigeps*eye(n);
+
+                sigma_gibbs=repmat(sigma(:),[1 N]);
+
                 sampleStruct = struct();
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigmahat;
-                sampleStruct.bhat = bhat;
+                sampleStruct.beta = beta_gibbs;
+                sampleStruct.sigma = sigma_gibbs;
 
             end
                 
@@ -66,9 +80,8 @@ classdef MeanOLSPanel < estimator.Base
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
                 
                 smpl = sampleStruct;
-                beta = smpl.bhat; % forecast is using mean OLS fixed parameters, no draws
-                sigma = eye(numEndog,numEndog);
-                % sigma = smpl.sigma;
+                beta = smpl.beta;
+                sigma = smpl.sigma;
                 
                 % initialization
                 A = nan(numEndog*numLags,numEndog,numCountries);
@@ -77,29 +90,30 @@ classdef MeanOLSPanel < estimator.Base
                 Sigma = nan(numEndog,numEndog,numCountries);
 
                 % initialize the output
-                As = cell(forecastHorizon, 1);
-                Cs = cell(forecastHorizon, 1);
-                Sigmas  = cell(forecastHorizon, 1);
+                As = cell(forecastHorizon,1);
+                Cs = cell(forecastHorizon,1);
+                Sigmas  = cell(forecastHorizon,1);
 
-                beta_temp = reshape(...
-                            beta,...
+                % iterate over countries
+                for ii = 1:numCountries
+
+                    beta_temp = reshape(...
+                            beta(:,ii),...
                             numEndog*numLags+numExog,...
                             numEndog...
                             );
 
-                sigma_temp = reshape(...
-                            sigma,...
+                    sigma_temp = reshape(...
+                            sigma(:,ii),...
                             numEndog,...
                             numEndog...
                             );
+                            
+                    % Pack in blocks
+                    a_temp = beta_temp(1:numEndog*numLags,:);
 
-                a_temp = beta_temp(1:numEndog*numLags, :);
+                    c_temp = beta_temp(numEndog*numLags+1:end,:);
 
-                c_temp = beta_temp(numEndog*numLags+1:end, :);
-
-                % iterate over countries
-                for ii = 1:numCountries
-            
                     % Pack in blocks
                     A(:,:,ii) = a_temp;
 
