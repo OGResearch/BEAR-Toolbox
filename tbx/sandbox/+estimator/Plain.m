@@ -29,7 +29,7 @@ classdef Plain < estimator.Base
                 draw.Sigma = repmat({sample.sigma}, horizon, 1);
             end%
             %
-            function draw = identificationDrawer(sample)
+            function draw = identificationDrawer(sample, horizon)
                 sample.B = reshape(sample.beta, numBRows, numY);
                 A = sample.B(1:numY*order, :);
                 %

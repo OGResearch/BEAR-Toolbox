@@ -1,5 +1,5 @@
 function lj_panel_ols_drawer(this, meta)
-    
+
     numCountries = meta.numCountries;
     numEndog     = meta.numEndog;
     numLags      = meta.numLags;
@@ -10,7 +10,7 @@ function lj_panel_ols_drawer(this, meta)
 
     function draw = identificationDrawer(sampleStruct)
 
-        % input 
+        % input
         % smpl - one sample (gibbs sampling) that contains:
         % smpl.beta - one sample of beta gibbs
         % smpl.sigma - one sample of sigma gibbs
@@ -24,7 +24,7 @@ function lj_panel_ols_drawer(this, meta)
         smpl = sampleStruct;
         beta = smpl.beta;
         sigma = smpl.sigma;
-        
+
         % initialization
         A = [];
         C = [];
@@ -53,7 +53,7 @@ function lj_panel_ols_drawer(this, meta)
 
         % iterate over countries
         for ii = 1:numCountries
-      
+
             % Pack in blocks
             A = blkdiag(A, a_temp);
 
@@ -83,7 +83,7 @@ function lj_panel_ols_drawer(this, meta)
         smpl = sampleStruct;
         beta = smpl.bhat; % forecast is using mean OLS fixed parameters, no draws
         sigma = smpl.sigma;
-        
+
         % initialization
         A = [];
         C = [];
@@ -113,7 +113,7 @@ function lj_panel_ols_drawer(this, meta)
 
         % iterate over countries
         for ii = 1:numCountries
-      
+
             % Pack in blocks
             A = blkdiag(A, a_temp);
 

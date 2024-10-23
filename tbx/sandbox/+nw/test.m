@@ -31,9 +31,9 @@ config.meta = struct( ...
 % histLegacy = tablex.fromCsv("exampleDataLegacy.csv", dateFormat="legacy");
 % hist = tablex.fromCsv("exampleData.csv");
 
-inputTable = bear6.readInputData(config.data);
+inputTbl = bear6.readInputData(config.data);
 
-dataSpan = tablex.span(inputTable);
+dataSpan = tablex.span(inputTbl);
 estimSpan = dataSpan;
 
 metaR = meta.ReducedForm( ...
@@ -45,7 +45,7 @@ metaR = meta.ReducedForm( ...
 
 estimator = estimator.NormalWishart(metaR);
 
-dataHolder = data.DataHolder(metaR, inputTable);
+dataHolder = data.DataHolder(metaR, inputTbl);
 
 dummy = dummies.Minnesota(exogenousLambda=30);
 
@@ -64,8 +64,8 @@ fcastStart = datex.shift(r.Meta.EstimationEnd, -10);
 fcastEnd = datex.shift(r.Meta.EstimationEnd, +10);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 
-fcastTable = r.forecast(fcastSpan);
-residTable = r.calculateResiduals();
+fcastTbl = r.forecast(fcastSpan);
+residTbl = r.calculateResiduals();
 
 
 % residTbl = r.residuals(hist);

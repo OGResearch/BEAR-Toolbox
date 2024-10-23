@@ -7,6 +7,7 @@ classdef NormalWishart < estimator.Plain
     end
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
