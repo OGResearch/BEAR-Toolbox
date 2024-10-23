@@ -3,11 +3,14 @@ classdef HierarchicalPanel < estimator.Base
     properties
         CanHaveDummies = false
         CanHaveReducibles = false
+        HasCrossUnits = false
     end
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
+
             arguments
                 this
                 meta (1, 1) meta.ReducedForm
@@ -34,7 +37,7 @@ classdef HierarchicalPanel < estimator.Base
 
             % reshape input endogenous matrix
             longY = reshape(longY,size(longY,1),numEndog,numCountries);
-            
+
             % compute preliminary elements
             [Xi, ~, ~, Yi, ~, ~, numCountries, numEndog, numExog, numLags, T, ~, ~, ~]=bear.panel4prelim(longY,longX,const,numLags);
 
@@ -85,7 +88,7 @@ classdef HierarchicalPanel < estimator.Base
             beta = beta_init;
 
             function sampleStruct = sampler()
-                
+
                 % step 2: obtain b
                 % first compute betam, the mean value of the betas over all units
                 betam=(1/numCountries)*sum(beta,2);
@@ -112,7 +115,7 @@ classdef HierarchicalPanel < estimator.Base
                 % step 4: draw the series of betas
                 % first obtain the inverse of sigmab
                 invsigmab=diag(1./diag(sigmab));
-                
+
                 % then loop over units
                 for ii=1:numCountries
 
@@ -130,7 +133,7 @@ classdef HierarchicalPanel < estimator.Base
                     C=bear.trns(chol(bear.nspd(invomegabar),'Lower'));
 
                     invC=C\speye(q);
-                    
+
                     omegabar=invC*invC';
 
                     % obtain betabar
@@ -168,17 +171,20 @@ classdef HierarchicalPanel < estimator.Base
                 sampleStruct.sigma = sigma_gibbs;
 
             end
-               
+
             % Burning part before returning the sampler
             for count=1:Bu
                 sampler();
             end
-            
+
             this.Sampler = @sampler;
 
-        end
+            %]
+        end%
+
 
         function createDrawers(this, meta)
+            %[
 
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
@@ -186,11 +192,11 @@ classdef HierarchicalPanel < estimator.Base
             numExog = meta.NumExogenousNames+meta.HasIntercept;
 
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
-                
+
                 smpl = sampleStruct;
                 beta = smpl.beta;
                 sigma = smpl.sigma;
-                
+
                 % initialization
                 A = nan(numEndog*numLags,numEndog,numCountries);
                 C = nan(numExog,numEndog,numCountries);
@@ -216,7 +222,7 @@ classdef HierarchicalPanel < estimator.Base
                             numEndog,...
                             numEndog...
                             );
-                            
+
                     % Pack in blocks
                     a_temp = beta_temp(1:numEndog*numLags,:);
 
@@ -249,6 +255,10 @@ classdef HierarchicalPanel < estimator.Base
             % this.IdentificationDrawer = [];
 
             this.UnconditionalDrawer = @unconditionalDrawer;
-        end
+
+            %]
+        end%
+
     end
 end
+
