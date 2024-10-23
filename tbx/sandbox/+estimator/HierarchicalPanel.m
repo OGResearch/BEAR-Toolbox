@@ -185,6 +185,65 @@ classdef HierarchicalPanel < estimator.Base
             numLags = meta.Order;
             numExog = meta.NumExogenousNames+meta.HasIntercept;
 
+            function drawStruct = identificationDrawer(sampleStruct)
+
+                smpl = sampleStruct;
+                beta = smpl.beta;
+                sigma = smpl.sigma;
+
+                % initialization
+                A = nan(numEndog*numLags, numEndog, numCountries);
+                C = nan(numExog, numEndog, numCountries);
+
+                Sigma = nan(numEndog, numEndog, numCountries);
+
+                % initialize the output
+                As = cell(forecastHorizon, 1);
+                Cs = cell(forecastHorizon, 1);
+
+                % iterate over countries
+                for ii = 1:numCountries
+
+                    beta_temp = reshape(...
+                            beta(:, ii),...
+                            numEndog*numLags+numExog,...
+                            numEndog...
+                            );
+
+                    sigma_temp = reshape(...
+                            sigma(:, ii),...
+                            numEndog,...
+                            numEndog...
+                            );
+
+                    % Pack in blocks
+                    a_temp = beta_temp(1:numEndog*numLags, :);
+
+                    c_temp = beta_temp(numEndog*numLags+1:end, :);
+
+                    A(:,:,ii) = a_temp;
+
+                    C(:,:,ii) = c_temp;
+
+                    Sigma(:,:,ii) = sigma_temp;
+
+                end
+
+                % pack the output
+                for tt = 1:forecastHorizon
+
+                    As{tt} = A;
+                    Cs{tt} = C;
+                    Sigma = Sigma;
+
+                end
+
+                drawStruct = struct();
+                drawStruct.A = As;
+                drawStruct.C = Cs;
+                drawStruct.Sigma = Sigma;
+            end
+            
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
 
                 smpl = sampleStruct;
@@ -246,7 +305,7 @@ classdef HierarchicalPanel < estimator.Base
             end
 
             % return function calls
-            % this.IdentificationDrawer = [];
+            this.IdentificationDrawer = @identificationDrawer;
 
             this.UnconditionalDrawer = @unconditionalDrawer;
 
