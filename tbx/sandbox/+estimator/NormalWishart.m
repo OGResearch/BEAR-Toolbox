@@ -63,13 +63,12 @@ classdef NormalWishart < estimator.Plain
             % obtain posterior distribution parameters
             [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, numEn, estimLength, numBRows);
 
-            this.SamplerCounter = uint64(0);
             function sample = sampler()
                 B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, numBRows, numEn);
                 sigma = bear.iwdraw(Sbar, alphabar);
                 sample.beta = B(:);
                 sample.sigma = sigma;
-                this.SamplerCounter = this.SamplerCounter + 1;
+                this.SampleCounter = this.SampleCounter + 1;
             end%
             %
             this.Sampler = @sampler;

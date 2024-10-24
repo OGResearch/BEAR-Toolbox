@@ -30,3 +30,4 @@ function plotHandle = plot(table, names, options)
     plotHandle = plot(ax{:}, periods, [dataCell{:}], options.PlotSettings{:});
 
 end%
+

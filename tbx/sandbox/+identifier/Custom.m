@@ -87,7 +87,7 @@ classdef Custom < identifier.Base
                 % u = e*D
                 % Sigma = D'*D
                 strSample = {reshape(D, 1, 1, []), };
-                this.SamplerCounter = this.SamplerCounter + 1;
+                this.SampleCounter = this.SampleCounter + 1;
                 info = this.SAMPLER_INFO;
                 info.NumCandidates = numCandidates;
             end%

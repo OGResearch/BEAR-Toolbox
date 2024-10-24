@@ -45,13 +45,15 @@ metaR = meta.ReducedForm( ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
 );
 
+dataH = data.DataHolder(metaR, inputTbx);
+
 estimator = estimator.NormalWishart(metaR);
 
 dummy = dummies.Minnesota(exogenousLambda=30);
 
 modelR = model.ReducedForm( ...
     meta=metaR ...
-    , data=inputTbx ...
+    , dataHolder=dataH ...
     , estimator=estimator ...
     , dummies={dummy} ...
     , stabilityThreshold=Inf ...
@@ -67,10 +69,10 @@ fcastSpan = datex.span(fcastStart, fcastEnd);
 fcastTbx = modelR.forecast(fcastSpan);
 residTbx = modelR.calculateResiduals();
 
-metaS = meta.Structural(metaR, identificationHorizon=20)
+metaS = meta.Structural(metaR, identificationHorizon=20);
 
+id = identifier.Triangular(stdVec=1);
 
-% % id = identifier.Triangular(stdVec=1);
 % 
 % id = identifier.Custom( ...
 %     exact=config.identifier.settings.exact, ...
@@ -78,9 +80,16 @@ metaS = meta.Structural(metaR, identificationHorizon=20)
 % );
 % 
 
-% 
-% s = model.Structural(meta=metaS, reducedForm=modelR, identifier=id);
-% 
+
+modelS = model.Structural(meta=metaS, reducedForm=modelR, identifier=id);
+modelS.initialize()
+modelS.presample(100);
+
+
+% U = E * D
+% cov U = E[ U' * U ] = E[ D' * E' * E * D ] = E[ D' * D ]
+
+
 % % modelR.initialize(hist, estimSpan);
 % s.initialize(hist, estimSpan);
 % s.presample(100);
@@ -111,7 +120,7 @@ metaS = meta.Structural(metaR, identificationHorizon=20)
 % 
 % disp("Presampling...")
 % modelR.presample(N);
-% modelR.Estimator.SamplerCounter
+% modelR.Estimator.SampleCounter
 % 
 % amean = s.asymptoticMean();
 % 

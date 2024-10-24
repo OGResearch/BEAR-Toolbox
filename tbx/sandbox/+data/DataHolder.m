@@ -27,16 +27,6 @@ classdef DataHolder < handle
         end%
 
 
-        function reshapeDataForCrossUnits(this, meta)
-            arguments
-                this
-                meta (1, 1) meta.ReducedForm
-            end
-            %
-            this.Endogenous = reshape(this.Endogenous, [], meta.NumEndogenousConcepts, meta.NumUnits);
-        end%
-
-
         function index = getSpanIndex(this, span)
             arguments
                 this

@@ -13,21 +13,16 @@ classdef Minnesota < estimator.Plain
             %[
             arguments
                 this
-                meta 
+                meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
 
-
-
-
             [longY, longX, ~] = longYXZ{:};
-
-
 
             opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
-            opt.lambda2 = this.Settings.Lambda2;            
+            opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
@@ -43,7 +38,7 @@ classdef Minnesota < estimator.Plain
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
-            
+
             opt.bex  = this.Settings.BlockExogenous;
 
             [~, ~, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = bear.olsvar(longY, longX, opt.const, opt.p);
@@ -54,7 +49,7 @@ classdef Minnesota < estimator.Plain
             priorexo = this.Settings.Exogenous;
             ar = this.Settings.Autoregression;
             opt.bex = this.Settings.BlockExogenous;
-            
+
             blockexo  =  [];
             if  opt.bex == 1
                 [blockexo] = bear.loadbex(endo, pref);
@@ -71,13 +66,11 @@ classdef Minnesota < estimator.Plain
             [betabar, omegabar] = bear.mpost(beta0, omega0, sigma, LX, Y(:), sizeB, numEn);
             %===============================================================================
 
-            this.SamplerCounter = uint64(0);
-
             function sampleStruct = sampler()
                 beta = betabar + chol(bear.nspd(omegabar), 'lower') * randn(sizeB, 1);
                 sampleStruct.beta = beta;
                 sampleStruct.sigma = sigma;
-                this.SamplerCounter = this.SamplerCounter + 1;
+                this.SampleCounter = this.SampleCounter + 1;
             end%
 
             this.Sampler = @sampler;

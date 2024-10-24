@@ -1,5 +1,5 @@
 
-classdef ReducedForm < handle
+classdef ReducedForm < handle & model.PresampleMixin
 
     properties (Constant, Hidden)
         DEFAULT_STABILITY_THRESHOLD = 1 - 1e-10
@@ -20,7 +20,6 @@ classdef ReducedForm < handle
 
     properties
         Presampled (1, :) cell = cell.empty(1, 0)
-        PresampledIndex (1, 1) double = 0
         ExogenousMean (1, :) double
     end
 
@@ -43,22 +42,21 @@ classdef ReducedForm < handle
         function this = ReducedForm(options)
             arguments
                 options.Meta (1, 1) meta.ReducedForm
-                options.DataTable (:, :) timetable
+                options.DataHolder (:, :) data.DataHolder
                 options.Estimator (1, 1) estimator.Base
                 options.Dummies (1, :) cell = cell.empty(1, 0)
                 options.StabilityThreshold (1, 1) double = NaN
             end
             %
             this.Meta = options.Meta;
+            this.DataHolder = options.DataHolder;
             this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
             if ~isnan(options.StabilityThreshold)
                 this.StabilityThreshold = options.StabilityThreshold;
             end
             this.Estimator.checkConsistency(this.Meta, this.Dummies);
-            %
             this.Meta.HasCrossUnits = this.Estimator.HasCrossUnits;
-            this.DataHolder = data.DataHolder(this.Meta, options.DataTable);
         end%
 
         function longYXZ = getLongYXZ(this)
@@ -91,21 +89,21 @@ classdef ReducedForm < handle
             this.ExogenousMean = mean(longX, 1, "omitNaN");
         end%
 
-        function ameanY = asymptoticMean(this)
-            % TODO: Reimplement for time-varying models
-            this.resetPresampledIndex();
-            numPresampled = this.NumPresampled;
-            ameanX = this.ExogenousMean;
-            ameanY = nan(1, this.Meta.NumLhsColumns, numPresampled);
-            for i = 1 : numPresampled
-                redSystem = this.nextPresampledSystem();
-                ameanY(1, :, i) = reshape(system.asymptoticMean(redSystem, ameanX), [], 1);
-            end
-            rows = missing;
-            ameanY = tablex.fromNumericArray( ...
-                ameanY, this.Meta.EndogenousNames, rows, variantDim=3 ...
-            );
-        end%
+        % function ameanY = asymptoticMean(this)
+        %     % TODO: Reimplement for time-varying models
+        %     this.resetPresampledIndex();
+        %     numPresampled = this.NumPresampled;
+        %     ameanX = this.ExogenousMean;
+        %     ameanY = nan(1, this.Meta.NumLhsColumns, numPresampled);
+        %     for i = 1 : numPresampled
+        %         redSystem = this.nextPresampledSystem();
+        %         ameanY(1, :, i) = reshape(system.asymptoticMean(redSystem, ameanX), [], 1);
+        %     end
+        %     rows = missing;
+        %     ameanY = tablex.fromNumericArray( ...
+        %         ameanY, this.Meta.EndogenousNames, rows, variantDim=3 ...
+        %     );
+        % end%
 
         function [allDummiesYLX, indivDummiesYLX] = generateDummiesYLX(this, longYLX)
             indivDummiesYLX = cell(1, this.NumDummies);
@@ -174,7 +172,6 @@ classdef ReducedForm < handle
             longYXZ = this.getSomeYXZ(longForecastSpan);
             %
             numPresampled = this.NumPresampled;
-            this.resetPresampledIndex();
             %
             % Multiple-unit output data will be always captured as flat
             Y0 = nan(meta.Order, meta.NumEndogenousNames, numPresampled);
@@ -235,17 +232,8 @@ classdef ReducedForm < handle
             num = numel(this.Dummies);
         end%
 
-        function resetPresampledIndex(this)
-            this.PresampledIndex = 0;
-        end%
-
-        function presample(this, numPresampled)
-            this.Presampled = cell(1, numPresampled);
-            sampler = this.getSampler();
-            for i = 1 : numPresampled
-                this.Presampled{1, i} = sampler();
-            end
-            this.resetPresampledIndex();
+        function clearPresampled(this)
+            this.Presampled = cell.empty(1, 0);
         end%
 
         function outTable = calculateResiduals(this)

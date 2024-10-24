@@ -2,33 +2,34 @@
 classdef Triangular < identifier.Base
 
     methods
-        function outSampler = initializeSampler(this, model, dataYLX)
+
+        function initializeSampler(this, meta, modelR)
+            %[
             arguments
                 this
-                model (1, 1) model.Structural
-                dataYLX (1, 3) cell
+                meta (1, 1) meta.Structural
+                modelR (1, 1) model.ReducedForm
             end
             %
-            redModel = model.ReducedForm;
-            redSystemSampler = redModel.getSystemSampler();
-            stdVec = this.StdVec;
+            horizon = meta.IdentificationHorizon;
+            samplerR = modelR.Estimator.Sampler;
+            drawerR = @(sample) modelR.Estimator.IdentificationDrawer(sample, horizon);
             %
-            function [strSample, redSample, info] = sampler()
-                [redSystem, redSample] = redSystemSampler();
-                [A, C, Sigma] = redSystem{:};
+            function sample = sampler()
+                sample = samplerR();
+                draw = drawerR(sample);
                 % u = e*D or e = u/D
                 % Sigma = D'*D
-                D = chol(Sigma);
-                numE = size(D, 1);
-                stdVec = ones(1, numE);
-                strSample = {reshape(D, 1, 1, []), };
-                this.SamplerCounter = this.SamplerCounter + 1;
-                info = this.SAMPLER_INFO;
-                info.NumCandidates = 1;
+                Sigma = (draw.Sigma + draw.Sigma')/2;
+                sample.D = chol(Sigma);
+                sample.IdentificationDraw = draw;
+                this.SampleCounter = this.SampleCounter + 1;
             end%
             %
             this.Sampler = @sampler;
+            %]
         end%
+
     end
 
 end

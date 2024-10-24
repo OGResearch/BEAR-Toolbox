@@ -111,7 +111,7 @@ residTable = r.calculateResiduals();
 % 
 % disp("Presampling...")
 % r.presample(N);
-% r.Estimator.SamplerCounter
+% r.Estimator.SampleCounter
 % 
 % amean = s.asymptoticMean();
 % 

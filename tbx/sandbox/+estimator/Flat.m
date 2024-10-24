@@ -38,8 +38,6 @@ classdef Flat < estimator.Plain
             estimLength = size(Y, 1);
             %===============================================================================
 
-            this.SamplerCounter = uint64(0);
-
             function sampleStruct = sampler()
                 % draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.6.10)
@@ -71,7 +69,7 @@ classdef Flat < estimator.Plain
 
                 sampleStruct.beta = beta;
                 sampleStruct.sigma = sigma;
-                this.SamplerCounter = this.SamplerCounter + 1;
+                this.SampleCounter = this.SampleCounter + 1;
             end
 
             this.Sampler = @sampler;

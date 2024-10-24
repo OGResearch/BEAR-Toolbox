@@ -9,6 +9,7 @@ classdef NormalDiffuse < estimator.Plain
 
 
     methods
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -19,8 +20,6 @@ classdef NormalDiffuse < estimator.Plain
             end
 
             [longY, longX, ~] = longYXZ{:};
-
-
 
             opt.priorsexogenous = this.Settings.Exogenous;
             opt.user_ar = this.Settings.Autoregression;
@@ -59,8 +58,6 @@ classdef NormalDiffuse < estimator.Plain
 
             %===============================================================================
 
-            this.SamplerCounter = uint64(0);
-
             function sampleStruct = sampler()
                 % draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.6.10)
@@ -95,7 +92,7 @@ classdef NormalDiffuse < estimator.Plain
 
                 sampleStruct.beta = beta;
                 sampleStruct.sigma = sigma;
-                this.SamplerCounter = this.SamplerCounter + 1;
+                this.SampleCounter = this.SampleCounter + 1;
             end
 
             this.Sampler = @sampler;
@@ -104,6 +101,7 @@ classdef NormalDiffuse < estimator.Plain
 
             %]
         end%
+
     end
 
 end

@@ -65,12 +65,12 @@ N = 1000;
 rng(0);
 v0.initialize(hist, estimSpan);
 v0.presample(N);
-v0.Estimator.SamplerCounter
+v0.Estimator.SampleCounter
 
 rng(0);
 v1.initialize(hist, estimSpan);
 v1.presample(N);
-v1.Estimator.SamplerCounter
+v1.Estimator.SampleCounter
 
 return
 

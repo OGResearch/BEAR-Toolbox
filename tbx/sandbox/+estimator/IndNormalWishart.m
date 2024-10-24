@@ -73,8 +73,6 @@ classdef IndNormalWishart < estimator.Plain
 
             %===============================================================================
 
-            this.SamplerCounter = uint64(0);
-
             function sampleStruct = sampler()
 
                 % Step 3: at iteration ii, first draw sigma from IW, conditional on beta from previous iteration
@@ -111,7 +109,7 @@ classdef IndNormalWishart < estimator.Plain
 
                 sampleStruct.beta = beta;
                 sampleStruct.sigma = sigma;
-                this.SamplerCounter = this.SamplerCounter + 1;
+                this.SampleCounter = this.SampleCounter + 1;
 
             end%
 

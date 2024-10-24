@@ -1,5 +1,5 @@
 
-classdef Structural < handle
+classdef Structural < handle & model.PresampleMixin
 
     properties
         Meta
@@ -11,8 +11,6 @@ classdef Structural < handle
 
     properties (Dependent)
         NumPresampled
-
-        NumShockColumns
     end
 
 
@@ -32,47 +30,18 @@ classdef Structural < handle
             this.Meta = options.Meta;
             this.ReducedForm = options.ReducedForm;
             this.Identifier = options.Identifier;
-            this.Identifier.finalizeFromMetaAndReducedForm(this.Meta, this.ReducedForm);
+            this.Identifier.finalize(this.ReducedForm);
         end%
 
         function varargout = initialize(this, varargin)
-            modelR = this.ReducedForm;
-            [YLX, initYLX, dummiesYLX] = modelR.initialize(varargin{:});
-            this.Identifier.initializePreallocator(YLX);
-            this.Identifier.initializeSampler(this, YLX);
-        end%
-
-        function resetPresampledCounter(this)
-            this.PresampledCounter = 0;
-        end%
-
-        function preallocatePresampled(this, numPresampled)
-            this.Presampled = this.Identifier.Preallocator(numPresampled);
-            this.resetPresampledCounter();
+            this.ReducedForm.initialize();
+            this.Identifier.initialize(this.Meta, this.ReducedForm);
         end%
 
         function savePresampled(this, sample, index)
             for j = 1 : numel(this.Presampled)
                 this.Presampled{j}(:, index, :) = sample{j};
             end
-        end%
-
-        function info = presample(this, numPresampled)
-            this.preallocatePresampled(numPresampled);
-            this.ReducedForm.preallocatePresampled(numPresampled);
-            sampler = this.Identifier.Sampler;
-            info = struct();
-            info.NumCandidates = 0;
-            pbar = progress.Bar("Presampling structural VAR [" + numPresampled + "]", numPresampled);
-            for i = 1 : numPresampled
-                [strSample, redSample, currInfo] = sampler();
-                this.ReducedForm.savePresampled(redSample, i);
-                this.savePresampled(strSample, i);
-                pbar.increment();
-                info.NumCandidates = info.NumCandidates + currInfo.NumCandidates;
-            end
-            this.resetPresampledCounter();
-            info.AcceptanceRatio = numPresampled / info.NumCandidates;
         end%
 
         function strSystem = nextPresampledSystem(this)
@@ -92,14 +61,18 @@ classdef Structural < handle
             this.PresampledCounter = this.PresampledCounter + 1;
         end%
 
-        function outTable = simulateShocks(this, span, options)
+        function sampler = getSampler(this)
+            sampler = this.Identifier.Sampler;
+        end%
+
+        function Y = simulate(this, numPeriods)
             arguments
                 this
-                span (1, :)
+                numPeriods (1, 1) double {mustBeInteger, mustBePositive}
                 %
-                options.ShockIndex (1, :) = Inf
-                options.IncludeInitial (1, 1) logical = true
-                options.Transform = []
+                % options.ShockIndex (1, :) = Inf
+                % options.IncludeInitial (1, 1) logical = true
+                % options.Transform = []
             end
 
             numPeriods = numel(span);
@@ -107,6 +80,7 @@ classdef Structural < handle
             numPresampled = this.NumPresampled;
             [samplerVMA, shockIndex] = this.getSamplerVMA(numPeriods, options.ShockIndex);
             numSimulatedE = numel(shockIndex);
+
             Y = nan(numPeriods, numY, numSimulatedE, numPresampled);
 
             for i = 1 : numPresampled
@@ -127,7 +101,6 @@ classdef Structural < handle
             outNames = this.ReducedForm.Meta.EndogenousNames;
             outTable = tablex.fromNumericArray(Y, outNames, outSpan, variantDim=4);
             outTable = tablex.setCustom(outTable, "HigherDims", {outShockNames});
-            this.resetPresampledCounter();
         end%
 
         function outTable = fevd(this, varargin)
@@ -156,7 +129,6 @@ classdef Structural < handle
             end
 
             shockIndex = names.resolveNameIndex(this.Meta.ShockNames, shockIndex);
-            this.resetPresampledCounter();
 
             function VMA = sampleVMA()
                 strSystem = this.nextPresampledSystem();
@@ -178,12 +150,8 @@ classdef Structural < handle
 
 
     methods
-        function num = get.NumPresampled(this)
-            num = size(this.Presampled{1}, 2);
-        end%
-
-        function num = get.NumShockColumns(this)
-            num = this.ReducedForm.Meta.NumEndogenousColumns;
+        function out = get.NumPresampled(this)
+            out = numel(this.Presampled{1});
         end%
     end
 

@@ -8,10 +8,15 @@ classdef Base < handle
     end
 
 
-    properties
+    properties (SetAccess = protected)
         Preallocator
         Sampler
-        SamplerCounter (1,1) uint32 = 0
+        SampleCounter (1,1) uint32 = 0
+    end
+
+
+    properties (SetAccess = private)
+        BeenInitialized (1, 1) logical = false
     end
 
 
@@ -42,52 +47,30 @@ classdef Base < handle
         end%
 
 
-        function varargout = initialize(this, model, dataYLX, varargin)
+        function varargout = initialize(this, meta, modelR)
             arguments
                 this
-                model (1, 1) model.Structural
-                dataYLX (1, 3) cell
+                meta (1, 1) meta.Structural
+                modelR (1, 1) model.ReducedForm
             end
-            arguments (Repeating)
-                varargin
+            if this.BeenInitialized
+                return
             end
-            %
-            this.initializeSampler(model, varargin{:});
-            this.SamplerCounter = uint64(0);
+            this.initializeSampler(meta, modelR);
         end%
 
 
-        function flag = beenInitialized(this)
-            flag = ~isempty(this.Sampler) && ~isempty(this.Preallocator);
-        end%
-
-
-        function initializePreallocator(this, YLX)
-            [Y, L, X] = YLX{:};
-            numY = size(Y, 2);
-            numD = numY * numY;
-            %
-            if this.Settings.TimeVariant
-                numPeriods = numT;
+        function finalize(this, modelR)
+            if ~modelR.Meta.HasCrossUnits
+                numStd = modelR.Meta.NumEndogenousConcepts;
             else
-                numPeriods = 1;
+                numStd = modelR.Meta.NumEndogenousNames;
             end
-            %
-            function sample = preallocator(numDraws)
-                sample = { ...
-                    nan(numPeriods, numDraws, numD) ...
-                };
-            end%
-            %
-            this.Preallocator = @preallocator;
-        end%
-
-
-        function finalizeFromMetaAndReducedForm(this, strMeta, redModel)
-            numY = redModel.Meta.NumEndogenousColumns;
-            this.Settings.TimeVariant = redModel.Estimator.Settings.TimeVariant;
             if isscalar(this.Settings.StdVec)
-                this.Settings.StdVec = repmat(this.Settings.StdVec, numY, 1);
+                this.Settings.StdVec = repmat(this.Settings.StdVec, 1, numStd);
+            end
+            if numel(this.Settings.StdVec) ~= numStd
+                error("Number of standard deviations must match number of endogenous variables");
             end
         end%
     end

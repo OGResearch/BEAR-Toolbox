@@ -5,18 +5,21 @@ classdef Base < handle
         Settings
     end
 
-    properties
+    properties (SetAccess = protected)
         Sampler
-        SamplerCounter (1, 1) uint64 = 0
+        SampleCounter (1, 1) uint64 = 0
         HistoryDrawer
         UnconditionalDrawer
         ConditionalDrawer
         IdentificationDrawer
     end
 
+    properties (SetAccess = private)
+        BeenInitialized (1, 1) logical = false
+    end
+
     properties (Dependent)
         ShortClassName
-        BeenInitialized
     end
 
     properties (Abstract)
@@ -37,18 +40,15 @@ classdef Base < handle
 
         function initialize(this, meta, longYXZ, dummiesYLX)
             if this.BeenInitialized
-                error("Estimator has already been initialized");
+                return
             end
             this.initializeSampler(meta, longYXZ, dummiesYLX);
             this.createDrawers(meta);
+            this.BeenInitialized = true;
         end%
 
         function name = get.ShortClassName(this)
             name = extractAfter(class(this), "estimator.");
-        end%
-
-        function out = get.BeenInitialized(this)
-            out = ~isempty(this.Sampler);
         end%
 
         function checkConsistency(this, meta, dummies)

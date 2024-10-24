@@ -36,8 +36,6 @@ classdef Ordinary < estimator.Plain
 
             %===============================================================================
 
-            this.SamplerCounter = uint64(0);
-
             function sampleStruct = sampler()
 
                 B = bear.matrixtdraw(Bcap, Scap, phicap, alphatop, numBRows, numEn);
@@ -48,7 +46,7 @@ classdef Ordinary < estimator.Plain
                 sampleStruct.beta = B(:);
                 sampleStruct.sigma = sigma;
 
-                this.SamplerCounter = this.SamplerCounter + 1;
+                this.SampleCounter = this.SampleCounter + 1;
 
             end%
 
