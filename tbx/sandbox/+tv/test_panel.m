@@ -47,9 +47,13 @@ metaR = meta.ReducedForm( ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
 );
 
-
+% estimator = estimator.StaticCrossPanel(metaR);
 % estimator = estimator.DynamicCrossPanel(metaR);
-estimator = estimator.HierarchicalPanel(metaR);
+% estimator = estimator.HierarchicalPanel(metaR);
+% estimator = estimator.NormalWishartPanel(metaR);
+% estimator = estimator.ZellnerHongPanel(metaR);
+estimator = estimator.MeanOLSPanel(metaR);
+
 dataHolder = data.DataHolder(metaR, inputTable);
 
 modelR = model.ReducedForm( ...

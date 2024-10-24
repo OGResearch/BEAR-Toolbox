@@ -1,4 +1,4 @@
-classdef HierarchicalPanel < estimator.Base
+classdef HierarchicalPanel < estimator.PlainPanel
 
     properties
         CanHaveDummies = false
@@ -58,7 +58,7 @@ classdef HierarchicalPanel < estimator.Base
             % initial value for beta (use OLS values)
             for ii = 1:numCountries
 
-                beta_init(:,ii) = bear.vec((Xi(:,:,ii)'*Xi(:,:,ii))\(Xi(:,:,ii)'*Yi(:,:,ii)));
+                beta_init(:, ii) = bear.vec((Xi(:,:, ii)'*Xi(:,:, ii))\(Xi(:,:, ii)'*Yi(:,:, ii)));
 
             end
 
@@ -73,9 +73,9 @@ classdef HierarchicalPanel < estimator.Base
             % initial value for sigma (use OLS values)
             for ii = 1:numCountries
 
-                eps = Yi(:,:,ii)-Xi(:,:,ii)*reshape(beta_init(:,ii),k,numEndog);
+                eps = Yi(:,:, ii)-Xi(:,:, ii)*reshape(beta_init(:, ii),k,numEndog);
 
-                sigma(:,:,ii) = (1/(T-k-1))*eps'*eps;
+                sigma(:,:, ii) = (1/(T-k-1))*eps'*eps;
 
             end
 
@@ -94,7 +94,7 @@ classdef HierarchicalPanel < estimator.Base
                 % compute first vbar
                 for ii = 1:numCountries
 
-                    temp(1,ii) = (beta(:,ii)-b)'*invomegab*(beta(:,ii)-b);
+                    temp(1,ii) = (beta(:, ii)-b)'*invomegab*(beta(:, ii)-b);
 
                 end
 
@@ -114,14 +114,14 @@ classdef HierarchicalPanel < estimator.Base
                 for ii = 1:numCountries
 
                     % take the choleski factor of sigma of unit ii, inverse it, and obtain from it the inverse of the original sigma
-                    C = bear.trns(chol(bear.nspd(sigma(:,:,ii)),'Lower'));
+                    C = bear.trns(chol(bear.nspd(sigma(:,:, ii)),'Lower'));
 
                     invC = C\speye(numEndog);
 
                     invsigma = invC*invC';
 
                     % obtain omegabar
-                    invomegabar = kron(invsigma,Xi(:,:,ii)'*Xi(:,:,ii))+invsigmab;
+                    invomegabar = kron(invsigma,Xi(:,:, ii)'*Xi(:,:, ii))+invsigmab;
 
                     % invert
                     C = bear.trns(chol(bear.nspd(invomegabar),'Lower'));
@@ -131,18 +131,18 @@ classdef HierarchicalPanel < estimator.Base
                     omegabar = invC*invC';
 
                     % obtain betabar
-                    betabar = omegabar*(kron(invsigma,Xi(:,:,ii)')*bear.vec(Yi(:,:,ii))+invsigmab*b);
+                    betabar = omegabar*(kron(invsigma,Xi(:,:, ii)')*bear.vec(Yi(:,:, ii))+invsigmab*b);
 
                     % draw beta
-                    beta(:,ii) = betabar+chol(bear.nspd(omegabar),'lower')*mvnrnd(zeros(q,1),eye(q))';
+                    beta(:, ii) = betabar+chol(bear.nspd(omegabar),'lower')*mvnrnd(zeros(q,1),eye(q))';
 
-                    beta_gibbs(:,ii) = beta(:,ii);
+                    beta_gibbs(:, ii) = beta(:, ii);
 
                     % compute Stilde
-                    Stilde = (Yi(:,:,ii)-Xi(:,:,ii)*reshape(beta(:,ii),k,numEndog))'*(Yi(:,:,ii)-Xi(:,:,ii)*reshape(beta(:,ii),k,numEndog));
+                    Stilde = (Yi(:,:, ii)-Xi(:,:, ii)*reshape(beta(:, ii),k,numEndog))'*(Yi(:,:, ii)-Xi(:,:, ii)*reshape(beta(:, ii),k,numEndog));
 
                     % draw sigma
-                    sigma_gibbs(:,ii) = bear.vec(bear.iwdraw(Stilde,T));
+                    sigma_gibbs(:, ii) = bear.vec(bear.iwdraw(Stilde,T));
 
                 end
 
@@ -158,194 +158,6 @@ classdef HierarchicalPanel < estimator.Base
             end
 
             this.Sampler = @sampler;
-
-            %]
-        end%
-
-
-        function createDrawers(this, meta)
-            %[
-
-            numCountries = meta.NumUnits;
-            numEndog = meta.NumEndogenousConcepts;
-
-            numLags = meta.Order;
-            numARows = numEndog*numLags;
-            numExog = meta.NumExogenousNames+double(meta.HasIntercept);
-            numBRows = numARows + numExog;
-
-            estimationHorizon = numel(meta.ShortSpan);
-
-            function drawStruct = identificationDrawer(sampleStruct)
-
-                beta = sampleStruct.beta;
-                sigma = sampleStruct.sigma;
-
-                % initialization
-                A = nan(numARows, numEndog, numCountries);
-                C = nan(numExog, numEndog, numCountries);
-
-                Sigma = nan(numEndog, numEndog, numCountries);
-
-                % initialize the output
-                As = cell(horizon, 1);
-                Cs = cell(horizon, 1);
-
-                % iterate over countries
-                for ii = 1:numCountries
-
-                    beta_temp = reshape(...
-                        beta(:, ii),...
-                        numBRows,...
-                        numEndog...
-                        );
-
-                    sigma_temp = reshape(...
-                        sigma(:, ii),...
-                        numEndog,...
-                        numEndog...
-                        );
-
-                    % Pack in blocks
-                    A(:,:,ii) = beta_temp(1:numARows, :);
-
-                    C(:,:,ii) = beta_temp(numARows+1:end, :);
-
-                    Sigma(:,:,ii) = sigma_temp;
-
-                end
-
-                % pack the output
-                for tt = 1:horizon
-
-                    As{tt} = A;
-                    Cs{tt} = C;
-
-                end
-
-                drawStruct = struct();
-                drawStruct.A = As;
-                drawStruct.C = Cs;
-                drawStruct.Sigma = Sigma;
-            end
-
-            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
-
-                beta = sampleStruct.beta;
-                sigma = sampleStruct.sigma;
-
-                % initialization
-                A = nan(numARows, numEndog, numCountries);
-                C = nan(numExog, numEndog, numCountries);
-
-                Sigma = nan(numEndog, numEndog, numCountries);
-
-                % initialize the output
-                As = cell(forecastHorizon, 1);
-                Cs = cell(forecastHorizon, 1);
-                Sigmas  = cell(forecastHorizon, 1);
-
-                % iterate over countries
-                for ii = 1:numCountries
-
-                    beta_temp = reshape(...
-                        beta(:, ii),...
-                        numARows+numExog,...
-                        numEndog...
-                        );
-
-                    sigma_temp = reshape(...
-                        sigma(:, ii),...
-                        numEndog,...
-                        numEndog...
-                        );
-
-                    % Pack in blocks
-                    A(:,:,ii) = beta_temp(1:numARows, :);
-
-                    C(:,:,ii) = beta_temp(numARows+1:end, :);
-
-                    Sigma(:,:,ii) = sigma_temp;
-
-                end
-
-                % pack the output
-                for tt = 1:forecastHorizon
-
-                    As{tt} = A;
-                    Cs{tt} = C;
-                    Sigmas{tt} = Sigma;
-
-                end
-
-                drawStruct = struct();
-                drawStruct.A = As;
-                drawStruct.C = Cs;
-                drawStruct.Sigma = Sigmas;
-
-            end
-
-            function drawStruct = historyDrawer(sampleStruct)
-
-                beta = sampleStruct.beta;
-                sigma = sampleStruct.sigma;
-
-                % initialization
-                A = nan(numARows, numEndog, numCountries);
-                C = nan(numExog, numEndog, numCountries);
-
-                Sigma = nan(numEndog, numEndog, numCountries);
-
-                % initialize the output
-                As = cell(estimationHorizon, 1);
-                Cs = cell(estimationHorizon, 1);
-                Sigmas  = cell(estimationHorizon, 1);
-
-                % iterate over countries
-                for ii = 1:numCountries
-
-                    beta_temp = reshape(...
-                        beta(:, ii),...
-                        numBRows,...
-                        numEndog...
-                        );
-
-                    sigma_temp = reshape(...
-                        sigma(:, ii),...
-                        numEndog,...
-                        numEndog...
-                        );
-
-                    % Pack in blocks
-                    A(:,:,ii) = beta_temp(1:numARows, :);
-
-                    C(:,:,ii) = beta_temp(numARows+1:end, :);
-
-                    Sigma(:,:,ii) = sigma_temp;
-
-                end
-
-                % pack the output
-                for tt = 1:estimationHorizon
-
-                    As{tt} = A;
-                    Cs{tt} = C;
-                    Sigmas{tt} = Sigma;
-
-                end
-
-                drawStruct = struct();
-                drawStruct.A = As;
-                drawStruct.C = Cs;
-                drawStruct.Sigma = Sigmas;
-            end
-
-            % return function calls
-            this.IdentificationDrawer = @identificationDrawer;
-
-            this.UnconditionalDrawer = @unconditionalDrawer;
-
-            this.HistoryDrawer = @historyDrawer;
 
             %]
         end%
