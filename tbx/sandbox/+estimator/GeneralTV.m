@@ -352,7 +352,7 @@ classdef GeneralTV < estimator.Base
                     drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end
 
-                drawStruct.Sigma = repmat({reshape(sampleStruct.sigmaAvg, numEn, numEn)}, horizon, 1);
+                drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
             end%
 
             function drawStruct = historyDrawer(sampleStruct)

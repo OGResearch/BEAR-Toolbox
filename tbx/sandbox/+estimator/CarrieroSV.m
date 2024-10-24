@@ -317,7 +317,7 @@ classdef CarrieroSV < estimator.Base
 
                 drawStruct.A = repmat({A}, horizon, 1);
                 drawStruct.C = repmat({C}, horizon, 1);
-                drawStruct.Sigma = repmat({reshape(sampleStruct.sigmaAvg, numEn, numEn)}, horizon, 1);
+                drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
 
             end
 

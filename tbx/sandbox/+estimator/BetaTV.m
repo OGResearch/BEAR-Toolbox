@@ -193,7 +193,7 @@ classdef BetaTV < estimator.Base
                     drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end
 
-                drawStruct.Sigma = repmat({reshape(sampleStruct.sigma, numEn, numEn)}, horizon, 1);
+                drawStruct.Sigma = reshape(sampleStruct.sigma, numEn, numEn);
             end
 
             function drawStruct = historyDrawer(sampleStruct)

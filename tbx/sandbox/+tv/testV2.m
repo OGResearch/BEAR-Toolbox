@@ -66,3 +66,19 @@ fcastSpan = datex.span(fcastStart, fcastEnd);
 
 fcastTbx = modelR.forecast(fcastSpan);
 residTbx = modelR.calculateResiduals();
+
+metaS = meta.Structural(metaR, identificationHorizon=20);
+
+id = identifier.Triangular(stdVec=1);
+
+% 
+% id = identifier.Custom( ...
+%     exact=config.identifier.settings.exact, ...
+%     verifiable=config.identifier.settings.verifiable ...
+% );
+% 
+
+
+modelS = model.Structural(meta=metaS, reducedForm=modelR, identifier=id);
+modelS.initialize()
+modelS.presample(100);
