@@ -33,7 +33,7 @@ classdef HierarchicalPanel < estimator.Base
             Bu = this.Settings.Burnin;
 
             % compute preliminary elements
-            [Xi, ~, ~, Yi, ~, ~, numCountries, numEndog, numExog, numLags, T, ~, ~, ~] = bear.panel4prelim(longY,longX,const,numLags);
+            [Xi, ~, ~, Yi, ~, ~, ~, ~, numExog, numLags, T, ~, ~, ~] = bear.panel4prelim(longY,longX,const,numLags);
 
             % determine k, the number of parameters to estimate in each equation
             k = numEndog*numLags+numExog;
@@ -138,27 +138,13 @@ classdef HierarchicalPanel < estimator.Base
 
                     beta_gibbs(:,ii) = beta(:,ii);
 
-                end
-
-                % step 5: draw the series of sigmas
-                % loop over units
-                for ii = 1:numCountries
-
                     % compute Stilde
                     Stilde = (Yi(:,:,ii)-Xi(:,:,ii)*reshape(beta(:,ii),k,numEndog))'*(Yi(:,:,ii)-Xi(:,:,ii)*reshape(beta(:,ii),k,numEndog));
 
                     % draw sigma
-                    sigma(:,:,ii) = bear.iwdraw(Stilde,T);
-
-                    sigma_gibbs(:,ii) = bear.vec(sigma(:,:,ii));
+                    sigma_gibbs(:,ii) = bear.vec(bear.iwdraw(Stilde,T));
 
                 end
-
-                beta_mean = b;
-
-                sigma_mean = bear.vec(mean(sigma,3));
-
-                lambda_posterior = lambda1;
 
                 sampleStruct = struct();
                 sampleStruct.beta = beta_gibbs;
@@ -182,17 +168,21 @@ classdef HierarchicalPanel < estimator.Base
 
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
+
             numLags = meta.Order;
-            numExog = meta.NumExogenousNames+meta.HasIntercept;
+            numARows = numEndog*numLags;
+            numExog = meta.NumExogenousNames+double(meta.HasIntercept);
+            numBRows = numARows + numExog;
+
+            estimationHorizon = numel(meta.ShortSpan);
 
             function drawStruct = identificationDrawer(sampleStruct)
 
-                smpl = sampleStruct;
-                beta = smpl.beta;
-                sigma = smpl.sigma;
+                beta = sampleStruct.beta;
+                sigma = sampleStruct.sigma;
 
                 % initialization
-                A = nan(numEndog*numLags, numEndog, numCountries);
+                A = nan(numARows, numEndog, numCountries);
                 C = nan(numExog, numEndog, numCountries);
 
                 Sigma = nan(numEndog, numEndog, numCountries);
@@ -205,25 +195,21 @@ classdef HierarchicalPanel < estimator.Base
                 for ii = 1:numCountries
 
                     beta_temp = reshape(...
-                            beta(:, ii),...
-                            numEndog*numLags+numExog,...
-                            numEndog...
-                            );
+                        beta(:, ii),...
+                        numBRows,...
+                        numEndog...
+                        );
 
                     sigma_temp = reshape(...
-                            sigma(:, ii),...
-                            numEndog,...
-                            numEndog...
-                            );
+                        sigma(:, ii),...
+                        numEndog,...
+                        numEndog...
+                        );
 
                     % Pack in blocks
-                    a_temp = beta_temp(1:numEndog*numLags, :);
+                    A(:,:,ii) = beta_temp(1:numARows, :);
 
-                    c_temp = beta_temp(numEndog*numLags+1:end, :);
-
-                    A(:,:,ii) = a_temp;
-
-                    C(:,:,ii) = c_temp;
+                    C(:,:,ii) = beta_temp(numARows+1:end, :);
 
                     Sigma(:,:,ii) = sigma_temp;
 
@@ -234,7 +220,6 @@ classdef HierarchicalPanel < estimator.Base
 
                     As{tt} = A;
                     Cs{tt} = C;
-                    Sigma = Sigma;
 
                 end
 
@@ -243,15 +228,14 @@ classdef HierarchicalPanel < estimator.Base
                 drawStruct.C = Cs;
                 drawStruct.Sigma = Sigma;
             end
-            
+
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
 
-                smpl = sampleStruct;
-                beta = smpl.beta;
-                sigma = smpl.sigma;
+                beta = sampleStruct.beta;
+                sigma = sampleStruct.sigma;
 
                 % initialization
-                A = nan(numEndog*numLags, numEndog, numCountries);
+                A = nan(numARows, numEndog, numCountries);
                 C = nan(numExog, numEndog, numCountries);
 
                 Sigma = nan(numEndog, numEndog, numCountries);
@@ -265,25 +249,21 @@ classdef HierarchicalPanel < estimator.Base
                 for ii = 1:numCountries
 
                     beta_temp = reshape(...
-                            beta(:, ii),...
-                            numEndog*numLags+numExog,...
-                            numEndog...
-                            );
+                        beta(:, ii),...
+                        numARows+numExog,...
+                        numEndog...
+                        );
 
                     sigma_temp = reshape(...
-                            sigma(:, ii),...
-                            numEndog,...
-                            numEndog...
-                            );
+                        sigma(:, ii),...
+                        numEndog,...
+                        numEndog...
+                        );
 
                     % Pack in blocks
-                    a_temp = beta_temp(1:numEndog*numLags, :);
+                    A(:,:,ii) = beta_temp(1:numARows, :);
 
-                    c_temp = beta_temp(numEndog*numLags+1:end, :);
-
-                    A(:,:,ii) = a_temp;
-
-                    C(:,:,ii) = c_temp;
+                    C(:,:,ii) = beta_temp(numARows+1:end, :);
 
                     Sigma(:,:,ii) = sigma_temp;
 
@@ -302,12 +282,70 @@ classdef HierarchicalPanel < estimator.Base
                 drawStruct.A = As;
                 drawStruct.C = Cs;
                 drawStruct.Sigma = Sigmas;
+
+            end
+
+            function drawStruct = historyDrawer(sampleStruct)
+
+                beta = sampleStruct.beta;
+                sigma = sampleStruct.sigma;
+
+                % initialization
+                A = nan(numARows, numEndog, numCountries);
+                C = nan(numExog, numEndog, numCountries);
+
+                Sigma = nan(numEndog, numEndog, numCountries);
+
+                % initialize the output
+                As = cell(estimationHorizon, 1);
+                Cs = cell(estimationHorizon, 1);
+                Sigmas  = cell(estimationHorizon, 1);
+
+                % iterate over countries
+                for ii = 1:numCountries
+
+                    beta_temp = reshape(...
+                        beta(:, ii),...
+                        numBRows,...
+                        numEndog...
+                        );
+
+                    sigma_temp = reshape(...
+                        sigma(:, ii),...
+                        numEndog,...
+                        numEndog...
+                        );
+
+                    % Pack in blocks
+                    A(:,:,ii) = beta_temp(1:numARows, :);
+
+                    C(:,:,ii) = beta_temp(numARows+1:end, :);
+
+                    Sigma(:,:,ii) = sigma_temp;
+
+                end
+
+                % pack the output
+                for tt = 1:estimationHorizon
+
+                    As{tt} = A;
+                    Cs{tt} = C;
+                    Sigmas{tt} = Sigma;
+
+                end
+
+                drawStruct = struct();
+                drawStruct.A = As;
+                drawStruct.C = Cs;
+                drawStruct.Sigma = Sigmas;
             end
 
             % return function calls
             this.IdentificationDrawer = @identificationDrawer;
 
             this.UnconditionalDrawer = @unconditionalDrawer;
+
+            this.HistoryDrawer = @historyDrawer;
 
             %]
         end%

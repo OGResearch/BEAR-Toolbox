@@ -48,24 +48,26 @@ metaR = meta.ReducedForm( ...
 );
 
 
-estimator = estimator.DynamicCrossPanel(metaR);
-
+% estimator = estimator.DynamicCrossPanel(metaR);
+estimator = estimator.HierarchicalPanel(metaR);
 dataHolder = data.DataHolder(metaR, inputTable);
 
-r = model.ReducedForm( ...
+modelR = model.ReducedForm( ...
     meta=metaR ...
     , data=dataHolder ...
     , estimator=estimator ...
     , stabilityThreshold=Inf ...
 );
 
-r.initialize();
-r.presample(100);
+modelR.initialize();
+modelR.presample(100);
 
-fcastStart = datex.shift(r.Meta.EstimationEnd, -11);
-fcastEnd = datex.shift(r.Meta.EstimationEnd, +0);
+fcastStart = datex.shift(modelR.Meta.EstimationEnd, -11);
+fcastEnd = datex.shift(modelR.Meta.EstimationEnd, +0);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 rng("default")
 
-fcastTable = r.forecast(fcastSpan);
+fcastTable = modelR.forecast(fcastSpan);
 fcastPctTable = tablex.apply(fcastTable, pctileFunc);
+
+residTbx = modelR.calculateResiduals();
