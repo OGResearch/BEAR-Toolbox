@@ -244,8 +244,8 @@ classdef CarrieroSV < estimator.Base
 
 
                 for zz = 1:estimLength
-                    sampleStruct.lambda_t_gibbs{zz, 1} = lambda_t(:, :, zz);
-                    sampleStruct.sigma_t_gibbs{zz, 1} = sigma_t(:, :, zz);
+                    sampleStruct.lambda_t{zz, 1} = lambda_t(:, :, zz);
+                    sampleStruct.sigma_t{zz, 1} = sigma_t(:, :, zz);
                 end
 
             end
@@ -263,6 +263,7 @@ classdef CarrieroSV < estimator.Base
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
+            estimationHorizon = numel(meta.ShortSpan);
 
             %IRF periods
             % IRFperiods = meta.IRFperiods;
@@ -311,7 +312,6 @@ classdef CarrieroSV < estimator.Base
                 beta = sampleStruct.beta;
                 % reshape it to obtain B
                 B = reshape(beta, numBRows, numEn);
-
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
@@ -321,8 +321,26 @@ classdef CarrieroSV < estimator.Base
 
             end
 
+            function drawStruct = historyDrawer(sampleStruct)
+
+                beta = sampleStruct.beta;
+
+                % reshape it to obtain B
+                B = reshape(beta, numBRows, numEn);
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+                drawStruct.A = repmat({A}, estimationHorizon, 1);
+                drawStruct.C = repmat({C}, estimationHorizon, 1);
+
+                for jj = 1:estimationHorizon
+                    drawStruct.Sigma{jj,1}(:, :) = sampleStruct.sigma_t{jj, 1}(:, :);
+                end
+
+            end%
+
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
+            this.HistoryDrawer = @historyDrawer;
 
             %]
         end%

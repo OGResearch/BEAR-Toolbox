@@ -269,6 +269,7 @@ classdef GeneralTV < estimator.Base
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             sizeB = numEn * numBRows;
+            estimationHorizon = numel(meta.ShortSpan);
 
             %IRF periods
             %IRFperiods = meta.IRFperiods;
@@ -354,8 +355,21 @@ classdef GeneralTV < estimator.Base
                 drawStruct.Sigma = repmat({reshape(sampleStruct.sigmaAvg, numEn, numEn)}, horizon, 1);
             end%
 
+            function drawStruct = historyDrawer(sampleStruct)
+
+                for jj = 1:estimationHorizon 
+                    B = reshape(sampleStruct.beta{jj}, numBRows, numEn);
+                    drawStruct.A{jj,1}(:, :) = B(1:numARows, :);
+                    drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);    
+                    drawStruct.Sigma{jj,1}(:, :) = sampleStruct.sigma_t{jj, 1}(:, :);
+                end
+                
+            end%
+
+
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
+            this.HistoryDrawer = @historyDrawer;
             %]
         end
 

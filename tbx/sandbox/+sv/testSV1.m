@@ -32,9 +32,9 @@ config.meta = struct( ...
 % histLegacy = tablex.fromCsv("exampleDataLegacy.csv", dateFormat="legacy");
 % hist = tablex.fromCsv("exampleData.csv");
 
-inputTable = bear6.readInputData(config.data);
+inputTbx = bear6.readInputData(config.data);
 
-dataSpan = tablex.span(inputTable);
+dataSpan = tablex.span(inputTbx);
 estimSpan = dataSpan;
 
 metaR = meta.ReducedForm( ...
@@ -45,23 +45,24 @@ metaR = meta.ReducedForm( ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
 );
 
-
 estimator = estimator.CogleySargentSV(metaR);
+dataH = data.DataHolder(metaR, inputTbx);
 
-dataHolder = data.DataHolder(metaR, inputTable);
 
-r = model.ReducedForm( ...
+modelR = model.ReducedForm( ...
     meta=metaR ...
-    , data=dataHolder ...
+    , dataHolder=dataH ...
     , estimator=estimator ...
     , stabilityThreshold=Inf ...
-);
+)
 
-r.initialize();
-r.presample(100);
+modelR.initialize();
+modelR.presample(100);
 
-fcastStart = datex.shift(r.Meta.EstimationEnd, -11);
-fcastEnd = datex.shift(r.Meta.EstimationEnd, +0);
+
+fcastStart = datex.shift(modelR.Meta.EstimationEnd, -10);
+fcastEnd = datex.shift(modelR.Meta.EstimationEnd, 0);
 fcastSpan = datex.span(fcastStart, fcastEnd);
-rng("default")
-fcastTable = r.forecast(fcastSpan);
+
+fcastTbx = modelR.forecast(fcastSpan);
+residTbx = modelR.calculateResiduals();
