@@ -272,6 +272,65 @@ classdef DynamicCrossPanel < estimator.Base
             rho = this.Settings.Rho;
             gama = this.Settings.Gamma;
 
+            function drawStruct = identificationDrawer(sampleStruct, horizon)
+
+                % read the input
+                smpl = sampleStruct;
+                B = smpl.B;
+                sigma = smpl.sigma(:,end);
+                thetabar = smpl.thetabar;
+                Xi = smpl.Xi;
+                theta = smpl.theta(:, end);
+
+                % initiate the record draws
+                As = cell(horizon, 1);
+                Cs = cell(horizon, 1);
+
+                % number of factors
+                numFactors = size(thetabar, 1);
+
+                % reshape matrices
+                B = reshape(...
+                          B,...
+                          numFactors,...
+                          numFactors);
+
+                % obtain its choleski factor as the square of each diagonal element
+                cholB = diag(diag(B).^0.5);
+
+                Sigma = reshape(sigma,numCountries*numEndog,numCountries*numEndog);
+
+                % generate forecasts recursively
+                % for each iteration jj, repeat the process for periods T+1 to T+horizon
+                for jj=1:horizon
+
+                    % update theta
+                    % draw the vector of shocks eta
+                    eta = cholB*mvnrnd(zeros(numFactors, 1),eye(numFactors))';
+                    % update theta from its AR process
+                    theta = (1-rho)*thetabar + rho*theta + eta;
+
+                    % reconstruct B matrix
+                    beta_temp = Xi*theta;
+
+                    B_draw = reshape(...
+                            beta_temp,...
+                            numCountries*numEndog*numLags+numExog,...
+                            numCountries*numEndog);
+
+                    % obtain A and C
+                    As{jj} = B_draw(1:numCountries*numEndog*numLags, :);
+                    Cs{jj} = B_draw(numCountries*numEndog*numLags+1:end, :);
+
+                    % repeat until values are obtained for T+horizon
+                end
+
+                drawStruct = struct();
+                drawStruct.A = As;
+                drawStruct.C = Cs;
+                drawStruct.Sigma = Sigma;
+            end
+
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
 
                 % read the input
@@ -348,12 +407,62 @@ classdef DynamicCrossPanel < estimator.Base
                 drawStruct.Sigma = Sigmas;
             end
 
+            function drawStruct = historicalDrawer(sampleStruct)
+
+                estimationSize = numel(EstimationSpan);
+        
+                % read the input
+                smpl = sampleStruct;
+                Xi = smpl.Xi;      
+                sigmatilde = smpl.sigmatilde;  
+        
+                % reshape matrices
+                sigmatilde = reshape(...
+                            sigmatilde,...
+                            numCountries*numEndog,...
+                            numCountries*numEndog);
+        
+                % initiate the record draws
+                As = cell(estimationSize,1);
+                Cs = cell(estimationSize,1);
+                Sigmas = cell(estimationSize,1);
+        
+                for tt = 1:estimationSize
+                    theta = smpl.theta(:,tt);
+                    zeta = smpl.Zeta(tt);
+        
+                    % reconstruct B matrix
+                    beta_temp = Xi*theta;
+        
+                    B_draw = reshape(...
+                            beta_temp,...
+                            numCountries*numEndog*numLags+numExog,...
+                            numCountries*numEndog);
+        
+                    % obtain A and C
+                    As{tt} = B_draw(1:numCountries*numEndog*numLags,:);
+                    Cs{tt} = B_draw(numCountries*numEndog*numLags+1:end,:);
+        
+                    % recover sigma
+                    sigma = exp(zeta)*sigmatilde;
+              
+                    % recover sigma_t and draw the residuals
+                    Sigmas{tt} = sigma;
+                end
+        
+                drawStruct = struct();
+                drawStruct.A = As;
+                drawStruct.C = Cs;
+                drawStruct.Sigma = Sigmas;
+        
+            end
 
             % return function calls
-            % this.IdentificationDrawer = [];
-
+            this.IdentificationDrawer = @identificationDrawer;
 
             this.UnconditionalDrawer = @unconditionalDrawer;
+
+            this.HistoricalDrawer = @historicalDrawer;
             %]
         end%
 
