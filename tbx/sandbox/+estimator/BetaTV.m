@@ -7,7 +7,7 @@ classdef BetaTV < estimator.Base
     end
 
 
-    methods (Access = protected)
+    methods %(Access = protected)
 
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
@@ -133,6 +133,7 @@ classdef BetaTV < estimator.Base
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             sizeB = numEn * numBRows;
+            estimationHorizon = numel(meta.ShortSpan);
 
             % %IRF periods
             % IRFperiods = meta.IRFperiods;
@@ -192,11 +193,22 @@ classdef BetaTV < estimator.Base
                     drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end
 
-                drawStruct.Sigma = repmat({reshape(sampleStruct.sigma, numEn, numEn)}, horizon, 1);
+                drawStruct.Sigma = reshape(sampleStruct.sigma, numEn, numEn);
             end
+
+            function drawStruct = historyDrawer(sampleStruct)
+
+                for jj = 1:estimationHorizon 
+                    B = reshape(sampleStruct.beta{jj}, numBRows, numEn);
+                    drawStruct.A{jj,1}(:, :) = B(1:numARows, :);
+                    drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);    
+                end
+                drawStruct.Sigma = repmat({reshape(sampleStruct.sigma, numEn, numEn)}, estimationHorizon, 1);
+            end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
+            this.HistoryDrawer = @historyDrawer;
 
             %]
         end%

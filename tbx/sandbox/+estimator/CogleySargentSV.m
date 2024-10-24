@@ -243,8 +243,8 @@ classdef CogleySargentSV < estimator.Base
                 sampleStruct.sbar = sbar;
 
                 for zz = 1:estimLength
-                    sampleStruct.lambda_t_gibbs{zz, 1} = lambda_t(:, :, zz);
-                    sampleStruct.sigma_t_gibbs{zz, 1} = sigma_t(:, :, zz);
+                    sampleStruct.lambda_t{zz, 1} = lambda_t(:, :, zz);
+                    sampleStruct.sigma_t{zz, 1} = sigma_t(:, :, zz);
                 end
 
             end
@@ -262,6 +262,7 @@ classdef CogleySargentSV < estimator.Base
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
+            estimationHorizon = numel(meta.ShortSpan);
 
             %IRF periods
             % IRFperiods = meta.IRFperiods;
@@ -288,8 +289,8 @@ classdef CogleySargentSV < estimator.Base
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
+                drawStruct.A = repmat({A}, forecastHorizon, 1);
+                drawStruct.C = repmat({C}, forecastHorizon, 1);
                 drawStruct.Sigma = cell(forecastHorizon, 1);
 
                 % then generate forecasts recursively
@@ -319,14 +320,31 @@ classdef CogleySargentSV < estimator.Base
 
                 drawStruct.A = repmat({A}, horizon, 1);
                 drawStruct.C = repmat({C}, horizon, 1);
-                drawStruct.Sigma = repmat({reshape(sampleStruct.sigmaAvg, numEn, numEn)}, horizon, 1);
+                drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
 
             end
+
+            function drawStruct = historyDrawer(sampleStruct)
+
+                beta = sampleStruct.beta;
+
+                % reshape it to obtain B
+                B = reshape(beta, numBRows, numEn);
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+                drawStruct.A = repmat({A}, estimationHorizon, 1);
+                drawStruct.C = repmat({C}, estimationHorizon, 1);
+
+                for jj = 1:estimationHorizon
+                    drawStruct.Sigma{jj,1}(:, :) = sampleStruct.sigma_t{jj, 1}(:, :);
+                end
+
+            end%
 
 
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
-
+            this.HistoryDrawer = @historyDrawer;
             %]
         end%
 
