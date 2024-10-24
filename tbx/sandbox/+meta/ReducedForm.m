@@ -270,7 +270,7 @@ classdef ReducedForm < handle
                 this
                 dataArray double
             end
-            if ~this.HasCrossUnits || this.NumUnits == 1
+            if this.HasCrossUnits || this.NumUnits == 1
                 return
             end
             dataArray = reshape(dataArray, size(dataArray, 1), [], this.NumUnits);

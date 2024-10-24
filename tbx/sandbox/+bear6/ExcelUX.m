@@ -3,8 +3,14 @@ classdef ExcelUX < handle
 
     properties (Constant)
         DATA_SOURCE_SHEET_NAME = "Data Source"
+
         META_SHEET_NAME = "Meta Information"
+
         CELL_READER_OPTIONS = {"Range", [1, 1], "TextType", "string", }
+
+        INPUT_DATA_READER = struct( ...
+            csv=@tablex.fromCsv ...
+        );
     end
 
 
@@ -14,6 +20,7 @@ classdef ExcelUX < handle
         Meta (:, :) cell
 
         Config (1, 1) bear6.Config
+        InputDataTable (:, :) timetable
     end
 
 
@@ -28,6 +35,23 @@ classdef ExcelUX < handle
             this.configureAll();
         end%
 
+
+        function readInputData(this, varargin)
+            arguments
+                this
+            end
+            arguments (Repeating)
+                varargin
+            end
+            config = this.Config;
+            reader = this.INPUT_DATA_READER.(lower(config.DataSource_Format));
+            this.InputDataTable = reader(config.DataSource_FilePath, varargin{:});
+        end%
+
+    end
+
+
+    methods (Access=protected)
 
         function readAll(this)
             this.readDataSource();
@@ -56,6 +80,7 @@ classdef ExcelUX < handle
         function configureAll(this)
             this.configureDataSource();
             this.configureReducedFormMeta();
+            this.configureStructuralMeta();
         end%
 
 
@@ -73,6 +98,10 @@ classdef ExcelUX < handle
             this.Config.ReducedFormMeta_Order = this.Meta{6, 2};
             this.Config.ReducedFormMeta_EstimationStart = this.Meta{7, 2};
             this.Config.ReducedFormMeta_EstimationEnd = this.Meta{8, 2};
+        end%
+
+        function configureStructuralMeta(this)
+            this.Config.StructuralMeta_IdentificationHorizon = this.Meta{9, 2};
         end%
 
     end

@@ -12,6 +12,22 @@ classdef Config
         ReducedFormMeta_Order (1, 1) double {mustBeInteger, mustBePositive} = 1
         ReducedFormMeta_EstimationStart (1, 1) string
         ReducedFormMeta_EstimationEnd (1, 1) string
+
+        StructuralMeta_IdentificationHorizon (1, 1) double {mustBeInteger, mustBePositive} = 1
+    end
+
+
+    properties (Dependent)
+        ReducedFormMeta_EstimationSpan
+    end
+
+
+    methods
+        function out = get.ReducedFormMeta_EstimationSpan(this)
+            startPeriod = datex.fromSdmx(this.ReducedFormMeta_EstimationStart);
+            endPeriod = datex.fromSdmx(this.ReducedFormMeta_EstimationEnd);
+            out = datex.span(startPeriod, endPeriod);
+        end%
     end
 
 end
