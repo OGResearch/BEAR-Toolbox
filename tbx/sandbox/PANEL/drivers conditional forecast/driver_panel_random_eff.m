@@ -1,7 +1,7 @@
 clear all
 close all
 
-panel = 2;
+panel = 3;
 
 run("driver_init.m");
 
@@ -25,76 +25,80 @@ for iteration=1:numt % beginning of forecasting loop
     end
 
     %% BLOCK 1: MODEL ESTIMATION
-    [beta_median, B_median, beta_std, beta_lbound, beta_ubound, sigma_median,Ymat,Xmat,beta_gibbs,sigma_gibbs,N,n,m,p,k,T,Y,X,q] = driver_estimation_panel_bayesian(data_endo,data_exo,const,lags,Units,ar,lambda1,lambda3,lambda4,It,Bu,priorexo,cband);
+    [beta_median, beta_std, beta_lbound, beta_ubound, sigma_median,Yi, Xi, beta_gibbs,sigma_gibbs, N,n,m,p,k,T,q] = driver_estimation_panel_random_eff(data_endo,data_exo,const,lags,lambda1,It,Bu,cband);
 
     %% BLOCK 2: IRFS
     % impulse response functions (if activated)
+    IRFt = 1;
     if IRF==1
       if IRFt==1 || IRFt==2 || IRFt==3
         signrestable=[];
         signresperiods=[];
       end
+
       % estimate the IRFs
       [irf_record, D_record, gamma_record, struct_irf_record, irf_estimates, D_estimates, gamma_estimates, strshocks_record, strshocks_estimates]=...
-          bear.panel2irf(Ymat,Xmat,beta_gibbs,sigma_gibbs,It,Bu,IRFperiods,IRFband,N,n,m,p,k,T,Y,X,signreslabels,[],data_exo,const,exo,IRFt,strctident,favar,signrestable,signresperiods);
+          bear.panel3irf(Yi,Xi,beta_gibbs,sigma_gibbs,It,Bu,IRFperiods,IRFband,N,n,m,p,k,T,IRFt,signrestable,signresperiods,favar);
+
       % display the results
-      bear.panel2irfdisp(N,n,Units,endo,irf_estimates,strshocks_estimates,IRFperiods,IRFt,stringdates1,T,decimaldates1,pref);
+      bear.panel3irfdisp(N,n,Units,endo,irf_estimates,strshocks_estimates,IRFperiods,IRFt,stringdates1,T,decimaldates1,pref);
     end
 
-    % %% BLOCK 3: FORECASTS
+    % estimate IRFs for exogenous variables
+    if isempty(data_exo)~=1 %%%%%&& m>0
+        [~,exo_irf_estimates]=bear.irfexo(beta_gibbs,It,Bu,IRFperiods,IRFband,n,m,p,k,N);
 
-    % % forecasts (if activated)
+        bear.irfexodisp(n,m,endo,exo,IRFperiods,exo_irf_estimates,pref, N, Units);
+    end
+
+    %% BLOCK 3: FORECASTS
+
+    % forecasts (if activated)
     % if F==1
     %   % estimate the forecasts
     %   [forecast_record, forecast_estimates]=...
-    %     bear.panel2forecast(N,n,p,k,data_endo_a,data_exo_p,It,Bu,beta_gibbs,sigma_gibbs,Fperiods,const,Fband,Fstartlocation,favar);
+    %     bear.panel3forecast(N,n,p,k,data_endo_a,data_exo_p,It,Bu,beta_gibbs,sigma_gibbs,Fperiods,const,Fband,Fstartlocation,favar);
 
     %   % display the results
-    %   bear.panel2fdisp(N,n,T,Units,endo,Ymat,stringdates2,decimaldates2,Fstartlocation,Fendlocation,forecast_estimates,pref);
+    %   bear.panel3fdisp(N,n,T,Units,endo,Yi,stringdates2,decimaldates2,Fstartlocation,Fendlocation,forecast_estimates,pref);
+
     % end
 
-    % %% BLOCK 4: FEVD
+    %% BLOCK 4: FEVD
 
-    % % FEVD (if activated)
+    % FEVD (if activated)
     % if FEVD==1
     %   % estimate the FEVD
-    %   [fevd_record, fevd_estimates]=bear.panel2fevd(struct_irf_record,gamma_record,It,Bu,IRFperiods,n,FEVDband);
+    %   [fevd_record, fevd_estimates]=bear.panel3fevd(N,struct_irf_record,gamma_record,It,Bu,IRFperiods,n,FEVDband);
 
     %   % display the results
-    %   bear.panel2fevddisp(n,endo,fevd_estimates,IRFperiods,pref);
+    %   bear.panel3fevddisp(n,N,Units,endo,fevd_estimates,IRFperiods,pref);
     % end
 
-    % %% BLOCK 5: HISTORICAL DECOMPOSITION
-
-    % % historical decomposition (if activated)
+    % historical decomposition (if activated)
     % if HD==1
     %   % estimate historical decomposition
-    %   [hd_record, hd_estimates]=bear.panel2hd(beta_gibbs,D_record,strshocks_record,It,Bu,Ymat,Xmat,N,n,m,p,k,T,HDband);
+    %   [hd_record, hd_estimates]=bear.panel3hd(beta_gibbs,D_record,strshocks_record,It,Bu,Yi,Xi,N,n,m,p,k,T,HDband);
 
     %   % display the results
-    %   bear.panel2hddisp(N,n,T,Units,endo,hd_estimates,stringdates1,decimaldates1,pref);
+    %   bear.panel3hddisp(N,n,T,Units,endo,hd_estimates,stringdates1,decimaldates1,pref);
     % end
 
     %% BLOCK 6: CONDITIONAL FORECASTS
 
-    % cfconds is coming from the excel file. Initialy this is one table in the form [CC]_enodg_var_name, but then in the data preparation it is transformed into cube
-
-    % CFt defines type of conditional forecast. Only 1 and 2 are allowed. 1 is for the case where the user specifies the shocks, 2 is for the case where the user specifies the blocks
-
     % conditional forecast (if activated)
     if CF==1
-      
       % estimate conditional forecasts
       [nconds, cforecast_record, cforecast_estimates]=...
         cf_driver_NoCrossSectional(N,n,m,p,k,q,cfconds,cfshocks,cfblocks,data_endo_a,data_exo_a,data_exo_p,It,Bu,Fperiods,const,beta_gibbs,D_record,gamma_record,CFt,Fband);
 
       % display the results
-      bear.panel2cfdisp(N,n,T,Units,endo,Ymat,stringdates2,decimaldates2,Fstartlocation,Fendlocation,cforecast_estimates,pref,nconds);
+      bear.panel3cfdisp(N,n,T,Units,endo,Yi,stringdates2,decimaldates2,Fstartlocation,Fendlocation,cforecast_estimates,pref,nconds);
       
     end
 
     %% BLOCK 7: DISPLAY OF THE RESULTS
-    % bear.panel2disp(n,N,m,p,k,T,Ymat,Xmat,Units,endo,exo,const,beta_gibbs,B_median,beta_median,beta_std,beta_lbound,beta_ubound,sigma_gibbs,...
-    %                 sigma_median,D_estimates,gamma_estimates,ar,lambda1,lambda3,lambda4,startdate,enddate,forecast_record,forecast_estimates,Fcperiods,...
-    %                 stringdates3,Fstartdate,Fcenddate,Feval,Fcomp,data_endo_c,data_endo_c_lags,data_exo_c,It,Bu,IRF,IRFt,pref,names,0);
+    % bear.panel3disp(n,N,m,p,k,T,Yi,Xi,Units,endo,exo,const,beta_gibbs,beta_median,beta_std,beta_lbound,beta_ubound,sigma_gibbs,...
+    %                 sigma_median,D_estimates,gamma_estimates,lambda1,startdate,enddate,forecast_record,forecast_estimates,Fcperiods,stringdates3,...
+    %                 Fstartdate,Fcenddate,Feval,Fcomp,data_endo_c,data_endo_c_lags,data_exo_c,It,Bu,IRF,IRFt,pref,names);
   end

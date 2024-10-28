@@ -1,6 +1,6 @@
 addpath(genpath('../../../'))
 
-excelFile = fullfile(bearroot(),'default_bear_data_no_crosscountry.xlsx') ;
+excelFile = fullfile(bearroot(),'default_bear_data_with_crosscountry.xlsx') ;
 
 %% Preferences options
 %Choose VAR type

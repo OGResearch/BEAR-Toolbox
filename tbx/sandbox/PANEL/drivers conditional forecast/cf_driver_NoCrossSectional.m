@@ -1,5 +1,5 @@
 function [nconds,cforecast_record,cforecast_estimates] = ...
-    cf_driver_NormalWishartPanel(numCountries,numEndog,numExog,numLags,k,q,cfconds,cfshocks,cfblocks,LongY_a,LongX_a,LongX_p,It,Bu,Fperiods,const,beta_gibbs,D_record,gamma_record,CFt,Fband)
+   cf_driver_NoCrossSectional(numCountries,numEndog,numExog,numLags,k,q,cfconds,cfshocks,cfblocks,LongY_a,LongX_a,LongX_p,It,Bu,Fperiods,const,beta_gibbs,D_record,gamma_record,CFt,Fband)
 
 % !!!! LJ NOTES
 % * CFt defines type of conditional forecast. Only 1 and 2 are allowed. 1 is for the case where the user specifies the shocks, 2 is for the case where the user specifies the blocks
@@ -57,52 +57,52 @@ for cc = 1:numCountries
       end
    
    
-   
-   
       % start simulations
       for ii = 1:It-Bu
-      
       
          % step 1: attribute values for beta, D and gamma
          beta = beta_gibbs(:,ii);
          D = reshape(D_record(:,ii),numEndog,numEndog);
          gamma = reshape(gamma_record(:,ii),numEndog,numEndog);
          
-      
          % step 2: compute regular forecasts for the data (without shocks)
          fmat = bear.forecastsim(data_endo_a,data_exo_p,beta,numEndog,numLags,k,Fperiods);
-      
       
          % step 3: compute IRFs and orthogonalised IRFs matrices
          [~,ortirfmat] = bear.irfsim(beta,D,numEndog,numExog,numLags,k,Fperiods);
       
-      
          % step 4: obtain the vector of shocks generating the conditions, depending on the type of conditional forecasts selected by the user
          % if the user selected the basic setting (all the shocks are used)
          if CFt == 1
+
             eta = bear.shocksim1(cfconds,Fperiods,numEndog,fmat,ortirfmat);
             % if instead the user selected the shock-specific setting
+
          elseif CFt == 2
+
             eta = bear.shocksim2(cfconds,cfshocks,cfblocks,Fperiods,numEndog,gamma,fmat,ortirfmat);
+
          end
 
          eta = reshape(eta,numEndog,Fperiods);
       
-      
          % step 5: obtain the conditional forecasts
          % loop over periods
          for jj = 1:Fperiods
+
             % compute shock contribution to forecast values
             % create a temporary vector of cumulated shock contributions
             temp = zeros(numEndog,1);
             % loop over periods up the the one currently considered
 
             for kk = 1:jj
-               temp = temp+ortirfmat(:,:,jj-kk+1)*eta(:,kk);
+
+               temp = temp + ortirfmat(:,:,jj-kk+1)*eta(:,kk);
+
             end
 
             % compute the conditional forecast as the sum of the regular predicted component, plus shock contributions
-            cdforecast(jj,:) = fmat(jj,:)+temp';
+            cdforecast(jj,:) = fmat(jj,:) + temp';
          end
          clear temp
       
@@ -110,10 +110,12 @@ for cc = 1:numCountries
          % step 6: record the results from current iteration in the cell cforecast_record
          % loop over variables
          for jj = 1:numEndog
+
             % consider column jj of matrix cdforecast: it contains forecasts for variable jj, from T+1 to T+h
             % record these values in the corresponding matrix of cforecast_record
             cf_record{jj,1}(ii,:) = cdforecast(:,jj)';
             strsh_record{jj,1}(ii,:) = eta(jj,:);
+            
          end
       
       
@@ -123,8 +125,8 @@ for cc = 1:numCountries
       cforecast_record(:,:,cc) = cf_record;
       strshocks_record(:,:,cc) = strsh_record;
 
-   % then obtain point estimates and credibility intervals
-   cforecast_estimates(:,:,cc) = bear.festimates(cforecast_record(:,:,cc),numEndog,Fperiods,Fband);
+      % then obtain point estimates and credibility intervals
+      cforecast_estimates(:,:,cc) = bear.festimates(cforecast_record(:,:,cc),numEndog,Fperiods,Fband);
 
    % if there are no conditions, return empty elements
    elseif nconds(cc,1) == 0
