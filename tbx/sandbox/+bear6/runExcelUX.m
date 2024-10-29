@@ -1,21 +1,46 @@
+%{
+%
+% bear6.runExcelUX  Run BEAR6 from an Excel UX file
+%
+%     bear6.runExcelUX(uxFilePath)
+%
+%
+% Input arguments
+% -----------------
+%
+% * `uxFilePath` [ string ] - Path to the Excel UX file.
+%
+% Output arguments
+% -----------------
+%
+% * `modelR` [ model.ReducedForm ] - Reduced-form model.
+%
+% * `modelS` [ model.Structural ] - Structural model.
+%
+%
+% Description
+% ------------
+%
+% This function reads an Excel UX file, creates a reduced-form model, and
+% then a structural model. The reduced-form model is estimated and
+% presampled. The structural model is initialized and presampled.
+%
+%}
 
-function runExcelUX(uxFilePath)
+
+function [modelR, modelS] = runExcelUX(uxFilePath)
 
     arguments
-        uxFilePath (1, 1) string = "BEAR6-EstimationUX.xlsx"
+        uxFilePath (1, 1) string = "BEAR6_UX.xlsx"
     end
 
-    close all
-    clear
-    clear classes
-    rehash path
-    addpath ../bear
+    thisDir = fileparts(mfilename("fullpath"));
+    origBearDir = fullfile(thisDir, "..", "bear");
+    addpath(origBearDir);
 
     rng(0);
 
     logger = bear6.Logger.INFO;
-
-    pctileFunc = @(x) prctile(x, [5, 50, 95], 2);
 
     logger.info("Reading ExcelUX" + uxFilePath)
     excelUX = bear6.ExcelUX(filePath=uxFilePath);
@@ -26,43 +51,15 @@ function runExcelUX(uxFilePath)
     excelUX.readInputData();
     logger.info("√ Done")
 
-
     config = excelUX.Config;
     inputTbx = excelUX.InputDataTable;
 
-    config_ = struct();
-
-    config_.data = struct( ...
-        "format", "csv", ...
-        "source", "exampleData.csv" ...
-    );
-
-    config_.meta = struct( ...
-        "endogenous", ["DOM_GDP", "DOM_CPI", "STN"], ...
-        "exogenous", ["Oil"], ...
-        "order", 4, ...
-        "estimationStart", "1975-Q1", ...
-        "estimationEnd", "2014-Q4", ...
-        "intercept", true ...
-    );
-
-    % histLegacy = tablex.fromCsv("exampleDataLegacy.csv", dateFormat="legacy");
-    % hist = tablex.fromCsv("exampleData.csv");
-
-    % inputTbx = bear6.readInputData(config.data);
-
-    % dataSpan = tablex.span(inputTbx);
-    % estimSpan = dataSpan;
+    numPercentiles = numel(config.Tasks_Percentiles);
+    pctileFunc = @(x) prctile(x, config.Tasks_Percentiles, 2);
 
     logger.info("Creating reduced-form model...")
-        metaR = meta.ReducedForm( ...
-            endogenous=config.ReducedFormMeta_EndogenousConcepts ...
-            , units=config.ReducedFormMeta_Units ...
-            , exogenous=config.ReducedFormMeta_ExogenousNames ...
-            , order=config.ReducedFormMeta_Order ...
-            , intercept=config.ReducedFormMeta_HasIntercept ...
-            , estimationSpan=config.ReducedFormMeta_EstimationSpan ...
-        );
+
+        metaR = config.createReducedFormMetaObject();
 
         dataH = data.DataHolder(metaR, inputTbx);
 
@@ -96,12 +93,9 @@ function runExcelUX(uxFilePath)
     fcastTbx = modelR.forecast(fcastSpan);
     residTbx = modelR.calculateResiduals();
 
-    metaS = meta.Structural( ...
-        metaR ...
-        , identificationHorizon=20 ...
-    );
+    metaS = config.createStructuralMetaObject(metaR);
 
-    id = identifier.Triangular(stdVec=1);
+    id = identifier.Cholesky();
 
     % 
     % id = identifier.Custom( ...
@@ -122,6 +116,22 @@ function runExcelUX(uxFilePath)
     logger.info("Initializing and presampling structural model...")
         modelS.initialize()
         modelS.presample(100);
+    logger.info("√ Done")
+
+
+
+    logger.info("Saving output data...")
+        fcastPctileTbx = tablex.apply(fcastTbx, pctileFunc);
+        writetimetable( ...
+            fcastPctileTbx ...
+            , "output/unconditionalForecast.csv" ...
+        );
+
+        residPctileTbx = tablex.apply(residTbx, pctileFunc);
+        writetimetable( ...
+            residPctileTbx ...
+            , "output/residuals.csv" ...
+        );
     logger.info("√ Done")
 
 end%

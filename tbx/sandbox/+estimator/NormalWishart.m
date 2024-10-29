@@ -2,6 +2,8 @@
 classdef NormalWishart < estimator.Plain
 
     properties
+        DescriptionUX = "BVAR with Normal-Wishart prior"
+
         CanHaveDummies = true
         CanHaveReducibles = false
         HasCrossUnits = false

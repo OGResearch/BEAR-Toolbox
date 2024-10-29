@@ -1,11 +1,11 @@
 
-function shockNames = autogenerateShockNames(numEndogenous)
+function shockConcepts = autogenerateShockConcepts(numEndogenous)
 
     arguments
         numEndogenous (1, 1) {mustBeInteger, mustBePositive}
     end
 
-    shockNames = "shock" + string(1:numEndogenous);
+    shockConcepts = "shock" + string(1:numEndogenous);
 
 end%
 

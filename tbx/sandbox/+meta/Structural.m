@@ -20,23 +20,28 @@ classdef Structural < handle
 
     methods
 
-        function this = Structural(redMeta, options)
+        function this = Structural(metaR, options)
             arguments
-                redMeta (1, 1) meta.ReducedForm
+                metaR (1, 1) meta.ReducedForm
                 %
                 options.identificationHorizon (1, 1) double {mustBeInteger, mustBePositive}
-                options.shockNames (1, :) string = string.empty(1, 0)
+                options.shockConcepts (1, :) string = string.empty(1, 0)
             end
             %
-            if ~isempty(options.shockNames)
-                this.ShockNames = options.shockNames;
+            if ~isempty(options.shockConcepts)
+                shockConcepts = options.shockConcepts;
             else
-                this.ShockNames = meta.autogenerateShockNames(redMeta.NumEndogenousNames);
+                shockConcepts = meta.autogenerateShockConcepts(metaR.NumEndogenousConcepts);
             end
+            names = string.empty(1, 0);
+            for unit = metaR.Units
+                names = [names, meta.concatenate(unit, shockConcepts)];
+            end
+            this.ShockNames = names;
             %
             this.IdentificationHorizon = options.identificationHorizon;
             %
-            if numel(this.ShockNames) ~= redMeta.NumEndogenousNames
+            if numel(this.ShockNames) ~= metaR.NumEndogenousNames
                 error("Number of shock names must match number of endogenous variables");
             end
         end%

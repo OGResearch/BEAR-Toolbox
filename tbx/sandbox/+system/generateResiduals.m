@@ -1,5 +1,13 @@
 
-function U = sampleResiduals(Sigma, options)
+%{
+%
+% Generate random residuals from a multivariate normal distribution with
+% zero mean and the specified covariance matrix for each period, or return a
+% matrix of zeros.
+%
+%}
+
+function U = generateResiduals(Sigma, options)
 
     arguments
         Sigma (:, 1) cell

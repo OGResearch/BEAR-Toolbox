@@ -2,9 +2,12 @@
 classdef ExcelUX < handle
 
     properties (Constant)
-        DATA_SOURCE_SHEET_NAME = "Data Source"
-
-        META_SHEET_NAME = "Meta Information"
+        DATA_SOURCE_SHEET = "Data source"
+        TASKS_SHEET = "Tasks"
+        REDUCED_FORM_META_SHEET = "Reduced-form meta information"
+        DUMMIES_SHEET = "Dummy observations"
+        REDUCED_FORM_ESTIMATOR_SHEET = "Reduced-form estimation"
+        STRUCTURAL_META_SHEET = "Structural meta information"
 
         CELL_READER_OPTIONS = {"Range", [1, 1], "TextType", "string", }
 
@@ -17,7 +20,11 @@ classdef ExcelUX < handle
     properties
         FilePath (1, 1) string
         DataSource (:, :) cell
-        Meta (:, :) cell
+        Tasks (:, :) cell
+        ReducedFormMeta (:, :) cell
+        Estimator (:, :) cell
+        Dummies (:, :) cell
+        StructuralMeta (:, :) cell
 
         Config (1, 1) bear6.Config
         InputDataTable (:, :) timetable
@@ -55,23 +62,69 @@ classdef ExcelUX < handle
 
         function readAll(this)
             this.readDataSource();
-            this.readMeta();
+            this.readTasks();
+            this.readReducedFormMeta();
+            this.readEstimator();
+            this.readDummies();
+            this.readStructuralMeta();
         end%
 
 
         function readDataSource(this)
             this.DataSource = readcell( ...
                 this.FilePath ...
-                , "sheet", this.DATA_SOURCE_SHEET_NAME ...
+                , "sheet", this.DATA_SOURCE_SHEET ...
                 , this.CELL_READER_OPTIONS{:} ...
             );
         end%
 
 
-        function readMeta(this)
-            this.Meta = readcell( ...
+        function readTasks(this)
+            this.Tasks = readcell( ...
                 this.FilePath ...
-                , "sheet", this.META_SHEET_NAME ...
+                , "sheet", this.TASKS_SHEET ...
+                , this.CELL_READER_OPTIONS{:} ...
+            );
+        end%
+
+
+        function readReducedFormMeta(this)
+            this.ReducedFormMeta = readcell( ...
+                this.FilePath ...
+                , "sheet", this.REDUCED_FORM_META_SHEET ...
+                , this.CELL_READER_OPTIONS{:} ...
+            );
+        end%
+
+
+        function readDummies(this)
+            this.Dummies = readcell( ...
+                this.FilePath ...
+                , "sheet", this.DUMMIES_SHEET ...
+                , this.CELL_READER_OPTIONS{:} ...
+            );
+        end%
+
+
+        function readEstimator(this)
+            x = readcell( ...
+                this.FilePath ...
+                , "sheet", this.REDUCED_FORM_ESTIMATOR_SHEET ...
+                , this.CELL_READER_OPTIONS{:} ...
+            );
+            index = cellfun(@(x) isequal(x, true), x(2, :));
+            if nnz(index) ~= 1
+                error("Invalid selection of reduced-form estimation");
+            end
+            index = find(index, 1);
+            this.Estimator = x(:, index-1:index);
+        end%
+
+
+        function readStructuralMeta(this)
+            this.StructuralMeta = readcell( ...
+                this.FilePath ...
+                , "sheet", this.STRUCTURAL_META_SHEET ...
                 , this.CELL_READER_OPTIONS{:} ...
             );
         end%
@@ -79,7 +132,9 @@ classdef ExcelUX < handle
 
         function configureAll(this)
             this.configureDataSource();
+            this.configureTasks();
             this.configureReducedFormMeta();
+            this.configureEstimator();
             this.configureStructuralMeta();
         end%
 
@@ -90,18 +145,46 @@ classdef ExcelUX < handle
         end%
 
 
-        function configureReducedFormMeta(this)
-            this.Config.ReducedFormMeta_Units = stringListFromCellArray(this.Meta(2, 2:end), whenEmpty="");
-            this.Config.ReducedFormMeta_EndogenousConcepts = stringListFromCellArray(this.Meta(3, 2:end));
-            this.Config.ReducedFormMeta_ExogenousNames = stringListFromCellArray(this.Meta(4, 2:end));
-            this.Config.ReducedFormMeta_HasIntercept = this.Meta{5, 2};
-            this.Config.ReducedFormMeta_Order = this.Meta{6, 2};
-            this.Config.ReducedFormMeta_EstimationStart = this.Meta{7, 2};
-            this.Config.ReducedFormMeta_EstimationEnd = this.Meta{8, 2};
+        function configureTasks(this)
+            percentiles = reshape(double(split(string(this.Tasks{2, 2}), " ")), 1, []);
+            this.Config.Tasks_Percentiles = percentiles;
         end%
 
+
+        function configureReducedFormMeta(this)
+            x = this.ReducedFormMeta;
+            this.Config.ReducedFormMeta_Units = stringListFromCellArray(x(2, 2:end), whenEmpty="");
+            this.Config.ReducedFormMeta_EndogenousConcepts = stringListFromCellArray(x(3, 2:end));
+            this.Config.ReducedFormMeta_ExogenousNames = stringListFromCellArray(x(4, 2:end));
+            this.Config.ReducedFormMeta_HasIntercept = x{5, 2};
+            this.Config.ReducedFormMeta_Order = x{6, 2};
+            this.Config.ReducedFormMeta_EstimationStart = x{7, 2};
+            this.Config.ReducedFormMeta_EstimationEnd = x{8, 2};
+        end%
+
+
+        function configureEstimator(this)
+            this.Config.Estimator_Name = string(this.Estimator{3, 2});
+            settings = cell.empty(1, 0);
+            for row = 6 : height(this.Estimator)
+                if ismissing(this.Estimator{row, 1})
+                    continue
+                end
+                settingName = string(this.Estimator{row, 1});
+                if strlength(settingName) == 0
+                    continue
+                end
+                settingValue = this.Estimator{row, 2};
+                settings = [settings, {settingName, settingValue}];
+            end
+            this.Config.Estimator_Settings = settings;
+        end%
+
+
         function configureStructuralMeta(this)
-            this.Config.StructuralMeta_IdentificationHorizon = this.Meta{9, 2};
+            x = this.StructuralMeta;
+            this.Config.StructuralMeta_ShockConcepts = stringListFromCellArray(x(2, 2:end));
+            this.Config.StructuralMeta_IdentificationHorizon = x{3, 2};
         end%
 
     end

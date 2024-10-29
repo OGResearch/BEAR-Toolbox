@@ -1,4 +1,4 @@
-classdef Plain < estimator.Base
+classdef (Abstract) Plain < estimator.Base
 
     methods
 

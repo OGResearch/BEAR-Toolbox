@@ -1,7 +1,7 @@
 
 classdef (CaseInsensitiveProperties=true) NormalWishart < estimator.settings.Base
 
-    properties     
+    properties
         Sigma (1, 1) string {ismember(Sigma, [ "ar", "eye"])} = "ar"
     end
 

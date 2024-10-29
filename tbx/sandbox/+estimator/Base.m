@@ -1,5 +1,5 @@
 
-classdef Base < handle
+classdef (Abstract) Base < handle
 
     properties
         Settings
@@ -34,8 +34,8 @@ classdef Base < handle
     end
 
     methods
-        function this = Base(meta, varargin)
-            this.Settings = estimator.settings.(this.ShortClassName)(meta, varargin{:});
+        function this = Base(varargin)
+            this.Settings = estimator.settings.(this.ShortClassName)(varargin{:});
         end%
 
         function initialize(this, meta, longYXZ, dummiesYLX)

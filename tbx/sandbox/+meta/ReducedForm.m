@@ -281,12 +281,12 @@ classdef ReducedForm < handle
         function names = get.EndogenousNames(this)
             names = string.empty(1, 0);
             for unit = this.Units
-                names = [names, this.concatenate(unit, this.EndogenousConcepts)];
+                names = [names, meta.concatenate(unit, this.EndogenousConcepts)];
             end
         end%
 
         function names = get.ResidualNames(this)
-            names = this.concatenate(this.ResidualPrefix, this.EndogenousNames);
+            names = meta.concatenate(this.ResidualPrefix, this.EndogenousNames);
         end%
 
         function num = get.NumEndogenousNames(this)
@@ -367,21 +367,6 @@ classdef ReducedForm < handle
 
         function out = get.HasUnits(this)
             out = ~isequal(this.Units, "");
-        end%
-    end
-
-    methods (Access=protected)
-        function fullNames = concatenate(this, prefix, names)
-            arguments
-                this
-                prefix (1, 1) string
-                names (1, :) string
-            end
-            if prefix == ""
-                fullNames = names;
-                return
-            end
-            fullNames = prefix + this.SEPARATOR + names;
         end%
     end
 
