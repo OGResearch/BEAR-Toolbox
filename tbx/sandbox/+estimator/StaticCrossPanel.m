@@ -133,62 +133,45 @@ classdef StaticCrossPanel < estimator.Base
 
 
         function createDrawers(this, meta)
-            %[
+            numTotalEndog = meta.NumUnits*meta.NumEndogenousConcepts;
+            numARows = numTotalEndog*meta.Order;
+            numExog = meta.NumExogenousNames+double(meta.HasIntercept);
+            numBRows = numARows+numExog;
+            estimationHorizon = numel(meta.ShortSpan);
 
-            numCountries = meta.NumUnits;
-            numEndog = meta.NumEndogenousConcepts;
-            numLags = meta.Order;
-            numExog = meta.NumExogenousNames+meta.HasIntercept;
+            function drawStruct = drawer(sampleStruct, horizon)
 
-            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+                beta = sampleStruct.beta;
+                sigma = sampleStruct.sigma;
 
-                smpl = sampleStruct;
-                beta = smpl.beta;
-                sigma = smpl.sigma;
-
-                % initialization
-                A = [];
-                C = [];
-
-                Sigma = [];
-
-                % initialize the output
-                As = cell(forecastHorizon,1);
-                Cs = cell(forecastHorizon,1);
-                Sigmas  = cell(forecastHorizon,1);
-
-                k = numCountries*numEndog*numLags+numExog;
-
-                B = reshape(beta,k, numCountries*numEndog);
-
-                A = B(1:numEndog*numLags*numCountries,:);
-
-                C = B(numEndog*numLags*numCountries+1:end,:);
+                B = reshape(beta, numBRows, numTotalEndog);
+                A = B(1:numARows, :);
+                C = B(numARows+1:end, :);
 
                 Sigma = reshape(...
-                            sigma,...
-                            numEndog*numCountries,...
-                            numEndog*numCountries);
-
-                % pack the output
-                for tt = 1:forecastHorizon
-
-                    As{tt} = A;
-                    Cs{tt} = C;
-                    Sigmas{tt} = Sigma;
-
-                end
+                    sigma,...
+                    numTotalEndog,...
+                    numTotalEndog);
 
                 drawStruct = struct();
-                drawStruct.A = As;
-                drawStruct.C = Cs;
-                drawStruct.Sigma = Sigmas;
+                drawStruct.A = repmat({A}, horizon, 1);
+                drawStruct.C = repmat({C}, horizon, 1);
+                drawStruct.Sigma = Sigma;
             end
 
-            % return function calls
-            % this.IdentificationDrawer = [];
+            function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
+                draw = drawer(sampleStruct, forecastHorizon);
+                draw.Sigma = repmat({draw.Sigma}, forecastHorizon, 1);
+            end%
 
+            function draw = historyDrawer(sampleStruct)
+                draw = drawer(sampleStruct, estimationHorizon);
+                draw.Sigma = repmat({draw.Sigma}, estimationHorizon, 1);
+            end%
+
+            this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
+            this.IdentificationDrawer = @drawer;
 
             %]
         end%

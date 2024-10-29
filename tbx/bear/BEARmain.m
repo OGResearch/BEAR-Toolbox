@@ -1771,7 +1771,7 @@ try
             end
 
 
-
+keyboard
 
             %% BLOCK 6: FEVD
 
@@ -2013,6 +2013,7 @@ try
             if F==1
                 % run the Gibbs sampler to obtain draws from the posterior predictive distribution
                 % if the model is the VAR coefficients only model
+                rng("default")
                 if opts.tvbvar==1
                     [forecast_record]=bear.forecasttv1(data_endo_a,data_exo_p,opts.It,opts.Bu,beta_gibbs,omega_gibbs,sigma_gibbs,Fstartlocation,Fperiods,n,p,k,q,const);
                     % if the model is the general model
@@ -2028,7 +2029,7 @@ try
                     [Forecasteval]=bear.tvbvarfeval(data_endo_c,data_endo_c_lags,data_exo_c,stringdates3,Fstartdate,Fcenddate,Fcperiods,Fcomp,const,n,p,k,opts.It,opts.Bu,beta_gibbs,sigma_gibbs,forecast_record,forecast_estimates,names,endo,pref);
                 end
             end
-
+keyboard
 
             %% BLOCK 6: FEVD
 

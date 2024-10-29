@@ -10,7 +10,7 @@ function [Y, initY] = forecast(A, C, longYXZ, U, options)
         A (:, 1) cell
         C (:, 1) cell
         longYXZ (1, 3) cell
-        U (:, :) double
+        U (:, :, :) double
         %
         options.HasIntercept % (1, 1) logical
         options.Order % (1, 1) double {mustBeInteger, mustBePositive}
