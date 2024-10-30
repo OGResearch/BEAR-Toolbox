@@ -1,9 +1,23 @@
 
-# Using BEAR6 Excel User Interface
+# Testing BEAR6 Excel User Interface in the sandbox
 
 
-## Preparation
 
+## Cloning the BEAR6 repository [NB: This step will be replaced by a proper Matlab App installation process]
+
+* In a folder of your choice, run the `git clone` command to obtain a local copy of the repository files
+
+```
+git clone https://github.com/european-central-bank/BEAR-toolbox-6.git
+```
+
+* The `git clone` command creates a `BEAR-toolbox-6` subfolder, and this subfolder will be referred to as the root folder from now on.
+
+## Preparation for testing in the sandbox [NB: This step will be not needed since users will run BEAR from their own working folders]
+
+* Open Matlab
+
+* Switch to the `BEAR-toolbox-6/tbx/sandbox
 
 * Make sure the BEAR6 toolbox is on the Matlab path
 
@@ -11,11 +25,19 @@
 >> bear6.ping
 ```
 
-* Make a local copy of the Excel UX file in your current working directory; feel free
-  to rename the XLSX file to anything you like.
+
+## Create a local copy of the Excel UX file
+
+* The `BEAR-toolbox-6/tbx/sandbox` folder contains a `BEAR6_UX.xlsx` file.
+
+* For the current testing purposes, some specific meta information (e.g. variable names) is filled in for convenience but will be removed when deployed.
+
+* Make a local copy of this Excel UX file under a different name, still within the sandbox folder, e.g. `BEAR-toolbox-6/tbx/sandbox/BEAR6_UX_test.xlsx`
 
 
 ## Fill in meta information
+
+* Open the newly created copy of the Excel UX file.
 
 * Fill in all information for estimating the reduced-form model on sheet `Reduced-form meta information` 
 
@@ -24,7 +46,7 @@
 * Save the Excel UX file, and close it. Closing the file is (unfortunately)
   critical for Matlab/BEAR6 to be able to finalize the file.
 
-The meta information sheets are used to generate the meta-dependent templates on
+The meta information sheets will now be used to generate the meta-dependent templates on
 some of the estimation and identification sheets.
 
 
@@ -33,10 +55,10 @@ some of the estimation and identification sheets.
 * After making sure the Excel UX file is closed, run the following command to 
 
 ```
-bear5.finalizeExcelUX("BEAR6_UX_???.xlsx")
+bear5.finalizeExcelUX("BEAR6_UX_1.xlsx")
 ```
 
-where `BEAR6_UX_???.xlsx` stands for the name of your local copy of the Excel UX file.
+where `BEAR6_UX_1.xlsx` stands for the name of your local copy of the Excel UX file created previously.
 
 
 ## Fill in the remaining information
@@ -50,10 +72,10 @@ where `BEAR6_UX_???.xlsx` stands for the name of your local copy of the Excel UX
 * Run the model by running the following command
 
 ```
-bear6.runExcelUX("BEAR6_UX_???.xlsx")
+bear6.runFromExcelUX("BEAR6_UX_1.xlsx")
 ```
 
-where `BEAR6_UX_???.xlsx` stands for the name of your local copy of the Excel UX file.
+where `BEAR6_UX_1.xlsx` stands for the name of your local copy of the Excel UX file.
 
 * The command will run the reduced-form estimation, the structural identification,
   and all the tasks specified on the "Tasks" sheet in the Excel UX
@@ -61,18 +83,3 @@ where `BEAR6_UX_???.xlsx` stands for the name of your local copy of the Excel UX
 
 * The results will be saved in the files specified on the "Tasks"
   sheet in the Excel UX file.
-
-
-## Design considerations
-
-* Standardized way of handling 3-dimensional restriction tables (e.g. shock sign
-  restrictions, narrative shock contributions, etc.)
-
-* Size of restriction tables in panel models
-
-* Saving output/results as percentiles
-
-* Selection mechanism for multiple-choice situations 
-
-* Row vs column orientation
-
