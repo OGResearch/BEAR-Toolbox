@@ -3,4 +3,5 @@ results/
 *.zip
 mkdocs/site
 .DS_Store
+.obsidian/
 
