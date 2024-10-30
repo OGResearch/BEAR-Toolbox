@@ -1,5 +1,10 @@
+%{
+%
+% system.calculateResiduals  Calculate historical residuals
+%
+%}
 
-function U = residuals(A, C, longYXZ, options)
+function U = calculateResiduals(A, C, longYXZ, options)
 
     arguments
         A (:, 1) cell
@@ -18,16 +23,20 @@ function U = residuals(A, C, longYXZ, options)
     T = order+1 : size(longY, 1);
     numT = numel(T);
 
+    % Extract the matrix of endogenous variables on the estimation span
     Y = longY(T, :);
 
+    % Create the matrix of lagged endogenous variables
     L = [];
     for i = 1 : order
         L = [L, longY(T-i, :)];
     end
 
+    % Extract the matrix of exogenous variables on the estimation span
     X = longX(T, :);
     X = system.addInterceptWhenNeeded(X, hasIntercept);
 
+    % Calculate LHS-RHS residuals
     U = nan(size(Y));
     for t = 1 : numT
         U(t, :) = Y(t, :) - L(t, :) * A{t} - X(t, :) * C{t};

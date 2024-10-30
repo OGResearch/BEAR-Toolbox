@@ -348,8 +348,8 @@ classdef GeneralTV < estimator.Base
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
                     B = reshape(beta, numBRows, numEn);
-                    drawStruct.A{jj,1}(:, :) = B(1:numARows, :);
-                    drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);
+                    drawStruct.A{jj}(:, :) = B(1:numARows, :);
+                    drawStruct.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
 
                 drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
@@ -357,13 +357,17 @@ classdef GeneralTV < estimator.Base
 
             function drawStruct = historyDrawer(sampleStruct)
 
-                for jj = 1:estimationHorizon 
+                drawStruct.A = cell(estimationHorizon, 1);
+                drawStruct.C = cell(estimationHorizon, 1);
+                drawStruct.Sigma = cell(estimationHorizon, 1);
+
+                for jj = 1:estimationHorizon
                     B = reshape(sampleStruct.beta{jj}, numBRows, numEn);
-                    drawStruct.A{jj,1}(:, :) = B(1:numARows, :);
-                    drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);    
-                    drawStruct.Sigma{jj,1}(:, :) = sampleStruct.sigma_t{jj, 1}(:, :);
+                    drawStruct.A{jj}(:, :) = B(1:numARows, :);
+                    drawStruct.C{jj}(:, :) = B(numARows + 1:end, :);
+                    drawStruct.Sigma{jj}(:, :) = sampleStruct.sigma_t{jj}(:, :);
                 end
-                
+
             end%
 
 

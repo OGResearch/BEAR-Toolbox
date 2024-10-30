@@ -31,7 +31,6 @@ classdef ReducedForm < handle & model.PresampleMixin
 
     properties (Dependent)
         StabilityThresholdString (1, 1) string
-        NumPresampled (1, 1) double
         HasDummies (1, 1) logical
         NumDummies (1, 1) double
     end
@@ -59,22 +58,41 @@ classdef ReducedForm < handle & model.PresampleMixin
             this.Meta.HasCrossUnits = this.Estimator.HasCrossUnits;
         end%
 
+
+        function resetPresampled(this, numToPresample)
+            arguments
+                this
+                numToPresample (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
+            end
+            this.Presampled = cell(1, numToPresample);
+        end%
+
+
+        function storePresampled(this, index, sample)
+            this.Presampled{index} = sample;
+        end%
+
+
         function longYXZ = getLongYXZ(this)
             longYXZ = this.getSomeYXZ(this.Meta.LongSpan);
         end%
+
 
         function shortYXZ = getShortYXZ(this)
             shortYXZ = this.getSomeYXZ(this.Meta.ShortSpan);
         end%
 
+
         function initYXZ = getInitYXZ(this)
             initYXZ = this.getSomeYXZ(this.Meta.InitSpan);
         end%
+
 
         function someYXZ = getSomeYXZ(this, span)
             someYXZ = this.DataHolder.getYXZ(span=span);
             someYXZ{1} = this.Meta.reshapeCrossUnitData(someYXZ{1});
         end%
+
 
         function [longYXZ, dummiesYLX, indivDummiesYLX] = initialize(this)
             shortSpan = this.Meta.ShortSpan;
@@ -84,10 +102,12 @@ classdef ReducedForm < handle & model.PresampleMixin
             this.Estimator.initialize(this.Meta, longYXZ, dummiesYLX);
         end%
 
+
         function estimateExogenousMean(this, longYXZ)
             [~, longX, ~] = longYXZ{:};
             this.ExogenousMean = mean(longX, 1, "omitNaN");
         end%
+
 
         % function ameanY = asymptoticMean(this)
         %     % TODO: Reimplement for time-varying models
@@ -105,6 +125,7 @@ classdef ReducedForm < handle & model.PresampleMixin
         %     );
         % end%
 
+
         function [allDummiesYLX, indivDummiesYLX] = generateDummiesYLX(this, longYLX)
             indivDummiesYLX = cell(1, this.NumDummies);
             for i = 1 : this.NumDummies
@@ -114,12 +135,14 @@ classdef ReducedForm < handle & model.PresampleMixin
             allDummiesYLX = system.mergeDataCells(allDummiesYLX, indivDummiesYLX{:});
         end%
 
+
         function sampler = getSampler(this)
             sampler = this.Estimator.Sampler;
             if this.StabilityThreshold < Inf
                 sampler = this.decorateStability(sampler);
             end
         end%
+
 
         function out = getSystemSampler(this)
             sampler = this.getSampler();
@@ -132,6 +155,7 @@ classdef ReducedForm < handle & model.PresampleMixin
             %
             out = @systemSampler;
         end%
+
 
         function outSampler = decorateStability(this, inSampler)
             meta = this.Meta;
@@ -149,6 +173,7 @@ classdef ReducedForm < handle & model.PresampleMixin
             %
             outSampler = @samplerWithStabilityCheck;
         end%
+
 
         function outTable = forecast(this, forecastSpan, options)
             arguments
@@ -174,28 +199,20 @@ classdef ReducedForm < handle & model.PresampleMixin
             numPresampled = this.NumPresampled;
             %
             % Multiple-unit output data will be always captured as flat
-            Y0 = nan(meta.Order, meta.NumEndogenousNames, numPresampled);
-            Y = nan(forecastHorizon, meta.NumEndogenousNames, numPresampled);
-            U = nan(forecastHorizon, meta.NumEndogenousNames, numPresampled);
+            numY = meta.NumEndogenousNames;
+            Y0 = nan(meta.Order, numY, numPresampled);
+            Y = nan(forecastHorizon, numY, numPresampled);
+            U = nan(forecastHorizon, numY, numPresampled);
             %
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
-                draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
-                %
-                % Multiple-unit data are 3D
-                u = system.generateResiduals( ...
-                    draw.Sigma ...
+                [y, init, u] = this.forecast4S( ...
+                    sample, longYXZ, forecastStartIndex, forecastHorizon ...
                     , stochasticResiduals=options.StochasticResiduals ...
-                );
-                %
-                % Multiple-unit data are 3D
-                [y, init] = system.forecast( ...
-                    draw.A, draw.C, longYXZ, u ...
                     , hasIntercept=meta.HasIntercept ...
                     , order=meta.Order ...
                 );
-                %
-                % Flatten multiple-unit data back
+                % Flatten (unfold) multiple-unit data back to 2D
                 U(:, :, i) = u(:, :);
                 Y(:, :, i) = y(:, :);
                 Y0(:, :, i) = init(:, :);
@@ -212,16 +229,38 @@ classdef ReducedForm < handle & model.PresampleMixin
             outTable = tablex.fromNumericArray([Y, U], outNames, outSpan, variantDim=3);
         end%
 
+
+        function [y, init, u] = forecast4S(this, sample, longYXZ, forecastStartIndex, forecastHorizon, options)
+            arguments
+                this
+                sample
+                longYXZ (1, 3) cell
+                forecastStartIndex (1, 1) double
+                forecastHorizon (1, 1) double
+                options.StochasticResiduals (1, 1) logical
+                options.HasIntercept (1, 1) logical
+                options.Order (1, 1) double {mustBeInteger, mustBePositive}
+            end
+            %
+            draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
+            % Multiple-unit data are 3D
+            u = system.generateResiduals( ...
+                draw.Sigma ...
+                , stochasticResiduals=options.StochasticResiduals ...
+            );
+            [y, init] = system.forecast( ...
+                draw.A, draw.C, longYXZ, u ...
+                , hasIntercept=options.HasIntercept ...
+                , order=options.Order ...
+            );
+        end%
+
     end
 
 
     methods
         function str = get.StabilityThresholdString(this)
             str = sprintf("%.16f", this.StabilityThreshold);
-        end%
-
-        function num = get.NumPresampled(this)
-            num = numel(this.Presampled);
         end%
 
         function flag = get.HasDummies(this)
@@ -232,45 +271,42 @@ classdef ReducedForm < handle & model.PresampleMixin
             num = numel(this.Dummies);
         end%
 
-        function clearPresampled(this)
-            this.Presampled = cell.empty(1, 0);
-        end%
 
-        function outTable = calculateResiduals(this)
+        function outTbx = calculateResiduals(this, varargin)
 %{
 % # calculateResiduals
 %
 % {==Calculate reduced-form residuals==}
 %
 %}
+            U = this.calculateResidualArray(varargin{:});
+            outNames = this.Meta.ResidualNames;
+            outSpan = this.Meta.ShortSpan;
+            outTbx = tablex.fromNumericArray(U, outNames, outSpan, variantDim=3);
+        end%
+
+
+        function U = calculateResidualArray(this, varargin)
             meta = this.Meta;
             longSpan = meta.LongSpan;
             shortSpan = meta.ShortSpan;
-            numShortPeriods = numel(shortSpan);
+            numT = numel(shortSpan);
             numPresampled = this.NumPresampled;
-            numResiduals = meta.NumResiduals;
-            U = nan(numShortPeriods, numResiduals, numPresampled);
-            residualTableData = repmat({nan(numShortPeriods, numPresampled)}, 1, numResiduals);
+            numU = meta.NumResiduals;
             longYXZ = this.DataHolder.getYXZ(span=meta.LongSpan);
+            U = nan(numT, numU, numPresampled);
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
-                u = this.calculateSampleResiduals(sample, longYXZ);
-                for j = 1 : numResiduals
-                    residualTableData{j}(:, i) = u(:, j);
-                end
+                draw = this.Estimator.HistoryDrawer(sample);
+                u = system.calculateResiduals( ...
+                    draw.A, draw.C, longYXZ ...
+                    , hasIntercept=meta.HasIntercept ...
+                    , order=meta.Order ...
+                );
+                U(:, :, i) = u;
             end
-            outTable = tablex.fromCellArray(residualTableData, meta.ResidualNames, shortSpan);
         end%
 
-        function u = calculateSampleResiduals(this, sample, longYXZ)
-            meta = this.Meta;
-            draw = this.Estimator.HistoryDrawer(sample);
-            u = system.residuals( ...
-                draw.A, draw.C, longYXZ ...
-                , hasIntercept=meta.HasIntercept ...
-                , order=meta.Order ...
-            );
-        end%
 
         function checkForecastSpan(this, forecastStart, forecastEnd)
             beforeStart = datex.shift(forecastStart, -1);

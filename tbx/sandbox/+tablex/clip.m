@@ -1,3 +1,8 @@
+%{
+%
+% tablex.clip  Clip a timetable to a new span
+%
+%}
 
 function tt = clip(tt, newStartPeriod, newEndPeriod)
 

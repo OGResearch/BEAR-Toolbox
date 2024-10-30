@@ -73,29 +73,14 @@ classdef Base < handle
                 error("Number of standard deviations must match number of endogenous variables");
             end
         end%
+
     end
 
 
     methods
-
         function out = get.ShortClassName(this)
             out = extractAfter(class(this), "identifier.");
         end%
-
-
-        % function Gamma = get.Gamma(this)
-        %     Gamma = diag(this.VarVec);
-        % end%
-
-
-        % function varVec = get.VarVec(this)
-        %     varVec = this.Settings.StdVec .^ 2;
-        % end%
-
-
-        % function StdVec = get.StdVec(this)
-        %     StdVec = this.Settings.StdVec;
-        % end%
     end
 
 end

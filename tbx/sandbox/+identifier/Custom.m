@@ -30,70 +30,72 @@ classdef Custom < identifier.Base
 
         function stateExacts = initializeExacts(this, model, dataYLX)
             stateExacts = struct();
-            redModel = model.ReducedForm;
-            stateExacts.EndogenousNames = names.createDictionary(redModel.Meta.EndogenousNames);
-            stateExacts.ShockNames = names.createDictionary(model.Meta.ShockNames);
+            metaR = model.ReducedForm.Meta;
+            stateExacts.EndogenousNames = names.createDictionary(metaR.EndogenousNames);
+            stateExacts.ShockNames = names.createDictionary(metaR.ShockNames);
         end%
 
         function state = initializeVerifiables(this, model, dataYLX, structuralSystem)
+            metaR = model.ReducedForm.Meta;
+            metaS = model.Meta;
             state = identifier.custom.State();
             state.addprop("EndogenousNames");
-            state.EndogenousNames = names.createDictionary(model.ReducedForm.Meta.EndogenousNames);
+            state.EndogenousNames = names.createDictionary(metaR.EndogenousNames);
             state.addprop("ShockNames");
-            state.ShockNames = names.createDictionary(model.Meta.ShockNames);
+            state.ShockNames = names.createDictionary(metaS.ShockNames);
             state.addprop("System");
             state.System = structuralSystem;
         end%
 
-        function outSampler = initializeSampler(this, model, dataYLX)
-            arguments
-                this
-                model (1, 1) model.Structural
-                dataYLX (1, 3) cell
-            end
-            %
-            redModel = model.ReducedForm;
-            redSystemSampler = redModel.getSystemSampler();
-            stdVec = this.StdVec;
-            %
-            stateExacts = this.evalExacts(model, dataYLX);
-            instantZero = [];
-            if isfield(stateExacts, "InstantZero")
-                instantZero = stateExacts.InstantZero;
-            end
-            %
-            function [strSample, redSample, info] = sampler()
-                [redSystem, redSample] = redSystemSampler();
-                [A, C, Sigma] = redSystem{:};
-                P = chol(Sigma, "lower");
-                numCandidates = 0;
-                while true
-                    Q = system.randomConstrainedOrthonormal(P, instantZero);
-                    numCandidates = numCandidates + 1;
-                    D = P * Q;
-                    structuralSystem = [redSystem, {D, stdVec}];
-                    state = this.initializeVerifiables(model, dataYLX, structuralSystem);
-                    lastFlag = true;
-                    for v = this.Verifiable
-                        lastFlag = v.Callable(state);
-                        if ~lastFlag
-                            break
-                        end
-                    end
-                    if lastFlag
-                        break
-                    end
-                end
-                % u = e*D
-                % Sigma = D'*D
-                strSample = {reshape(D, 1, 1, []), };
-                this.SampleCounter = this.SampleCounter + 1;
-                info = this.SAMPLER_INFO;
-                info.NumCandidates = numCandidates;
-            end%
-            %
-            this.Sampler = @sampler;
-        end%
+        % function outSampler = initializeSampler(this, model, dataYLX)
+        %     arguments
+        %         this
+        %         model (1, 1) model.Structural
+        %         dataYLX (1, 3) cell
+        %     end
+        %     %
+        %     modelR = model.ReducedForm;
+        %     redSystemSampler = modelR.getSystemSampler();
+        %     stdVec = this.StdVec;
+        %     %
+        %     stateExacts = this.evalExacts(model, dataYLX);
+        %     instantZero = [];
+        %     if isfield(stateExacts, "InstantZero")
+        %         instantZero = stateExacts.InstantZero;
+        %     end
+        %     %
+        %     function [strSample, redSample, info] = sampler()
+        %         [redSystem, redSample] = redSystemSampler();
+        %         [A, C, Sigma] = redSystem{:};
+        %         P = chol(Sigma, "lower");
+        %         numCandidates = 0;
+        %         while true
+        %             Q = system.randomConstrainedOrthonormal(P, instantZero);
+        %             numCandidates = numCandidates + 1;
+        %             D = P * Q;
+        %             structuralSystem = [redSystem, {D, stdVec}];
+        %             state = this.initializeVerifiables(model, dataYLX, structuralSystem);
+        %             lastFlag = true;
+        %             for v = this.Verifiable
+        %                 lastFlag = v.Callable(state);
+        %                 if ~lastFlag
+        %                     break
+        %                 end
+        %             end
+        %             if lastFlag
+        %                 break
+        %             end
+        %         end
+        %         % u = e*D
+        %         % Sigma = D'*D
+        %         strSample = {reshape(D, 1, 1, []), };
+        %         this.SampleCounter = this.SampleCounter + 1;
+        %         info = this.SAMPLER_INFO;
+        %         info.NumCandidates = numCandidates;
+        %     end%
+        %     %
+        %     this.Sampler = @sampler;
+        % end%
     end
 
 end

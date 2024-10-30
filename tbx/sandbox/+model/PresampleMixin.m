@@ -1,6 +1,11 @@
 
 classdef PresampleMixin < handle
 
+    properties (Dependent)
+        NumPresampled
+    end
+
+
     methods
 
         function info = presample(this, numToPresample)
@@ -8,7 +13,7 @@ classdef PresampleMixin < handle
                 this
                 numToPresample (1, 1) double {mustBeInteger, mustBeNonnegative}
             end
-            this.Presampled = cell(1, numToPresample)
+            this.resetPresampled(numToPresample);
             sampler = this.getSampler();
             info = struct();
             info.NumCandidates = 0;
@@ -21,10 +26,15 @@ classdef PresampleMixin < handle
                     numCandidates = sample.NumCandidates;
                 end
                 info.NumCandidates = info.NumCandidates + numCandidates;
-                this.Presampled{i} = sample;
+                this.storePresampled(i, sample);
                 pbar.increment();
             end
             info.AcceptanceRatio = this.NumPresampled / info.NumCandidates;
+        end%
+
+
+        function out = get.NumPresampled(this)
+            out = numel(this.Presampled);
         end%
 
     end

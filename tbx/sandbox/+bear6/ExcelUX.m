@@ -146,8 +146,14 @@ classdef ExcelUX < handle
 
 
         function configureTasks(this)
-            percentiles = reshape(double(split(string(this.Tasks{2, 2}), " ")), 1, []);
-            this.Config.Tasks_Percentiles = percentiles;
+            for row = 2 : height(this.Tasks)
+                settingName = this.Tasks{row, 2};
+                if ~isstring(settingName) || settingName == ""
+                    continue
+                end
+                settingValue = this.Tasks(row, 3:end);
+                this.Config.("Tasks_" + settingName) = settingValue;
+            end
         end%
 
 
@@ -160,6 +166,7 @@ classdef ExcelUX < handle
             this.Config.ReducedFormMeta_Order = x{6, 2};
             this.Config.ReducedFormMeta_EstimationStart = x{7, 2};
             this.Config.ReducedFormMeta_EstimationEnd = x{8, 2};
+            this.Config.ReducedFormMeta_NumDraws = x{9, 2};
         end%
 
 

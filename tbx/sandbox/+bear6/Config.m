@@ -1,11 +1,20 @@
 
-classdef Config
+classdef Config < handle
 
     properties
         DataSource_Format (1, 1) string
         DataSource_FilePath (1, 1) string
 
-        Tasks_Percentiles (1, :) double {mustBeNonempty} = [5, 50, 95]
+        Tasks_Percentiles (1, :) cell
+        Tasks_ParameterTables (1, :) cell
+        Tasks_AsymptoticMeanTables (1, :) cell
+        Tasks_ResidualEstimates (1, :) cell
+        Tasks_UnconditionalForecast (1, :) cell
+        Tasks_ShockEstimates (1, :) cell
+        Tasks_ShockResponses (1, :) cell
+        Tasks_ConditionalForecast (1, :) cell
+        Tasks_SaveResults (1, :) cell
+        Tasks_SaveConfig (1, :) cell
 
         ReducedFormMeta_Units (1, :) string {mustBeNonempty} = ""
         ReducedFormMeta_EndogenousConcepts (1, :) string {mustBeNonempty} = ""
@@ -14,6 +23,7 @@ classdef Config
         ReducedFormMeta_Order (1, 1) double {mustBeInteger, mustBePositive} = 1
         ReducedFormMeta_EstimationStart (1, 1) string
         ReducedFormMeta_EstimationEnd (1, 1) string
+        ReducedFormMeta_NumDraws (1, 1) double {mustBeInteger, mustBePositive} = 1000
 
         Estimator_Name (1, 1) string
         Estimator_Settings (1, :) cell
@@ -23,27 +33,23 @@ classdef Config
     end
 
 
-    properties (Dependent)
-        ReducedFormMeta_EstimationSpan
-    end
-
-
     methods
-        function out = get.ReducedFormMeta_EstimationSpan(this)
+        function span = createEstimationSpan(this)
             startPeriod = datex.fromSdmx(this.ReducedFormMeta_EstimationStart);
             endPeriod = datex.fromSdmx(this.ReducedFormMeta_EstimationEnd);
-            out = datex.span(startPeriod, endPeriod);
+            span = datex.span(startPeriod, endPeriod);
         end%
 
 
         function metaR = createReducedFormMetaObject(this)
+            estimationSpan = this.createEstimationSpan();
             metaR = meta.ReducedForm( ...
                 endogenous=this.ReducedFormMeta_EndogenousConcepts ...
                 , units=this.ReducedFormMeta_Units ...
                 , exogenous=this.ReducedFormMeta_ExogenousNames ...
                 , order=this.ReducedFormMeta_Order ...
                 , intercept=this.ReducedFormMeta_HasIntercept ...
-                , estimationSpan=this.ReducedFormMeta_EstimationSpan ...
+                , estimationSpan=estimationSpan ...
             );
         end%
 

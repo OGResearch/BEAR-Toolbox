@@ -1,4 +1,6 @@
 results/
 *.mat
+*.zip
 mkdocs/site
 .DS_Store
+

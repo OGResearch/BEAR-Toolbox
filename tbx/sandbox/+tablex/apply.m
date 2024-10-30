@@ -20,4 +20,9 @@ function outTable = apply(inTable, func, varargin)
 
     outTable = tablex.fromCellArray(data, names, periods);
 
+    try
+        higherDims = tablex.getHigherDims(inTable);
+        outTable = tablex.setHigherDims(outTable, higherDims{:});
+    end
+
 end%

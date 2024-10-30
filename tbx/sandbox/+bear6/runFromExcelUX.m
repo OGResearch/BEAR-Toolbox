@@ -28,7 +28,7 @@
 %}
 
 
-function [modelR, modelS] = runExcelUX(uxFilePath)
+function info = runFromExcelUX(uxFilePath)
 
     arguments
         uxFilePath (1, 1) string = "BEAR6_UX.xlsx"
@@ -38,14 +38,11 @@ function [modelR, modelS] = runExcelUX(uxFilePath)
     origBearDir = fullfile(thisDir, "..", "bear");
     addpath(origBearDir);
 
-    rng(0);
-
     logger = bear6.Logger.INFO;
 
     logger.info("Reading ExcelUX" + uxFilePath)
     excelUX = bear6.ExcelUX(filePath=uxFilePath);
     logger.info("√ Done")
-
 
     logger.info("Reading input data")
     excelUX.readInputData();
@@ -54,85 +51,14 @@ function [modelR, modelS] = runExcelUX(uxFilePath)
     config = excelUX.Config;
     inputTbx = excelUX.InputDataTable;
 
-    numPercentiles = numel(config.Tasks_Percentiles);
-    pctileFunc = @(x) prctile(x, config.Tasks_Percentiles, 2);
+    info = bear6.runFromConfig(config, inputTbx);
 
-    logger.info("Creating reduced-form model...")
+    info.config = config;
+    info.inputTbx = inputTbx;
 
-        metaR = config.createReducedFormMetaObject();
-
-        dataH = data.DataHolder(metaR, inputTbx);
-
-        estimatorR = estimator.(config.Estimator_Name)( ...
-            metaR, ...
-            config.Estimator_Settings{:} ...
-        );
-
-        dummy = dummies.Minnesota(exogenousLambda=30);
-
-        modelR = model.ReducedForm( ...
-            meta=metaR ...
-            , dataHolder=dataH ...
-            , estimator=estimatorR ...
-            , dummies={dummy} ...
-            , stabilityThreshold=Inf ...
-        )
-    logger.info("√ Done")
-
-
-    logger.info("Initializing and presampling reduced-form model...")
-        modelR.initialize();
-        modelR.presample(100);
-    logger.info("√ Done")
-
-
-    fcastStart = datex.shift(modelR.Meta.EstimationEnd, -10);
-    fcastEnd = datex.shift(modelR.Meta.EstimationEnd, 0);
-    fcastSpan = datex.span(fcastStart, fcastEnd);
-
-    fcastTbx = modelR.forecast(fcastSpan);
-    residTbx = modelR.calculateResiduals();
-
-    metaS = config.createStructuralMetaObject(metaR);
-
-    id = identifier.Cholesky();
-
-    % 
-    % id = identifier.Custom( ...
-    %     exact=config.identifier.settings.exact, ...
-    %     verifiable=config.identifier.settings.verifiable ...
-    % );
-    % 
-
-    logger.info("Creating structural model...")
-        modelS = model.Structural( ...
-            meta=metaS ...
-            , reducedForm=modelR ...
-            , identifier=id ...
-        );
-    logger.info("√ Done")
-
-
-    logger.info("Initializing and presampling structural model...")
-        modelS.initialize()
-        modelS.presample(100);
-    logger.info("√ Done")
-
-
-
-    logger.info("Saving output data...")
-        fcastPctileTbx = tablex.apply(fcastTbx, pctileFunc);
-        writetimetable( ...
-            fcastPctileTbx ...
-            , "output/unconditionalForecast.csv" ...
-        );
-
-        residPctileTbx = tablex.apply(residTbx, pctileFunc);
-        writetimetable( ...
-            residPctileTbx ...
-            , "output/residuals.csv" ...
-        );
-    logger.info("√ Done")
+    if config.Tasks_SaveConfig{1}
+        json.write(config, config.Tasks_SaveConfig{2});
+    end
 
 end%
 
