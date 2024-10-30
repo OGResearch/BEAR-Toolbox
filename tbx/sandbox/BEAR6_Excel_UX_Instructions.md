@@ -5,11 +5,17 @@
 
 ## Cloning the BEAR6 repository [NB: This step will be replaced by a proper Matlab App installation process]
 
-* In a folder of your choice, run the `git clone` command to obtain a local copy of the repository files
+* In a folder of your choice, run the `git clone` command to obtain a local copy of the repository files... One of following commands will work for you, depending which authentication process you use (personal access token or SSH):
 
 ```
-git clone https://github.com/european-central-bank/BEAR-toolbox-6.git
+git clone https://PERSONAL_ACCESS_TOKEN@github.com/european-central-bank/BEAR-toolbox-6.git
 ```
+
+```
+git@github.com:european-central-bank/BEAR-toolbox-6.git
+```
+
+where you replace `PERSONAL_ACCESS_TOKEN` with your own GitHub personal access token with the appropriate privileges.
 
 * The `git clone` command creates a `BEAR-toolbox-6` subfolder, and this subfolder will be referred to as the root folder from now on.
 
