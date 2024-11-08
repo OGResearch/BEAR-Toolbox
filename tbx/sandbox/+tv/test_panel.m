@@ -75,7 +75,7 @@ rng("default")
 % fcastPctTable = tablex.apply(fcastTable, pctileFunc);
 
 % residTbx = modelR.calculateResiduals();
-
+keyboard
 metaS = meta.Structural(metaR, identificationHorizon=20);
 
 id = identifier.Cholesky(stdVec=1);
@@ -86,10 +86,29 @@ modelS.presample(100);
 
 %% Conditional forecast
 
-pref = struct();
-pref.excelFile = "+tv/panel_conditional_forecast.xlsx";
-pref.results = 1;
-pref.results_path = [pwd() "+tv"];
-pref.results_sub = "panel_results";
+longYXZ = modelR.getLongYXZ();
 
-[cfconds, cfshocks, cfblocks] = tv.conditionalForecastPanel(metaR, pref, fcastStart, fcastEnd);
+% Conditional forecast type. Hardcoded as 2 for now.
+% CFt = this.Settings.CFt;
+% "all shocks"
+% CFt = 1;
+% "selected shocks"
+CFt = 2;
+
+% Panel model type. Here, we theoretically only need to distiguish if it is with cross-sections or not. I hard code it as 2 for NormalWishartPanel (no cross-sections).
+% "with cross-sections"
+% panel = 5;
+% "no cross-sections"
+panel = 2;
+
+fStart = lower(datestr(fcastStart,'YYYYQQ'));
+fEnd = lower(datestr(fcastEnd,'YYYYQQ'));
+Fperiods = length(fcastSpan);
+
+% Load conditional forecast conditions
+% dirty house
+% [cfcondsFull, cfshocksFull, cfblocksFull] = bear.loadcfpan(endo, units, panel, CFt, fStart, fEnd, Fperiods, pref);
+% my simple example function
+[cfcondsFull, cfshocksFull, cfblocksFull] = tv.set_conditions_example(panel, CFt, Fperiods, metaR);
+
+[cforecast_record] = tv.conditionalForecastPanel(metaR, fcastStart, fcastEnd, longYXZ, cfcondsFull, cfshocksFull, cfblocksFull);

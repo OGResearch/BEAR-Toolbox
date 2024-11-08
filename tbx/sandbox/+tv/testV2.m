@@ -45,7 +45,7 @@ metaR = meta.ReducedForm( ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
 );
 
-estimator = estimator.GeneralTV(metaR);
+estimator = estimator.NormalWishart(metaR);
 dataH = data.DataHolder(metaR, inputTbx);
 
 
@@ -82,3 +82,23 @@ id = identifier.Triangular(stdVec=1);
 modelS = model.Structural(meta=metaS, reducedForm=modelR, identifier=id);
 modelS.initialize()
 modelS.presample(100);
+
+% Conditional forecast
+longYXZ = modelR.getLongYXZ();
+
+% Conditional forecast type. Hardcoded as 2 for now.
+% CFt = this.Settings.CFt;
+% "all shocks"
+% CFt = 1;
+% "selected shocks"
+CFt = 2;
+
+fStart = lower(datestr(fcastStart,'YYYYQQ'));
+fEnd = lower(datestr(fcastEnd,'YYYYQQ'));
+Fperiods = length(fcastSpan);
+
+% Load conditional forecast conditions
+% my simple example function
+[cfcondsFull, cfshocksFull, cfblocksFull] = tv.set_conditions_example(panel, CFt, Fperiods, metaR);
+
+[cforecast_record] = tv.conditionalForecast(modelR, fcastStart, fcastEnd, longYXZ, CFt, panel);
