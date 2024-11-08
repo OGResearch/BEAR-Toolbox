@@ -50,9 +50,9 @@ metaR = meta.ReducedForm( ...
 % estimator = estimator.StaticCrossPanel(metaR);
 % estimator = estimator.DynamicCrossPanel(metaR);
 % estimator = estimator.HierarchicalPanel(metaR);
-% estimator = estimator.NormalWishartPanel(metaR);
+estimator = estimator.NormalWishartPanel(metaR);
 % estimator = estimator.ZellnerHongPanel(metaR);
-estimator = estimator.MeanOLSPanel(metaR);
+% estimator = estimator.MeanOLSPanel(metaR);
 
 dataHolder = data.DataHolder(metaR, inputTable);
 
@@ -66,12 +66,30 @@ modelR = model.ReducedForm( ...
 modelR.initialize();
 modelR.presample(100);
 
-fcastStart = datex.shift(modelR.Meta.EstimationEnd, -11);
-fcastEnd = datex.shift(modelR.Meta.EstimationEnd, +0);
+fcastStart = datex.shift(modelR.Meta.EstimationEnd, -3);
+fcastEnd = datex.shift(modelR.Meta.EstimationEnd, +8);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 rng("default")
 
-fcastTable = modelR.forecast(fcastSpan);
-fcastPctTable = tablex.apply(fcastTable, pctileFunc);
+% fcastTable = modelR.forecast(fcastSpan);
+% fcastPctTable = tablex.apply(fcastTable, pctileFunc);
 
-residTbx = modelR.calculateResiduals();
+% residTbx = modelR.calculateResiduals();
+
+metaS = meta.Structural(metaR, identificationHorizon=20);
+
+id = identifier.Cholesky(stdVec=1);
+
+modelS = model.Structural(meta=metaS, reducedForm=modelR, identifier=id);
+modelS.initialize()
+modelS.presample(100);
+
+%% Conditional forecast
+
+pref = struct();
+pref.excelFile = "+tv/panel_conditional_forecast.xlsx";
+pref.results = 1;
+pref.results_path = [pwd() "+tv"];
+pref.results_sub = "panel_results";
+
+[cfconds, cfshocks, cfblocks] = tv.conditionalForecastPanel(metaR, pref, fcastStart, fcastEnd);
