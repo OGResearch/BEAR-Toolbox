@@ -49,7 +49,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = true;
+            favar.onestep = false;
             [favar.l] =pca(longZ,'NumComponents',opt.numpc);
 
             favar.nfactorvar = size(longZ, 2);
