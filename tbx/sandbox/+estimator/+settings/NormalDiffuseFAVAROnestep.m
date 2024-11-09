@@ -1,5 +1,5 @@
 
-classdef (CaseInsensitiveProperties=true) NormalWishartFAVAROnestep < estimator.settings.BaseFAVAR
+classdef (CaseInsensitiveProperties=true) NormalDiffuseFAVAROnestep < estimator.settings.BaseFAVAR
 
     properties
         LoadingVariance double = 1

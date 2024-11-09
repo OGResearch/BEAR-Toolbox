@@ -26,14 +26,9 @@ classdef NormalWishartFAVARTwostep < estimator.Base
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
-
-            opt.L0 = this.Settings.LoadingVariance;
-            opt.a0 = this.Settings.SigmaShape;
-            opt.b0 = this.Settings.SigmaScale;
 
             opt.numpc = this.Settings.NumFactors;
 
@@ -50,8 +45,9 @@ classdef NormalWishartFAVARTwostep < estimator.Base
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            [favar.l] =pca(longZ,'NumComponents',opt.numpc);
+            [favar.l] =pca(longZ,'NumComponents', opt.numpc);
 
+            favar.numpc = opt.numpc;
             favar.nfactorvar = size(longZ, 2);
 
             %identify factors: normalise loadings, compute factors following BBE 2005
