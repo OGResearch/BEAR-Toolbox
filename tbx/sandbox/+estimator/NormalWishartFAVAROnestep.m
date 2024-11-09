@@ -65,7 +65,7 @@ classdef NormalWishartFAVAROnestep < estimator.Base
             favar.variablestrings_exfactors = (favar.numpc+1:size(data_endo, 2))';
             favar.variablestrings_exfactors_index = [false(favar.numpc, 1); true(size(longY, 2), 1)];
             favar.data_exfactors = longY;
-            [data_endo, favar] = bear.favar_gensample3(data_endo, favar);
+            [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
 
             indexnM = repmat(favar.variablestrings_factorsonly_index, 1, opt.p);
             indexnM = find(indexnM==1);

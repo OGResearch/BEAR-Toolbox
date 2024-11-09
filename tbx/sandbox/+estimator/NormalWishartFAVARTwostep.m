@@ -65,7 +65,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base
             favar.variablestrings_exfactors = (favar.numpc+1:size(data_endo, 2))';
             favar.variablestrings_exfactors_index = [false(favar.numpc, 1); true(size(longY, 2), 1)];
             favar.data_exfactors = longY;
-            [data_endo, favar] = bear.favar_gensample3(data_endo, favar);
+            [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
 
 
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
