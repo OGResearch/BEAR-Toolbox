@@ -329,7 +329,11 @@ classdef GeneralTV < estimator.Base
                 end
             end%
 
+
             function [drawStruct] = identificationDrawer(sampleStruct)
+
+                horizon = identificationHorizon;
+
                 %draw beta, omega from their posterior distribution
                 % draw beta
                 beta = sampleStruct.beta{end, 1};
@@ -340,7 +344,6 @@ classdef GeneralTV < estimator.Base
                 % create a choleski of omega, the variance matrix for the law of motion
                 cholomega = sparse(diag(omega));
 
-                horizon = identificationHorizon;
                 drawStruct.A = cell(horizon, 1);
                 drawStruct.C = cell(horizon, 1);
 
@@ -356,6 +359,7 @@ classdef GeneralTV < estimator.Base
 
                 drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
             end%
+
 
             function drawStruct = historyDrawer(sampleStruct)
 
@@ -377,7 +381,7 @@ classdef GeneralTV < estimator.Base
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
             %]
-        end
+        end%
 
     end
 end

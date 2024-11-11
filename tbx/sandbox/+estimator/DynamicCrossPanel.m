@@ -258,14 +258,15 @@ classdef DynamicCrossPanel < estimator.Base
             numARows = numTotalEndog*meta.Order;
             numBRows = numARows + meta.NumExogenousNames + double(meta.HasIntercept);
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
             rho = this.Settings.Rho;
             gama = this.Settings.Gamma;
 
-            function drawStruct = identificationDrawer(sampleStruct, horizon)
+            function drawStruct = identificationDrawer(sampleStruct)
 
-                % read the input
-                
+                horizon = identificationHorizon;
+
                 B = sampleStruct.B;
                 sigma = sampleStruct.sigma(:, end);
                 thetabar = sampleStruct.thetabar;
@@ -324,7 +325,7 @@ classdef DynamicCrossPanel < estimator.Base
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
 
                 % read the input
-                
+
                 B = sampleStruct.B;
                 sigmatilde = sampleStruct.sigmatilde;
                 thetabar = sampleStruct.thetabar;
@@ -398,47 +399,44 @@ classdef DynamicCrossPanel < estimator.Base
             end
 
             function drawStruct = historyDrawer(sampleStruct)
-        
-                % read the input           
-                Xi = sampleStruct.Xi;     
-                sigma = sampleStruct.sigma; 
-                
+
+                % read the input
+                Xi = sampleStruct.Xi;
+                sigma = sampleStruct.sigma;
+
                 % initiate the record draws
                 As = cell(estimationHorizon, 1);
                 Cs = cell(estimationHorizon, 1);
                 Sigmas = cell(estimationHorizon, 1);
-      
+
                 for tt = 1:estimationHorizon
                     theta = sampleStruct.theta(:,tt);
-        
+
                     % reconstruct B matrix
                     beta_temp = Xi*theta;
-        
+
                     B_draw = reshape(...
                             beta_temp,...
                             numBRows,...
                             numTotalEndog);
-        
+
                     % obtain A and C
                     As{tt} = B_draw(1:numARows, :);
                     Cs{tt} = B_draw(numARows+1:end, :);
 
                     Sigmas{tt} = reshape(sigma(:,tt), numTotalEndog, numTotalEndog);
-        
+
                 end
-        
+
                 drawStruct = struct();
                 drawStruct.A = As;
                 drawStruct.C = Cs;
                 drawStruct.Sigma = Sigmas;
-        
+
             end
 
-            % return function calls
             this.IdentificationDrawer = @identificationDrawer;
-
             this.UnconditionalDrawer = @unconditionalDrawer;
-
             this.HistoryDrawer = @historyDrawer;
             %]
         end%
