@@ -4,6 +4,7 @@
 classdef Frequency < double
 
     enumeration
+        INTEGER(0)
         YEARLY(1)
         HALFYEARLY(2)
         QUARTERLY(4)

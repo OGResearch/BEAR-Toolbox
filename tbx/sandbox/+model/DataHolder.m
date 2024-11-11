@@ -13,7 +13,7 @@ classdef DataHolder < handle
 
         function this = DataHolder(meta, dataTable, varargin)
             arguments
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 dataTable (:, :) timetable
             end
             arguments (Repeating)

@@ -35,10 +35,7 @@ function [Y, initY] = forecast(A, C, longYXZ, U, options)
     Y = cell(1, numUnits);
     for n = 1 : numUnits
         Y{n} = nan(horizon, numY);
-        lt = [];
-        for i = 1 : order
-            lt = [initY(i, :, n), lt];
-        end
+        lt = system.reshapeInit(initY(:, :, n));
         for t = 1 : horizon
             yt = lt * A{t}(:, :, n) + X(t, :) * C{t}(:, :, n) + U(t, :, n);
             lt = [yt, lt(:, 1:end-numY)];

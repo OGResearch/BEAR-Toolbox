@@ -13,7 +13,7 @@ classdef CarrieroSV < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -264,15 +264,12 @@ classdef CarrieroSV < estimator.Base
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
-            %IRF periods
-            % IRFperiods = meta.IRFperiods;
-
-            %other settings
             gamma = this.Settings.HeteroskedasticityAutoRegression;
 
 
-            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
 
                 beta = sampleStruct.beta;
                 % reshape it to obtain B
@@ -307,7 +304,9 @@ classdef CarrieroSV < estimator.Base
                 end
             end
 
-            function drawStruct = identificationDrawer(sampleStruct, horizon)
+            function drawStruct = identificationDrawer(sampleStruct)
+
+                horizon = identificationHorizon;
 
                 beta = sampleStruct.beta;
                 % reshape it to obtain B

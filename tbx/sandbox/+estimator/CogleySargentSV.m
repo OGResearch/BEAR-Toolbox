@@ -14,7 +14,7 @@ classdef CogleySargentSV < estimator.Base
 
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -263,6 +263,7 @@ classdef CogleySargentSV < estimator.Base
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
             %IRF periods
             % IRFperiods = meta.IRFperiods;
@@ -309,8 +310,9 @@ classdef CogleySargentSV < estimator.Base
                 end
             end
 
-            function drawStruct = identificationDrawer(sampleStruct, horizon)
+            function drawStruct = identificationDrawer(sampleStruct)
 
+                horizon = identificationHorizon;
                 beta = sampleStruct.beta;
                 % reshape it to obtain B
                 B = reshape(beta, numBRows, numEn);

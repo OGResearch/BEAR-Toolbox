@@ -2,7 +2,7 @@
 function [order, numY] = orderFromA(A)
 
     arguments
-        A (:, :) double
+        A (:, :, :) double
     end
 
     numY = size(A, 2);

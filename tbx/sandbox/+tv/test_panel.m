@@ -54,7 +54,7 @@ estimator = estimator.NormalWishartPanel(metaR);
 % estimator = estimator.ZellnerHongPanel(metaR);
 % estimator = estimator.MeanOLSPanel(metaR);
 
-dataHolder = data.DataHolder(metaR, inputTable);
+dataHolder = model.DataHolder(metaR, inputTable);
 
 modelR = model.ReducedForm( ...
     meta=metaR ...

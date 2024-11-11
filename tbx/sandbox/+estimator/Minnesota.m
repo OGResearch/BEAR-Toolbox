@@ -1,7 +1,9 @@
 
-classdef Minnesota < estimator.Plain
+classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
 
     properties
+        DescriptionUX = "BVAR with Minnesota prior"
+
         CanHaveDummies = true
         CanHaveReducibles = false
         HasCrossUnits = false

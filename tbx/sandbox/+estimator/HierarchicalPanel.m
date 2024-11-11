@@ -1,6 +1,9 @@
-classdef HierarchicalPanel < estimator.PlainPanel
+
+classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
     properties
+        Description = "Hierarchical Panel"
+
         CanHaveDummies = false
         CanHaveReducibles = false
         HasCrossUnits = false
@@ -13,7 +16,7 @@ classdef HierarchicalPanel < estimator.PlainPanel
 
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end

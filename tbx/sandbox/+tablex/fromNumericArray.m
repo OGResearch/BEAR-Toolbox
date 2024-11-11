@@ -8,6 +8,7 @@ function outTable = fromNumericArray(dataArray, names, rows, options)
         rows (:, 1)
         %
         options.VariantDim (1, 1) double
+        options.HigherDims (1, :) cell = cell.empty(1, 0)
     end
 
     variantDim = options.VariantDim;
@@ -44,6 +45,10 @@ function outTable = fromNumericArray(dataArray, names, rows, options)
     outTable = tableConstructor(dataCell, rows, names);
     numHigherDims = max(ndimsData-3, 0);
     outTable = tablex.addCustom(outTable, "HigherDims", cell(1, numHigherDims));
+
+    if ~isempty(options.HigherDims)
+        outTable = tablex.setHigherDims(outTable, options.HigherDims{:});
+    end
 
 end%
 

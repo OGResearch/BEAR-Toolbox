@@ -17,7 +17,7 @@ function info = runFromConfig(config, inputTbx)
 
     metaR = config.createReducedFormMetaObject();
 
-    dataH = data.DataHolder(metaR, inputTbx);
+    dataH = model.DataHolder(metaR, inputTbx);
 
     estimatorR = estimator.(config.Estimator_Name)( ...
         metaR, ...

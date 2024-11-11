@@ -1,7 +1,9 @@
 
-classdef NormalDiffuse < estimator.Plain
+classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
 
     properties
+        DescriptionUX = "BVAR with Normal-Diffuse prior"
+
         CanHaveDummies = true
         CanHaveReducibles = false
         HasCrossUnits = false

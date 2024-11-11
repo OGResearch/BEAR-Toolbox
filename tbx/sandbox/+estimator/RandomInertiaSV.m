@@ -1,3 +1,4 @@
+
 classdef RandomInertiaSV < estimator.Base
 
     properties
@@ -13,7 +14,7 @@ classdef RandomInertiaSV < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -288,6 +289,7 @@ classdef RandomInertiaSV < estimator.Base
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + double(meta.HasIntercept);
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
             %IRF periods
             % IRFperiods = meta.IRFperiods;
@@ -317,10 +319,10 @@ classdef RandomInertiaSV < estimator.Base
 
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
-                for jj = 1:forecastHorizon
+                for jj = 1 : forecastHorizon
 
-                    for kk = 1:numEn
-                        lambda(kk, 1) = gamma(kk, 1) * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
+                    for kk = 1 : numEn
+                        lambda(kk, 1) = gamma(kk, 1) * lambda(kk, 1) + sqrt(phi(kk, 1)) * randn();
                     end
 
                     % obtain Lambda_t
@@ -329,9 +331,12 @@ classdef RandomInertiaSV < estimator.Base
                     % recover sigma_t and draw the residuals
                     drawStruct. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
-            end
+            end%
 
-            function drawStruct = identificationDrawer(sampleStruct, horizon)
+
+            function drawStruct = identificationDrawer(sampleStruct)
+
+                horizon = identificationHorizon;
 
                 beta = sampleStruct.beta;
                 % reshape it to obtain B
@@ -344,7 +349,8 @@ classdef RandomInertiaSV < estimator.Base
                 drawStruct.C = repmat({C}, horizon, 1);
                 drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
 
-            end
+            end%
+
 
             function drawStruct = historyDrawer(sampleStruct)
 
@@ -373,3 +379,4 @@ classdef RandomInertiaSV < estimator.Base
 
     end
 end
+

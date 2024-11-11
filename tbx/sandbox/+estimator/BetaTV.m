@@ -14,7 +14,7 @@ classdef BetaTV < estimator.Base
 
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -128,17 +128,14 @@ classdef BetaTV < estimator.Base
         function createDrawers(this, meta)
             %[
 
-            %sizes
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             sizeB = numEn * numBRows;
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
-            % %IRF periods
-            % IRFperiods = meta.IRFperiods;
-
-            function [drawStruct] = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function [drawStruct] = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
 
                 %draw beta, omega and sigma and F from their posterior distributions
 
@@ -168,7 +165,9 @@ classdef BetaTV < estimator.Base
                 end
             end
 
-            function [drawStruct] = identificationDrawer(sampleStruct, horizon)
+            function [drawStruct] = identificationDrawer(sampleStruct)
+                %[
+                horizon = identificationHorizon;
 
                 %draw beta, omega from their posterior distribution
                 % draw beta
@@ -194,16 +193,18 @@ classdef BetaTV < estimator.Base
                 end
 
                 drawStruct.Sigma = reshape(sampleStruct.sigma, numEn, numEn);
-            end
+                %]
+            end%
 
             function drawStruct = historyDrawer(sampleStruct)
-
+                %[
                 for jj = 1:estimationHorizon 
                     B = reshape(sampleStruct.beta{jj}, numBRows, numEn);
                     drawStruct.A{jj,1}(:, :) = B(1:numARows, :);
                     drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);    
                 end
                 drawStruct.Sigma = repmat({reshape(sampleStruct.sigma, numEn, numEn)}, estimationHorizon, 1);
+                %]
             end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;

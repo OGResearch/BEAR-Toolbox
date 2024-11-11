@@ -14,7 +14,7 @@ classdef MeanOLSPanel < estimator.Base
 
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -65,9 +65,10 @@ classdef MeanOLSPanel < estimator.Base
             numARows = numEndog*meta.Order;
             numBRows = numARows+meta.NumExogenousNames+double(meta.HasIntercept);
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
-            function drawStruct = drawer(sampleStruct,  horizon)
-
+            function drawStruct = drawer(sampleStruct, horizon)
+                %[
                 beta = sampleStruct.bhat; % forecast is using mean OLS fixed parameters, no draws
                 sigma = sampleStruct.sigma;
 
@@ -95,7 +96,8 @@ classdef MeanOLSPanel < estimator.Base
                 drawStruct.A = repmat({A}, horizon, 1);
                 drawStruct.C = repmat({C}, horizon, 1);
                 drawStruct.Sigma = Sigma;
-            end
+                %]
+            end%
 
             function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
                 draw = drawer(sampleStruct, forecastHorizon);
@@ -109,7 +111,7 @@ classdef MeanOLSPanel < estimator.Base
 
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @drawer;
+            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
 
             %]
         end%

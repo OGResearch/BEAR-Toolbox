@@ -5,7 +5,7 @@
 %
 %}
 
-function C = contributionsShocks(A, D, E)
+function contribs = contributionsShocks(A, D, E)
 
     arguments
         A (:, 1) cell {mustBeNonempty}
@@ -13,20 +13,19 @@ function C = contributionsShocks(A, D, E)
         E (:, :) double
     end
 
+    numT = numel(A);
     numY = size(A{1}, 2);
-    numE = size(E, 2);
-    numT = size(E, 1);
+    numE = size(D, 1);
 
     % TODO: Test performance against permutedPulses = cell(numT, 1);
-    % permutedPulses is numY x numE x numT to avoid unnecessary permute/ipermute
-    permutedPulses = zeros(numY, numE, numT);
-
+    % permutedPulses is numE x numY x numT to avoid unnecessary permute/ipermute
+    permutedPulses = zeros(numE, numY, numT);
     for t = 1 : numT
         et = diag(E(t, :));
         permutedPulses(:, :, t) = et * D;
     end
 
-    C = system.filterPulses(A, permutedPulses);
+    contribs = system.filterPulses(A, permutedPulses);
 
 end%
 

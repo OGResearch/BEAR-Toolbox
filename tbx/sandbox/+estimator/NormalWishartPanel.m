@@ -12,7 +12,7 @@ classdef NormalWishartPanel < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -68,11 +68,10 @@ classdef NormalWishartPanel < estimator.Base
             numExog = meta.NumExogenousNames+double(meta.HasIntercept);
             numBRows = numARows + numExog;
             estimationHorizon = numel(meta.ShortSpan);
-
+            identificationHorizon = meta.IdentificationHorizon;
 
 
             function drawStruct = drawer(sampleStruct, horizon)
-
                 beta = sampleStruct.beta;
                 sigma = sampleStruct.sigma;
 
@@ -100,8 +99,7 @@ classdef NormalWishartPanel < estimator.Base
                 drawStruct.A = repmat({A}, horizon, 1);
                 drawStruct.C = repmat({C}, horizon, 1);
                 drawStruct.Sigma = Sigma;
-
-            end
+            end%
 
 
             function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
@@ -116,7 +114,7 @@ classdef NormalWishartPanel < estimator.Base
 
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @drawer;
+            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
             %]
         end%
     end

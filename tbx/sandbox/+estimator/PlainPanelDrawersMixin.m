@@ -1,5 +1,8 @@
-classdef PlainPanel < estimator.Base
+
+classdef (Abstract) PlainPanelDrawersMixin < handle
+
     methods
+
         function createDrawers(this, meta)
             %[
             numCountries = meta.NumUnits;
@@ -8,7 +11,7 @@ classdef PlainPanel < estimator.Base
             numExog = meta.NumExogenousNames+double(meta.HasIntercept);
             numBRows = numARows + numExog;
             estimationHorizon = numel(meta.ShortSpan);
-
+            identificationHorizon = meta.IdentificationHorizon;
 
 
             function drawStruct = drawer(sampleStruct, horizon)
@@ -23,31 +26,31 @@ classdef PlainPanel < estimator.Base
                 Sigma = nan(numEndog, numEndog, numCountries);
 
                 % iterate over countries
-                for ii = 1:numCountries
+                for ii = 1 : numCountries
 
-                    B_temp = reshape(...
-                        beta(:, ii),...
-                        numBRows,...
-                        numEndog...
-                        );
+                    tempB = reshape( ...
+                        beta(:, ii), ...
+                        numBRows, ...
+                        numEndog ...
+                    );
 
-                    sigma_temp = reshape(...
-                        sigma(:, ii),...
-                        numEndog,...
-                        numEndog...
-                        );
-
-                    % Pack in blocks
-                    A_temp = B_temp(1:numARows,:);
-
-                    C_temp = B_temp(numARows+1:end,:);
+                    tempSigma = reshape( ...
+                        sigma(:, ii), ...
+                        numEndog, ...
+                        numEndog ...
+                    );
 
                     % Pack in blocks
-                    A(:,:, ii) = A_temp;
+                    tempA = tempB(1:numARows,:);
 
-                    C(:,:, ii) = C_temp;
+                    tempC = tempB(numARows+1:end,:);
 
-                    Sigma(:,:, ii) = sigma_temp;
+                    % Pack in blocks
+                    A(:,:, ii) = tempA;
+
+                    C(:,:, ii) = tempC;
+
+                    Sigma(:,:, ii) = tempSigma;
 
                 end
 
@@ -70,8 +73,11 @@ classdef PlainPanel < estimator.Base
 
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @drawer;
+            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
             %]
         end%
+
     end
+
 end
+

@@ -13,7 +13,7 @@ classdef StaticCrossPanel < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -138,6 +138,7 @@ classdef StaticCrossPanel < estimator.Base
             numExog = meta.NumExogenousNames+double(meta.HasIntercept);
             numBRows = numARows+numExog;
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
             function drawStruct = drawer(sampleStruct, horizon)
 
@@ -148,10 +149,11 @@ classdef StaticCrossPanel < estimator.Base
                 A = B(1:numARows, :);
                 C = B(numARows+1:end, :);
 
-                Sigma = reshape(...
-                    sigma,...
-                    numTotalEndog,...
-                    numTotalEndog);
+                Sigma = reshape( ...
+                    sigma, ...
+                    numTotalEndog, ...
+                    numTotalEndog ...
+                );
 
                 drawStruct = struct();
                 drawStruct.A = repmat({A}, horizon, 1);
@@ -171,7 +173,7 @@ classdef StaticCrossPanel < estimator.Base
 
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @drawer;
+            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
 
             %]
         end%

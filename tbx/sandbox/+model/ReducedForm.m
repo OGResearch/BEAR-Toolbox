@@ -2,8 +2,8 @@
 classdef ReducedForm < handle & model.PresampleMixin
 
     properties (Constant, Hidden)
-        DEFAULT_STABILITY_THRESHOLD = 1 - 1e-10
-
+        DEFAULT_STABILITY_THRESHOLD = Inf % 1 - 1e-10
+        %
         ESTIMATOR_DISPATCHER = struct( ...
             lower("NormalWishart"), @red.NormalWishartEstimator ...
         )
@@ -33,6 +33,15 @@ classdef ReducedForm < handle & model.PresampleMixin
         StabilityThresholdString (1, 1) string
         HasDummies (1, 1) logical
         NumDummies (1, 1) double
+
+        Sampler
+        IdentificationDrawer
+        HistoryDrawer
+        ConditionalDrawer
+        UnconditionalDrawer
+
+        SampleCounter
+        CandidateCounter
     end
 
 
@@ -40,8 +49,8 @@ classdef ReducedForm < handle & model.PresampleMixin
 
         function this = ReducedForm(options)
             arguments
-                options.Meta (1, 1) meta.ReducedForm
-                options.DataHolder (:, :) data.DataHolder
+                options.Meta (1, 1) model.Meta
+                options.DataHolder (:, :) model.DataHolder
                 options.Estimator (1, 1) estimator.Base
                 options.Dummies (1, :) cell = cell.empty(1, 0)
                 options.StabilityThreshold (1, 1) double = NaN
@@ -271,40 +280,71 @@ classdef ReducedForm < handle & model.PresampleMixin
             num = numel(this.Dummies);
         end%
 
+        function out = get.IdentificationDrawer(this)
+            out = this.Estimator.IdentificationDrawer;
+        end%
 
-        function outTbx = calculateResiduals(this, varargin)
+        function out = get.Sampler(this)
+            out = this.Estimator.Sampler;
+            if this.StabilityThreshold < Inf
+                out = this.decorateStability(out);
+            end
+        end%
+
+        function out = get.SampleCounter(this)
+            out = this.Estimator.SampleCounter;
+        end%
+
+        function out = get.CandidateCounter(this)
+            out = NaN;
+        end%
+
+        function out = get.HistoryDrawer(this)
+            out = this.Estimator.HistoryDrawer;
+        end%
+
+        function out = get.ConditionalDrawer(this)
+            out = this.Estimator.ConditionalDrawer;
+        end%
+
+        function out = get.UnconditionalDrawer(this)
+            out = this.Estimator.UnconditionalDrawer;
+        end%
+
+        function outTbx = estimateResiduals(this)
 %{
 % # calculateResiduals
 %
 % {==Calculate reduced-form residuals==}
 %
 %}
-            U = this.calculateResidualArray(varargin{:});
+            meta = this.Meta;
+            numPresampled = this.NumPresampled;
+            longYXZ = this.DataHolder.getYXZ(span=meta.LongSpan);
+            U = nan(meta.NumShortSpan, meta.NumShocks, this.NumPresampled);
+            for i = 1 : numPresampled
+                sample = this.Presampled{i};
+                U(:, :, i) = this.estimateResiduals4S(sample, longYXZ);
+            end
             outNames = this.Meta.ResidualNames;
             outSpan = this.Meta.ShortSpan;
             outTbx = tablex.fromNumericArray(U, outNames, outSpan, variantDim=3);
         end%
 
 
-        function U = calculateResidualArray(this, varargin)
+        function varargout = calculateResiduals(this, varargin)
+            [varargout{1:nargout}] = this.estimateResiduals(varargin{:});
+        end%
+
+
+        function u = estimateResiduals4S(this, sample, longYXZ)
+            draw = this.Estimator.HistoryDrawer(sample);
             meta = this.Meta;
-            longSpan = meta.LongSpan;
-            shortSpan = meta.ShortSpan;
-            numT = numel(shortSpan);
-            numPresampled = this.NumPresampled;
-            numU = meta.NumResiduals;
-            longYXZ = this.DataHolder.getYXZ(span=meta.LongSpan);
-            U = nan(numT, numU, numPresampled);
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                draw = this.Estimator.HistoryDrawer(sample);
-                u = system.calculateResiduals( ...
-                    draw.A, draw.C, longYXZ ...
-                    , hasIntercept=meta.HasIntercept ...
-                    , order=meta.Order ...
-                );
-                U(:, :, i) = u;
-            end
+            u = system.calculateResiduals( ...
+                draw.A, draw.C, longYXZ ...
+                , hasIntercept=meta.HasIntercept ...
+                , order=meta.Order ...
+            );
         end%
 
 

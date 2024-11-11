@@ -1,5 +1,5 @@
 
-classdef Config < handle
+classdef (CaseInsensitiveProperties=true) Config < handle
 
     properties
         DataSource_Format (1, 1) string
@@ -16,53 +16,47 @@ classdef Config < handle
         Tasks_SaveResults (1, :) cell
         Tasks_SaveConfig (1, :) cell
 
-        ReducedFormMeta_Units (1, :) string {mustBeNonempty} = ""
-        ReducedFormMeta_EndogenousConcepts (1, :) string {mustBeNonempty} = ""
-        ReducedFormMeta_ExogenousNames (1, :) string
-        ReducedFormMeta_HasIntercept (1, 1) logical
-        ReducedFormMeta_Order (1, 1) double {mustBeInteger, mustBePositive} = 1
-        ReducedFormMeta_EstimationStart (1, 1) string
-        ReducedFormMeta_EstimationEnd (1, 1) string
-        ReducedFormMeta_NumDraws (1, 1) double {mustBeInteger, mustBePositive} = 1000
+        Meta_Units (1, :) string {mustBeNonempty} = ""
+        Meta_EndogenousConcepts (1, :) string {mustBeNonempty} = ""
+        Meta_ExogenousNames (1, :) string
+        Meta_HasIntercept (1, 1) logical
+        Meta_Order (1, 1) double {mustBeInteger, mustBePositive} = 1
+        Meta_EstimationStart (1, 1) string
+        Meta_EstimationEnd (1, 1) string
+        Meta_NumDraws (1, 1) double {mustBeInteger, mustBePositive} = 1000
+
+        Meta_ShockConcepts (1, :) string
+        Meta_IdentificationHorizon (1, 1) double {mustBeInteger, mustBeNonnegative} = 1
 
         Estimator_Name (1, 1) string
         Estimator_Settings (1, :) cell
+    end
 
-        StructuralMeta_ShockConcepts (1, :) string
-        StructuralMeta_IdentificationHorizon (1, 1) double {mustBeInteger, mustBePositive} = 1
+
+    properties (Dependent)
+        Meta_EstimationSpan
     end
 
 
     methods
-        function span = createEstimationSpan(this)
-            startPeriod = datex.fromSdmx(this.ReducedFormMeta_EstimationStart);
-            endPeriod = datex.fromSdmx(this.ReducedFormMeta_EstimationEnd);
-            span = datex.span(startPeriod, endPeriod);
-        end%
-
-
-        function metaR = createReducedFormMetaObject(this)
-            estimationSpan = this.createEstimationSpan();
-            metaR = meta.ReducedForm( ...
-                endogenous=this.ReducedFormMeta_EndogenousConcepts ...
-                , units=this.ReducedFormMeta_Units ...
-                , exogenous=this.ReducedFormMeta_ExogenousNames ...
-                , order=this.ReducedFormMeta_Order ...
-                , intercept=this.ReducedFormMeta_HasIntercept ...
-                , estimationSpan=estimationSpan ...
-            );
-        end%
-
-
-        function metaS = createStructuralMetaObject(this, metaR)
-            if nargin < 2
-                metaR = this.createReducedFormMetaObject();
+        function this = Config(varargin)
+            if nargin == 1 && isstruct(varargin{1})
+                names = fieldnames(varargin{1});
+                values = struct2cell(varargin{1});
+            else
+                names = varargin(1:2:end);
+                values = varargin(2:2:end);
             end
-            metaS = meta.Structural( ...
-                metaR ...
-                , identificationHorizon=this.StructuralMeta_IdentificationHorizon ...
-                , shockConcepts=this.StructuralMeta_ShockConcepts ...
-            );
+            for i = 1 : numel(names)
+                this.(names{i}) = values{i};
+            end
+        end%
+
+
+        function out = get.Meta_EstimationSpan(this)
+            startPeriod = datex.fromSdmx(this.Meta_EstimationStart);
+            endPeriod = datex.fromSdmx(this.Meta_EstimationEnd);
+            out = datex.span(startPeriod, endPeriod);
         end%
     end
 

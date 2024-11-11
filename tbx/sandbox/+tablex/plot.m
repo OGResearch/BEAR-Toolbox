@@ -1,15 +1,17 @@
 
-function plotHandle = plot(table, names, options)
+function plotHandles = plot(table, names, options)
 
     arguments
         table timetable
         names (1, :) string
-
+        %
         options.Periods = Inf
         options.Axes = []
         options.Variant = ':'
         options.Dims (1, :) cell = cell.empty(1, 0)
         options.PlotSettings (1, :) cell = {}
+        options.PlotFunc function_handle = @plot
+        options.BarStyle (1, 1) string = "stacked"
     end
 
     if isstring(options.Variant)
@@ -21,13 +23,28 @@ function plotHandle = plot(table, names, options)
         periods = tablex.span(table);
     end
 
-    ax = {};
     if ~isempty(options.Axes)
-        ax = {options.Axes};
+        ax = options.Axes;
+    else
+        ax = gca();
     end
 
-    dataCell = tablex.retrieveDataAsCellArray(table, names, periods, variant=options.Variant, dims=options.Dims);
-    plotHandle = plot(ax{:}, periods, [dataCell{:}], options.PlotSettings{:});
+    dataCell = tablex.retrieveDataAsCellArray( ...
+        table, names, periods, ...
+        variant=options.Variant, ...
+        dims=options.Dims ...
+    );
+
+    barStyle = {};
+    if isequal(func2str(options.PlotFunc), 'bar')
+        barStyle = {options.BarStyle};
+    end
+
+    plotHandles = options.PlotFunc( ...
+        ax, periods, [dataCell{:}], ...
+        barStyle{:}, ...
+        options.PlotSettings{:} ...
+    );
 
 end%
 

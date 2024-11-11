@@ -12,7 +12,7 @@ classdef GeneralTV < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -270,6 +270,7 @@ classdef GeneralTV < estimator.Base
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             sizeB = numEn * numBRows;
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
             %IRF periods
             %IRFperiods = meta.IRFperiods;
@@ -328,7 +329,11 @@ classdef GeneralTV < estimator.Base
                 end
             end%
 
-            function [drawStruct] = identificationDrawer(sampleStruct, horizon)
+
+            function [drawStruct] = identificationDrawer(sampleStruct)
+
+                horizon = identificationHorizon;
+
                 %draw beta, omega from their posterior distribution
                 % draw beta
                 beta = sampleStruct.beta{end, 1};
@@ -355,6 +360,7 @@ classdef GeneralTV < estimator.Base
                 drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
             end%
 
+
             function drawStruct = historyDrawer(sampleStruct)
 
                 drawStruct.A = cell(estimationHorizon, 1);
@@ -375,7 +381,7 @@ classdef GeneralTV < estimator.Base
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
             %]
-        end
+        end%
 
     end
 end
