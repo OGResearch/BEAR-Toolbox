@@ -7,7 +7,7 @@ function cfconds = createCfcond(meta, longY, condTable, forecastSpan)
     endoNames = meta.EndogenousNames;
     numEn = numel(meta.EndogenousNames);
 
-    fcastLength = numel(fcastSpan);
+    fcastLength = numel(forecastSpan);
     cfconds = cell(fcastLength, numEn);
     
     for nn = 1 : numEn

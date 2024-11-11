@@ -4,7 +4,7 @@ function cfshocks = createCfshocks(meta, condTable, forecastSpan)
     endoNames = meta.EndogenousNames;
     numEn = numel(meta.EndogenousNames);
 
-    fcastLength = numel(fcastSpan);
+    fcastLength = numel(forecastSpan);
     cfshocks = cell(fcastLength, numEn);
     dict = cell2struct(num2cell(1:numel(meta.ShockNames)), meta.ShockNames, 2);
     
