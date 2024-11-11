@@ -45,7 +45,7 @@ metaR = meta.ReducedForm( ...
     , estimationSpan=datex.span(config.meta.estimationStart, config.meta.estimationEnd) ...
 );
 
-dataH = data.DataHolder(metaR, inputTbx);
+dataH = model.DataHolder(metaR, inputTbx);
 
 estimator = estimator.IndNormalWishart(metaR);
 

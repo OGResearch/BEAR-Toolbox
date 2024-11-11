@@ -31,8 +31,8 @@ classdef Custom < identifier.Base
         function stateExacts = initializeExacts(this, model, dataYLX)
             stateExacts = struct();
             metaR = model.ReducedForm.Meta;
-            stateExacts.EndogenousNames = names.createDictionary(metaR.EndogenousNames);
-            stateExacts.ShockNames = names.createDictionary(metaR.ShockNames);
+            stateExacts.EndogenousNames = textual.createDictionary(metaR.EndogenousNames);
+            stateExacts.ShockNames = textual.createDictionary(metaR.ShockNames);
         end%
 
         function state = initializeVerifiables(this, model, dataYLX, structuralSystem)
@@ -40,9 +40,9 @@ classdef Custom < identifier.Base
             metaS = model.Meta;
             state = identifier.custom.State();
             state.addprop("EndogenousNames");
-            state.EndogenousNames = names.createDictionary(metaR.EndogenousNames);
+            state.EndogenousNames = textual.createDictionary(metaR.EndogenousNames);
             state.addprop("ShockNames");
-            state.ShockNames = names.createDictionary(metaS.ShockNames);
+            state.ShockNames = textual.createDictionary(metaS.ShockNames);
             state.addprop("System");
             state.System = structuralSystem;
         end%

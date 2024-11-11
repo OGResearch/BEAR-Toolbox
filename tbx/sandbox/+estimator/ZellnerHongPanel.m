@@ -1,6 +1,9 @@
-classdef ZellnerHongPanel < estimator.PlainPanel
+
+classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
     properties
+        DescriptionUX = "Zellner-Hong Panel BVAR"
+
         CanHaveDummies = false
         CanHaveReducibles = false
         HasCrossUnits = false
@@ -13,7 +16,7 @@ classdef ZellnerHongPanel < estimator.PlainPanel
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end

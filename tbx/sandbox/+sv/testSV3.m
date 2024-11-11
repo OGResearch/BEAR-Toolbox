@@ -46,7 +46,7 @@ metaR = meta.ReducedForm( ...
 );
 
 estimator = estimator.CarrieroSV(metaR);
-dataH = data.DataHolder(metaR, inputTbx);
+dataH = model.DataHolder(metaR, inputTbx);
 
 
 modelR = model.ReducedForm( ...

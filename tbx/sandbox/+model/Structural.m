@@ -7,7 +7,6 @@
 classdef Structural < handle & model.PresampleMixin
 
     properties
-        Meta
         ReducedForm
         Identifier
         Presampled
@@ -18,20 +17,29 @@ classdef Structural < handle & model.PresampleMixin
         PresampledCounter (1, 1) double = 0
     end
 
+    properties (Dependent)
+        Meta
+        DataHolder
+        %
+        Sampler
+        SampleCounter
+        CandidateCounter
+        IdentificationDrawer
+        HistoryDrawer
+        ConditionalDrawer
+        UnconditionalDrawer
+    end
 
     methods
 
         function this = Structural(options)
             arguments
-                options.Meta (1, 1) meta.Structural
                 options.ReducedForm (1, 1) model.ReducedForm
                 options.Identifier (1, 1) identifier.Base
             end
             %
-            this.Meta = options.Meta;
             this.ReducedForm = options.ReducedForm;
             this.Identifier = options.Identifier;
-            this.Identifier.finalize(this.ReducedForm);
         end%
 
 
@@ -51,14 +59,9 @@ classdef Structural < handle & model.PresampleMixin
         end%
 
 
-        function varargout = initialize(this, varargin)
+        function varargout = initialize(this)
             this.ReducedForm.initialize();
-            this.Identifier.initialize(this.Meta, this.ReducedForm);
-        end%
-
-
-        function sampler = getSampler(this)
-            sampler = this.Identifier.Sampler;
+            this.Identifier.initialize(this);
         end%
 
 
@@ -66,150 +69,209 @@ classdef Structural < handle & model.PresampleMixin
             %[
             arguments
                 this
+                %
                 options.IncludeInitial (1, 1) logical = true
                 options.Transform = []
             end
             %
-            numY = this.ReducedForm.Meta.NumEndogenousNames;
-            order = this.ReducedForm.Meta.Order;
-            numE = this.Meta.NumShocks;
-            numT = this.Meta.IdentificationHorizon;
+            meta = this.Meta;
+            numY = meta.NumEndogenousNames;
+            order = meta.Order;
+            numE = meta.NumShocks;
+            numT = meta.IdentificationHorizon;
             numPresampled = this.NumPresampled;
-            drawer = @(sample) this.ReducedForm.Estimator.IdentificationDrawer(sample, numT);
+            drawer = this.IdentificationDrawer;
             %
             Y = nan(numT, numY, numE, numPresampled);
             %
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
-                draw = drawer(sample);
-                D = sample.D;
-                y = system.finiteVMA(draw.A, D);
+                [y, sample] = this.simulateResponses4S(sample);
+                this.Presampled{i} = sample;
                 if ~isempty(options.Transform)
                     y = options.Transform(y);
                 end
                 Y(:, :, :, i) = y;
             end
             %
-            shortStart = datex.shift(this.ReducedForm.Meta.EstimationEnd, 1);
-            shortEnd = datex.shift(this.ReducedForm.Meta.EstimationEnd, numT);
+            shortStart = datex.shift(meta.EstimationEnd, 1);
+            shortEnd = datex.shift(meta.EstimationEnd, numT);
             outSpan = datex.span(shortStart, shortEnd);
             if options.IncludeInitial
                 Y = [zeros(order, numY, numE, numPresampled); Y];
                 outSpan = datex.longSpanFromShortSpan(outSpan, order);
             end
             %
-            outShockNames = this.Meta.ShockNames;
-            outNames = this.ReducedForm.Meta.EndogenousNames;
+            outShockNames = meta.ShockNames;
+            outNames = meta.EndogenousNames;
             outTbx = tablex.fromNumericArray(Y, outNames, outSpan, variantDim=4);
             outTbx = tablex.setHigherDims(outTbx, outShockNames);
             %]
         end%
 
 
-        function outTbx = calculateShocks(this, varargin)
+        function [y, sample] = simulateResponses4S(this, sample)
+            if ~isfield(sample, "IdentificationDraw")
+                sample.IdentificationDraw = this.IdentificationDrawer(sample);
+            end
+            draw = sample.IdentificationDraw;
+            y = system.finiteVMA(draw.A, sample.D);
+        end%
+
+
+        function outTbx = estimateShocks(this, varargin)
 %{
 % # calculateResiduals
 %
 % {==Calculate reduced-form residuals==}
 %
 %}
-            E = this.calculateShockArray(varargin{:});
-            outNames = this.Meta.ShockNames;
-            outSpan = this.ReducedForm.Meta.ShortSpan;
+            meta = this.Meta;
+            longYXZ = this.DataHolder.getYXZ(span=meta.LongSpan);
+            E = nan(meta.NumShortSpan, meta.NumShocks, this.NumPresampled);
+            for i = 1 : this.NumPresampled
+                sample = this.Presampled{i};
+                E(:, :, i) = this.estimateShocks4S(sample, longYXZ);
+            end
+            outNames = meta.ShockNames;
+            outSpan = meta.ShortSpan;
             outTbx = tablex.fromNumericArray(E, outNames, outSpan, variantDim=3);
         end%
 
 
-        function E = calculateShockArray(this, varargin)
-            U = this.ReducedForm.calculateResidualArray(varargin{:});
-            numPresampled = this.NumPresampled;
-            E = nan(size(U));
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                D = sample.D;
-                % U = E * D => E = U / D
-                E(:, :, i) = U(:, :, i) / D;
-            end
+        function e = estimateShocks4S(this, sample, longYXZ)
+            u = this.ReducedForm.estimateResiduals4S(sample, longYXZ);
+            D = sample.D;
+            % U = E * D => E = U / D
+            e = u / D;
         end%
 
 
-        function outTbx = calculateShockContributions(this, varargin)
-            C = this.calculateShockContributionArray(varargin{:});
-            outTbx = tablex.fromNumericArray( ...
-                C ...
-                , this.ReducedForm.Meta.EndogenousNames ...
-                , this.ReducedForm.Meta.ShortSpan ...
-                , variantDim=4 ...
-            );
-            outTbx = tablex.setHigherDims(outTbx, this.Meta.ShockNames);
-        end%
-
-
-        function C = calculateShockContributionArray(this, options)
-            arguments
-                this
-                options.shocks (:, :) double = []
-            end
-            %
-            if isempty(options.shocks)
-                E = this.calculateShockArray();
-            else
-                E = options.shocks;
-            end
-            %
-            numT = size(E, 1);
+        function outTbx = breakdown(this)
+            meta = this.Meta;
             numPresampled = this.NumPresampled;
-            numE = this.Meta.NumShocks;
-            numY = this.ReducedForm.Meta.NumEndogenousNames;
+            drawer = this.HistoryDrawer;
+            longYXZ = this.getLongYXZ();
+            %
             C = cell(1, numPresampled);
-            drawer = @(sample) this.ReducedForm.Estimator.IdentificationDrawer(sample, numT);
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
                 draw = drawer(sample);
-                C{i} = system.contributionsShocks(draw.A, sample.D, E(:, :, i));
+                e = this.estimateShocks4S(sample, longYXZ);
+                ce = system.contributionsShocks(draw.A, sample.D, e);
+                cx = system.contributionsExogenous(draw.A, draw.C, longYXZ);
+                ci = system.contributionsInit(draw.A, longYXZ);
+                C{i} = cat(3, ce, cx, ci);
             end
-            C = cat(4, C{:});
+            %
+            thirdDim = {[meta.ShockNames, "Exogenous", "Initials"]};
+            outTbx = tablex.fromNumericArray( ...
+                cat(4, C{:}), ...
+                meta.EndogenousNames, ...
+                meta.ShortSpan, ...
+                variantDim=4, ...
+                higherDims=thirdDim ...
+            );
+        end%
+
+
+        function C = breakdownToShocks4S(this, sample, shockEstimates)
+            draw = this.HistoryDrawer(sample);
+            C = system.contributionsShocks(draw.A, sample.D, shockEstimates);
         end%
 
 
         function outTbx = calculateFEVD(this, varargin)
             transform = @(vma) cumsum(vma .^ 2, 1);
-            outTbx = this.simulateResponses(varargin{:}, transform=transform);
+            outTbx = this.simulateResponses( ...
+                includeInitial=false, ...
+                transform=transform ...
+            );
         end%
 
 
-        function [sampler, shockIndex] = getSamplerVMA(this, numPeriods, shockIndex)
-            arguments
-                this
-                numPeriods (1, 1) double
-                shockIndex (1, :)
-            end
-            %
-            shockIndex = names.resolveNameIndex(this.Meta.ShockNames, shockIndex);
-            %
-            function VMA = sampleVMA()
-                strSystem = this.nextPresampledSystem();
-                [A, C, Sigma, D, stdVec] = strSystem{:};
-                VMA = system.finiteVMA(A, D(shockIndex, :), numPeriods);
-            end%
-            %
-            sampler = @sampleVMA;
-        end%
+        % function [sampler, shockIndex] = getSamplerVMA(this, numPeriods, shockIndex)
+        %     arguments
+        %         this
+        %         numPeriods (1, 1) double
+        %         shockIndex (1, :)
+        %     end
+        %     %
+        %     meta = this.Meta;
+        %     shockIndex = textual.resolveNameIndex(meta.ShockNames, shockIndex);
+        %     %
+        %     function VMA = sampleVMA()
+        %         strSystem = this.nextPresampledSystem();
+        %         [A, C, Sigma, D, stdVec] = strSystem{:};
+        %         VMA = system.finiteVMA(A, D(shockIndex, :), numPeriods);
+        %     end%
+        %     %
+        %     sampler = @sampleVMA;
+        % end%
 
 
         function varargout = asymptoticMean(this, varargin)
             [varargout{1:nargout}] = this.ReducedForm.asymptoticMean(varargin{:});
         end%
 
-
         function varargout = forecast(this, varargin)
             [varargout{1:nargout}] = this.ReducedForm.forecast(varargin{:});
         end%
 
-        function varargout = calculateResiduals(this, varargin)
-            [varargout{1:nargout}] = this.ReducedForm.calculateResiduals(varargin{:});
+        function varargout = estimateResiduals(this, varargin)
+            [varargout{1:nargout}] = this.ReducedForm.estimateResiduals(varargin{:});
         end%
 
+        function varargout = getLongYXZ(this, varargin)
+            [varargout{1:nargout}] = this.ReducedForm.getLongYXZ(varargin{:});
+        end%
+
+        function varargout = getShortYXZ(this, varargin)
+            [varargout{1:nargout}] = this.ReducedForm.getShortYXZ(varargin{:});
+        end%
+
+        function varargout = getInitYXZ(this, varargin)
+            [varargout{1:nargout}] = this.ReducedForm.getInitYXZ(varargin{:});
+        end%
+    end
+
+
+    methods
+        function out = get.Meta(this)
+            out = this.ReducedForm.Meta;
+        end%
+
+        function out = get.DataHolder(this)
+            out = this.ReducedForm.DataHolder;
+        end%
+
+        function out = get.Sampler(this)
+            out = this.Identifier.Sampler;
+        end%
+
+        function out = get.SampleCounter(this)
+            out = this.Identifier.SampleCounter;
+        end%
+
+        function out = get.CandidateCounter(this)
+            out = this.Identifier.CandidateCounter;
+        end%
+
+        function out = get.IdentificationDrawer(this)
+            out = this.ReducedForm.IdentificationDrawer;
+        end%
+
+        function out = get.HistoryDrawer(this)
+            out = this.ReducedForm.HistoryDrawer;
+        end%
+
+        function out = get.ConditionalDrawer(this)
+            out = this.ReducedForm.ConditionalDrawer;
+        end%
+
+        function out = get.UnconditionalDrawer(this)
+            out = this.ReducedForm.UnconditionalDrawer;
+        end%
     end
 
 end

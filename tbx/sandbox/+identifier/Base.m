@@ -1,36 +1,34 @@
 
 % identifier.Base  Base class for identification schemes
 
-classdef Base < handle
+classdef (Abstract) Base < handle
 
-    properties
-        Settings
-    end
-
-
-    properties (SetAccess = protected)
-        Preallocator
+    properties (SetAccess=protected)
+        % Sampler  Handle to the reduced-form sample generating function
         Sampler
-        SampleCounter (1,1) uint32 = 0
+
+        SampleCounter (1,1) uint64 = 0
+
+        % Candidator  Handle to the candidate generating function
+        Candidator
+
+        CandidateCounter (1,1) uint64 = 0
     end
 
 
-    properties (SetAccess = private)
+    properties (SetAccess=private)
         BeenInitialized (1, 1) logical = false
     end
 
 
     properties (Dependent)
         ShortClassName
-        % Gamma
-        % StdVec
-        % VarVec
     end
 
 
     properties (Constant)
         SAMPLER_INFO = struct( ...
-            "NumCandidates", NaN ...
+            NumCandidates=NaN ...
         )
     end
 
@@ -41,39 +39,16 @@ classdef Base < handle
 
 
     methods
-
-        function this = Base(varargin)
-            this.Settings = identifier.settings.(this.ShortClassName)(varargin{:});
-        end%
-
-
-        function varargout = initialize(this, meta, modelR)
+        function varargout = initialize(this, modelS)
             arguments
                 this
-                meta (1, 1) meta.Structural
-                modelR (1, 1) model.ReducedForm
+                modelS (1, 1) model.Structural
             end
             if this.BeenInitialized
                 return
             end
-            this.initializeSampler(meta, modelR);
+            this.initializeSampler(modelS);
         end%
-
-
-        function finalize(this, modelR)
-            if ~modelR.Meta.HasCrossUnits
-                numStd = modelR.Meta.NumEndogenousConcepts;
-            else
-                numStd = modelR.Meta.NumEndogenousNames;
-            end
-            if isscalar(this.Settings.StdVec)
-                this.Settings.StdVec = repmat(this.Settings.StdVec, 1, numStd);
-            end
-            if numel(this.Settings.StdVec) ~= numStd
-                error("Number of standard deviations must match number of endogenous variables");
-            end
-        end%
-
     end
 
 

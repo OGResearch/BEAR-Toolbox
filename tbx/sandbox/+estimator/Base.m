@@ -5,7 +5,7 @@ classdef (Abstract) Base < handle
         Settings
     end
 
-    properties (SetAccess = protected)
+    properties
         Sampler
         SampleCounter (1, 1) uint64 = 0
         HistoryDrawer
@@ -14,7 +14,7 @@ classdef (Abstract) Base < handle
         IdentificationDrawer
     end
 
-    properties (SetAccess = private)
+    properties (SetAccess=private)
         BeenInitialized (1, 1) logical = false
     end
 

@@ -75,25 +75,25 @@ classdef ReducedForm < handle
     methods
         function this = ReducedForm(options)
             arguments
-                options.EndogenousConcepts (1, :) string {mustBeNonempty}
-                options.EstimationSpan (1, :) datetime {mustBeNonempty}
+                options.endogenousConcepts (1, :) string {mustBeNonempty}
+                options.estimationSpan (1, :) datetime {mustBeNonempty}
 
-                options.ExogenousNames (1, :) string = string.empty(1, 0)
-                options.Units (1, :) string = ""
-                options.Order (1, 1) double {mustBePositive, mustBeInteger} = 1
-                options.Intercept (1, 1) logical = true
+                options.exogenousNames (1, :) string = string.empty(1, 0)
+                options.units (1, :) string = ""
+                options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
+                options.intercept (1, 1) logical = true
             end
             %
-            this.EndogenousConcepts = options.EndogenousConcepts;
-            this.ShortSpan = datex.span(options.EstimationSpan(1), options.EstimationSpan(end));
+            this.EndogenousConcepts = options.endogenousConcepts;
+            this.ShortSpan = datex.span(options.estimationSpan(1), options.estimationSpan(end));
             if isempty(this.ShortSpan)
                 error("Estimation span must be non-empty");
             end
             %
-            this.Units = options.Units;
-            this.ExogenousNames = options.ExogenousNames;
-            this.HasIntercept = options.Intercept;
-            this.Order = options.Order;
+            this.Units = options.units;
+            this.ExogenousNames = options.exogenousNames;
+            this.HasIntercept = options.intercept;
+            this.Order = options.order;
         end%
 
         function longYXZ = getLongYXZ(this, varargin)
@@ -278,15 +278,15 @@ classdef ReducedForm < handle
     end
 
     methods
-        function names = get.EndogenousNames(this)
-            names = string.empty(1, 0);
+        function out = get.EndogenousNames(this)
+            out = string.empty(1, 0);
             for unit = this.Units
-                names = [names, meta.concatenate(unit, this.EndogenousConcepts)];
+                out = [out, meta.concatenate(unit, this.EndogenousConcepts)];
             end
         end%
 
-        function names = get.ResidualNames(this)
-            names = meta.concatenate(this.ResidualPrefix, this.EndogenousNames);
+        function out = get.ResidualNames(this)
+            out = meta.concatenate(this.ResidualPrefix, this.EndogenousNames);
         end%
 
         function num = get.NumEndogenousNames(this)

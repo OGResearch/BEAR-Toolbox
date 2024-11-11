@@ -21,10 +21,9 @@ classdef ExcelUX < handle
         FilePath (1, 1) string
         DataSource (:, :) cell
         Tasks (:, :) cell
-        ReducedFormMeta (:, :) cell
+        Meta (:, :) cell
         Estimator (:, :) cell
         Dummies (:, :) cell
-        StructuralMeta (:, :) cell
 
         Config (1, 1) bear6.Config
         InputDataTable (:, :) timetable
@@ -63,10 +62,9 @@ classdef ExcelUX < handle
         function readAll(this)
             this.readDataSource();
             this.readTasks();
-            this.readReducedFormMeta();
+            this.readMeta();
             this.readEstimator();
             this.readDummies();
-            this.readStructuralMeta();
         end%
 
 
@@ -88,10 +86,10 @@ classdef ExcelUX < handle
         end%
 
 
-        function readReducedFormMeta(this)
-            this.ReducedFormMeta = readcell( ...
+        function readMeta(this)
+            this.Meta = readcell( ...
                 this.FilePath ...
-                , "sheet", this.REDUCED_FORM_META_SHEET ...
+                , "sheet", this.META_SHEET ...
                 , this.CELL_READER_OPTIONS{:} ...
             );
         end%
@@ -121,12 +119,7 @@ classdef ExcelUX < handle
         end%
 
 
-        function readStructuralMeta(this)
-            this.StructuralMeta = readcell( ...
-                this.FilePath ...
-                , "sheet", this.STRUCTURAL_META_SHEET ...
-                , this.CELL_READER_OPTIONS{:} ...
-            );
+        function readMeta(this)
         end%
 
 
@@ -135,7 +128,7 @@ classdef ExcelUX < handle
             this.configureTasks();
             this.configureReducedFormMeta();
             this.configureEstimator();
-            this.configureStructuralMeta();
+            this.configureMeta();
         end%
 
 
@@ -158,15 +151,15 @@ classdef ExcelUX < handle
 
 
         function configureReducedFormMeta(this)
-            x = this.ReducedFormMeta;
-            this.Config.ReducedFormMeta_Units = stringListFromCellArray(x(2, 2:end), whenEmpty="");
-            this.Config.ReducedFormMeta_EndogenousConcepts = stringListFromCellArray(x(3, 2:end));
-            this.Config.ReducedFormMeta_ExogenousNames = stringListFromCellArray(x(4, 2:end));
-            this.Config.ReducedFormMeta_HasIntercept = x{5, 2};
-            this.Config.ReducedFormMeta_Order = x{6, 2};
-            this.Config.ReducedFormMeta_EstimationStart = x{7, 2};
-            this.Config.ReducedFormMeta_EstimationEnd = x{8, 2};
-            this.Config.ReducedFormMeta_NumDraws = x{9, 2};
+            x = this.Meta;
+            this.Config.Meta_Units = stringListFromCellArray(x(2, 2:end), whenEmpty="");
+            this.Config.Meta_EndogenousConcepts = stringListFromCellArray(x(3, 2:end));
+            this.Config.Meta_ExogenousNames = stringListFromCellArray(x(4, 2:end));
+            this.Config.Meta_HasIntercept = x{5, 2};
+            this.Config.Meta_Order = x{6, 2};
+            this.Config.Meta_EstimationStart = x{7, 2};
+            this.Config.Meta_EstimationEnd = x{8, 2};
+            this.Config.Meta_NumDraws = x{9, 2};
         end%
 
 
@@ -188,10 +181,10 @@ classdef ExcelUX < handle
         end%
 
 
-        function configureStructuralMeta(this)
-            x = this.StructuralMeta;
-            this.Config.StructuralMeta_ShockConcepts = stringListFromCellArray(x(2, 2:end));
-            this.Config.StructuralMeta_IdentificationHorizon = x{3, 2};
+        function configureMeta(this)
+            x = this.Meta;
+            this.Config.Meta_ShockConcepts = stringListFromCellArray(x(2, 2:end));
+            this.Config.Meta_IdentificationHorizon = x{3, 2};
         end%
 
     end

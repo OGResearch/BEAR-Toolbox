@@ -2,34 +2,38 @@
 classdef Cholesky < identifier.Base
 
     methods
+        function this = Cholesky(varargin)
+            this.Candidator = @(P) P;
+        end%
 
-        function initializeSampler(this, meta, modelR)
+        function initializeSampler(this, modelS)
             %[
             arguments
                 this
-                meta (1, 1) meta.Structural
-                modelR (1, 1) model.ReducedForm
+                modelS (1, 1) model.Structural
             end
             %
-            horizon = meta.IdentificationHorizon;
-            samplerR = modelR.Estimator.Sampler;
-            drawerR = @(sample) modelR.Estimator.IdentificationDrawer(sample, horizon);
+            horizon = modelS.Meta.IdentificationHorizon;
+            samplerR = modelS.ReducedForm.Estimator.Sampler;
+            drawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
+            candidator = this.Candidator;
             %
-            function sample = sampler()
+            function sample = samplerS()
+                this.SampleCounter = this.SampleCounter + 1;
                 sample = samplerR();
-                draw = drawerR(sample);
+                draw = drawer(sample);
                 % u = e*D or e = u/D
                 % Sigma = D'*D
-                Sigma = (draw.Sigma + draw.Sigma')/2;
-                sample.D = chol(Sigma);
                 sample.IdentificationDraw = draw;
-                this.SampleCounter = this.SampleCounter + 1;
+                Sigma = (draw.Sigma + draw.Sigma')/2;
+                P = chol(Sigma);
+                sample.D = candidator(P);
+                this.CandidateCounter = this.CandidateCounter + 1;
             end%
             %
-            this.Sampler = @sampler;
+            this.Sampler = @samplerS;
             %]
         end%
-
     end
 
 end

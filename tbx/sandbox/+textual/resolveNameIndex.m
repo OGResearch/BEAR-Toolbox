@@ -29,3 +29,4 @@ function nameIndex = resolveNameIndex(names, nameIndex)
     end
 
 end%
+

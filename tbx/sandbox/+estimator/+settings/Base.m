@@ -1,5 +1,5 @@
 
-% estimator.common  Default values for common prior distribution settings
+% estimator.Base  Default values for common prior distribution settings
 
 classdef (CaseInsensitiveProperties=true) Base < settings.Base
 
@@ -41,13 +41,14 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
 
     methods
 
-        function this = Base(varargin)
-            this = this@settings.Base(varargin{2:end});
-
+        function this = Base(meta, varargin)
             if nargin == 0
                 return
             end
-            meta = varargin{1};
+
+            for i = 1 : 2 : numel(varargin)
+                this.(varargin{i}) = varargin{i+1};
+            end
 
             numY = meta.NumEndogenousNames;
             numX = meta.NumExogenousNames;

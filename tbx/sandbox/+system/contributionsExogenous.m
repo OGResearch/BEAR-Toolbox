@@ -6,34 +6,28 @@
 %
 %}
 
-function C = contributionsExogenous(A, IC, IX)
+function contribs = contributionsExogenous(A, C, longYXZ)
 
     arguments
         A (:, 1) cell {mustBeNonempty}
-        IC (:, :) double
-        IX (:, :) double
+        C (:, 1) cell {mustBeNonempty}
+        longYXZ (1, 3) cell
     end
 
+    numT = numel(A);
     [order, numY] = system.orderFromA(A{1});
-    numIX = size(IX, 2);
-    numT = size(IX, 1);
+    numP = 1;
 
-    % Work with C as numY x numE x numT
-    C = zeros(numY, 1, numT);
-    lt = zeros(numY * order, numE);
+    shortX = longYXZ{2}(order+1:end, :, :);
+    hasIntercept = size(C{1}, 1) == size(shortX, 2) + 1;
+    shortX = system.addInterceptWhenNeeded(shortX, hasIntercept);
 
-    ct = IX(1, :) * C;
-    C(:, :, 1) = ct;
-
-    for t = 2 : numT
-        lt = [ct; lt(1:end-numY, :)];
-        ixt = IX(t, :);
-        ct = lt * A{t} + ixt * IC;
-        C(:, :, t) = ct;
+    permutedPulses = zeros(numP, numY, numT);
+    for t = 1 : numT
+        permutedPulses(:, :, t) = shortX(t, :) * C{t};
     end
 
-    % Permute the final C into numT x numY x numE
-    C = permute(C, [3, 1, 2]);
+    contribs = system.filterPulses(A, permutedPulses);
 
 end%
 

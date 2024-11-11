@@ -12,7 +12,7 @@ classdef GeneralTV < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -270,6 +270,7 @@ classdef GeneralTV < estimator.Base
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             sizeB = numEn * numBRows;
             estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
             %IRF periods
             %IRFperiods = meta.IRFperiods;
@@ -328,7 +329,7 @@ classdef GeneralTV < estimator.Base
                 end
             end%
 
-            function [drawStruct] = identificationDrawer(sampleStruct, horizon)
+            function [drawStruct] = identificationDrawer(sampleStruct)
                 %draw beta, omega from their posterior distribution
                 % draw beta
                 beta = sampleStruct.beta{end, 1};
@@ -339,6 +340,7 @@ classdef GeneralTV < estimator.Base
                 % create a choleski of omega, the variance matrix for the law of motion
                 cholomega = sparse(diag(omega));
 
+                horizon = identificationHorizon;
                 drawStruct.A = cell(horizon, 1);
                 drawStruct.C = cell(horizon, 1);
 
