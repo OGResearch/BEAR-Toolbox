@@ -50,9 +50,9 @@ metaR = meta.ReducedForm( ...
 % estimator = estimator.StaticCrossPanel(metaR);
 % estimator = estimator.DynamicCrossPanel(metaR);
 % estimator = estimator.HierarchicalPanel(metaR);
-% estimator = estimator.NormalWishartPanel(metaR);
+estimator = estimator.NormalWishartPanel(metaR);
 % estimator = estimator.ZellnerHongPanel(metaR);
-estimator = estimator.MeanOLSPanel(metaR);
+% estimator = estimator.MeanOLSPanel(metaR);
 
 dataHolder = model.DataHolder(metaR, inputTable);
 
@@ -66,12 +66,49 @@ modelR = model.ReducedForm( ...
 modelR.initialize();
 modelR.presample(100);
 
-fcastStart = datex.shift(modelR.Meta.EstimationEnd, -11);
-fcastEnd = datex.shift(modelR.Meta.EstimationEnd, +0);
+fcastStart = datex.shift(modelR.Meta.EstimationEnd, -3);
+fcastEnd = datex.shift(modelR.Meta.EstimationEnd, +8);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 rng("default")
 
-fcastTable = modelR.forecast(fcastSpan);
-fcastPctTable = tablex.apply(fcastTable, pctileFunc);
+% fcastTable = modelR.forecast(fcastSpan);
+% fcastPctTable = tablex.apply(fcastTable, pctileFunc);
 
-residTbx = modelR.calculateResiduals();
+% residTbx = modelR.calculateResiduals();
+keyboard
+metaS = meta.Structural(metaR, identificationHorizon=20);
+
+id = identifier.Cholesky(stdVec=1);
+
+modelS = model.Structural(meta=metaS, reducedForm=modelR, identifier=id);
+modelS.initialize()
+modelS.presample(100);
+
+%% Conditional forecast
+
+longYXZ = modelR.getLongYXZ();
+
+% Conditional forecast type. Hardcoded as 2 for now.
+% CFt = this.Settings.CFt;
+% "all shocks"
+% CFt = 1;
+% "selected shocks"
+CFt = 2;
+
+% Panel model type. Here, we theoretically only need to distiguish if it is with cross-sections or not. I hard code it as 2 for NormalWishartPanel (no cross-sections).
+% "with cross-sections"
+% panel = 5;
+% "no cross-sections"
+panel = 2;
+
+fStart = lower(datestr(fcastStart,'YYYYQQ'));
+fEnd = lower(datestr(fcastEnd,'YYYYQQ'));
+Fperiods = length(fcastSpan);
+
+% Load conditional forecast conditions
+% dirty house
+% [cfcondsFull, cfshocksFull, cfblocksFull] = bear.loadcfpan(endo, units, panel, CFt, fStart, fEnd, Fperiods, pref);
+% my simple example function
+[cfcondsFull, cfshocksFull, cfblocksFull] = tv.set_conditions_example(panel, CFt, Fperiods, metaR);
+
+[cforecast_record] = tv.conditionalForecastPanel(metaR, fcastStart, fcastEnd, longYXZ, cfcondsFull, cfshocksFull, cfblocksFull);
