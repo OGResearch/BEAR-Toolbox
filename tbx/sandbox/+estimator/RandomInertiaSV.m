@@ -336,14 +336,7 @@ classdef RandomInertiaSV < estimator.Base
             function drawStruct = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
 
                 beta = sampleStruct.beta;
-                % reshape it to obtain B
-                B = reshape(beta, numBRows, numEn);
-
-                A = B(1:numARows, :);
-                C = B(numARows + 1:end, :);
-
-                drawStruct.A = repmat({A}, forecastHorizon, 1);
-                drawStruct.C = repmat({C}, forecastHorizon, 1);
+                drawStruct.beta = repmat({beta}, forecastHorizon, 1);
 
             end%
 

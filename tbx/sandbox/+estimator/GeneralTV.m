@@ -336,15 +336,12 @@ classdef GeneralTV < estimator.Base
                 % create a choleski of omega, the variance matrix for the law of motion
                 cholomega = sparse(diag(omega));
                 %
-                drawStruct.A = cell(forecastHorizon, 1);
-                drawStruct.C = cell(forecastHorizon, 1);
+                drawStruct.beta = cell(forecastHorizon, 1);
 
                 for jj = 1:forecastHorizon
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
-                    B = reshape(beta, numBRows, numEn);
-                    drawStruct.A{jj, 1}(:, :) = B(1:numARows, :);
-                    drawStruct.C{jj, 1}(:, :) = B(numARows + 1:end, :);
+                    drawStruct.beta{jj, 1}(:) = beta;
                 end
                 %
             end%

@@ -177,17 +177,14 @@ classdef BetaTV < estimator.Base
                 % create a choleski of omega, the variance matrix for the law of motion
                 cholomega = sparse(diag(omega));
 
-                drawStruct.A = cell(forecastHorizon, 1);
-                drawStruct.C = cell(forecastHorizon, 1);
+                drawStruct.beta = cell(forecastHorizon, 1);
                 
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:forecastHorizon
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
-                    B = reshape(beta, numBRows, numEn);
-                    drawStruct.A{jj, 1}(:, :) = B(1:numARows, :);
-                    drawStruct.C{jj, 1}(:, :) = B(numARows + 1:end, :);
+                    drawStruct.beta{jj, 1}(:) = beta;
                 end
             end
 

@@ -26,6 +26,12 @@ classdef (Abstract) PlainDrawersMixin < handle
                 draw.C = wrap(C);
                 draw.Sigma = wrap(sample.sigma);
             end%
+            function draw = conditionaldrawer(sample, horizon)
+                beta = sample.beta;
+                wrap = @(x) repmat({x}, horizon, 1);
+                draw = struct();
+                draw.beta = wrap(beta);
+            end%            
             %
             function draw = identificationDrawer(sample)
                 horizon = identificationHorizon;
@@ -41,7 +47,7 @@ classdef (Abstract) PlainDrawersMixin < handle
             %
             this.HistoryDrawer = @(sample) drawer(sample, estimationHorizon);
             this.UnconditionalDrawer = @(sample, start, horizon) drawer(sample, horizon);
-            this.ConditionalDrawer = @(sample, start, horizon) drawer(sample, horizon);
+            this.ConditionalDrawer = @(sample, start, horizon) conditionaldrawer(sample, horizon);
             this.IdentificationDrawer = @identificationDrawer;
             %
             %]
