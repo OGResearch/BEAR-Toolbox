@@ -304,6 +304,19 @@ classdef CarrieroSV < estimator.Base
                 end
             end
 
+            function drawStruct = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+
+                beta = sampleStruct.beta;
+                % reshape it to obtain B
+                B = reshape(beta, numBRows, numEn);
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+
+                drawStruct.A = repmat({A}, forecastHorizon, 1);
+                drawStruct.C = repmat({C}, forecastHorizon, 1);
+            end
+
+
             function drawStruct = identificationDrawer(sampleStruct)
 
                 horizon = identificationHorizon;
@@ -338,6 +351,7 @@ classdef CarrieroSV < estimator.Base
             end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;
+            this.ConditionalDrawer = @conditionalDrawer;            
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
 

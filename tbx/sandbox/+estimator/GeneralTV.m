@@ -326,8 +326,27 @@ classdef GeneralTV < estimator.Base
             end%
 
 
-            function draw = conditionalDrawer(varargin)
-                draw = unconditionalDrawer(varargin{:});
+            function drawStruct = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+                %
+                %draw beta, omega
+                %
+                beta = sampleStruct.beta{startingIndex - 1, 1};
+                omega = sampleStruct.omega;
+                %
+                % create a choleski of omega, the variance matrix for the law of motion
+                cholomega = sparse(diag(omega));
+                %
+                drawStruct.A = cell(forecastHorizon, 1);
+                drawStruct.C = cell(forecastHorizon, 1);
+
+                for jj = 1:forecastHorizon
+                    % update beta
+                    beta = beta + cholomega*randn(sizeB, 1);
+                    B = reshape(beta, numBRows, numEn);
+                    drawStruct.A{jj, 1}(:, :) = B(1:numARows, :);
+                    drawStruct.C{jj, 1}(:, :) = B(numARows + 1:end, :);
+                end
+                %
             end%
 
 

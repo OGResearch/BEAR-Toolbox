@@ -126,7 +126,6 @@ classdef BetaTV < estimator.Base
 
 
         function createDrawers(this, meta)
-            %[
 
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
@@ -165,6 +164,35 @@ classdef BetaTV < estimator.Base
                 end
             end
 
+            function [drawStruct] = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+
+                %draw beta, omega and sigma and F from their posterior distributions
+
+                % draw beta
+                beta = sampleStruct.beta{startingIndex - 1, 1};
+
+                % draw omega
+                omega = sampleStruct.omega;
+
+                % create a choleski of omega, the variance matrix for the law of motion
+                cholomega = sparse(diag(omega));
+
+                drawStruct.A = cell(forecastHorizon, 1);
+                drawStruct.C = cell(forecastHorizon, 1);
+                
+                % then generate forecasts recursively
+                % for each iteration ii, repeat the process for periods T+1 to T+h
+                for jj = 1:forecastHorizon
+                    % update beta
+                    beta = beta + cholomega*randn(sizeB, 1);
+                    B = reshape(beta, numBRows, numEn);
+                    drawStruct.A{jj, 1}(:, :) = B(1:numARows, :);
+                    drawStruct.C{jj, 1}(:, :) = B(numARows + 1:end, :);
+                end
+            end
+
+
+
             function [drawStruct] = identificationDrawer(sampleStruct)
                 %[
                 horizon = identificationHorizon;
@@ -198,16 +226,17 @@ classdef BetaTV < estimator.Base
 
             function drawStruct = historyDrawer(sampleStruct)
                 %[
-                for jj = 1:estimationHorizon 
+                for jj = 1:estimationHorizon
                     B = reshape(sampleStruct.beta{jj}, numBRows, numEn);
                     drawStruct.A{jj,1}(:, :) = B(1:numARows, :);
-                    drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);    
+                    drawStruct.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end
                 drawStruct.Sigma = repmat({reshape(sampleStruct.sigma, numEn, numEn)}, estimationHorizon, 1);
                 %]
             end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;
+            this.ConditionalDrawer = @conditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
 
