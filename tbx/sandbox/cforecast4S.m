@@ -1,4 +1,4 @@
-function [cdforecast] = cforecast4S(this, sample, longYXZ, forecastStartIndex, forecastHorizon, options)
+function [cdforecast] = cforecast4S(D, beta_iter, longYXZ, forecastHorizon, options)
     
     [longY, longX, ~] = longYXZ{:};
     
@@ -15,11 +15,6 @@ function [cdforecast] = cforecast4S(this, sample, longYXZ, forecastStartIndex, f
     
     X = longX(order + 1:end, :);
     X = system.addInterceptWhenNeeded(X, hasIntercept);
-    
-    D = sample.D;
-
-    draw = this.Estimator.ConditionalDrawer(sample, forecastStartIndex, forecastHorizon);
-    beta_iter = [draw.beta{:}];
     
     Y = flipud(longY(1:order,:))';
     ybarT = Y(:);

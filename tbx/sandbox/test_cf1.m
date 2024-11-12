@@ -18,7 +18,7 @@ condTable = timetable( ...
     variableNames=variableNames ...
     );
 condTable{datex.span("2012-Q1", "2013-Q1"), "DOM_GDP"} = {true};
-
+condTable{datex.span("2014-Q1", "2014-Q4"), "DOM_CPI"} = {true};
 %create CF arrays
 cfconds = createCfcond(meta, longYXZ, condTable, shortForecastSpan);
 cfshocks = cell(1);
@@ -32,4 +32,7 @@ options.cfblocks = cfblocks;
 options.cfshocks = cfshocks;
 
 sample = modelS.Presampled{1};
-[cdforecast1] = cforecast4S(modelS, sample, longYXZ, forecastStartIndex, forecastHorizon, options);
+draw = modelS.Estimator.ConditionalDrawer(sample, forecastStartIndex, forecastHorizon);
+D = sample.D;
+beta_iter = [draw.beta{:}];
+[cdforecast1] = cforecast4S(D, beta_iter, longYXZ, forecastHorizon, options);
