@@ -1,6 +1,7 @@
 
-function cfconds = createCfcond(meta, longY, condTable, forecastSpan)
+function cfconds = createCfcond(meta, longYXZ, condTable, forecastSpan)
 
+    [longY, ~, ~] = longYXZ{:};
     order = meta.Order;
     
     shortY = longY(order + 1:end, :);
