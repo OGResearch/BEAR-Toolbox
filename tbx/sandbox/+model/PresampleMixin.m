@@ -14,7 +14,7 @@ classdef PresampleMixin < handle
             end
             this.resetPresampled(numToPresample);
             sampler = this.Sampler;
-            progressMessage = sprintf("Presampling %s [%g]", class(this), numToPresample);
+            progressMessage = sprintf("Presampling %s (%s) [%g]", class(this), this.Estimator.ShortClassName, numToPresample);
             pbar = progress.Bar(progressMessage, numToPresample);
             initSampleCount = this.SampleCounter;
             initCandidateCount = this.CandidateCounter;

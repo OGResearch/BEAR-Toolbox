@@ -29,6 +29,9 @@ classdef Meta < matlab.mixin.Copyable
         %
         % NumFactors  Number of factors to be formed from reducibles
         NumFactors (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
+
+        % ShortSpan  Span of fitted data
+        ShortSpan
     end
 
 
@@ -51,11 +54,7 @@ classdef Meta < matlab.mixin.Copyable
     end
 
 
-    properties (SetAccess=protected)
-        % Span of fitted data
-        ShortSpan
-
-        % Separator
+    properties (Constant)
         SEPARATOR = "_"
     end
 

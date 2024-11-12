@@ -1,3 +1,4 @@
+
 classdef GeneralTV < estimator.Base
 
     properties
@@ -272,40 +273,34 @@ classdef GeneralTV < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
-            %IRF periods
-            %IRFperiods = meta.IRFperiods;
-
-            %other settings
             gamma = this.Settings.HeteroskedasticityAutoRegression;
 
+
             function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
-
+                %
                 %draw beta, omega and sigma and F from their posterior distributions
-
-                % draw beta
+                %
                 beta = sampleStruct.beta{startingIndex - 1, 1};
-
-                % draw omega
                 omega = sampleStruct.omega;
-
+                %
                 % create a choleski of omega, the variance matrix for the law of motion
                 cholomega = sparse(diag(omega));
-
+                %
                 % draw F from its posterior distribution
                 F = sparse(sampleStruct.F);
-
+                %
                 % step 4: draw phi from its posterior
                 phi = sampleStruct.phi';
-
+                %
                 % also, compute the pre-sample value of lambda, the stochastic volatility process
                 lambda = sampleStruct.L{startingIndex - 1}';
-
+                %
                 sbar = sampleStruct.sbar;
-
+                %
                 drawStruct.A = cell(forecastHorizon, 1);
                 drawStruct.C = cell(forecastHorizon, 1);
                 drawStruct.Sigma = cell(forecastHorizon, 1);
-
+                %
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:forecastHorizon
@@ -314,39 +309,44 @@ classdef GeneralTV < estimator.Base
                     B = reshape(beta, numBRows, numEn);
                     drawStruct.A{jj, 1}(:, :) = B(1:numARows, :);
                     drawStruct.C{jj, 1}(:, :) = B(numARows + 1:end, :);
-
+                    %
                     % update lambda_t and obtain Lambda_t
                     % loop over variables
                     for kk = 1:numEn
                         lambda(kk, 1) = gamma * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
                     end
-
+                    %
                     % obtain Lambda_t
                     Lambda = sparse(diag(sbar .* exp(lambda)));
-
+                    %
                     % recover sigma_t and draw the residuals
                     drawStruct.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
+                %
+            end%
+
+
+            function draw = conditionalDrawer(varargin)
+                draw = unconditionalDrawer(varargin{:});
             end%
 
 
             function [drawStruct] = identificationDrawer(sampleStruct)
-
+                %
                 horizon = identificationHorizon;
-
+                %
                 %draw beta, omega from their posterior distribution
                 % draw beta
                 beta = sampleStruct.beta{end, 1};
-
-                % draw omega
+                %
                 omega = sampleStruct.omega;
-
+                %
                 % create a choleski of omega, the variance matrix for the law of motion
                 cholomega = sparse(diag(omega));
-
+                %
                 drawStruct.A = cell(horizon, 1);
                 drawStruct.C = cell(horizon, 1);
-
+                %
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:horizon
@@ -356,30 +356,32 @@ classdef GeneralTV < estimator.Base
                     drawStruct.A{jj}(:, :) = B(1:numARows, :);
                     drawStruct.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
-
+                %
                 drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
+                %
             end%
 
 
             function drawStruct = historyDrawer(sampleStruct)
-
+                %
                 drawStruct.A = cell(estimationHorizon, 1);
                 drawStruct.C = cell(estimationHorizon, 1);
                 drawStruct.Sigma = cell(estimationHorizon, 1);
-
+                %
                 for jj = 1:estimationHorizon
                     B = reshape(sampleStruct.beta{jj}, numBRows, numEn);
                     drawStruct.A{jj}(:, :) = B(1:numARows, :);
                     drawStruct.C{jj}(:, :) = B(numARows + 1:end, :);
                     drawStruct.Sigma{jj}(:, :) = sampleStruct.sigma_t{jj}(:, :);
                 end
-
+                %
             end%
 
-
             this.UnconditionalDrawer = @unconditionalDrawer;
+            this.ConditionalDrawer = @conditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
+
             %]
         end%
 

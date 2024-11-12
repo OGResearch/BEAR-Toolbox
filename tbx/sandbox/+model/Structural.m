@@ -19,6 +19,7 @@ classdef Structural < handle & model.PresampleMixin
 
     properties (Dependent)
         Meta
+        Estimator
         DataHolder
         %
         Sampler
@@ -239,6 +240,10 @@ classdef Structural < handle & model.PresampleMixin
     methods
         function out = get.Meta(this)
             out = this.ReducedForm.Meta;
+        end%
+
+        function out = get.Estimator(this)
+            out = this.ReducedForm.Estimator;
         end%
 
         function out = get.DataHolder(this)
