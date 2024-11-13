@@ -1,26 +1,38 @@
 
 classdef Verifiables < identifier.Base
 
+    properties (Constant)
+        DEFAULT_MAX_CANDIDATES = 100
+        DEFAULT_FLIP_SIGN = true
+    end
+
+
     properties
+        ExactZeros (1, 1) identifier.ExactZeros
         VerifiableTests identifier.VerifiableTests
-        MaxCandidates (1, 1) double {mustBePositive} = Inf
-        TryFlippingSign (1, 1) logical
+        MaxCandidates (1, 1) double {mustBePositive} = identifier.Verifiables.DEFAULT_MAX_CANDIDATES
+        FlipSign (1, 1) logical = identifier.Verifiables.DEFAULT_FLIP_SIGN
     end
 
 
     methods
-        function this = Verifiables(testStrings, options)
+        function this = Verifiables(tests, options)
             arguments
-                testStrings (1, :) string
+                tests
                 %
-                options.MaxCandidates (1, 1) double = Inf
-                options.TryFlippingSign (1, 1) logical = true
+                options.ExactZeros (1, 1) identifier.ExactZeros = identifier.ExactZeros()
+                options.MaxCandidates (1, 1) double = identifier.Verifiables.DEFAULT_MAX_CANDIDATES
+                options.FlipSign (1, 1) logical = identifier.Verifiables.DEFAULT_FLIP_SIGN
             end
             %
-            this.Candidator = @identifier.candidateFromFactorUnconstrained;
-            this.VerifiableTests = identifier.VerifiableTests(testStrings);
+            if istable(tests)
+                tests = tablex.toVerifiables(tests);
+            end
+            tests = textual.stringify(tests);
+            this.ExactZeros = options.ExactZeros;
+            this.VerifiableTests = identifier.VerifiableTests(tests);
             this.MaxCandidates = options.MaxCandidates;
-            this.TryFlippingSign = options.TryFlippingSign;
+            this.FlipSign = options.FlipSign;
         end%
 
         function initializeSampler(this, modelS)
@@ -32,7 +44,8 @@ classdef Verifiables < identifier.Base
             %
             samplerR = modelS.ReducedForm.Estimator.Sampler;
             drawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
-            candidator = @identifier.candidateFromFactorUnconstrained;
+            % candidator = @identifier.candidateFromFactorUnconstrained;
+            candidator = this.ExactZeros.getCandidator();
             vp = identifier.VerifiableProperties(modelS);
             vt = this.VerifiableTests;
             %
@@ -61,7 +74,7 @@ classdef Verifiables < identifier.Base
                             return
                         end
 
-                        if ~this.TryFlippingSign
+                        if ~this.FlipSign
                             continue
                         end
 

@@ -26,13 +26,6 @@ classdef (Abstract) Base < handle
     end
 
 
-    properties (Constant)
-        SAMPLER_INFO = struct( ...
-            NumCandidates=NaN ...
-        )
-    end
-
-
     methods (Abstract)
         varargout = initializeSampler(this, varargin)
     end

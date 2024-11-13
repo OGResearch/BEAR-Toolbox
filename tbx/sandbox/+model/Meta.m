@@ -62,10 +62,7 @@ classdef Meta < matlab.mixin.Copyable
     properties (Dependent)
         ShortStart
         ShortEnd
-    end
-
-
-    properties (Dependent)
+        %
         EndogenousNames
         ResidualNames
         HasExogenous

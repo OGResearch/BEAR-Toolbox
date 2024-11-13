@@ -19,17 +19,19 @@ function flatTable = flatten(table, options)
     end
 
     span = tablex.span(table);
-    names = table.Properties.VariableNames;
+    names = textual.stringify(table.Properties.VariableNames);
     numNames = numel(names);
     flatNames = textual.crossList(options.Separator, names, higherDims{:});
 
     numFlatNames = numel(flatNames);
     flatData = cell(1, numFlatNames);
     index = 1;
-    for n = reshape(string(names), 1, [])
-        numCols = size(table.(n), 2);
-        for i = 1 : numCols : size(flatData, 2)
-            flatData{index} = table.(n)(:, i+(0:numCols-1));
+    for n = names
+        varData = table.(n);
+        numCols = size(varData, 2);
+        varData = varData(:, :);
+        for i = 1 : numCols : size(varData, 2)
+            flatData{index} = varData(:, i+(0:numCols-1));
             index = index + 1;
         end
     end

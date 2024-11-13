@@ -5,7 +5,9 @@
 classdef VerifiableTests
 
     properties
+        TestStrings (1, :) string
         TestFunctions (1, :) cell
+        TestFunctionShortCircuit
     end
 
     methods
@@ -13,10 +15,14 @@ classdef VerifiableTests
             arguments
                 testStrings (1, :) string
             end
+            this.TestStrings = testStrings;
             this.TestFunctions = cell(size(testStrings));
             for i = 1 : numel(testStrings)
                 this.TestFunctions{i} = this.testFuncFromTestString(testStrings(i));
             end
+            this.TestFunctionShortCircuit = this.testFuncFromTestString( ...
+                join("(" + testStrings + ")", " && ") ...
+            );
         end%
 
         function status = evaluateAll(this, verifiableProperties)
@@ -24,7 +30,6 @@ classdef VerifiableTests
                 this
                 verifiableProperties (1, 1) identifier.VerifiableProperties
             end
-            % status = repmat(false, size(this.TestFunctions));
             status = cell(size(this.TestFunctions));
             for i = 1 : numel(this.TestFunctions)
                 status{i} = this.TestFunctions{i}(verifiableProperties);
@@ -36,12 +41,7 @@ classdef VerifiableTests
                 this
                 verifiableProperties (1, 1) identifier.VerifiableProperties
             end
-            for i = 1 : numel(this.TestFunctions)
-                status = this.TestFunctions{i}(verifiableProperties);
-                if ~status
-                    break
-                end
-            end
+            status = this.TestFunctionShortCircuit(verifiableProperties);
         end%
     end
 
