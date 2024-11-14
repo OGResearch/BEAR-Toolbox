@@ -1,6 +1,5 @@
-function [cdforecast, eta] = cforecast4S(D, beta_iter, initY, shortX, forecastHorizon, options)
 
-    % [longY, longX, ~] = longYXZ{:};
+function [fcastY, fcastE] = forecast(D, beta_iter, initY, shortX, fcastHorizon, options)
 
     order = options.order;
     hasIntercept = options.hasIntercept;
@@ -13,7 +12,6 @@ function [cdforecast, eta] = cforecast4S(D, beta_iter, initY, shortX, forecastHo
 
     numBRows = numEndog*order + numExog;
 
-    % X = longX(order + 1:end, :);
     X = shortX;
     X = system.addInterceptWhenNeeded(X, hasIntercept);
 
@@ -22,30 +20,30 @@ function [cdforecast, eta] = cforecast4S(D, beta_iter, initY, shortX, forecastHo
 
     % check wether there are any conditions and whether it's conditioned by all shocks or only one
     flagCond = any(any(cellfun(@(x) ~isempty(x), cfconds)));
-    flagSimPlan = any(any(cellfun(@(x) ~isempty(x), cfshocks)));
+    isSelective = ~isempty(cfshocks);
 
-    cdforecast = NaN(forecastHorizon, numEndog);
+    fcastY = NaN(fcastHorizon, numEndog);
 
 
     % if there are conditions
     if flagCond
         % step 2: compute regular forecasts for the data (without shocks)
-        [fmat, ortirfcell] = bear.tvcfsim1(beta_iter, D, ybarT, X, forecastHorizon, numEndog, numExog, order, numBRows);
+        [fmat, ortirfcell] = bear.tvcfsim1(beta_iter, D, ybarT, X, fcastHorizon, numEndog, numExog, order, numBRows);
 
-        if ~flagSimPlan
+        if ~isSelective
 
-            eta = bear.shocksim5(cfconds, forecastHorizon, numEndog, fmat, ortirfcell);
+            fcastE = bear.shocksim5(cfconds, fcastHorizon, numEndog, fmat, ortirfcell);
 
         else
 
-            eta = bear.shocksim6(cfconds, cfshocks, cfblocks, forecastHorizon, numEndog, eye(numEndog), fmat, ortirfcell);
+            fcastE = bear.shocksim6(cfconds, cfshocks, cfblocks, fcastHorizon, numEndog, eye(numEndog), fmat, ortirfcell);
 
         end
 
-        eta = reshape(eta, numEndog, forecastHorizon);
+        fcastE = reshape(fcastE, numEndog, fcastHorizon);
 
         % step 5: obtain the conditional forecasts
-        for indPeriod = 1:forecastHorizon
+        for indPeriod = 1:fcastHorizon
 
             % compute shock contribution to forecast values
             % create a temporary vector of cumulated shock contributions
@@ -53,18 +51,18 @@ function [cdforecast, eta] = cforecast4S(D, beta_iter, initY, shortX, forecastHo
 
             % loop over periods up the the one currently considered
             for kk = 1:indPeriod
-                temp = temp + ortirfcell{indPeriod - kk + 1, indPeriod}(:, :)*eta(:, kk);
+                temp = temp + ortirfcell{indPeriod - kk + 1, indPeriod}(:, :)*fcastE(:, kk);
             end
 
             % compute the conditional forecast as the sum of the regular predicted component, plus shock contributions
-            cdforecast(indPeriod, :) = fmat(indPeriod, :) + temp';
+            fcastY(indPeriod, :) = fmat(indPeriod, :) + temp';
         end
         % clear temp
 
         % then go for next iteration
     end
 
-    eta = transpose(eta);
+    fcastE = transpose(fcastE);
 
 end%
 

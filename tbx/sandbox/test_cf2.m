@@ -24,6 +24,7 @@ condTable{datex.span("2014-Q1", "2014-Q4"), "DOM_CPI"} = {["SUP"]};
 cfconds = createCfcond(meta, longYXZ, condTable, shortForecastSpan); 
 cfshocks = createCfshocks(meta, condTable, shortForecastSpan);
 cfblocks = createCfblocks(cfconds, cfshocks);
+return
 
 %Setting up options
 options.hasIntercept = meta.HasIntercept;

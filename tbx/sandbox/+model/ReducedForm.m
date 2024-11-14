@@ -82,8 +82,8 @@ classdef ReducedForm < handle & model.PresampleMixin
         end%
 
 
-        function longYXZ = getLongYXZ(this)
-            longYXZ = this.getSomeYXZ(this.Meta.LongSpan);
+        function longYXZ = getLongYXZ(this, shortSpan)
+            longYXZ = this.getSomeYXZ(this.Meta.ShortSpan);
         end%
 
 

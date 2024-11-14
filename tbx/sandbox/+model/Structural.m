@@ -190,6 +190,66 @@ classdef Structural < handle & model.PresampleMixin
             );
         end%
 
+        function outTbx = conditionalForecast(this, fcastSpan, options)
+            %[
+            arguments
+                this
+                fcastSpan (1, :) datetime
+                options.Conditions (:, :) timetable
+                options.Plan = []
+                options.IncludeInitial (1, 1) logical = true
+            end
+            %
+            meta = this.Meta;
+            fcastStart = fcastSpan(1);
+            fcastEnd = fcastSpan(end);
+            fcastSpan = datex.span(fcastStart, fcastEnd);
+            fcastStartIndex = datex.diff(fcastStart, meta.ShortStart) + 1;
+            fcastHorizon = numel(fcastSpan);
+            initSpan = datex.initSpanFromShortSpan(fcastSpan, meta.Order);
+            initYXZ = this.getSomeYXZ(initSpan);
+            initY = initYXZ{1};
+            fcastX = tablex.retrieveData(options.Conditions, meta.ExogenousNames, fcastSpan);
+            %
+            cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, fcastSpan);
+            cfshocks = conditional.createShocksCF(meta, options.Plan, fcastSpan);
+            cfblocks = conditional.createBlocksCF(cfconds, cfshocks);
+            %
+            legacyOptions = struct();
+            legacyOptions.hasIntercept = meta.HasIntercept;
+            legacyOptions.order = meta.Order;
+            legacyOptions.cfconds = cfconds;
+            legacyOptions.cfblocks = cfblocks;
+            legacyOptions.cfshocks = cfshocks;
+            %
+            numPresampled = this.NumPresampled;
+            progressMessage = sprintf("Conditional forecast [%g]", numPresampled);
+            pbar = progress.Bar(progressMessage, numPresampled);
+            %
+            fcastY = cell(1, numPresampled);
+            fcastE = cell(1, numPresampled);
+            for i = 1 : numPresampled
+                sample = this.Presampled{i};
+                draw = this.ConditionalDrawer(sample, fcastStartIndex, fcastHorizon);
+                D = sample.D;
+                beta_iter = [draw.beta{:}];
+                [fcastY{i}, fcastE{i}] = conditional.forecast(D, beta_iter, initY, fcastX, fcastHorizon, legacyOptions);
+                pbar.increment();
+            end
+            %
+            fcastY = cat(3, fcastY{:});
+            fcastE = cat(3, fcastE{:});
+            %
+            outNames = [meta.EndogenousNames, meta.ShockNames];
+            outSpan = fcastSpan;
+            if options.IncludeInitial
+                fcastY = [repmat(initY, 1, 1, size(fcastY, 3)); fcastY];
+                fcastE = [zeros(meta.Order, size(fcastE, 2), size(fcastE, 3)); fcastE];
+                outSpan = datex.longSpanFromShortSpan(fcastSpan, meta.Order);
+            end
+            outTbx = tablex.fromNumericArray([fcastY, fcastE], outNames, outSpan, variantDim=3);
+            %]
+        end%
 
         % function [sampler, shockIndex] = getSamplerVMA(this, numPeriods, shockIndex)
         %     arguments
@@ -229,6 +289,10 @@ classdef Structural < handle & model.PresampleMixin
 
         function varargout = getShortYXZ(this, varargin)
             [varargout{1:nargout}] = this.ReducedForm.getShortYXZ(varargin{:});
+        end%
+
+        function varargout = getSomeYXZ(this, varargin)
+            [varargout{1:nargout}] = this.ReducedForm.getSomeYXZ(varargin{:});
         end%
 
         function varargout = getInitYXZ(this, varargin)
