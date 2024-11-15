@@ -74,7 +74,7 @@ classdef DynamicCrossPanel < estimator.Base
                 % compute Sbar
                 % because using a loop is slow, express the summation as a matrix product
                 % compute in matrix form the series of residuals yt-Xt*thetat
-                % TODO optimization - check sparse, is it needed
+                % TODO: optimization - check sparse, is it needed
                 eps=sparse(reshape(y-Xtilde*Theta,N*n,T));
                 % create a diagonal matrix for which each diagonal entry is a zeta value
                 zetamat=sparse(diag(exp(-Zeta)));
@@ -438,11 +438,50 @@ classdef DynamicCrossPanel < estimator.Base
 
             end
 
+            function drawStruct = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+
+                % initiate the record draws
+                beta = cell(forecastHorizon, 1);
+
+                % read the input
+                B = sampleStruct.B;
+                thetabar = sampleStruct.thetabar;
+                Xi = sampleStruct.Xi;
+                theta = sampleStruct.theta(:, startingIndex-1);
+
+                % number of factors
+                numFactors = size(thetabar, 1);
+
+                % obtain its choleski factor as the square of each diagonal element
+                cholB = diag(diag(B).^0.5);
+
+                % generate forecasts recursively
+                % for each iteration jj, repeat the process for periods T+1 to T+forecastHorizon
+                for jj=1:forecastHorizon
+
+                    % update theta
+                    % draw the vector of shocks eta
+                    eta = cholB*mvnrnd(zeros(numFactors, 1),eye(numFactors))';
+                    % update theta from its AR process
+                    theta = (1-rho)*thetabar + rho*theta + eta;
+
+                    % reconstruct B matrix
+                    beta_temp = Xi*theta;
+
+                    % obtain A and C
+                    beta{jj} = beta_temp;
+
+                    % repeat until values are obtained for T+forecastHorizon
+                end
+
+                drawStruct = struct();
+                drawStruct.beta = beta;
+            end
+
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            % TODO: implement conditional drawer
-            this.ConditionalDrawer = [];
+            this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
 
