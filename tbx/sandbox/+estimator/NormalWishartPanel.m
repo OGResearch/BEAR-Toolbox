@@ -1,6 +1,8 @@
 classdef NormalWishartPanel < estimator.Base
 
     properties
+        DescriptionUX = "Normal-Wishart Panel BVAR"
+
         CanHaveDummies = false
         CanHaveReducibles = false
         HasCrossUnits = false
@@ -60,6 +62,7 @@ classdef NormalWishartPanel < estimator.Base
             %]
         end
 
+        % TODO: Split into betaDrawer and sigmaDrawer
         function createDrawers(this, meta)
             %[
             numCountries = meta.NumUnits;
@@ -70,7 +73,7 @@ classdef NormalWishartPanel < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
-
+            % TODO: Split into betaDrawer and sigmaDrawer
             function drawStruct = drawer(sampleStruct, horizon)
                 beta = sampleStruct.beta;
                 sigma = sampleStruct.sigma;
@@ -112,9 +115,15 @@ classdef NormalWishartPanel < estimator.Base
                 draw.Sigma = repmat({draw.Sigma}, estimationHorizon, 1);
             end%
 
+            function draw = conditionalDrawer(sample)
+                draw = struct();
+                % TODO: implement
+            end%
+
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
+            this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
     end

@@ -11,7 +11,6 @@ classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
 
     methods
-
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments
@@ -68,7 +67,7 @@ classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
             this.Sampler = @sampler;
             %]
         end%
-
     end
+
 end
 

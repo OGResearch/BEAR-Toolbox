@@ -1,6 +1,8 @@
 classdef StaticCrossPanel < estimator.Base
 
     properties
+        DescriptionUX = "Static Cross-Sectional Panel BVAR"
+
         CanHaveDummies = false
         CanHaveReducibles = false
         HasCrossUnits = true
@@ -129,9 +131,10 @@ classdef StaticCrossPanel < estimator.Base
             this.Sampler = @sampler;
 
             %]
-        end
+        end%
 
 
+        % TODO: split into betaDrawer and sigmaDrawer
         function createDrawers(this, meta)
             numTotalEndog = meta.NumUnits*meta.NumEndogenousConcepts;
             numARows = numTotalEndog*meta.Order;
@@ -171,10 +174,15 @@ classdef StaticCrossPanel < estimator.Base
                 draw.Sigma = repmat({draw.Sigma}, estimationHorizon, 1);
             end%
 
+            function draw = conditionalDrawer(sample)
+                draw = struct();
+                % TODO: implement
+            end%
+
+            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
-
+            this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
 

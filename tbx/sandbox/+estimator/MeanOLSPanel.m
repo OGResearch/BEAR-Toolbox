@@ -1,6 +1,9 @@
+
 classdef MeanOLSPanel < estimator.Base
 
     properties
+        DescriptionUX = "Mean OLS Panel BVAR"
+
         CanHaveDummies = false
         CanHaveReducibles = false
         HasCrossUnits = false
@@ -34,14 +37,12 @@ classdef MeanOLSPanel < estimator.Base
 
                 % draw a random vector beta from its distribution
                 % if the produced VAR model is not stationary, draw another vector, and keep drawing till a stationary VAR is obtained
-                stationary = 0;
-
-                while stationary==0
-
-                    beta=bhat+chol(bear.nspd(sigmahatb),'lower')*randn(q,1);
-
-                    [stationary,~]=bear.checkstable(beta,n,p,k);
-
+                while true
+                    beta = bhat + chol(bear.nspd(sigmahatb),'lower')*randn(q,1);
+                    [stationary,~] = bear.checkstable(beta,n,p,k);
+                    if stationary
+                        break
+                    end
                 end
 
                 sampleStruct = struct();
@@ -67,6 +68,9 @@ classdef MeanOLSPanel < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
+            % TODO: Split into betaDrawer and sigmaDrawer
+            % betaDrawer draws from Normal(bhat, sigmahatb)
+            % sigmaDrawer generates fixed sigmas all the time
             function drawStruct = drawer(sampleStruct, horizon)
                 %[
                 beta = sampleStruct.bhat; % forecast is using mean OLS fixed parameters, no draws
@@ -109,10 +113,16 @@ classdef MeanOLSPanel < estimator.Base
                 draw.Sigma = repmat({draw.Sigma}, estimationHorizon, 1);
             end%
 
+            function draw = conditionalDrawer(sample)
+                draw = struct();
+                % TODO: implement
+            end%
+
+            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
-
+            % TODO: implement conditional drawer
+            this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
     end

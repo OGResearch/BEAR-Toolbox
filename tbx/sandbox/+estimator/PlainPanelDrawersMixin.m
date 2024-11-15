@@ -14,6 +14,7 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
             identificationHorizon = meta.IdentificationHorizon;
 
 
+            % TODO: Split into betaDrawer and sigmaDrawer
             function drawStruct = drawer(sampleStruct, horizon)
 
                 beta = sampleStruct.beta;
@@ -71,9 +72,15 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
                 draw.Sigma = repmat({draw.Sigma}, estimationHorizon, 1);
             end%
 
+            function draw = conditionalDrawer(sample)
+                draw = struct();
+                % TODO: implement
+            end%
+
+            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
+            this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
 

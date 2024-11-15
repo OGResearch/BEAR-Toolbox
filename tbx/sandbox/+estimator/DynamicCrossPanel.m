@@ -1,6 +1,9 @@
+
 classdef DynamicCrossPanel < estimator.Base
 
     properties
+        Description = "Dynamic Cross-Panel Model"
+        %
         CanHaveDummies = false
         CanHaveReducibles = false
         HasCrossUnits = true
@@ -436,8 +439,10 @@ classdef DynamicCrossPanel < estimator.Base
             end
 
             this.IdentificationDrawer = @identificationDrawer;
-            this.UnconditionalDrawer = @unconditionalDrawer;
             this.HistoryDrawer = @historyDrawer;
+            this.UnconditionalDrawer = @unconditionalDrawer;
+            % TODO: implement conditional drawer
+            this.ConditionalDrawer = [];
             %]
         end%
 
