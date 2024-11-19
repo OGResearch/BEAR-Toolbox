@@ -14,17 +14,13 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
             identificationHorizon = meta.IdentificationHorizon;
 
 
-            % TODO: Split into betaDrawer and sigmaDrawer
-            function drawStruct = drawer(sampleStruct, horizon)
+            function drawStruct = betaDrawer(sampleStruct, horizon)
 
                 beta = sampleStruct.beta;
-                sigma = sampleStruct.sigma;
 
                 % initialization
                 A = nan(numARows, numEndog, numCountries);
                 C = nan(numExog, numEndog, numCountries);
-
-                Sigma = nan(numEndog, numEndog, numCountries);
 
                 % iterate over countries
                 for ii = 1 : numCountries
@@ -32,12 +28,6 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
                     tempB = reshape( ...
                         beta(:, ii), ...
                         numBRows, ...
-                        numEndog ...
-                    );
-
-                    tempSigma = reshape( ...
-                        sigma(:, ii), ...
-                        numEndog, ...
                         numEndog ...
                     );
 
@@ -51,30 +41,60 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
 
                     C(:,:, ii) = tempC;
 
-                    Sigma(:,:, ii) = tempSigma;
-
                 end
 
                 drawStruct = struct();
                 drawStruct.A = repmat({A}, horizon, 1);
                 drawStruct.C = repmat({C}, horizon, 1);
+
+            end
+
+            function drawStruct = sigmaDrawer(sampleStruct, horizon)
+
+                sigma = sampleStruct.sigma;
+
+                % initialization
+                Sigma = nan(numEndog, numEndog, numCountries);
+
+                % iterate over countries
+                for ii = 1 : numCountries
+
+                    tempSigma = reshape( ...
+                        sigma(:, ii), ...
+                        numEndog, ...
+                        numEndog ...
+                    );
+
+                    Sigma(:,:, ii) = tempSigma;
+
+                end
+
+                drawStruct = struct();
                 drawStruct.Sigma = Sigma;
 
             end
 
             function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
-                draw = drawer(sampleStruct, forecastHorizon);
-                draw.Sigma = repmat({draw.Sigma}, forecastHorizon, 1);
+
+                draw = betaDrawer(sampleStruct, forecastHorizon);
+                drawS = sigmaDrawer(sampleStruct, forecastHorizon);
+                draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
+
             end%
 
             function draw = historyDrawer(sampleStruct)
-                draw = drawer(sampleStruct, estimationHorizon);
-                draw.Sigma = repmat({draw.Sigma}, estimationHorizon, 1);
+
+                draw = betaDrawer(sampleStruct, estimationHorizon);
+                drawS = sigmaDrawer(sampleStruct, estimationHorizon);
+                draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
+
             end%
 
-            function draw = conditionalDrawer(sample)
-                draw = struct();
-                % TODO: implement
+            function draw = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+
+                beta = sampleStruct.beta;
+                draw.beta = repmat({beta}, forecastHorizon, 1);
+
             end%
 
             this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);

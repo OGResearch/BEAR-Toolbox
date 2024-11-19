@@ -133,8 +133,7 @@ classdef StaticCrossPanel < estimator.Base
             %]
         end%
 
-
-        % TODO: split into betaDrawer and sigmaDrawer
+        
         function createDrawers(this, meta)
             numTotalEndog = meta.NumUnits*meta.NumEndogenousConcepts;
             numARows = numTotalEndog*meta.Order;
@@ -143,14 +142,22 @@ classdef StaticCrossPanel < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
-            function drawStruct = drawer(sampleStruct, horizon)
+            function drawStruct = betaDrawer(sampleStruct, horizon)
 
                 beta = sampleStruct.beta;
-                sigma = sampleStruct.sigma;
 
                 B = reshape(beta, numBRows, numTotalEndog);
                 A = B(1:numARows, :);
                 C = B(numARows+1:end, :);
+
+                drawStruct = struct();
+                drawStruct.A = repmat({A}, horizon, 1);
+                drawStruct.C = repmat({C}, horizon, 1);
+            end
+
+            function drawStruct = sigmaDrawer(sampleStruct, horizon)
+
+                sigma = sampleStruct.sigma;
 
                 Sigma = reshape( ...
                     sigma, ...
@@ -159,24 +166,30 @@ classdef StaticCrossPanel < estimator.Base
                 );
 
                 drawStruct = struct();
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
                 drawStruct.Sigma = Sigma;
             end
 
             function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
-                draw = drawer(sampleStruct, forecastHorizon);
-                draw.Sigma = repmat({draw.Sigma}, forecastHorizon, 1);
+
+                draw = betaDrawer(sampleStruct, forecastHorizon);
+                drawS = sigmaDrawer(sampleStruct, forecastHorizon);
+                draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
+
             end%
 
             function draw = historyDrawer(sampleStruct)
-                draw = drawer(sampleStruct, estimationHorizon);
-                draw.Sigma = repmat({draw.Sigma}, estimationHorizon, 1);
+
+                draw = betaDrawer(sampleStruct, estimationHorizon);
+                drawS = sigmaDrawer(sampleStruct, estimationHorizon);
+                draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
+
             end%
 
-            function draw = conditionalDrawer(sample)
-                draw = struct();
-                % TODO: implement
+            function draw = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+
+                beta = sampleStruct.beta;
+                draw.beta = repmat({beta}, forecastHorizon, 1);
+
             end%
 
             this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
