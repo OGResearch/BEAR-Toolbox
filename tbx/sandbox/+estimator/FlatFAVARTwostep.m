@@ -16,7 +16,7 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -95,8 +95,8 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
                     [stationary] = bear.checkstable(beta, numEn, p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
                 end
 
-                sample.beta = B(:);
-                sample.sigma = sigma(:);
+                sample.beta = beta;
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

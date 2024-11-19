@@ -16,7 +16,7 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -127,8 +127,8 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
 
                 % update matrix B with each draw
-                sample.beta = B(:);
-                sample.sigma = sigma(:);
+                sample.beta = beta;
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

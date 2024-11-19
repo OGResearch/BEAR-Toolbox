@@ -16,7 +16,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -107,7 +107,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
                 % step 4: with sigma drawn,  continue iteration ii by drawing beta from a multivariate Normal,  conditional on sigma obtained in current iteration
                 % first invert sigma
                 C = bear.trns(chol(bear.nspd(sigma), 'Lower'));
-                invC = C \ speye(n);
+                invC = C \ speye(numEn);
                 invsigma = invC * invC';
 
                 % then obtain the omegabar matrix
@@ -130,8 +130,8 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
                 % update matrix B with each draw
                 B = reshape(beta, size(B));
 
-                sample.beta = B(:);
-                sample.sigma = sigma(:);
+                sample.beta = beta;
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

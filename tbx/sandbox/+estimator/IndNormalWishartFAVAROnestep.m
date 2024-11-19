@@ -16,7 +16,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -158,8 +158,8 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
                 % update matrix B with each draw
 
 
-                sample.beta = B(:);
-                sample.sigma = sigma(:);
+                sample.beta = beta;
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

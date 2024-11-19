@@ -22,7 +22,7 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
 
             [longY, longX, ~] = longYXZ{:};
 
-            opt.user_ar = this.Settings.Autoregression;
+            
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;
@@ -40,8 +40,6 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
-
-            opt.bex  = this.Settings.BlockExogenous;
 
             [~, ~, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = bear.olsvar(longY, longX, opt.const, opt.p);
 

@@ -116,7 +116,7 @@ classdef BetaTV < estimator.Base
                 % record phase
                 sampleStruct.beta = mat2cell(B, repmat(sizeB, estimLength, 1));
                 sampleStruct.omega = diag(omega);
-                sampleStruct.sigma = sigma(:);
+                sampleStruct.sigma = sigma;
             end
 
             this.Sampler = @sampler;

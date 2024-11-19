@@ -16,7 +16,7 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
             %[
             arguments
                 this
-                meta 
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end

@@ -16,7 +16,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -47,6 +47,12 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             priorexo = this.Settings.Exogenous;
 
             ar = this.Settings.Autoregression;
+            opt.bex = this.Settings.BlockExogenous;
+
+            blockexo  =  [];
+            if  opt.bex == 1
+                [blockexo] = bear.loadbex(endo, pref);
+            end
 
             %% FAVAR settings, maybe we can move this to a separate function
 
@@ -129,7 +135,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
                     opt.a0, opt.b0, T, p, L0);
 
                 sample.beta = beta;
-                sample.sigma = sigma(:);
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

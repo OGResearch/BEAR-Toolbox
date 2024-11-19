@@ -16,7 +16,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -122,7 +122,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
                 B = reshape(beta, size(B));
    
                 sample.beta = beta;
-                sample.sigma = sigma(:);
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

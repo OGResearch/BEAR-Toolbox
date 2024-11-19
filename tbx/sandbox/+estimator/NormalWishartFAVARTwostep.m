@@ -16,7 +16,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -92,7 +92,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
                 sigma = bear.iwdraw(Sbar,alphabar);
 
                 sample.beta = B(:);
-                sample.sigma = sigma(:);
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);
