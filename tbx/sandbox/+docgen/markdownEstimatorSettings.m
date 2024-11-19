@@ -1,10 +1,18 @@
 
-function out = markdownSettings()
+function out = markdownEstimatorSettings()
+
+    PATH = fullfile("quickref", "estimatorSettings.md");
 
     estimatorSettings = docgen.getEstimatorSettings();
 
     lines = string.empty(0, 1);
-    lines(end+1) = "# Estimator settings";
+    lines = [
+        lines
+        "# Estimator settings"
+        ""
+        "Estimators in alphabetical order"
+        ""
+    ];
 
     estimatorNames = textual.stringify(fieldnames(estimatorSettings));
     estimatorNames = sort(estimatorNames);
@@ -27,6 +35,8 @@ function out = markdownSettings()
 
     lines(end+1) = "";
     out = join(lines, newline());
+
+    writematrix(out, PATH, fileType="text", quoteStrings=false);
 
 end%
 
