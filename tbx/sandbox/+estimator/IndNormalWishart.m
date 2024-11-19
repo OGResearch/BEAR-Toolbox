@@ -23,7 +23,6 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
 
             [longY, longX, ~] = longYXZ{:};
 
-            opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;

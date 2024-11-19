@@ -1,5 +1,5 @@
 
-classdef MinnesotaFAVARTwostep < estimator.Base
+classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
@@ -31,7 +31,7 @@ classdef MinnesotaFAVARTwostep < estimator.Base
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
-            opt.numpc = this.Settings.NumFactors;
+            opt.numpc = meta.NumFactors;
 
             sigmaAdapter = struct();
             sigmaAdapter.diag = 12;

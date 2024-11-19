@@ -1,8 +1,8 @@
 
-classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
+classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
-        DescriptionUX = "BFAVAR with Normal-Wishart prior"
+        DescriptionUX = "BFAVAR with Individual Normal-Wishart prior"
 
         CanHaveDummies = false
         CanHaveReducibles = true
@@ -23,24 +23,10 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
             [longY, longX, longZ] = longYXZ{:};
 
+            opt.bex = this.Settings.BlockExogenous;
+
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
-
-            opt.lambda1 = this.Settings.Lambda1;
-            opt.lambda3 = this.Settings.Lambda3;
-            opt.lambda4 = this.Settings.Lambda4;
-
-            opt.numpc = meta.NumFactors;
-
-            sigmaAdapter = struct();
-            sigmaAdapter.eye = 22;
-            sigmaAdapter.ar = 21;
-
-            opt.prior = sigmaAdapter.(lower(this.Settings.Sigma));
-
-            priorexo = this.Settings.Exogenous;
-
-            ar = this.Settings.Autoregression;
 
             %% FAVAR settings, maybe we can move this to a separate function
 
@@ -64,16 +50,11 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
 
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
-                opt.const, opt.p);
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, ~, ~, sizeB] = ...
+                bear.olsvar(longY, longX, opt.const, opt.p);
 
-            % set prior values
-            [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
-            [B0, ~, phi0, S0, alpha0] = bear.nwprior(ar, arvar, opt.lambda1, opt.lambda3, opt.lambda4, numEn, numEx, p, ...
-                numBRows, sizeB, opt.prior, priorexo);
-
-            % obtain posterior distribution parameters
-            [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, numEn, estimLength, numBRows);
+            % set initial values for B (step 2); use OLS estimates
+            B = Bhat;
 
             L = favar.L;
             FY = data_endo;
@@ -81,15 +62,38 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
             function sample = sampler()
 
-                stationary=0;
+                % Step 3: at iteration ii,  first draw sigma from IW,  conditional on beta from previous iteration
+                % obtain first Shat,  defined in (1.6.10)
+                Shat = (Y - LX * B)' * (Y - LX * B);
+                % Correct potential asymmetries due to rounding errors from Matlab
+                C = chol(bear.nspd(Shat));
+                Shat = C' * C;
 
-                while stationary==0
-                    B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, numBRows, numEn);
-                    [stationary] = bear.checkstable(B(:), numEn, p, size(B, 1)); %switches stationary to 0, if the draw is not stationary
+                % next draw from IW(Shat, estimLength)
+                sigma = bear.iwdraw(Shat, estimLength);
+
+                % step 4: with sigma drawn,  continue iteration ii by drawing beta from a multivariate Normal,  conditional on sigma obtained in current iteration
+                % first invert sigma
+                C = chol(bear.nspd(sigma));
+                invC = C \ speye(numEn);
+                invsigma = invC * invC';
+
+                % then obtain the omegabar matrix,  Uhlig05 prior
+                invomegabar = kron(invsigma, LX' * LX);
+                C = chol(bear.nspd(invomegabar));
+                invC = C \ speye(sizeB);
+                omegabar = invC * invC';
+
+                % following,  obtain betabar
+                betabar = omegabar * (kron(invsigma, LX') * Y(:));
+
+                % draw beta from N(betabar, omegabar);
+                stationary = 0;
+                while stationary  ==  0
+                    % draw from N(betabar, omegabar);
+                    beta = betabar + chol(bear.nspd(omegabar), 'lower') * mvnrnd(zeros(sizeB, 1), eye(sizeB))';
+                    [stationary] = bear.checkstable(beta, numEn, p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
                 end
-
-                % then draw sigma from an inverse Wishart distribution with scale matrix Sbar and degrees of freedom alphabar (step 3)
-                sigma = bear.iwdraw(Sbar,alphabar);
 
                 sample.beta = B(:);
                 sample.sigma = sigma(:);

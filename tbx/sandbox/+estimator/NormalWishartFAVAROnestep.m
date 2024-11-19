@@ -1,5 +1,5 @@
 
-classdef NormalWishartFAVAROnestep < estimator.Base
+classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
@@ -34,7 +34,7 @@ classdef NormalWishartFAVAROnestep < estimator.Base
             opt.a0 = this.Settings.SigmaShape;
             opt.b0 = this.Settings.SigmaScale;
 
-            opt.numpc = this.Settings.NumFactors;
+            opt.numpc = meta.NumFactors;
 
             sigmaAdapter = struct();
             sigmaAdapter.eye = 22;

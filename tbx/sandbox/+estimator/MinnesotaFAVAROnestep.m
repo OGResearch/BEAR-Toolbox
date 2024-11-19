@@ -1,5 +1,5 @@
 
-classdef MinnesotaFAVAROnestep < estimator.Base
+classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
@@ -36,7 +36,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base
             opt.a0 = this.Settings.SigmaShape;
             opt.b0 = this.Settings.SigmaScale;
 
-            opt.numpc = this.Settings.NumFactors;
+            opt.numpc = meta.NumFactors;
 
             sigmaAdapter = struct();
             sigmaAdapter.diag = 12;
@@ -72,7 +72,8 @@ classdef MinnesotaFAVAROnestep < estimator.Base
             indexnM = repmat(favar.variablestrings_factorsonly_index, 1, opt.p);
             indexnM = find(indexnM==1);
 
-            [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, opt.const, opt.p);
+            [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
+                bear.olsvar(data_endo, longX, opt.const, opt.p);
 
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
