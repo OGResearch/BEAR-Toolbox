@@ -26,12 +26,13 @@ classdef (Abstract) PlainDrawersMixin < handle
                 draw.C = wrap(C);
                 draw.Sigma = wrap(sample.sigma);
             end%
+            %
             function draw = conditionaldrawer(sample, horizon)
                 beta = sample.beta;
                 wrap = @(x) repmat({x}, horizon, 1);
                 draw = struct();
                 draw.beta = wrap(beta);
-            end%            
+            end%
             %
             function draw = identificationDrawer(sample)
                 horizon = identificationHorizon;

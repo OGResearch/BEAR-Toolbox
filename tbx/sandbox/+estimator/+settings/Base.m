@@ -8,15 +8,16 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         % Number of burn-in draws
         Burnin (1, 1) double = 0
 
-        % Exogenous
+        % Exogenous  True or false for priors on exogenous variables
         Exogenous (:, :) logical = false
 
-        % BlockExogenous
+        % BlockExogenous  True or false for block exogeneity
         BlockExogenous (:, :) logical = false
 
-        % Autoregression
+        % Autoregression  Prior on first-order autoregression
         Autoregression (:, 1) double = 0.8
 
+        % Lambda1  Tightness
         Lambda1 double = 0.1
 
         Lambda2 double = 0.5

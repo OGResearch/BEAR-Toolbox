@@ -30,9 +30,10 @@ classdef VerifiableTests
                 this
                 verifiableProperties (1, 1) identifier.VerifiableProperties
             end
-            status = cell(size(this.TestFunctions));
+            numTestFunctions = numel(this.TestFunctions);
+            status = false(numTestFunctions, 1);
             for i = 1 : numel(this.TestFunctions)
-                status{i} = this.TestFunctions{i}(verifiableProperties);
+                status(i) = this.TestFunctions{i}(verifiableProperties);
             end
         end%
 
@@ -41,7 +42,8 @@ classdef VerifiableTests
                 this
                 verifiableProperties (1, 1) identifier.VerifiableProperties
             end
-            status = this.TestFunctionShortCircuit(verifiableProperties);
+            status = false(1, 1);
+            status(1) = this.TestFunctionShortCircuit(verifiableProperties);
         end%
     end
 
