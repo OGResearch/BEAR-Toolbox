@@ -385,7 +385,7 @@ classdef GeneralTV < estimator.Base
                 draw.Sigma = cell(estimationHorizon, 1);
                 %
                 for jj = 1:estimationHorizon
-                    B = reshape(sample.beta{jj}, [] numEn);
+                    B = reshape(sample.beta{jj}, [], numEn);
                     draw.A{jj}(:, :) = B(1:numARows, :);
                     draw.C{jj}(:, :) = B(numARows + 1:end, :);
                     draw.Sigma{jj}(:, :) = sample.sigma_t{jj}(:, :);

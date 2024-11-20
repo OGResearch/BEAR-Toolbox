@@ -224,7 +224,7 @@ classdef BetaTV < estimator.Base
             function draw = historyDrawer(sample)
                 %[
                 for jj = 1:estimationHorizon
-                    B = reshape(sample.beta{jj}, [] numEn);
+                    B = reshape(sample.beta{jj}, [], numEn);
                     draw.A{jj,1}(:, :) = B(1:numARows, :);
                     draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end
