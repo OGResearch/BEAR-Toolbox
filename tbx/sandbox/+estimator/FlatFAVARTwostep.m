@@ -36,7 +36,7 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
 
             [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, ~, ~, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
+                bear.olsvar(data_endo, longX, opt.const, opt.p);
 
             % set initial values for B (step 2); use OLS estimates
             B = Bhat;

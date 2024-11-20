@@ -31,9 +31,9 @@ classdef BetaTVFAVAR < estimator.Base
             [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
+                bear.olsvar(data_endo, longX, opt.const, opt.p);
 
-            [arvar] = bear.arloop(longY, opt.const, p, numY);
+            [arvar] = bear.arloop(data_endo, opt.const, p, numY);
 
             [~, y, ~, ~, Xbar] = bear.tvbvarmat(Y, LX, numY, sizeB, estimLength); %create TV matrices
             [chi, psi, kappa, S, H, I_tau] = bear.tvbvar1prior(arvar, numY, sizeB, estimLength);

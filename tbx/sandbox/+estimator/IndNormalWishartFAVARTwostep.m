@@ -56,7 +56,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
             [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
+                bear.olsvar(data_endo, longX, opt.const, opt.p);
 
             % set prior values
             [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
