@@ -61,14 +61,14 @@ classdef NormalDiffuseFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
             B_ss = [Bhat'; eye(numEn*(p - 1)) zeros(numEn*(p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS); zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
-            XZ0mean          = zeros(numEn * p, 1);
-            XZ0var           = favar.L0*eye(numEn * p);
-            XY               = favar.XY;
-            L                = favar.L;
+            XZ0mean = zeros(numEn * p, 1);
+            XZ0var = favar.L0*eye(numEn * p);
+            XY = favar.XY;
+            LD = favar.L;
             Sigma            = bear.nspd(favar.Sigma);
             favar_X          = longZ;
             nfactorvar       = favar.nfactorvar;
-            numpc            = favar.numpc;
+            numpc = favar.numpc;
 
             L0               = opt.L0*eye(numEn);
             %===============================================================================
@@ -132,14 +132,14 @@ classdef NormalDiffuseFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
                 B_ss(1:numEn, :) = B';
 
                 % Sample Sigma and L
-                [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, true, numEn, favar_X,...
+                [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X,...
                     FY, opt.a0, opt.b0, estimLength, p, L0);
 
                 sample.beta = beta;
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

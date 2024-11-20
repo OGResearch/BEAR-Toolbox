@@ -67,13 +67,13 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean          = zeros(numEn * p,1);
-            XZ0var           = favar.L0*eye(numEn * p);
-            XY               = favar.XY;
-            L                = favar.L;
+            XZ0var = favar.L0*eye(numEn * p);
+            XY = favar.XY;
+            LD = favar.L;
             Sigma            = bear.nspd(favar.Sigma);
             favar_X          = longZ;
             nfactorvar       = favar.nfactorvar;
-            numpc            = favar.numpc;
+            numpc = favar.numpc;
 
             L0 = opt.L0*eye(numEn);
             sigmahat = (1 / estimLength) * (EPS' * EPS);
@@ -113,14 +113,14 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
                 B = reshape(beta, size(B));
                 B_ss(1:numEn,:) = B';
                 % Sample Sigma and L
-                [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, true, numEn, favar_X, FY, ...
+                [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X, FY, ...
                     opt.a0, opt.b0, T, p, L0);
 
                 sample.beta = beta;
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

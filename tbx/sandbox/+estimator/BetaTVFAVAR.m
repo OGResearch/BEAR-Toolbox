@@ -73,7 +73,7 @@ classdef BetaTVFAVAR < estimator.Base
                     Xbar(1 + numY * (i - 1), 1 + sizeB * (i - 1):sizeB * (i - 1) + sizeB / numY)'));
             end
 
-            L = favar.L;
+            LD = favar.L;
             FY = data_endo;
             %===============================================================================
 
@@ -126,7 +126,7 @@ classdef BetaTVFAVAR < estimator.Base
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);                
+                sample.LD = LD(:);                
             end
 
             this.Sampler = @sampler;
@@ -237,7 +237,7 @@ classdef BetaTVFAVAR < estimator.Base
             function draw = historyDrawer(sample)
                 %[
                 for jj = 1:estimationHorizon
-                    B = reshape(sample.beta{jj}, [] numY);
+                    B = reshape(sample.beta{jj}, [], numY);
                     draw.A{jj,1}(:, :) = B(1:numARows, :);
                     draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end

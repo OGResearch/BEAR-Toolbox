@@ -64,7 +64,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
             XZ0mean = zeros(numEn * p, 1);
             XZ0var  = favar.L0*eye(numEn * p);
             XY      = favar.XY;
-            L       = favar.L;
+            LD = favar.L;
             Sigma   = bear.nspd(favar.Sigma);
             favar_X = longZ;
             nfactorvar = favar.nfactorvar;
@@ -134,7 +134,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
                 B = reshape(beta, size(B));
                 B_ss(1:numEn, :) = B';
                 % Sample Sigma and L
-                [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, true, numEn, favar_X,...
+                [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X,...
                     FY, opt.a0, opt.b0, estimLength, p, L0);
 
                 % update matrix B with each draw
@@ -144,7 +144,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

@@ -41,7 +41,7 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
             % set initial values for B (step 2); use OLS estimates
             B = Bhat;
 
-            L = favar.L;
+            LD = favar.L;
             FY = data_endo;
             %===============================================================================
 
@@ -84,7 +84,7 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

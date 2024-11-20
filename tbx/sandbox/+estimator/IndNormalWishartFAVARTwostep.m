@@ -72,7 +72,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
             % set the value of alphahat, defined in (1.5.16)
             alphahat = estimLength + alpha0;
 
-            L = favar.L;
+            LD = favar.L;
             FY = data_endo;
             %===============================================================================
 
@@ -118,7 +118,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

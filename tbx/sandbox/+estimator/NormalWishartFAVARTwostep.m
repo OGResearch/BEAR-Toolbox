@@ -59,7 +59,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             % obtain posterior distribution parameters
             [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, numEn, estimLength, numBRows);
 
-            L = favar.L;
+            LD = favar.L;
             FY = data_endo;
             %===============================================================================
 
@@ -79,7 +79,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

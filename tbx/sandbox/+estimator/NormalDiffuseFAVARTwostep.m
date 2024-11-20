@@ -63,7 +63,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             % invert omega0, as it will be used repeatedly
             invomega0 = diag(1 ./ diag(omega0));
 
-            L = favar.L;
+            LD = favar.L;
             B = Bhat;
             FY = data_endo;
             %===============================================================================
@@ -110,7 +110,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

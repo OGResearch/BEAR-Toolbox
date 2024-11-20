@@ -67,7 +67,7 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
             % obtain posterior distribution parameters
             [betabar, omegabar] = bear.mpost(beta0, omega0, sigma, LX, y, sizeB, numEn);
 
-            L = favar.L;
+            LD = favar.L;
             B = Bhat;
             FY = data_endo;
             %===============================================================================
@@ -85,7 +85,7 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

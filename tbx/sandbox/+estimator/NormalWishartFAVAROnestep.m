@@ -60,21 +60,20 @@ classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean          = zeros(numEn * p,1);
-            XZ0var           = favar.L0*eye(numEn * p);
-            XY               = favar.XY;
-            L                = favar.L;
+            XZ0var = favar.L0*eye(numEn * p);
+            XY = favar.XY;
+            LD = favar.L;
             Sigma            = bear.nspd(favar.Sigma);
             favar_X          = longZ;
             nfactorvar       = favar.nfactorvar;
-            numpc            = favar.numpc;
-
+            numpc = favar.numpc;
             L0               = opt.L0*eye(numEn);
             %===============================================================================
 
             function sample = sampler()
 
                 % Sample latent factors using Carter and Kohn (1994)
-                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, L, Sigma, B_ss, sigma_ss, indexnM);
+                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, LD, Sigma, B_ss, sigma_ss, indexnM);
 
                 % demean generated factors
                 FY = bear.favar_demean(FY);
@@ -112,15 +111,15 @@ classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
 
                 sigma_ss(1:numEn, 1:numEn) = sigma;
 
-                % Sample Sigma and L
-                [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, true, numEn, favar_X, ...
+                % Sample Sigma and LD
+                [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X, ...
                     FY, opt.a0, opt.b0, estimLength, p, L0);
 
                 sample.beta = B(:);
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

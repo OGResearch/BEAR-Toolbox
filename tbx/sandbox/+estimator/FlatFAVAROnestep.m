@@ -43,7 +43,7 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
             XZ0mean = zeros(numEn * p, 1);
             XZ0var  = favar.L0*eye(numEn * p);
             XY      = favar.XY;
-            L       = favar.L;
+            LD = favar.L;
             Sigma   = bear.nspd(favar.Sigma);
             favar_X = longZ;
             nfactorvar = favar.nfactorvar;
@@ -104,7 +104,7 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
                 Beta = reshape(beta, size(B));
                 B_ss(1:numEn, :) = Beta';
                 % Sample Sigma and L
-                [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, true, numEn, favar_X, FY, opt.a0, opt.b0, ...
+                [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X, FY, opt.a0, opt.b0, ...
                     estimLength, p, L0);
 
 
@@ -113,7 +113,7 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
                 sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%
