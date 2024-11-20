@@ -60,7 +60,7 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
 
             %===============================================================================
 
-            function sampleStruct = sampler()
+            function sample = sampler()
                 % draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.6.10)
                 Shat = (Y - LX * B)' * (Y - LX * B);
@@ -92,8 +92,8 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
                 % update matrix B with each draw
                 B = reshape(beta,size(B));
 
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigma;
+                sample.beta = beta;
+                sample.sigma = sigma;
                 this.SampleCounter = this.SampleCounter + 1;
             end
 

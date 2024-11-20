@@ -66,10 +66,10 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
             [betabar, omegabar] = bear.mpost(beta0, omega0, sigma, LX, Y(:), sizeB, numEn);
             %===============================================================================
 
-            function sampleStruct = sampler()
+            function sample = sampler()
                 beta = betabar + chol(bear.nspd(omegabar), 'lower') * randn(sizeB, 1);
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigma;
+                sample.beta = beta;
+                sample.sigma = sigma;
                 this.SampleCounter = this.SampleCounter + 1;
             end%
 

@@ -100,7 +100,7 @@ classdef RandomInertiaSV < estimator.Base
             lambda_t = repmat(diag(sbar), 1, 1, estimLength);
             sigma_t = repmat(sigmahat, 1, 1, estimLength);
 
-            function sampleStruct  =  sampler()
+            function sample  =  sampler()
 
                 %% draw beta from its conditional posterior
                 % first compute the summations required for omegabar and betabar
@@ -257,19 +257,19 @@ classdef RandomInertiaSV < estimator.Base
                     sigma_t(:, :, zz) = F * lambda_t(:, :, zz) * F';
                 end
 
-                sampleStruct.beta = beta;
-                sampleStruct.omega = diag(omega);
-                sampleStruct.F = F;
-                sampleStruct.L = mat2cell(L, ones(estimLength, 1), numEn);
-                sampleStruct.phi = phi;
-                sampleStruct.sigmaAvg = sigma(:);
-                sampleStruct.gamma = gamma;
-                sampleStruct.sbar = sbar;
+                sample.beta = beta;
+                sample.omega = diag(omega);
+                sample.F = F;
+                sample.L = mat2cell(L, ones(estimLength, 1), numEn);
+                sample.phi = phi;
+                sample.sigmaAvg = sigma(:);
+                sample.gamma = gamma;
+                sample.sbar = sbar;
 
 
                 for zz = 1:estimLength
-                    sampleStruct.lambda_t{zz, 1} = lambda_t(:, :, zz);
-                    sampleStruct.sigma_t{zz, 1} = sigma_t(:, :, zz);
+                    sample.lambda_t{zz, 1} = lambda_t(:, :, zz);
+                    sample.sigma_t{zz, 1} = sigma_t(:, :, zz);
                 end
 
             end
@@ -294,28 +294,28 @@ classdef RandomInertiaSV < estimator.Base
             %IRF periods
             % IRFperiods = meta.IRFperiods;
 
-            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon )
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, numBRows, numEn);
+                B = reshape(beta, [], numEn);
 
                 % draw F from its posterior distribution
-                F = sparse(sampleStruct.F(:, :));
-                sbar = sampleStruct.sbar;
+                F = sparse(sample.F(:, :));
+                sbar = sample.sbar;
 
                 % step 4: draw phi and gamma from their posteriors
-                phi = sampleStruct.phi';
-                gamma = sampleStruct.gamma';
-                lambda =  sampleStruct.L{startingIndex - 1, :}';
+                phi = sample.phi';
+                gamma = sample.gamma';
+                lambda =  sample.L{startingIndex - 1, :}';
 
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
-                drawStruct.A = repmat({A}, forecastHorizon, 1);
-                drawStruct.C = repmat({C}, forecastHorizon, 1);
+                draw.A = repmat({A}, forecastHorizon, 1);
+                draw.C = repmat({C}, forecastHorizon, 1);
 
-                drawStruct.Sigma = cell(forecastHorizon, 1);
+                draw.Sigma = cell(forecastHorizon, 1);
 
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
@@ -329,49 +329,49 @@ classdef RandomInertiaSV < estimator.Base
                     Lambda = sparse(diag(sbar .* exp(lambda)));
 
                     % recover sigma_t and draw the residuals
-                    drawStruct. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
+                    draw. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
             end%
 
-            function drawStruct = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
 
-                beta = sampleStruct.beta;
-                drawStruct.beta = repmat({beta}, forecastHorizon, 1);
+                beta = sample.beta;
+                draw.beta = repmat({beta}, forecastHorizon, 1);
 
             end%
 
-            function drawStruct = identificationDrawer(sampleStruct)
+            function draw = identificationDrawer(sample)
 
                 horizon = identificationHorizon;
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, numBRows, numEn);
+                B = reshape(beta, [], numEn);
 
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
-                drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
+                draw.Sigma = reshape(sample.sigmaAvg, numEn, numEn);
 
             end%
 
 
-            function drawStruct = historyDrawer(sampleStruct)
+            function draw = historyDrawer(sample)
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
 
                 % reshape it to obtain B
-                B = reshape(beta, numBRows, numEn);
+                B = reshape(beta, [], numEn);
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
-                drawStruct.A = repmat({A}, estimationHorizon, 1);
-                drawStruct.C = repmat({C}, estimationHorizon, 1);
+                draw.A = repmat({A}, estimationHorizon, 1);
+                draw.C = repmat({C}, estimationHorizon, 1);
 
                 for jj = 1:estimationHorizon
-                    drawStruct.Sigma{jj,1}(:, :) = sampleStruct.sigma_t{jj, 1}(:, :);
+                    draw.Sigma{jj,1}(:, :) = sample.sigma_t{jj, 1}(:, :);
                 end
 
             end%
