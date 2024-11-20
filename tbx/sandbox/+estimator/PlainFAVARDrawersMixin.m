@@ -46,7 +46,7 @@ classdef (Abstract) PlainFAVARDrawersMixin < handle
                 draw.C = wrap(C);
                 draw.L = wrap(L);
                 draw.Sigma = sample.sigma;
-                draw.L = reshape(sample.L, [], numY);                 
+                draw.LD = reshape(sample.LD, [], numY);      
             end%
             %
             this.HistoryDrawer = @(sample) drawer(sample, estimationHorizon);

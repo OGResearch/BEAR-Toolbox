@@ -23,7 +23,7 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
 
             [longY, longX, ~] = longYXZ{:};
 
-            opt.priorsexogenous = this.Settings.Exogenous;
+            priorexo = this.Settings.Exogenous;
             
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
@@ -43,7 +43,7 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
 
             opt.bex = this.Settings.BlockExogenous;
             ar = this.Settings.Autoregression;
-            priorexo = this.Settings.Exogenous;
+            
             arvar =  bear.arloop(longY, opt.const, p, numEn);
 
             blockexo  =  [];

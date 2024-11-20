@@ -83,7 +83,6 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
 
                 sample.beta = beta;
                 sample.sigma = sigma;
-                sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;

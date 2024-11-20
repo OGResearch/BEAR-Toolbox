@@ -29,7 +29,7 @@ classdef CogleySargentSV < estimator.Base
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
-            opt.priorsexogenous = this.Settings.Exogenous;
+            priorexo = this.Settings.Exogenous;
 
             opt.gamma = this.Settings.HeteroskedasticityAutoRegression;
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
@@ -38,7 +38,7 @@ classdef CogleySargentSV < estimator.Base
             opt.bex = this.Settings.BlockExogenous;
             opt.ar = this.Settings.Autoregression;
 
-            priorexo = this.Settings.Exogenous;
+            
 
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...

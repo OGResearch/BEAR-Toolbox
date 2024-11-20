@@ -2,7 +2,7 @@ classdef BetaTVFAVAR < estimator.Base
 
     properties
         CanHaveDummies = false
-        CanHaveReducibles = false
+        CanHaveReducibles = true
         HasCrossUnits = false
     end
 
@@ -124,7 +124,6 @@ classdef BetaTVFAVAR < estimator.Base
                 sample.beta = mat2cell(B, repmat(sizeB, estimLength, 1));
                 sample.omega = diag(omega);
                 sample.sigma = sigma;
-                sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.LD = LD(:);                
             end
@@ -230,7 +229,7 @@ classdef BetaTVFAVAR < estimator.Base
                 end
 
                 draw.Sigma = reshape(sample.sigma, numY, numY);                
-                draw.L = reshape(sample.L, [], numY); 
+                draw.LD = reshape(sample.LD, [], numY); 
                 %]
             end%
 
