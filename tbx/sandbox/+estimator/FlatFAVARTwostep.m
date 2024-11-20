@@ -32,17 +32,17 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
             favar.onestep = false;
             favar.numpc = opt.numpc;            
-            [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
 
             [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, ~, ~, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
             % set initial values for B (step 2); use OLS estimates
             B = Bhat;
 
             LD = favar.L;
-            FY = data_endo;
+            
             %===============================================================================
 
             function sample = sampler()

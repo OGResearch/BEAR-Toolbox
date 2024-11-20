@@ -41,12 +41,12 @@ classdef RandomInertiaSVFAVAR < estimator.Base
 
             favar.onestep = false;
             favar.numpc = opt.numpc;            
-            [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
-            [arvar]  =  bear.arloop(data_endo, opt.const, p, numY);
+            [arvar]  =  bear.arloop(FY, opt.const, p, numY);
 
             blockexo  =  [];
             if  opt.bex == 1
@@ -103,7 +103,7 @@ classdef RandomInertiaSVFAVAR < estimator.Base
             lambda_t = repmat(diag(sbar), 1, 1, estimLength);
             sigma_t = repmat(sigmahat, 1, 1, estimLength);
 
-            FY = data_endo;
+            
             LD = favar.L;
 
             function sample  =  sampler()

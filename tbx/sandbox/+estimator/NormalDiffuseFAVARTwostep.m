@@ -49,12 +49,12 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
             favar.onestep = false;
             favar.numpc = opt.numpc;            
-            [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
-            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
+            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
 
-            [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
+            [arvar] = bear.arloop(FY, opt.const, p, numEn);
 
             % set prior values
             [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, opt.lambda5, ...
@@ -65,7 +65,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
             LD = favar.L;
             B = Bhat;
-            FY = data_endo;
+            
             %===============================================================================
 
             function sample = sampler()

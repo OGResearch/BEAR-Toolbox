@@ -30,9 +30,9 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
             favar.onestep = true;
             favar.numpc = opt.numpc;            
-            [data_endo, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = bear.olsvar(data_endo, longX, ...
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
 
             Bhat = (LX' * LX) \ (LX' * Y);

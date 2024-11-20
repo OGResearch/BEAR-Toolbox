@@ -58,10 +58,10 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
 
             favar.onestep = true;
             favar.numpc = opt.numpc;            
-            [data_endo, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];

@@ -28,12 +28,12 @@ classdef BetaTVFAVAR < estimator.Base
 
             favar.onestep = false;
             favar.numpc = opt.numpc;            
-            [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
-            [arvar] = bear.arloop(data_endo, opt.const, p, numY);
+            [arvar] = bear.arloop(FY, opt.const, p, numY);
 
             [~, y, ~, ~, Xbar] = bear.tvbvarmat(Y, LX, numY, sizeB, estimLength); %create TV matrices
             [chi, psi, kappa, S, H, I_tau] = bear.tvbvar1prior(arvar, numY, sizeB, estimLength);
@@ -74,7 +74,7 @@ classdef BetaTVFAVAR < estimator.Base
             end
 
             LD = favar.L;
-            FY = data_endo;
+            
             %===============================================================================
 
             function sample  =  sampler()

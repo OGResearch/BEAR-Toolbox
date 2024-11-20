@@ -53,13 +53,13 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
 
             favar.onestep = false;
             favar.numpc = opt.numpc;            
-            [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, ~, y, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
             sigmahat = (1 / estimLength) * (EPS' * EPS);
 
-            [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
+            [arvar] = bear.arloop(FY, opt.const, p, numEn);
 
             [beta0, omega0, sigma] = bear.mprior(ar, arvar, sigmahat, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, ...
                 opt.lambda5, numEn, numEx, p, numBRows, sizeB, opt.prior, opt.bex, blockexo, priorexo);
@@ -69,7 +69,7 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
 
             LD = favar.L;
             B = Bhat;
-            FY = data_endo;
+            
             %===============================================================================
 
             function sample = sampler()

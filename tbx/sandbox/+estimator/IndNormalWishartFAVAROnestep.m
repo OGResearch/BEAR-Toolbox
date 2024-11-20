@@ -51,9 +51,9 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
 
             favar.onestep = true;
             favar.numpc = opt.numpc;            
-            [data_endo, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
 
             Bhat = (LX' * LX) \ (LX' * Y);

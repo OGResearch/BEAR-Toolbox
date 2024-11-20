@@ -53,9 +53,9 @@ classdef NormalDiffuseFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
 
             favar.onestep = true;
             favar.numpc = opt.numpc;            
-            [data_endo, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
-            [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
+            [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
 
             B_ss = [Bhat'; eye(numEn*(p - 1)) zeros(numEn*(p - 1), numEn)];

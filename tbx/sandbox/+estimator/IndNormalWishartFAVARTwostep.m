@@ -53,13 +53,13 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
 
             favar.onestep = false;
             favar.numpc = opt.numpc;            
-            [data_endo, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
             % set prior values
-            [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
+            [arvar] = bear.arloop(FY, opt.const, p, numEn);
             [beta0, omega0, S0, alpha0] = bear.inwprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, ...
                 opt.lambda5, numEn, numEx, opt.p, numBRows, sizeB, opt.prior, opt.bex, blockexo, priorexo);
 
@@ -73,7 +73,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
             alphahat = estimLength + alpha0;
 
             LD = favar.L;
-            FY = data_endo;
+            
             %===============================================================================
 
             function sample = sampler()
