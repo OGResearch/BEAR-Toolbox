@@ -49,7 +49,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
             favar.onestep = false;
             favar.numpc = opt.numpc;
-            [favar.l] =pca(longZ, 'NumComponents', opt.numpc);
+            [favar.l]= pca(longZ, 'NumComponents', opt.numpc);
 
             favar.nfactorvar = size(longZ, 2);
 

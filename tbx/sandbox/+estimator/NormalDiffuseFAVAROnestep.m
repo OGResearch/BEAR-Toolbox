@@ -52,26 +52,8 @@ classdef NormalDiffuseFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            [favar.l] = pca(longZ, 'NumComponents', opt.numpc);
-
-            favar.nfactorvar = size(longZ, 2);
-            favar.numpc = opt.numpc;
-
-            %identify factors: normalise loadings, compute factors following BBE 2005
-            favar.l = sqrt(favar.nfactorvar) * favar.l;
-            favar.XZ = longZ * favar.l / favar.nfactorvar;
-
-            data_endo = [favar.XZ longY];
-
-            favar.variablestrings_factorsonly = (1:favar.numpc)';
-            favar.variablestrings_factorsonly_index = [true(favar.numpc, 1) ; false(size(longY, 2), 1)];
-            favar.variablestrings_exfactors = (favar.numpc+1:size(data_endo, 2))';
-            favar.variablestrings_exfactors_index = [false(favar.numpc, 1); true(size(longY, 2), 1)];
-            favar.data_exfactors = longY;
-            [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
-
-            indexnM = repmat(favar.variablestrings_factorsonly_index, 1, opt.p);
-            indexnM = find(indexnM==1);
+            favar.numpc = opt.numpc;            
+            [data_endo, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
                 opt.const, opt.p);
