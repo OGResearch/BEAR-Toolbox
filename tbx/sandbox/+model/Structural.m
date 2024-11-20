@@ -122,9 +122,9 @@ classdef Structural < handle & model.PresampleMixin
 
         function outTbx = estimateShocks(this, varargin)
 %{
-% # calculateResiduals
+% # calculateShocks
 %
-% {==Calculate reduced-form residuals==}
+% {==Estimate structural shocks==}
 %
 %}
             meta = this.Meta;

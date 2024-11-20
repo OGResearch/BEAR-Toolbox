@@ -8,6 +8,8 @@ classdef (CaseInsensitiveProperties=true) InitialObservations < settings.Base
     methods
 
         function dummiesYLX = generate(this, meta, longYXZ)
+        % generate  Generate dummy data for initial observations dummies
+            %
             order = meta.Order;
             lambda = this.Lambda;
             %
@@ -28,7 +30,8 @@ classdef (CaseInsensitiveProperties=true) InitialObservations < settings.Base
             dummiesX = mean(initX, "omitnan") / lambda;
             dummiesX = repmat(dummiesX, 1, 1, numPages);
             %
-            dummiesYLX = {dummiesY, [dummiesL, dummyX]};
+            dummiesYLX = {dummiesY, [dummiesL, dummiesX]};
+            %
         end%
 
     end

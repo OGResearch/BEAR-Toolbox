@@ -83,7 +83,11 @@ classdef ReducedForm < handle & model.PresampleMixin
 
 
         function longYXZ = getLongYXZ(this, shortSpan)
-            longYXZ = this.getSomeYXZ(this.Meta.ShortSpan);
+            if nargin < 2
+                shortSpan = this.Meta.ShortSpan;
+            end
+            longSpan = datex.longSpanFromShortSpan(shortSpan, this.Meta.Order);
+            longYXZ = this.getSomeYXZ(longSpan);
         end%
 
 
@@ -92,8 +96,12 @@ classdef ReducedForm < handle & model.PresampleMixin
         end%
 
 
-        function initYXZ = getInitYXZ(this)
-            initYXZ = this.getSomeYXZ(this.Meta.InitSpan);
+        function initYXZ = getInitYXZ(this, shortSpan)
+            if nargin < 2
+                shortSpan = this.Meta.ShortSpan;
+            end
+            initSpan = datex.initSpanFromShortSpan(shortSpan, this.Meta.Order);
+            initYXZ = this.getSomeYXZ(initSpan);
         end%
 
 
