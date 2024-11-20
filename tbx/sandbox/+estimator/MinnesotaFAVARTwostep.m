@@ -1,5 +1,5 @@
 
-classdef MinnesotaFAVARTwostep < estimator.Base
+classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
@@ -16,7 +16,7 @@ classdef MinnesotaFAVARTwostep < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -31,7 +31,7 @@ classdef MinnesotaFAVARTwostep < estimator.Base
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
-            opt.numpc = this.Settings.NumFactors;
+            opt.numpc = meta.NumFactors;
 
             sigmaAdapter = struct();
             sigmaAdapter.diag = 12;
@@ -42,6 +42,12 @@ classdef MinnesotaFAVARTwostep < estimator.Base
             priorexo = this.Settings.Exogenous;
 
             ar = this.Settings.Autoregression;
+            opt.bex = this.Settings.BlockExogenous;
+
+            blockexo  =  [];
+            if  opt.bex == 1
+                [blockexo] = bear.loadbex(endo, pref);
+            end
 
             %% FAVAR settings, maybe we can move this to a separate function
 
@@ -91,7 +97,7 @@ classdef MinnesotaFAVARTwostep < estimator.Base
                 end
 
                 sample.beta = beta;
-                sample.sigma = sigma(:);
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

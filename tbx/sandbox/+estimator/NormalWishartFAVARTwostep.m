@@ -1,5 +1,5 @@
 
-classdef NormalWishartFAVARTwostep < estimator.Base
+classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
@@ -16,7 +16,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -30,7 +30,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
 
-            opt.numpc = this.Settings.NumFactors;
+            opt.numpc = meta.NumFactors;
 
             sigmaAdapter = struct();
             sigmaAdapter.eye = 22;
@@ -85,14 +85,14 @@ classdef NormalWishartFAVARTwostep < estimator.Base
 
                 while stationary==0
                     B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, numBRows, numEn);
-                    [stationary]=bear.checkstable(B(:), numEn, p, size(B, 1)); %switches stationary to 0, if the draw is not stationary
+                    [stationary] = bear.checkstable(B(:), numEn, p, size(B, 1)); %switches stationary to 0, if the draw is not stationary
                 end
 
                 % then draw sigma from an inverse Wishart distribution with scale matrix Sbar and degrees of freedom alphabar (step 3)
                 sigma = bear.iwdraw(Sbar,alphabar);
 
                 sample.beta = B(:);
-                sample.sigma = sigma(:);
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

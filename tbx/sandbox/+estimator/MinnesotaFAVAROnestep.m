@@ -1,5 +1,5 @@
 
-classdef MinnesotaFAVAROnestep < estimator.Base
+classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
@@ -16,7 +16,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -36,7 +36,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base
             opt.a0 = this.Settings.SigmaShape;
             opt.b0 = this.Settings.SigmaScale;
 
-            opt.numpc = this.Settings.NumFactors;
+            opt.numpc = meta.NumFactors;
 
             sigmaAdapter = struct();
             sigmaAdapter.diag = 12;
@@ -47,6 +47,12 @@ classdef MinnesotaFAVAROnestep < estimator.Base
             priorexo = this.Settings.Exogenous;
 
             ar = this.Settings.Autoregression;
+            opt.bex = this.Settings.BlockExogenous;
+
+            blockexo  =  [];
+            if  opt.bex == 1
+                [blockexo] = bear.loadbex(endo, pref);
+            end
 
             %% FAVAR settings, maybe we can move this to a separate function
 
@@ -72,7 +78,8 @@ classdef MinnesotaFAVAROnestep < estimator.Base
             indexnM = repmat(favar.variablestrings_factorsonly_index, 1, opt.p);
             indexnM = find(indexnM==1);
 
-            [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, opt.const, opt.p);
+            [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
+                bear.olsvar(data_endo, longX, opt.const, opt.p);
 
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
@@ -128,7 +135,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base
                     opt.a0, opt.b0, T, p, L0);
 
                 sample.beta = beta;
-                sample.sigma = sigma(:);
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

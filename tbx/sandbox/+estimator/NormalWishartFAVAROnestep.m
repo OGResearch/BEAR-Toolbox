@@ -1,5 +1,5 @@
 
-classdef NormalWishartFAVAROnestep < estimator.Base
+classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
@@ -16,7 +16,7 @@ classdef NormalWishartFAVAROnestep < estimator.Base
             %[
             arguments
                 this
-                meta (1, 1) meta.ReducedForm
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -34,7 +34,7 @@ classdef NormalWishartFAVAROnestep < estimator.Base
             opt.a0 = this.Settings.SigmaShape;
             opt.b0 = this.Settings.SigmaScale;
 
-            opt.numpc = this.Settings.NumFactors;
+            opt.numpc = meta.NumFactors;
 
             sigmaAdapter = struct();
             sigmaAdapter.eye = 22;
@@ -135,7 +135,7 @@ classdef NormalWishartFAVAROnestep < estimator.Base
                     FY, opt.a0, opt.b0, estimLength, p, L0);
 
                 sample.beta = B(:);
-                sample.sigma = sigma(:);
+                sample.sigma = sigma;
                 sample.LX = LX(:);
                 sample.FY = FY(:);
                 sample.L = L(:);

@@ -1,8 +1,8 @@
 
-classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
+classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     properties
-        DescriptionUX = "BFAVAR with Normal-Wishart prior"
+        DescriptionUX = "BFAVAR with Individual Normal-Wishart prior"
 
         CanHaveDummies = false
         CanHaveReducibles = true
@@ -23,34 +23,17 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
             [longY, longX, longZ] = longYXZ{:};
 
+            opt.bex = this.Settings.BlockExogenous;
+
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
-
-            opt.bex = this.Settings.BlockExogenous;
-            opt.lambda1 = this.Settings.Lambda1;
-            opt.lambda2 = this.Settings.Lambda2;
-            opt.lambda3 = this.Settings.Lambda3;
-            opt.lambda4 = this.Settings.Lambda4;
-            opt.lambda5 = this.Settings.Lambda5;
-
-            opt.numpc = meta.NumFactors;
-
-            priorexo = this.Settings.Exogenous;
-
-            ar = this.Settings.Autoregression;
-
-            blockexo  =  [];
-            if  opt.bex == 1
-                [blockexo] = bear.loadbex(endo, pref);
-            end
-
 
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = opt.numpc;
-            [favar.l] =pca(longZ, 'NumComponents', opt.numpc);
+            [favar.l] =pca(longZ,'NumComponents', opt.numpc);
 
+            favar.numpc = opt.numpc;
             favar.nfactorvar = size(longZ, 2);
 
             %identify factors: normalise loadings, compute factors following BBE 2005
@@ -66,61 +49,52 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             favar.data_exfactors = longY;
             [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
 
-            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
-                opt.const, opt.p);
 
-            [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, ~, ~, sizeB] = ...
+                bear.olsvar(longY, longX, opt.const, opt.p);
 
-            % set prior values
-            [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, opt.lambda5, ...
-                numEn, numEx, p, numBRows, sizeB, opt.bex, blockexo, priorexo);
-
-            % invert omega0, as it will be used repeatedly
-            invomega0 = diag(1 ./ diag(omega0));
+            % set initial values for B (step 2); use OLS estimates
+            B = Bhat;
 
             L = favar.L;
-            B = Bhat;
             FY = data_endo;
             %===============================================================================
 
             function sample = sampler()
 
-                % Step 3: at iteration ii, first draw sigma from IW, conditional on beta from previous iteration
-                % obtain first Shat, defined in (1.6.10)
-                Shat = (Y - LX * B)'*(Y - LX * B);
-
+                % Step 3: at iteration ii,  first draw sigma from IW,  conditional on beta from previous iteration
+                % obtain first Shat,  defined in (1.6.10)
+                Shat = (Y - LX * B)' * (Y - LX * B);
                 % Correct potential asymmetries due to rounding errors from Matlab
                 C = chol(bear.nspd(Shat));
-                Shat = C'*C;
+                Shat = C' * C;
 
+                % next draw from IW(Shat, estimLength)
                 sigma = bear.iwdraw(Shat, estimLength);
 
-                % step 4: with sigma drawn, continue iteration ii by drawing beta from a multivariate Normal, conditional on sigma obtained in current iteration
+                % step 4: with sigma drawn,  continue iteration ii by drawing beta from a multivariate Normal,  conditional on sigma obtained in current iteration
                 % first invert sigma
                 C = chol(bear.nspd(sigma));
                 invC = C \ speye(numEn);
                 invsigma = invC * invC';
 
-                % then obtain the omegabar matrix
-                invomegabar = invomega0 + kron(invsigma, LX' * LX);
+                % then obtain the omegabar matrix,  Uhlig05 prior
+                invomegabar = kron(invsigma, LX' * LX);
                 C = chol(bear.nspd(invomegabar));
                 invC = C \ speye(sizeB);
                 omegabar = invC * invC';
 
-                % following, obtain betabar
-                betabar = omegabar * (invomega0 * beta0 + kron(invsigma, LX') * y);
+                % following,  obtain betabar
+                betabar = omegabar * (kron(invsigma, LX') * Y(:));
 
-                % draw B from a matrix-variate student distribution with location Bbar, scale Sbar and phibar and degrees of freedom alphatilde (step 2)
+                % draw beta from N(betabar, omegabar);
                 stationary = 0;
-
-                while stationary == 0
+                while stationary  ==  0
+                    % draw from N(betabar, omegabar);
                     beta = betabar + chol(bear.nspd(omegabar), 'lower') * mvnrnd(zeros(sizeB, 1), eye(sizeB))';
-                    [stationary] = bear.checkstable(beta, numEn, p, size(B, 1)); %switches stationary to 0, if the draw is not stationary
+                    [stationary] = bear.checkstable(beta, numEn, p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
                 end
 
-                % update matrix B with each draw
-                B = reshape(beta, size(B));
-   
                 sample.beta = beta;
                 sample.sigma = sigma;
                 sample.LX = LX(:);

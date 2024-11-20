@@ -16,14 +16,13 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
             %[
             arguments
                 this
-                meta 
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
 
             [longY, longX, ~] = longYXZ{:};
 
-            opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;

@@ -1,5 +1,5 @@
 
-classdef (CaseInsensitiveProperties=true) NormalDiffuseFAVARTwostep < estimator.settings.BaseFAVAR
+classdef (CaseInsensitiveProperties=true) NormalDiffuseFAVARTwostep < estimator.settings.NormalDiffuse
 
 end
 
