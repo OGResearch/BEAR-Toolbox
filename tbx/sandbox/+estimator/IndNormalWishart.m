@@ -74,7 +74,7 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
 
             %===============================================================================
 
-            function sampleStruct = sampler()
+            function sample = sampler()
 
                 % Step 3: at iteration ii, first draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.5.15)
@@ -108,8 +108,8 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
                 % update matrix B with each draw
                 B = reshape(beta, size(B));
 
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigma;
+                sample.beta = beta;
+                sample.sigma = sigma;
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

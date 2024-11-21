@@ -48,28 +48,13 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = opt.numpc;
-            [favar.l] =pca(longZ, 'NumComponents', opt.numpc);
+            favar.numpc = opt.numpc;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
-            favar.nfactorvar = size(longZ, 2);
-
-            %identify factors: normalise loadings, compute factors following BBE 2005
-            favar.l = sqrt(favar.nfactorvar) * favar.l;
-            favar.XZ = longZ * favar.l / favar.nfactorvar;
-
-            data_endo = [favar.XZ longY];
-
-            favar.variablestrings_factorsonly = (1:favar.numpc)';
-            favar.variablestrings_factorsonly_index = [true(favar.numpc, 1) ; false(size(longY, 2), 1)];
-            favar.variablestrings_exfactors = (favar.numpc+1:size(data_endo, 2))';
-            favar.variablestrings_exfactors_index = [false(favar.numpc, 1); true(size(longY, 2), 1)];
-            favar.data_exfactors = longY;
-            [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
-
-            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(data_endo, longX, ...
+            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
 
-            [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
+            [arvar] = bear.arloop(FY, opt.const, p, numEn);
 
             % set prior values
             [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, opt.lambda5, ...
@@ -78,9 +63,9 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             % invert omega0, as it will be used repeatedly
             invomega0 = diag(1 ./ diag(omega0));
 
-            L = favar.L;
+            LD = favar.L;
             B = Bhat;
-            FY = data_endo;
+            
             %===============================================================================
 
             function sample = sampler()
@@ -123,9 +108,8 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
    
                 sample.beta = beta;
                 sample.sigma = sigma;
-                sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

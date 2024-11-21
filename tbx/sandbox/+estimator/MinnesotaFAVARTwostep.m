@@ -51,30 +51,15 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = true;
-            [favar.l] =pca(longZ,'NumComponents',opt.numpc);
-
-            favar.numpc = opt.numpc;
-            favar.nfactorvar = size(longZ, 2);
-
-            %identify factors: normalise loadings, compute factors following BBE 2005
-            favar.l = sqrt(favar.nfactorvar) * favar.l;
-            favar.XZ = longZ * favar.l / favar.nfactorvar;
-
-            data_endo = [favar.XZ longY];
-
-            favar.variablestrings_factorsonly = (1:favar.numpc)';
-            favar.variablestrings_factorsonly_index = [true(favar.numpc, 1) ; false(size(longY, 2), 1)];
-            favar.variablestrings_exfactors = (favar.numpc+1:size(data_endo, 2))';
-            favar.variablestrings_exfactors_index = [false(favar.numpc, 1); true(size(longY, 2), 1)];
-            favar.data_exfactors = longY;
-            [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
+            favar.onestep = false;
+            favar.numpc = opt.numpc;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, ~, y, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
             sigmahat = (1 / estimLength) * (EPS' * EPS);
 
-            [arvar] = bear.arloop(data_endo, opt.const, p, numEn);
+            [arvar] = bear.arloop(FY, opt.const, p, numEn);
 
             [beta0, omega0, sigma] = bear.mprior(ar, arvar, sigmahat, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, ...
                 opt.lambda5, numEn, numEx, p, numBRows, sizeB, opt.prior, opt.bex, blockexo, priorexo);
@@ -82,9 +67,9 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
             % obtain posterior distribution parameters
             [betabar, omegabar] = bear.mpost(beta0, omega0, sigma, LX, y, sizeB, numEn);
 
-            L = favar.L;
+            LD = favar.L;
             B = Bhat;
-            FY = data_endo;
+            
             %===============================================================================
 
             function sample = sampler()
@@ -98,9 +83,8 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
 
                 sample.beta = beta;
                 sample.sigma = sigma;
-                sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

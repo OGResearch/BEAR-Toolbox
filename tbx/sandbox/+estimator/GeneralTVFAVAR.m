@@ -1,9 +1,9 @@
 
-classdef GeneralTV < estimator.Base
+classdef GeneralTVFAVAR < estimator.Base
 
     properties
         CanHaveDummies = false
-        CanHaveReducibles = false
+        CanHaveReducibles = true
         HasCrossUnits = false
     end
 
@@ -27,14 +27,18 @@ classdef GeneralTV < estimator.Base
             opt.gamma = this.Settings.HeteroskedasticityAutoRegression;
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
             opt.delta0 = this.Settings.HeteroskedasticityScale;
+            
+            favar.onestep = false;
+            favar.numpc = opt.numpc;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
-            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
+            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
-            [arvar] = bear.arloop(longY, opt.const, p, numEn);
+            [arvar] = bear.arloop(FY, opt.const, p, numY);
 
-            [yt, y, ~, Xbart, Xbar] = bear.tvbvarmat(Y, LX, numEn, sizeB, estimLength); %create TV matrices
-            [chi, psi, ~, ~, H, I_tau, G, I_om, f0, upsilon0] = bear.tvbvar2prior(arvar, numEn, sizeB, estimLength, opt.gamma);
+            [yt, y, ~, Xbart, Xbar] = bear.tvbvarmat(Y, LX, numY, sizeB, estimLength); %create TV matrices
+            [chi, psi, ~, ~, H, I_tau, G, I_om, f0, upsilon0] = bear.tvbvar2prior(arvar, numY, sizeB, estimLength, opt.gamma);
 
             GIG = G' * I_om * G;
 
@@ -50,9 +54,6 @@ classdef GeneralTV < estimator.Base
             % compute alphabar
             alphabar = estimLength + opt.alpha0;
 
-            % initial value for B
-            B = kron(ones(estimLength, 1), betahat);
-
             % initial value Omega
             omega = diag(diag(betahat * betahat'));
 
@@ -64,21 +65,21 @@ classdef GeneralTV < estimator.Base
             [Fhat,  Lambdahat] = bear.triangf(sigmahat);
 
             % obtain the inverse of Fhat
-            [invFhat] = bear.invltod(Fhat, numEn);
+            [invFhat] = bear.invltod(Fhat, numY);
 
             % create the cell storing the different vectors of invF
-            Finv = cell(numEn, 1);
+            Finv = cell(numY, 1);
 
             % store the vectors
-            for ii = 2:numEn
+            for ii = 2:numY
                 Finv{ii, 1} = invFhat(ii, 1:ii - 1);
             end
 
             % initial values for L_1, ..., L_n
-            L = zeros(estimLength, numEn);
+            L = zeros(estimLength, numY);
 
             % initial values for phi_1, ..., phi_n
-            phi = ones(1, numEn);
+            phi = ones(1, numY);
 
             % initiate invsigmabar
             invsigmabar = sparse(kron(eye(estimLength), inv(sigmahat)));
@@ -90,9 +91,11 @@ classdef GeneralTV < estimator.Base
             % step 3: recover the series of initial values for lambda_1, ..., lambda_T and sigma_1, ..., sigma_T
             lambda_t  =  repmat(diag(sbar), 1, 1, estimLength);
             sigma_t   =  repmat(sigmahat, 1, 1, estimLength);
-            epst = zeros(numEn , 1 , estimLength);
+            epst = zeros(numY , 1 , estimLength);
 
-
+            
+            LD = favar.L;
+            %===============================================================================
             function sample  =  sampler()
 
                 % step 4: draw B
@@ -142,7 +145,7 @@ classdef GeneralTV < estimator.Base
                 end
 
                 % then draw the vectors in turn
-                for jj = 2:numEn
+                for jj = 2:numY
                     % first compute the summations required for upsilonbar and fbar
                     summ1 = zeros(jj - 1, jj - 1);
                     summ2 = zeros(jj - 1, 1);
@@ -174,21 +177,21 @@ classdef GeneralTV < estimator.Base
                 end
 
                 % recover the inverse of F
-                invF = eye(numEn);
+                invF = eye(numY);
 
-                for jj = 2:numEn
+                for jj = 2:numY
                     invF(jj, 1:jj - 1) = Finv{jj, 1};
                 end
 
                 % eventually recover F
-                F = bear.invltod(invF, numEn);
+                F = bear.invltod(invF, numY);
 
                 % then update sigma
                 sigma = F * Lambda * F';
 
                 % step 7: draw the series phi_1, ..., phi_n from their conditional posteriors
                 % draw the parameters in turn
-                for jj = 1:numEn
+                for jj = 1:numY
                     % estimate deltabar
                     deltabar = L(:, jj)' * GIG * L(:, jj) + opt.delta0;
 
@@ -196,9 +199,9 @@ classdef GeneralTV < estimator.Base
                     phi(1, jj) = bear.igrandn(alphabar / 2, deltabar / 2);
                 end
 
-                % step 8: draw the series lambda_i, t from their conditional posteriors,  i = 1, ..., numEn and t = 1, ..., estimLength
+                % step 8: draw the series lambda_i, t from their conditional posteriors,  i = 1, ..., numY and t = 1, ..., estimLength
                 % consider variables in turn
-                for jj = 1:numEn
+                for jj = 1:numY
                     % consider periods in turn
                     for kk = 1:estimLength
                         % a candidate value will be drawn from N(lambdabar, phibar)
@@ -246,7 +249,7 @@ classdef GeneralTV < estimator.Base
                 sample.omega = diag(omega);
                 sample.F = F;
                 sample.sbar = sbar;
-                sample.L = mat2cell(L, ones(estimLength, 1), numEn);
+                sample.L = mat2cell(L, ones(estimLength, 1), numY);
                 sample.phi = phi;
                 sample.sigmaAvg = sigma(:);
 
@@ -254,8 +257,11 @@ classdef GeneralTV < estimator.Base
                     sample.lambda_t{jj, 1}(:, :) = lambda_t(:, :, jj);
                     sample.sigma_t{jj, 1}(:, :) = sigma_t(:, :, jj);
                 end
-            end
+                sample.FY = FY(:);
+                sample.LD = LD(:);
 
+            end
+                
             this.Sampler = @sampler;
 
             %]
@@ -267,9 +273,11 @@ classdef GeneralTV < estimator.Base
 
             %sizes
             numEn = meta.NumEndogenousNames;
-            numARows = numEn * meta.Order;
+            numPC = meta.NumFactors;
+            numY = numEn + numPC;
+            numARows = numY * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
-            sizeB = numEn * numBRows;
+            sizeB = numY * numBRows;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
@@ -306,13 +314,13 @@ classdef GeneralTV < estimator.Base
                 for jj = 1:forecastHorizon
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
-                    B = reshape(beta, [], numEn);
+                    B = reshape(beta, [], numY);
                     draw.A{jj, 1}(:, :) = B(1:numARows, :);
                     draw.C{jj, 1}(:, :) = B(numARows + 1:end, :);
                     %
                     % update lambda_t and obtain Lambda_t
                     % loop over variables
-                    for kk = 1:numEn
+                    for kk = 1:numY
                         lambda(kk, 1) = gamma * lambda(kk, 1) + phi(kk, 1)^0.5 * randn;
                     end
                     %
@@ -368,13 +376,13 @@ classdef GeneralTV < estimator.Base
                 for jj = 1:horizon
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
-                    B = reshape(beta, [], numEn);
+                    B = reshape(beta, [], numY);
                     draw.A{jj}(:, :) = B(1:numARows, :);
                     draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
                 %
-                draw.Sigma = reshape(sample.sigmaAvg, numEn, numEn);
-                %
+                draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
+                draw.LD = reshape(sample.LD, [], numY);                %
             end%
 
 
@@ -385,7 +393,7 @@ classdef GeneralTV < estimator.Base
                 draw.Sigma = cell(estimationHorizon, 1);
                 %
                 for jj = 1:estimationHorizon
-                    B = reshape(sample.beta{jj}, [], numEn);
+                    B = reshape(sample.beta{jj}, [], numY);
                     draw.A{jj}(:, :) = B(1:numARows, :);
                     draw.C{jj}(:, :) = B(numARows + 1:end, :);
                     draw.Sigma{jj}(:, :) = sample.sigma_t{jj}(:, :);

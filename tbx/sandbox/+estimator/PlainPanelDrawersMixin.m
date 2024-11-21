@@ -14,9 +14,9 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
             identificationHorizon = meta.IdentificationHorizon;
 
 
-            function drawStruct = betaDrawer(sampleStruct, horizon)
+            function draw = betaDrawer(sample, horizon)
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
 
                 % initialization
                 A = nan(numARows, numEndog, numCountries);
@@ -43,15 +43,15 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
 
                 end
 
-                drawStruct = struct();
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
+                draw = struct();
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
 
             end
 
-            function drawStruct = sigmaDrawer(sampleStruct, horizon)
+            function draw = sigmaDrawer(sample, horizon)
 
-                sigma = sampleStruct.sigma;
+                sigma = sample.sigma;
 
                 % initialization
                 Sigma = nan(numEndog, numEndog, numCountries);
@@ -69,30 +69,30 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
 
                 end
 
-                drawStruct = struct();
-                drawStruct.Sigma = Sigma;
+                draw = struct();
+                draw.Sigma = Sigma;
 
             end
 
-            function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
+            function draw = unconditionalDrawer(sample, start, forecastHorizon)
 
-                draw = betaDrawer(sampleStruct, forecastHorizon);
-                drawS = sigmaDrawer(sampleStruct, forecastHorizon);
+                draw = betaDrawer(sample, forecastHorizon);
+                drawS = sigmaDrawer(sample, forecastHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
 
             end%
 
-            function draw = historyDrawer(sampleStruct)
+            function draw = historyDrawer(sample)
 
-                draw = betaDrawer(sampleStruct, estimationHorizon);
-                drawS = sigmaDrawer(sampleStruct, estimationHorizon);
+                draw = betaDrawer(sample, estimationHorizon);
+                drawS = sigmaDrawer(sample, estimationHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
 
             end%
 
-            function draw = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon)
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 draw.beta = repmat({beta}, forecastHorizon, 1);
 
             end%

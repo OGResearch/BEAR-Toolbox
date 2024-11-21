@@ -40,14 +40,13 @@ classdef (Abstract) PlainFAVARDrawersMixin < handle
                 sample.B = reshape(sample.beta, [], numY);
                 A = sample.B(1:numL, :);
                 C = sample.B(numL+1:end, :);
-                [numR] = size(sample.L);
-                L = reshape(sample.L, numR/numY, numY); 
                 wrap = @(x) repmat({x}, horizon, 1);
                 draw = struct();
                 draw.A = wrap(A);
                 draw.C = wrap(C);
                 draw.L = wrap(L);
                 draw.Sigma = sample.sigma;
+                draw.LD = reshape(sample.LD, [], numY);      
             end%
             %
             this.HistoryDrawer = @(sample) drawer(sample, estimationHorizon);

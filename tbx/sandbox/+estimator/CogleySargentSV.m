@@ -29,7 +29,7 @@ classdef CogleySargentSV < estimator.Base
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
-            opt.priorsexogenous = this.Settings.Exogenous;
+            priorexo = this.Settings.Exogenous;
 
             opt.gamma = this.Settings.HeteroskedasticityAutoRegression;
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
@@ -38,7 +38,7 @@ classdef CogleySargentSV < estimator.Base
             opt.bex = this.Settings.BlockExogenous;
             opt.ar = this.Settings.Autoregression;
 
-            priorexo = this.Settings.Exogenous;
+            
 
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
@@ -101,7 +101,7 @@ classdef CogleySargentSV < estimator.Base
             sigma_t = repmat(sigmahat, [1 1 estimLength]);
 
 
-            function sampleStruct   =   sampler()
+            function sample   =   sampler()
 
                 summ1  =  zeros(sizeB, sizeB);
                 summ2  =  zeros(sizeB, 1);
@@ -235,16 +235,16 @@ classdef CogleySargentSV < estimator.Base
                     sigma_t(:, :, zz) = F * lambda_t(:, :, zz) * F';
                 end
 
-                sampleStruct.beta = beta;
-                sampleStruct.F = F;
-                sampleStruct.L = mat2cell(L, ones(estimLength, 1), numEn);
-                sampleStruct.phi = phi;
-                sampleStruct.sigmaAvg = sigma(:);
-                sampleStruct.sbar = sbar;
+                sample.beta = beta;
+                sample.F = F;
+                sample.L = mat2cell(L, ones(estimLength, 1), numEn);
+                sample.phi = phi;
+                sample.sigmaAvg = sigma(:);
+                sample.sbar = sbar;
 
                 for zz = 1:estimLength
-                    sampleStruct.lambda_t{zz, 1} = lambda_t(:, :, zz);
-                    sampleStruct.sigma_t{zz, 1} = sigma_t(:, :, zz);
+                    sample.lambda_t{zz, 1} = lambda_t(:, :, zz);
+                    sample.sigma_t{zz, 1} = sigma_t(:, :, zz);
                 end
 
             end
@@ -272,27 +272,27 @@ classdef CogleySargentSV < estimator.Base
             gamma = this.Settings.HeteroskedasticityAutoRegression;
 
 
-            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon )
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, numBRows, numEn);
+                B = reshape(beta, [], numEn);
 
                 % draw F from its posterior distribution
-                F = sparse(sampleStruct.F(:,:));
+                F = sparse(sample.F(:,:));
 
                 % step 4: draw phi and gamma from their posteriors
-                phi = sampleStruct.phi';
-                lambda =  sampleStruct.L{startingIndex - 1,:}';
+                phi = sample.phi';
+                lambda =  sample.L{startingIndex - 1,:}';
 
-                sbar = sampleStruct.sbar;
+                sbar = sample.sbar;
 
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
-                drawStruct.A = repmat({A}, forecastHorizon, 1);
-                drawStruct.C = repmat({C}, forecastHorizon, 1);
-                drawStruct.Sigma = cell(forecastHorizon, 1);
+                draw.A = repmat({A}, forecastHorizon, 1);
+                draw.C = repmat({C}, forecastHorizon, 1);
+                draw.Sigma = cell(forecastHorizon, 1);
 
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods estimLength+1 to estimLength+h
@@ -306,46 +306,46 @@ classdef CogleySargentSV < estimator.Base
                     Lambda = sparse(diag(sbar .* exp(lambda)));
 
                     % recover sigma_t and draw the residuals
-                    drawStruct. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
+                    draw. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
             end
 
-            function drawStruct = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
 
-                beta = sampleStruct.beta;
-                drawStruct.beta = repmat({beta}, forecastHorizon, 1);
+                beta = sample.beta;
+                draw.beta = repmat({beta}, forecastHorizon, 1);
 
             end%
 
-            function drawStruct = identificationDrawer(sampleStruct)
+            function draw = identificationDrawer(sample)
 
                 horizon = identificationHorizon;
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, numBRows, numEn);
+                B = reshape(beta, [], numEn);
 
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
-                drawStruct.Sigma = reshape(sampleStruct.sigmaAvg, numEn, numEn);
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
+                draw.Sigma = reshape(sample.sigmaAvg, numEn, numEn);
 
             end
 
-            function drawStruct = historyDrawer(sampleStruct)
+            function draw = historyDrawer(sample)
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
 
                 % reshape it to obtain B
-                B = reshape(beta, numBRows, numEn);
+                B = reshape(beta, [], numEn);
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
-                drawStruct.A = repmat({A}, estimationHorizon, 1);
-                drawStruct.C = repmat({C}, estimationHorizon, 1);
+                draw.A = repmat({A}, estimationHorizon, 1);
+                draw.C = repmat({C}, estimationHorizon, 1);
 
                 for jj = 1:estimationHorizon
-                    drawStruct.Sigma{jj,1}(:, :) = sampleStruct.sigma_t{jj, 1}(:, :);
+                    draw.Sigma{jj,1}(:, :) = sample.sigma_t{jj, 1}(:, :);
                 end
 
             end%

@@ -17,7 +17,7 @@ classdef Ordinary < estimator.Base & estimator.PlainDrawersMixin
 
             arguments
                 this
-                meta
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -38,15 +38,15 @@ classdef Ordinary < estimator.Base & estimator.PlainDrawersMixin
 
             %===============================================================================
 
-            function sampleStruct = sampler()
+            function sample = sampler()
 
                 B = bear.matrixtdraw(Bcap, Scap, phicap, alphatop, numBRows, numEn);
 
                 % then draw sigma from an inverse Wishart distribution with scale matrix Scap and degrees of freedom alphacap (step 3)
                 sigma = bear.iwdraw(Scap, alphacap);
 
-                sampleStruct.beta = B(:);
-                sampleStruct.sigma = sigma;
+                sample.beta = B(:);
+                sample.sigma = sigma;
 
                 this.SampleCounter = this.SampleCounter + 1;
 

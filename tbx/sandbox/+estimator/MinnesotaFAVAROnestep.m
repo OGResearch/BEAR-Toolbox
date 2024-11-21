@@ -57,41 +57,23 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            [favar.l] =pca(longZ,'NumComponents',opt.numpc);
-
-            favar.numpc = opt.numpc;
-            favar.nfactorvar = size(longZ, 2);
-
-            %identify factors: normalise loadings, compute factors following BBE 2005
-            favar.l = sqrt(favar.nfactorvar) * favar.l;
-            favar.XZ = longZ * favar.l / favar.nfactorvar;
-
-            data_endo = [favar.XZ longY];
-
-            favar.variablestrings_factorsonly = (1:favar.numpc)';
-            favar.variablestrings_factorsonly_index = [true(favar.numpc, 1) ; false(size(longY, 2), 1)];
-            favar.variablestrings_exfactors = (favar.numpc+1:size(data_endo, 2))';
-            favar.variablestrings_exfactors_index = [false(favar.numpc, 1); true(size(longY, 2), 1)];
-            favar.data_exfactors = longY;
-            [data_endo, favar] = bear.ogr_favar_gensample3(data_endo, favar);
-
-            indexnM = repmat(favar.variablestrings_factorsonly_index, 1, opt.p);
-            indexnM = find(indexnM==1);
+            favar.numpc = opt.numpc;            
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(data_endo, longX, opt.const, opt.p);
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean          = zeros(numEn * p,1);
-            XZ0var           = favar.L0*eye(numEn * p);
-            XY               = favar.XY;
-            L                = favar.L;
+            XZ0var = favar.L0*eye(numEn * p);
+            XY = favar.XY;
+            LD = favar.L;
             Sigma            = bear.nspd(favar.Sigma);
             favar_X          = longZ;
             nfactorvar       = favar.nfactorvar;
-            numpc            = favar.numpc;
+            numpc = favar.numpc;
 
             L0 = opt.L0*eye(numEn);
             sigmahat = (1 / estimLength) * (EPS' * EPS);
@@ -131,14 +113,13 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
                 B = reshape(beta, size(B));
                 B_ss(1:numEn,:) = B';
                 % Sample Sigma and L
-                [Sigma, L] = bear.favar_SigmaL(Sigma, L, nfactorvar, numpc, true, numEn, favar_X, FY, ...
+                [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X, FY, ...
                     opt.a0, opt.b0, T, p, L0);
 
                 sample.beta = beta;
                 sample.sigma = sigma;
-                sample.LX = LX(:);
                 sample.FY = FY(:);
-                sample.L = L(:);
+                sample.LD = LD(:);
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

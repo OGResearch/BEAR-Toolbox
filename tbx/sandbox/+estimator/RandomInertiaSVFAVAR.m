@@ -1,9 +1,9 @@
 
-classdef RandomInertiaSV < estimator.Base
+classdef RandomInertiaSVFAVAR < estimator.Base
 
     properties
         CanHaveDummies = false
-        CanHaveReducibles = false
+        CanHaveReducibles = true
         HasCrossUnits = false
     end
 
@@ -19,7 +19,7 @@ classdef RandomInertiaSV < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYXZ{:};
+            [longY, longX, longZ] = longYXZ{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -38,12 +38,15 @@ classdef RandomInertiaSV < estimator.Base
 
             opt.bex = this.Settings.BlockExogenous;
             opt.ar = this.Settings.Autoregression;
-            
 
-            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
+            favar.onestep = false;
+            favar.numpc = opt.numpc;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
-            [arvar]  =  bear.arloop(longY, opt.const, p, numEn);
+            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, numEx, p, estimLength, numBRows, sizeB] = ...
+                bear.olsvar(FY, longX, opt.const, opt.p);
+
+            [arvar]  =  bear.arloop(FY, opt.const, p, numY);
 
             blockexo  =  [];
             if  opt.bex == 1
@@ -51,9 +54,9 @@ classdef RandomInertiaSV < estimator.Base
             end
 
             %create matrices
-            [yt, ~, Xbart]  =  bear.stvoltmat(Y, LX, numEn, estimLength); %create TV matrices
+            [yt, ~, Xbart]  =  bear.stvoltmat(Y, LX, numY, estimLength); %create TV matrices
             [beta0, omega0, I_o, omega, f0, upsilon0] = bear.stvol2prior(opt.ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3,...
-                opt.lambda4, opt.lambda5, numEn, numEx, p, estimLength, numBRows, sizeB, opt.bex, blockexo, priorexo);
+                opt.lambda4, opt.lambda5, numY, numEx, p, estimLength, numBRows, sizeB, opt.bex, blockexo, priorexo);
 
             alphabar = estimLength + opt.alpha0;
 
@@ -65,31 +68,31 @@ classdef RandomInertiaSV < estimator.Base
             [Fhat, Lambdahat] = bear.triangf(sigmahat);
 
             % obtain the inverse of Fhat
-            [invFhat] = bear.invltod(Fhat, numEn);
+            [invFhat] = bear.invltod(Fhat, numY);
 
             % create the cell storing the different vectors of invF
-            Finv = cell(numEn,1);
+            Finv = cell(numY,1);
 
             % store the vectors
-            for ii = 2:numEn
+            for ii = 2:numY
                 Finv{ii, 1} = invFhat(ii, 1:ii - 1);
             end
 
             % initial values for L_1,...,L_n
-            L = zeros(estimLength, numEn);
+            L = zeros(estimLength, numY);
 
             % initial values for gamma_1,...,gamma_n
-            gamma = 0.85*ones(1,numEn);
+            gamma = 0.85*ones(1,numY);
 
             % initial values for G_1,...,G_n
-            G = cell(numEn, 1);
+            G = cell(numY, 1);
 
-            for ii = 1:numEn
+            for ii = 1:numY
                 G{ii, 1} = speye(estimLength) - sparse(diag(gamma(1, ii)*ones(estimLength - 1, 1), -1));
             end
 
             % initial values for phi_1,...,phi_n
-            phi = ones(1, numEn);
+            phi = ones(1, numY);
 
             % step 2: determine the sbar values and Lambda
             sbar = diag(Lambdahat);
@@ -99,6 +102,9 @@ classdef RandomInertiaSV < estimator.Base
             % step 3: recover the series of initial values for lambda_1,...,lambda_T and sigma_1,...,sigma_T
             lambda_t = repmat(diag(sbar), 1, 1, estimLength);
             sigma_t = repmat(sigmahat, 1, 1, estimLength);
+
+            
+            LD = favar.L;
 
             function sample  =  sampler()
 
@@ -138,7 +144,7 @@ classdef RandomInertiaSV < estimator.Base
                 end
 
                 % then draw the vectors in turn
-                for zz = 2:numEn
+                for zz = 2:numY
                     % first compute the summations required for upsilonbar and fbar
                     summ1 = zeros(zz - 1, zz - 1);
                     summ2 = zeros(zz - 1, 1);
@@ -170,13 +176,13 @@ classdef RandomInertiaSV < estimator.Base
                 end
 
                 % recover the inverse of F
-                invF = eye(numEn);
-                for zz = 2:numEn
+                invF = eye(numY);
+                for zz = 2:numY
                     invF(zz, 1:zz - 1) = Finv{zz, 1};
                 end
 
                 % eventually recover F
-                F = bear.invltod(invF, numEn);
+                F = bear.invltod(invF, numY);
 
                 % then update sigma
                 sigma = F * Lambda * F';
@@ -184,7 +190,7 @@ classdef RandomInertiaSV < estimator.Base
 
                 %% draw the series gamma_1,...,gamma_n from their conditional posteriors
                 % draw the parameters in turn
-                for zz = 1:numEn
+                for zz = 1:numY
                     % estimate zetabar
                     zetabar = 1 / ((1 / phi(1, zz)) * L(1:estimLength - 1, zz)' * L(1:estimLength - 1, zz) + 1 / opt.zeta0);
 
@@ -202,7 +208,7 @@ classdef RandomInertiaSV < estimator.Base
 
                 %% draw the series phi_1,...,phi_n from their conditional posteriors
                 % draw the parameters in turn
-                for zz = 1:numEn
+                for zz = 1:numY
 
                     % estimate deltabar
                     deltabar = L(:, zz)' * G{zz, 1}' * I_o * G{zz, 1} * L(:, zz) + opt.delta0;
@@ -211,9 +217,9 @@ classdef RandomInertiaSV < estimator.Base
                     phi(1, zz) = bear.igrandn(alphabar / 2, deltabar / 2);
                 end
 
-                %% draw the series lambda_i,t from their conditional posteriors, i = 1,...,numEn and t = 1,...,estimLength
+                %% draw the series lambda_i,t from their conditional posteriors, i = 1,...,numY and t = 1,...,estimLength
                 % consider variables in turn
-                for zz = 1:numEn
+                for zz = 1:numY
                     % consider periods in turn
                     for kk = 1:estimLength
                         % a candidate value will be drawn from N(lambdabar,phibar)
@@ -260,11 +266,14 @@ classdef RandomInertiaSV < estimator.Base
                 sample.beta = beta;
                 sample.omega = diag(omega);
                 sample.F = F;
-                sample.L = mat2cell(L, ones(estimLength, 1), numEn);
+                sample.L = mat2cell(L, ones(estimLength, 1), numY);
                 sample.phi = phi;
                 sample.sigmaAvg = sigma(:);
                 sample.gamma = gamma;
                 sample.sbar = sbar;
+
+                sample.FY = FY(:);
+                sample.LD = LD(:); 
 
 
                 for zz = 1:estimLength
@@ -286,8 +295,9 @@ classdef RandomInertiaSV < estimator.Base
 
             %sizes
             numEn = meta.NumEndogenousNames;
-            numARows = numEn * meta.Order;
-            numBRows = numARows + meta.NumExogenousNames + double(meta.HasIntercept);
+            numPC = meta.NumFactors;
+            numY = numEn + numPC;
+            numARows = numY * meta.Order;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
@@ -298,7 +308,7 @@ classdef RandomInertiaSV < estimator.Base
 
                 beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, [], numEn);
+                B = reshape(beta, [], numY);
 
                 % draw F from its posterior distribution
                 F = sparse(sample.F(:, :));
@@ -321,7 +331,7 @@ classdef RandomInertiaSV < estimator.Base
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1 : forecastHorizon
 
-                    for kk = 1 : numEn
+                    for kk = 1 : numY
                         lambda(kk, 1) = gamma(kk, 1) * lambda(kk, 1) + sqrt(phi(kk, 1)) * randn();
                     end
 
@@ -346,15 +356,15 @@ classdef RandomInertiaSV < estimator.Base
 
                 beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, [], numEn);
+                B = reshape(beta, [], numY);
 
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
                 draw.A = repmat({A}, horizon, 1);
                 draw.C = repmat({C}, horizon, 1);
-                draw.Sigma = reshape(sample.sigmaAvg, numEn, numEn);
-
+                draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
+                draw.LD = reshape(sample.LD, [], numY);            
             end%
 
 
@@ -363,7 +373,7 @@ classdef RandomInertiaSV < estimator.Base
                 beta = sample.beta;
 
                 % reshape it to obtain B
-                B = reshape(beta, [], numEn);
+                B = reshape(beta, [], numY);
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 

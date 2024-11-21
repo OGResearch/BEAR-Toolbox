@@ -75,7 +75,7 @@ classdef StaticCrossPanel < estimator.Base
             % finally, initiate eyetheta
             eyetheta=kron(speye(T),theta);
 
-            function sampleStruct = sampler()
+            function sample = sampler()
 
                 % step 2: obtain sigmatilde
                 % compute Sbar
@@ -117,9 +117,9 @@ classdef StaticCrossPanel < estimator.Base
                 % recalculate beta_gibbs
                 beta_gibbs = Xi*theta;
 
-                sampleStruct = struct();
-                sampleStruct.beta = beta_gibbs;
-                sampleStruct.sigma = sigma_gibbs;
+                sample = struct();
+                sample.beta = beta_gibbs;
+                sample.sigma = sigma_gibbs;
 
             end
 
@@ -142,22 +142,22 @@ classdef StaticCrossPanel < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
-            function drawStruct = betaDrawer(sampleStruct, horizon)
+            function draw = betaDrawer(sample, horizon)
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
 
                 B = reshape(beta, numBRows, numTotalEndog);
                 A = B(1:numARows, :);
                 C = B(numARows+1:end, :);
 
-                drawStruct = struct();
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
+                draw = struct();
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
             end
 
-            function drawStruct = sigmaDrawer(sampleStruct, horizon)
+            function draw = sigmaDrawer(sample, horizon)
 
-                sigma = sampleStruct.sigma;
+                sigma = sample.sigma;
 
                 Sigma = reshape( ...
                     sigma, ...
@@ -165,29 +165,29 @@ classdef StaticCrossPanel < estimator.Base
                     numTotalEndog ...
                 );
 
-                drawStruct = struct();
-                drawStruct.Sigma = Sigma;
+                draw = struct();
+                draw.Sigma = Sigma;
             end
 
-            function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
+            function draw = unconditionalDrawer(sample, start, forecastHorizon)
 
-                draw = betaDrawer(sampleStruct, forecastHorizon);
-                drawS = sigmaDrawer(sampleStruct, forecastHorizon);
+                draw = betaDrawer(sample, forecastHorizon);
+                drawS = sigmaDrawer(sample, forecastHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
 
             end%
 
-            function draw = historyDrawer(sampleStruct)
+            function draw = historyDrawer(sample)
 
-                draw = betaDrawer(sampleStruct, estimationHorizon);
-                drawS = sigmaDrawer(sampleStruct, estimationHorizon);
+                draw = betaDrawer(sample, estimationHorizon);
+                drawS = sigmaDrawer(sample, estimationHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
 
             end%
 
-            function draw = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon)
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 draw.beta = repmat({beta}, forecastHorizon, 1);
 
             end%

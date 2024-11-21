@@ -43,7 +43,7 @@ classdef NormalWishartPanel < estimator.Base
             % obtain posterior distribution parameters
             [Bbar, betabar, phibar, Sbar, alphabar, alphatilde]=bear.nwpost(B0,phi0,S0,alpha0,X,Y,n,N*T,k);
 
-            function sampleStruct = sampler()
+            function sample = sampler()
 
                 % draw B from a matrix-variate student distribution with location Bbar, scale Sbar and phibar and degrees of freedom alphatilde (step 2)
                 B=bear.matrixtdraw(Bbar,Sbar,phibar,alphatilde,k,n);
@@ -51,9 +51,9 @@ classdef NormalWishartPanel < estimator.Base
                 % then draw sigma from an inverse Wishart distribution with scale matrix Sbar and degrees of freedom alphabar (step 3)
                 sigma=bear.iwdraw(Sbar,alphabar);
 
-                sampleStruct = struct();
-                sampleStruct.beta = B(:);
-                sampleStruct.sigma = sigma(:);
+                sample = struct();
+                sample.beta = B(:);
+                sample.sigma = sigma(:);
 
             end
 
@@ -72,9 +72,9 @@ classdef NormalWishartPanel < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
-            function drawStruct = betaDrawer(sampleStruct, horizon)
+            function draw = betaDrawer(sample, horizon)
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
 
                 B_temp = reshape(...
                     beta,...
@@ -89,15 +89,15 @@ classdef NormalWishartPanel < estimator.Base
                 A = repmat(A_temp, [1, 1, numCountries]);
                 C = repmat(C_temp, [1, 1, numCountries]);
 
-                drawStruct = struct();
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
+                draw = struct();
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
                 
             end%
 
-            function drawStruct = sigmaDrawer(sampleStruct, horizon)
+            function draw = sigmaDrawer(sample, horizon)
 
-                sigma = sampleStruct.sigma;
+                sigma = sample.sigma;
 
                 sigma_temp = reshape(...
                     sigma,...
@@ -107,28 +107,28 @@ classdef NormalWishartPanel < estimator.Base
 
                 Sigma = repmat(sigma_temp, [1, 1, numCountries]);
 
-                drawStruct = struct();
-                drawStruct.Sigma = Sigma;
+                draw = struct();
+                draw.Sigma = Sigma;
 
             end%
 
-            function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
+            function draw = unconditionalDrawer(sample, start, forecastHorizon)
 
-                draw = betaDrawer(sampleStruct, forecastHorizon);
-                drawS = sigmaDrawer(sampleStruct, forecastHorizon);
+                draw = betaDrawer(sample, forecastHorizon);
+                drawS = sigmaDrawer(sample, forecastHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
 
             end%
 
-            function draw = historyDrawer(sampleStruct)
-                draw = betaDrawer(sampleStruct, estimationHorizon);
-                drawS = sigmaDrawer(sampleStruct, estimationHorizon);
+            function draw = historyDrawer(sample)
+                draw = betaDrawer(sample, estimationHorizon);
+                drawS = sigmaDrawer(sample, estimationHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
             end%
 
-            function draw = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 draw.beta = repmat({beta}, forecastHorizon, 1);
 
             end%
