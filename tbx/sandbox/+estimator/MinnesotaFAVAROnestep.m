@@ -36,7 +36,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             opt.a0 = this.Settings.SigmaShape;
             opt.b0 = this.Settings.SigmaScale;
 
-            opt.numpc = meta.NumFactors;
+
 
             sigmaAdapter = struct();
             sigmaAdapter.diag = 12;
@@ -57,7 +57,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            favar.numpc = opt.numpc;            
+            favar.numpc = meta.NumFactors            
             [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...

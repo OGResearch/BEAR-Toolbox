@@ -30,7 +30,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
 
-            opt.numpc = meta.NumFactors;
+
 
             sigmaAdapter = struct();
             sigmaAdapter.eye = 22;
@@ -45,7 +45,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = opt.numpc;            
+            favar.numpc = meta.NumFactors            
             [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
             
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...

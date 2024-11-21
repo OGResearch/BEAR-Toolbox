@@ -40,7 +40,7 @@ classdef RandomInertiaSVFAVAR < estimator.Base
             opt.ar = this.Settings.Autoregression;
 
             favar.onestep = false;
-            favar.numpc = opt.numpc;            
+            favar.numpc = meta.NumFactors            
             [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, numEx, p, estimLength, numBRows, sizeB] = ...

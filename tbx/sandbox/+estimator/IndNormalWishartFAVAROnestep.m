@@ -50,7 +50,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            favar.numpc = opt.numpc;            
+            favar.numpc = meta.NumFactors            
             [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...

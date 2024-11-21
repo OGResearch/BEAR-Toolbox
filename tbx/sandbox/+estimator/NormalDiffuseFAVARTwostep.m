@@ -33,7 +33,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             opt.lambda4 = this.Settings.Lambda4;
             opt.lambda5 = this.Settings.Lambda5;
 
-            opt.numpc = meta.NumFactors;
+
 
             priorexo = this.Settings.Exogenous;
 
@@ -48,7 +48,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = opt.numpc;            
+            favar.numpc = meta.NumFactors            
             [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
 
             [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
