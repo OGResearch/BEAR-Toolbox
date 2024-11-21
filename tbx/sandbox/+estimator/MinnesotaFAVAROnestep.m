@@ -57,8 +57,8 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            favar.numpc = meta.NumFactors            
-            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            favar.numpc = meta.NumFactors;            
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
             [Bhat, ~, ~, LX, ~, ~, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
@@ -67,7 +67,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean          = zeros(numEn * p,1);
-            XZ0var = favar.L0*eye(numEn * p);
+            XZ0var = opt.L0*eye(numEn * p);
             XY = favar.XY;
             LD = favar.L;
             Sigma            = bear.nspd(favar.Sigma);
@@ -83,7 +83,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             function sample = sampler()
 
                 % Sample latent factors using Carter and Kohn (1994)
-                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, L, Sigma, B_ss, sigma_ss, indexnM);
+                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, LD, Sigma, B_ss, sigma_ss, indexnM);
 
                 % demean generated factors
                 FY = bear.favar_demean(FY);
@@ -114,7 +114,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
                 B_ss(1:numEn,:) = B';
                 % Sample Sigma and L
                 [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X, FY, ...
-                    opt.a0, opt.b0, T, p, L0);
+                    opt.a0, opt.b0, estimLength, p, L0);
 
                 sample.beta = beta;
                 sample.sigma = sigma;

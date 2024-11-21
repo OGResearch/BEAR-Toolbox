@@ -52,8 +52,8 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = meta.NumFactors            
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            favar.numpc = meta.NumFactors;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
             [Bhat, ~, ~, LX, ~, ~, y, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);

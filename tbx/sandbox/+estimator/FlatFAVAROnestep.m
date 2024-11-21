@@ -26,22 +26,25 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
+            opt.L0 = this.Settings.LoadingVariance;
+            opt.a0 = this.Settings.SigmaShape;
+            opt.b0 = this.Settings.SigmaScale;
+
+
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
             favar.numpc = meta.NumFactors;            
-            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = bear.olsvar(FY, longX, ...
+            [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, ~, p, estimLength, ~, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
-
-            Bhat = (LX' * LX) \ (LX' * Y);
-            EPS  = Y - LX * Bhat;
+            
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean = zeros(numEn * p, 1);
-            XZ0var  = favar.L0*eye(numEn * p);
+            XZ0var  = opt.L0*eye(numEn * p);
             XY      = favar.XY;
             LD = favar.L;
             Sigma   = bear.nspd(favar.Sigma);
@@ -56,7 +59,7 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
             function sample = sampler()
 
                 % Sample latent factors using Carter and Kohn (1994)
-                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, L, Sigma, B_ss, sigma_ss, indexnM);
+                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, LD, Sigma, B_ss, sigma_ss, indexnM);
 
                 % demean generated factors
                 FY = bear.favar_demean(FY);
@@ -72,7 +75,7 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
                 Shat = C' * C;
 
                 % next draw from IW(Shat, T)
-                sigma = bear.iwdraw(Shat, T);
+                sigma = bear.iwdraw(Shat, estimLength);
 
                 sigma_ss(1:numEn, 1:numEn) = sigma;
 
@@ -89,7 +92,7 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
                 omegabar = invC * invC';
 
                 % following,  obtain betabar
-                betabar = omegabar * (kron(invsigma, X') * y);
+                betabar = omegabar * (kron(invsigma, LX') * y);
 
                 % draw beta from N(betabar, omegabar);
                 stationary = 0;

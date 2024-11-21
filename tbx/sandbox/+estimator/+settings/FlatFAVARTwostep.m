@@ -1,5 +1,5 @@
 
-classdef (CaseInsensitiveProperties=true) FlatFAVARTwostep < estimator.settings.FlatWishart
+classdef (CaseInsensitiveProperties=true) FlatFAVARTwostep < estimator.settings.Flat
 
 
 end

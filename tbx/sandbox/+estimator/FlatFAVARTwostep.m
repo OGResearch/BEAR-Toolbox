@@ -31,11 +31,11 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = meta.NumFactors            
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            favar.numpc = meta.NumFactors;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
 
-            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, ~, ~, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
 
             % set initial values for B (step 2); use OLS estimates

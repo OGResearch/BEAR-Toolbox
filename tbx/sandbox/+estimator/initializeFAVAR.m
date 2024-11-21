@@ -1,8 +1,8 @@
-function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar )
+function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar, p )
     
     [favar.l] = pca(longZ,'NumComponents', favar.numpc);
     favar.nfactorvar = size(longZ, 2);
-    
+    favar.X = longZ;
     %identify factors: normalise loadings, compute factors following BBE 2005
     favar.l = sqrt(favar.nfactorvar) * favar.l;
     favar.XZ = longZ * favar.l / favar.nfactorvar;
@@ -16,7 +16,7 @@ function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar )
     favar.data_exfactors = longY;
     [FY, favar] = bear.ogr_favar_gensample3(FY, favar);
 
-    indexnM = repmat(favar.variablestrings_factorsonly_index, 1, opt.p);
+    indexnM = repmat(favar.variablestrings_factorsonly_index, 1, p);
     indexnM = find(indexnM==1);
     
 end

@@ -47,22 +47,25 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
             if  opt.bex == 1
                 [blockexo] = bear.loadbex(endo, pref);
             end
+
+            opt.L0 = this.Settings.LoadingVariance;
+            opt.a0 = this.Settings.SigmaShape;
+            opt.b0 = this.Settings.SigmaScale;
+
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            favar.numpc = meta.NumFactors            
-            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            favar.numpc = meta.NumFactors;            
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
+            [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
 
-            Bhat = (LX' * LX) \ (LX' * Y);
-            EPS  = Y - LX * Bhat;
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean = zeros(numEn * p, 1);
-            XZ0var  = favar.L0*eye(numEn * p);
+            XZ0var  = opt.L0*eye(numEn * p);
             XY      = favar.XY;
             LD = favar.L;
             Sigma   = bear.nspd(favar.Sigma);
@@ -77,7 +80,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
             function sample = sampler()
 
                 % Sample latent factors using Carter and Kohn (1994)
-                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, L, Sigma, B_ss, sigma_ss, indexnM);
+                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, LD, Sigma, B_ss, sigma_ss, indexnM);
                 
                 % demean generated factors
                 FY = bear.favar_demean(FY);
@@ -85,7 +88,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
                 % Sample autoregressive coefficients B
                 [B, ~, ~, LX, ~, Y, y] = bear.olsvar(FY, longX, opt.const, p);
 
-                [arvar] = bear.arloop(FY, opt.const, p, n);
+                [arvar] = bear.arloop(FY, opt.const, p, numEn);
 
                 % set prior values, new with every iteration for onestep only
                 [beta0, omega0, S0, alpha0] = bear.inwprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4, ...
@@ -94,7 +97,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
                 % invert omega0, as it will be used repeatedly
                 invomega0 = diag(1 ./ diag(omega0));
                 % set the value of alphahat, defined in (1.5.16)
-                alphahat = T + alpha0;
+                alphahat = estimLength + alpha0;
 
 
                 % Step 3: at iteration ii,  first draw sigma from IW,  conditional on beta from previous iteration
@@ -111,7 +114,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
                 % step 4: with sigma drawn,  continue iteration ii by drawing beta from a multivariate Normal,  conditional on sigma obtained in current iteration
                 % first invert sigma
                 C = bear.trns(chol(bear.nspd(sigma), 'Lower'));
-                invC = C \ speye(n);
+                invC = C \ speye(numEn);
                 invsigma = invC * invC';
 
                 % then obtain the omegabar matrix
@@ -128,7 +131,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
                 while stationary ==0
                     % draw from N(betabar, omegabar);
                     beta = betabar + chol(bear.nspd(omegabar), 'lower') * mvnrnd(zeros(sizeB, 1), eye(sizeB))';
-                    [stationary] = bear.checkstable(beta, n,  p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
+                    [stationary] = bear.checkstable(beta, numEn,  p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
                 end
 
                 B = reshape(beta, size(B));

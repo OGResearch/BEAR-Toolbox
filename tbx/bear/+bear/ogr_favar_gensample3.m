@@ -60,7 +60,7 @@ elseif favar.onestep==0 % two-step
     if favar.numdata_exfactors==0
         favar.slowfast=0; % this identifiaction is not applicable in a pure factor model
     end
-    if favar.slowfast==1 %apply slowfast recursive identification as in BBE (2005)
+    if isfield(favar, "slowfast") && favar.slowfast==1 %apply slowfast recursive identification as in BBE (2005)
         % factor roation with slow/fast scheme
         favar.XZ_rotated=bear.favar_facrot(favar.XZ,favar.data_exfactors(:,end),favar.XZ_slow); %end, has eventually to be changed
         %replace factors with factors rotated
@@ -73,7 +73,7 @@ elseif favar.onestep==0 % two-step
     % new loadings
     favar.L=(bear.favar_olssvd(favar.XY,data_endo))';
     % manipulate loadings matrix for blocks
-    if favar.blocks==1
+    if isfield(favar, "blocks") && favar.blocks==1
         for bb=1:favar.nbnames
             Xbindex=favar.blockindex_each{bb,1};
             Xbindex2=favar.blockindex_each{bb,1}==0;

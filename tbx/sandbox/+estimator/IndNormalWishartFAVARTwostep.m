@@ -52,10 +52,10 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = meta.NumFactors            
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar);
+            favar.numpc = meta.NumFactors;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
-            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = ...
+            [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
 
             % set prior values
@@ -108,7 +108,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
                 while stationary ==0
                     % draw from N(betabar, omegabar);
                     beta = betabar + chol(bear.nspd(omegabar), 'lower') * mvnrnd(zeros(sizeB, 1), eye(sizeB))';
-                    [stationary] = bear.checkstable(beta, n,  p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
+                    [stationary] = bear.checkstable(beta, numEn,  p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
                 end
 
                 % update matrix B with each draw

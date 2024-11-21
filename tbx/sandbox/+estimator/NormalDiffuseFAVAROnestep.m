@@ -52,17 +52,17 @@ classdef NormalDiffuseFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            favar.numpc = meta.NumFactors            
-            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar);
+            favar.numpc = meta.NumFactors;            
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
             [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
 
-            B_ss = [Bhat'; eye(numEn*(p - 1)) zeros(numEn*(p - 1), numEn)];
-            sigma_ss = [(1 / estimLength) * (EPS' * EPS); zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
+            B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
+            sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean = zeros(numEn * p, 1);
-            XZ0var = favar.L0*eye(numEn * p);
+            XZ0var = opt.L0*eye(numEn * p);
             XY = favar.XY;
             LD = favar.L;
             Sigma            = bear.nspd(favar.Sigma);
@@ -75,7 +75,7 @@ classdef NormalDiffuseFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
 
             function sample = sampler()
 
-                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, L, Sigma, B_ss, sigma_ss, indexnM);
+                FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, LD, Sigma, B_ss, sigma_ss, indexnM);
 
                 % demean generated factors
                 FY = bear.favar_demean(FY);
