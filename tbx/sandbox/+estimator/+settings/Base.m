@@ -5,7 +5,7 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
 
     properties
 
-        % Number of burn-in draws
+        % Burnin  Number of burn-in draws
         Burnin (1, 1) double = 0
 
         % Exogenous  True or false for priors on exogenous variables

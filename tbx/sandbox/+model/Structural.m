@@ -9,7 +9,7 @@ classdef Structural < handle & model.PresampleMixin
     properties
         ReducedForm
         Identifier
-        Presampled
+        Presampled (1, :) cell = cell.empty(1, 0)
     end
 
 
@@ -87,12 +87,12 @@ classdef Structural < handle & model.PresampleMixin
             %
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
-                [y, sample] = this.simulateResponses4S(sample);
+                [Y4S, sample] = this.simulateResponses4S(sample);
                 this.Presampled{i} = sample;
                 if ~isempty(options.Transform)
-                    y = options.Transform(y);
+                    Y4S = options.Transform(Y4S);
                 end
-                Y(:, :, :, i) = y;
+                Y(:, :, :, i) = Y4S;
             end
             %
             shortStart = datex.shift(meta.EstimationEnd, 1);
@@ -111,12 +111,15 @@ classdef Structural < handle & model.PresampleMixin
         end%
 
 
-        function [y, sample] = simulateResponses4S(this, sample)
+        function [Y4S, sample] = simulateResponses4S(this, sample)
+        % Simulate a numT x numY x numP x numUnits array of responses to
+        % structural shocks for a single presampled system
             if ~isfield(sample, "IdentificationDraw")
                 sample.IdentificationDraw = this.IdentificationDrawer(sample);
             end
             draw = sample.IdentificationDraw;
-            y = system.finiteVMA(draw.A, sample.D);
+            % Array Y4S is numT x numY x numP x numUnits
+            Y4S = system.finiteVMA(draw.A, sample.D);
         end%
 
 

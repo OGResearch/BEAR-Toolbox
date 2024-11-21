@@ -12,10 +12,10 @@ function D = candidateFromFactorConstrained(P, R)
 
     for i = 1 : n
         inx = R(:, i) == 0;
-        Z = [P(inx, :); transpose(Q(:, 1:i-1))];
-        B = null(Z);
-        v = randn(size(B, 2), 1);
-        Q(:, i) = B * v / norm(v);
+        Rj = [P(inx, :); transpose(Q(:, 1:i-1))];
+        Nj = null(Rj);
+        v = randn(size(Nj, 2), 1);
+        Q(:, i) = Nj * v / norm(v);
     end
 
     if any(isnan(Q(:)))

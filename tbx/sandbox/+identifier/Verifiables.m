@@ -74,6 +74,7 @@ classdef Verifiables < identifier.Base
                     attemptCounter = 0;
                     while attemptCounter < this.MaxCandidates
                         sample.D = candidator(P);
+                        disp(sample.D)
                         attemptCounter = attemptCounter + 1;
                         %
                         this.CandidateCounter = this.CandidateCounter + 1;

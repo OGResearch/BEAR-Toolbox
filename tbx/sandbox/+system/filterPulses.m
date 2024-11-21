@@ -31,7 +31,7 @@ function Y = filterPulses(A, permutedPulses, lt)
     [order, numY] = system.orderFromA(A{1});
     numUnits = size(A{1}, 3);
 
-    % permutedPulses is expected numY x numP x numT to avoid unnecessary
+    % permutedPulses is expected numP x numY x numT to avoid unnecessary
     % permute/ipermute
     numP = size(permutedPulses, 1);
     lastP = size(permutedPulses, 3);
@@ -65,7 +65,7 @@ function Y = filterPulses(A, permutedPulses, lt)
         end
     end
 
-    % Permute the final Y into numT x numY x numP x numUnits
+    % Permute the final array Y into numT x numY x numP x numUnits
     Y = permute(Y, [3, 2, 1, 4]);
 
 end%

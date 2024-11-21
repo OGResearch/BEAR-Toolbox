@@ -81,7 +81,9 @@ classdef VerifiableProperties < handle
                 shockName (1, 1) string
             end
             if isempty(this.ValueSHKRESP)
-                [this.ValueSHKRESP, this.Sample] = this.Model.simulateResponses4S(this.Sample);
+                % Array Y4S is numT x numY x numP x numUnits
+                [Y4S, this.Sample] = this.Model.simulateResponses4S(this.Sample);
+                this.ValueSHKRESP = Y4S;
             end
             value = this.ValueSHKRESP( ...
                 period, ...
