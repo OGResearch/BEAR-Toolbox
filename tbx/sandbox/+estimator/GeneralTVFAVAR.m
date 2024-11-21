@@ -18,7 +18,7 @@ classdef GeneralTVFAVAR < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYXZ{:};
+            [longY, longX, longZ] = longYXZ{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
