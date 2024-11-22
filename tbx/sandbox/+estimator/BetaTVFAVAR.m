@@ -1,5 +1,5 @@
 classdef BetaTVFAVAR < estimator.Base
-
+%FAVAR verison of TV coefficients model, tvbvar=1 in BEAR5
     properties
         CanHaveDummies = false
         CanHaveReducibles = true

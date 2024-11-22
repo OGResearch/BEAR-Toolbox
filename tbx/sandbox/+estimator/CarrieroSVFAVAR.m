@@ -1,4 +1,6 @@
 classdef CarrieroSVFAVAR < estimator.Base
+%FAVAR version of SV for large models in BEAR5, stvol=3
+% 
 
     properties
         CanHaveDummies = false

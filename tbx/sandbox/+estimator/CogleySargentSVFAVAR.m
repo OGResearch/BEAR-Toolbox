@@ -1,4 +1,5 @@
 classdef CogleySargentSVFAVAR < estimator.Base
+%FAVAR version of Standard SV model, in BEAR5,  stvol =1
 
     properties
         CanHaveDummies = false

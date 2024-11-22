@@ -2,7 +2,7 @@
 classdef (CaseInsensitiveProperties=true) LongRun < settings.Base
 
     properties
-        Lambda (1, 1) double = 1
+        Lambda (1, 1) double = 1 %lambda8 in BEAR5, long run prior tightness
         Constraints (:, :)
     end
 

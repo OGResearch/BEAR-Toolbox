@@ -2,11 +2,11 @@
 classdef (CaseInsensitiveProperties=true) Minnesota < settings.Base
 
     properties
-        Lambda (1, 1) double = 0.1 % lambda1
-        LagDecay (1, 1) double = 1 % lambda3
-        ExogenousLambda (:, :) double = 100 % lambda4
+        Lambda (1, 1) double = 0.1 % lambda1, overall tightness
+        LagDecay (1, 1) double = 1 % lambda3, leg decay
+        ExogenousLambda (:, :) double = 100 % lambda4, exogenous tightness
         Autoregression (:, :) double = 0.8 % ar
-        Exogenous (:, :) logical = false
+        Exogenous (:, :) logical = false %priorexogenous
     end
 
 

@@ -1,6 +1,6 @@
 
 classdef GeneralTVFAVAR < estimator.Base
-
+%FAVAR verison of General TV model tvbvar = 2
     properties
         CanHaveDummies = false
         CanHaveReducibles = true

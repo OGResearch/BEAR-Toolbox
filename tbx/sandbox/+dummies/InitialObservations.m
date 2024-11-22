@@ -2,7 +2,7 @@
 classdef (CaseInsensitiveProperties=true) InitialObservations < settings.Base
 
     properties
-        Lambda (1, 1) double = 1e-3
+        Lambda (1, 1) double = 1e-3 %lambda7 in BEAR7, initial observation tightness
     end
 
     methods

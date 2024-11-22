@@ -1,6 +1,6 @@
 
 classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
-
+%FAVAR version of prior =11 12 and 13 BEAR5
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
 

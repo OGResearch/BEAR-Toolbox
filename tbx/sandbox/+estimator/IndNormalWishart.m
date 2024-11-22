@@ -1,6 +1,6 @@
 
 classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =31, 32 and 33
     properties
         DescriptionUX = "BVAR with indenpendent Normal-Wishart priors"
 

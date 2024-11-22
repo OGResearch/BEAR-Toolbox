@@ -1,5 +1,5 @@
 classdef CogleySargentSV < estimator.Base
-
+%Standard model, in BEAR5,  stvol =1
     properties
         CanHaveDummies = false
         CanHaveReducibles = false

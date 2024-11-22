@@ -1,5 +1,6 @@
 
 classdef RandomInertiaSVFAVAR < estimator.Base
+%FAVAR version of random inertia SV model, in BEAR5,  stvol =3
 
     properties
         CanHaveDummies = false

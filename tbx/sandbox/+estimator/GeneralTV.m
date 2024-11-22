@@ -1,5 +1,6 @@
 
 classdef GeneralTV < estimator.Base
+%general time varying in bear5, tvbvar=2
 
     properties
         CanHaveDummies = false

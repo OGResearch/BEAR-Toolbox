@@ -1,10 +1,4 @@
-classdef (CaseInsensitiveProperties=true) GeneralTV < estimator.settings.Base
-
-    properties
-        HeteroskedasticityAutoRegression double = 1
-        HeteroskedasticityShape double = 1e-3
-        HeteroskedasticityScale double = 1e-3
-    end
-
+classdef (CaseInsensitiveProperties=true) GeneralTV < estimator.settings.Base & estimator.settings.SVMixin
+%general TV model, tvbvar=2 in BEAR5
 end
 

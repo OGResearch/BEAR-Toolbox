@@ -6,37 +6,37 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
     properties
 
         % Burnin  Number of burn-in draws
-        Burnin (1, 1) double = 0
+        Burnin (1, 1) double = 0 %Bu in BEAR5
 
         % Exogenous  True or false for priors on exogenous variables
-        Exogenous (:, :) logical = false
+        Exogenous (:, :) logical = false %priorexogenous in BEAR5, controls wheter to use priors on exogenous
 
         % BlockExogenous  True or false for block exogeneity
-        BlockExogenous (:, :) logical = false
+        BlockExogenous (:, :) logical = false %bex in BEAR5, controls wheter to use block exogenity
 
         % Autoregression  Prior on first-order autoregression
-        Autoregression (:, 1) double = 0.8
+        Autoregression (:, 1) double = 0.8 %ar in BEAR5, the prior mean of the first lag
 
         % Lambda1  Tightness
-        Lambda1 double = 0.1
+        Lambda1 double = 0.1 %lambda1 in BEAR5 , contols the overal tightness of priors
 
-        Lambda2 double = 0.5
+        Lambda2 double = 0.5 %lambda2 in BEAR5, controls cross variable weightning
+ 
+        Lambda3 double = 1 %lambda 3 in BEAR5, controls leg decay
 
-        Lambda3 double = 1
+        Lambda4 (:, :) double = 100 %lambda4 in BEAR5, controls exogenous variable tightness
 
-        Lambda4 (:, :) double = 100
-
-        Lambda5 double = 0.001
+        Lambda5 double = 0.001 % %lambda5 block exogeneity shrinkage hyperparameter
 
     end
 
 
     properties (Hidden)
         % Model has a constant term
-        HasConstant (1, 1) logical = true
+        HasConstant (1, 1) logical = true %const in BEAR5
 
         % Number of lags
-        Order (1, 1) double = 1
+        Order (1, 1) double = 1 %lags in BEAR5
     end
 
 

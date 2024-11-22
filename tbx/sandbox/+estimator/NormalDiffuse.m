@@ -1,6 +1,6 @@
 
 classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =41 in BEAR5
     properties
         DescriptionUX = "BVAR with Normal-Diffuse prior"
 

@@ -1,4 +1,5 @@
 classdef CarrieroSV < estimator.Base
+%SV for large models in BEAR5, stvol=3
 
     properties
         CanHaveDummies = false

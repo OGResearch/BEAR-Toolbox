@@ -1,4 +1,5 @@
 classdef BetaTV < estimator.Base
+%TV coefficients, tvbvar=1 in BEAR5
 
     properties
         CanHaveDummies = false

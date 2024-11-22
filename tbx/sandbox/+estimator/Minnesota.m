@@ -1,6 +1,6 @@
 
 classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =11 12 and 13 in BEAR5
     properties
         DescriptionUX = "BVAR with Minnesota prior"
 

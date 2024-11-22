@@ -2,7 +2,7 @@
 classdef (CaseInsensitiveProperties=true) SumCoefficients < settings.Base
 
     properties
-        Lambda (1, 1) double = 0.1
+        Lambda (1, 1) double = 0.1 %lambda6 in BEAR5, su-of-coefficients tightness
     end
 
     methods

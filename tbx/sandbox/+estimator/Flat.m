@@ -1,6 +1,6 @@
 
 classdef Flat < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =41 in BEAR5 with lambda1>999
     properties
         DescriptionUX = "BVAR with flat prior"
 

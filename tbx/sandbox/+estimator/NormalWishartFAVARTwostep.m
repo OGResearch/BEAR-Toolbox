@@ -1,6 +1,6 @@
 
 classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
-
+%FAVAR version of prior =21 22 in BEAR5
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
 
