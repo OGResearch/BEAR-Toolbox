@@ -3,7 +3,7 @@ classdef (CaseInsensitiveProperties=true) NormalWishart < estimator.settings.Bas
 
     properties
         % Sigma  Method of calculating priors on covariance matrix
-        Sigma (1, 1) string {ismember(Sigma, [ "ar", "eye"])} = "ar"
+        Sigma (1, 1) string {ismember(Sigma, [ "ar", "eye"])} = "ar" %prior =21  and 22 in BEAR5
     end
 
 end

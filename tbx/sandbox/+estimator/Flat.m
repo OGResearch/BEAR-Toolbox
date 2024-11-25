@@ -1,6 +1,6 @@
 
 classdef Flat < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =41 in BEAR5 with lambda1>999
     properties
         DescriptionUX = "BVAR with flat prior"
 
@@ -15,7 +15,7 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
             %[
             arguments
                 this
-                meta 
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -40,7 +40,7 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
             estimLength = size(Y, 1);
             %===============================================================================
 
-            function sampleStruct = sampler()
+            function sample = sampler()
                 % draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.6.10)
                 Shat = (Y - LX * B)' * (Y - LX * B);
@@ -69,8 +69,8 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
                 % draw from N(betabar,omegabar);
                 beta = betabar + chol(bear.nspd(omegabar),'lower') * mvnrnd(zeros(sizeB, 1), eye(sizeB))';
 
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigma;
+                sample.beta = beta;
+                sample.sigma = sigma;
                 this.SampleCounter = this.SampleCounter + 1;
             end
 

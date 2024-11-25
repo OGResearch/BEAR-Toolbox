@@ -69,7 +69,7 @@ classdef DynamicCrossPanel < estimator.Base
             % initial value for phi
             phi=0.001;
 
-            function sampleStruct = sampler()
+            function sample = sampler()
                 % step 2: obtain sigmatilde
                 % compute Sbar
                 % because using a loop is slow, express the summation as a matrix product
@@ -236,15 +236,15 @@ classdef DynamicCrossPanel < estimator.Base
                 % recover sigma for all periods and record
                 temp=kron(exp(Zeta),bear.vec(sigmatilde));
 
-                sampleStruct = struct();
-                sampleStruct.sigmatilde = sigmatilde(:);
-                sampleStruct.Zeta = Zeta;
-                sampleStruct.phi = phi;
-                sampleStruct.B = B(:);
-                sampleStruct.theta = reshape(Theta,d,T);
-                sampleStruct.sigma = reshape(temp,(N*n)^2,T);
-                sampleStruct.Xi = Xi;
-                sampleStruct.thetabar = thetabar;
+                sample = struct();
+                sample.sigmatilde = sigmatilde(:);
+                sample.Zeta = Zeta;
+                sample.phi = phi;
+                sample.B = B(:);
+                sample.theta = reshape(Theta,d,T);
+                sample.sigma = reshape(temp,(N*n)^2,T);
+                sample.Xi = Xi;
+                sample.thetabar = thetabar;
             end
 
             % burn in
@@ -266,15 +266,15 @@ classdef DynamicCrossPanel < estimator.Base
             rho = this.Settings.Rho;
             gama = this.Settings.Gamma;
 
-            function drawStruct = identificationDrawer(sampleStruct)
+            function draw = identificationDrawer(sample)
 
                 horizon = identificationHorizon;
 
-                B = sampleStruct.B;
-                sigma = sampleStruct.sigma(:, end);
-                thetabar = sampleStruct.thetabar;
-                Xi = sampleStruct.Xi;
-                theta = sampleStruct.theta(:, end);
+                B = sample.B;
+                sigma = sample.sigma(:, end);
+                thetabar = sample.thetabar;
+                Xi = sample.Xi;
+                theta = sample.theta(:, end);
 
                 % initiate the record draws
                 As = cell(horizon, 1);
@@ -319,23 +319,23 @@ classdef DynamicCrossPanel < estimator.Base
                     % repeat until values are obtained for T+horizon
                 end
 
-                drawStruct = struct();
-                drawStruct.A = As;
-                drawStruct.C = Cs;
-                drawStruct.Sigma = Sigma;
+                draw = struct();
+                draw.A = As;
+                draw.C = Cs;
+                draw.Sigma = Sigma;
             end
 
-            function drawStruct = unconditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+            function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon)
 
                 % read the input
 
-                B = sampleStruct.B;
-                sigmatilde = sampleStruct.sigmatilde;
-                thetabar = sampleStruct.thetabar;
-                Xi = sampleStruct.Xi;
-                theta = sampleStruct.theta(:, startingIndex-1);
-                phi = sampleStruct.phi;
-                zeta = sampleStruct.Zeta(startingIndex-1);
+                B = sample.B;
+                sigmatilde = sample.sigmatilde;
+                thetabar = sample.thetabar;
+                Xi = sample.Xi;
+                theta = sample.theta(:, startingIndex-1);
+                phi = sample.phi;
+                zeta = sample.Zeta(startingIndex-1);
 
                 % initiate the record draws
                 As = cell(forecastHorizon, 1);
@@ -395,17 +395,17 @@ classdef DynamicCrossPanel < estimator.Base
                     % repeat until values are obtained for T+forecastHorizon
                 end
 
-                drawStruct = struct();
-                drawStruct.A = As;
-                drawStruct.C = Cs;
-                drawStruct.Sigma = Sigmas;
+                draw = struct();
+                draw.A = As;
+                draw.C = Cs;
+                draw.Sigma = Sigmas;
             end
 
-            function drawStruct = historyDrawer(sampleStruct)
+            function draw = historyDrawer(sample)
 
                 % read the input
-                Xi = sampleStruct.Xi;
-                sigma = sampleStruct.sigma;
+                Xi = sample.Xi;
+                sigma = sample.sigma;
 
                 % initiate the record draws
                 As = cell(estimationHorizon, 1);
@@ -413,7 +413,7 @@ classdef DynamicCrossPanel < estimator.Base
                 Sigmas = cell(estimationHorizon, 1);
 
                 for tt = 1:estimationHorizon
-                    theta = sampleStruct.theta(:,tt);
+                    theta = sample.theta(:,tt);
 
                     % reconstruct B matrix
                     beta_temp = Xi*theta;
@@ -431,23 +431,23 @@ classdef DynamicCrossPanel < estimator.Base
 
                 end
 
-                drawStruct = struct();
-                drawStruct.A = As;
-                drawStruct.C = Cs;
-                drawStruct.Sigma = Sigmas;
+                draw = struct();
+                draw.A = As;
+                draw.C = Cs;
+                draw.Sigma = Sigmas;
 
             end
 
-            function drawStruct = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon)
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon)
 
                 % initiate the record draws
                 beta = cell(forecastHorizon, 1);
 
                 % read the input
-                B = sampleStruct.B;
-                thetabar = sampleStruct.thetabar;
-                Xi = sampleStruct.Xi;
-                theta = sampleStruct.theta(:, startingIndex-1);
+                B = sample.B;
+                thetabar = sample.thetabar;
+                Xi = sample.Xi;
+                theta = sample.theta(:, startingIndex-1);
 
                 % number of factors
                 numFactors = size(thetabar, 1);
@@ -474,8 +474,8 @@ classdef DynamicCrossPanel < estimator.Base
                     % repeat until values are obtained for T+forecastHorizon
                 end
 
-                drawStruct = struct();
-                drawStruct.beta = beta;
+                draw = struct();
+                draw.beta = beta;
             end
 
             this.IdentificationDrawer = @identificationDrawer;

@@ -1,11 +1,5 @@
-classdef (CaseInsensitiveProperties=true) CogleySargentSV < estimator.settings.Base
-
-    properties
-        HeteroskedasticityAutoRegression double = 1
-        HeteroskedasticityShape double = 1e-3
-        HeteroskedasticityScale double = 1e-3
-
-    end
+classdef (CaseInsensitiveProperties=true) CogleySargentSV < estimator.settings.Base & estimator.settings.SVMixin
+%standard model, stvol =1 in BEAR5
 
 
 end

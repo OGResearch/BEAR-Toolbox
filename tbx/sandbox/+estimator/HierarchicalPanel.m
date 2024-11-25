@@ -84,7 +84,7 @@ classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
             beta = beta_init;
 
-            function sampleStruct = sampler()
+            function sample = sampler()
 
                 % step 2: obtain b
                 % first compute betam, the mean value of the betas over all units
@@ -149,9 +149,9 @@ classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
                 end
 
-                sampleStruct = struct();
-                sampleStruct.beta = beta_gibbs;
-                sampleStruct.sigma = sigma_gibbs;
+                sample = struct();
+                sample.beta = beta_gibbs;
+                sample.sigma = sigma_gibbs;
 
             end
 

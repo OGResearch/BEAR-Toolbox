@@ -38,7 +38,7 @@ classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
             % compute posterior distribution parameters
             [omegabarb, betabar]=bear.panel3post(h,Xbar,y,lambda1,bbar,sigeps);
 
-            function sampleStruct = sampler()
+            function sample = sampler()
 
                 % draw a random vector beta from N(betabar,omegabarb)
                 % TODO - optimize chol (can be run only once)
@@ -58,9 +58,9 @@ classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
                 sigma_gibbs=repmat(sigma(:),[1 N]);
 
-                sampleStruct = struct();
-                sampleStruct.beta = beta_gibbs;
-                sampleStruct.sigma = sigma_gibbs;
+                sample = struct();
+                sample.beta = beta_gibbs;
+                sample.sigma = sigma_gibbs;
 
             end
 

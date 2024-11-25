@@ -1,6 +1,6 @@
 
 classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =41 in BEAR5
     properties
         DescriptionUX = "BVAR with Normal-Diffuse prior"
 
@@ -16,15 +16,15 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
             %[
             arguments
                 this
-                meta 
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
 
             [longY, longX, ~] = longYXZ{:};
 
-            opt.priorsexogenous = this.Settings.Exogenous;
-            opt.user_ar = this.Settings.Autoregression;
+            priorexo = this.Settings.Exogenous;
+            
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;
@@ -43,7 +43,7 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
 
             opt.bex = this.Settings.BlockExogenous;
             ar = this.Settings.Autoregression;
-            priorexo = this.Settings.Exogenous;
+            
             arvar =  bear.arloop(longY, opt.const, p, numEn);
 
             blockexo  =  [];
@@ -60,7 +60,7 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
 
             %===============================================================================
 
-            function sampleStruct = sampler()
+            function sample = sampler()
                 % draw sigma from IW, conditional on beta from previous iteration
                 % obtain first Shat, defined in (1.6.10)
                 Shat = (Y - LX * B)' * (Y - LX * B);
@@ -92,8 +92,8 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
                 % update matrix B with each draw
                 B = reshape(beta,size(B));
 
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigma;
+                sample.beta = beta;
+                sample.sigma = sigma;
                 this.SampleCounter = this.SampleCounter + 1;
             end
 

@@ -33,7 +33,7 @@ classdef MeanOLSPanel < estimator.Base
             % obtain the estimates for the model
             [bhat, sigmahatb, sigmahat]=bear.panel1estimates(X,Y,N,n,q,k,T);
 
-            function sampleStruct = sampler()
+            function sample = sampler()
 
                 % draw a random vector beta from its distribution
                 % if the produced VAR model is not stationary, draw another vector, and keep drawing till a stationary VAR is obtained
@@ -45,10 +45,10 @@ classdef MeanOLSPanel < estimator.Base
                     end
                 end
 
-                sampleStruct = struct();
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigmahat;
-                sampleStruct.bhat = bhat;
+                sample = struct();
+                sample.beta = beta;
+                sample.sigma = sigmahat;
+                sample.bhat = bhat;
 
             end
 
@@ -68,9 +68,9 @@ classdef MeanOLSPanel < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
-            function drawStruct = betaDrawer(sampleStruct, horizon)
+            function draw = betaDrawer(sample, horizon)
                 %[
-                beta = sampleStruct.bhat; % forecast is using mean OLS fixed parameters, no draws
+                beta = sample.bhat; % forecast is using mean OLS fixed parameters, no draws
 
                 B_temp = reshape(...
                             beta,...
@@ -85,15 +85,15 @@ classdef MeanOLSPanel < estimator.Base
                 A = repmat(A_temp, [1, 1, numCountries]);
                 C = repmat(C_temp, [1, 1, numCountries]);
 
-                drawStruct = struct();
-                drawStruct.A = repmat({A}, horizon, 1);
-                drawStruct.C = repmat({C}, horizon, 1);
+                draw = struct();
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
                 %]
             end%
 
-            function drawStruct = sigmaDrawer(sampleStruct, horizon)
+            function draw = sigmaDrawer(sample, horizon)
                 %[
-                sigma = sampleStruct.sigma;
+                sigma = sample.sigma;
 
                 sigma_temp = reshape(...
                             sigma,...
@@ -102,28 +102,28 @@ classdef MeanOLSPanel < estimator.Base
                             );
                 Sigma = repmat(sigma_temp, [1, 1, numCountries]);
 
-                drawStruct = struct();
-                drawStruct.Sigma = Sigma;
+                draw = struct();
+                draw.Sigma = Sigma;
                 %]
             end%
 
-            function draw = unconditionalDrawer(sampleStruct, start, forecastHorizon)
+            function draw = unconditionalDrawer(sample, start, forecastHorizon)
                 %[
-                draw = betaDrawer(sampleStruct, forecastHorizon);
-                drawS = sigmaDrawer(sampleStruct, forecastHorizon);
+                draw = betaDrawer(sample, forecastHorizon);
+                drawS = sigmaDrawer(sample, forecastHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
                 %]
             end%
 
-            function draw = historyDrawer(sampleStruct)
-                draw = betaDrawer(sampleStruct, estimationHorizon);
-                drawS = sigmaDrawer(sampleStruct, estimationHorizon);
+            function draw = historyDrawer(sample)
+                draw = betaDrawer(sample, estimationHorizon);
+                drawS = sigmaDrawer(sample, estimationHorizon);
                 draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
             end%
 
-            function draw = conditionalDrawer(sampleStruct, startingIndex, forecastHorizon )
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
 
-                beta = sampleStruct.beta;
+                beta = sample.beta;
                 draw.beta = repmat({beta}, forecastHorizon, 1);
 
             end%

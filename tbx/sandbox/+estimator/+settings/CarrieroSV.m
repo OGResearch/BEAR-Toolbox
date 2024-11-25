@@ -1,12 +1,4 @@
-classdef (CaseInsensitiveProperties=true) CarrieroSV < estimator.settings.Base
-
-    properties
-        HeteroskedasticityAutoRegression double = 1
-        HeteroskedasticityShape double = 1e-3
-        HeteroskedasticityScale double = 1e-3
-
-    end
-
-
+classdef (CaseInsensitiveProperties=true) CarrieroSV < estimator.settings.Base & estimator.settings.SVMixin
+%large SV model, stvol =3 in BEAR5
 end
 

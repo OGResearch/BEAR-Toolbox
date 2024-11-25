@@ -1,6 +1,6 @@
 
 classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =11 12 and 13 in BEAR5
     properties
         DescriptionUX = "BVAR with Minnesota prior"
 
@@ -15,14 +15,14 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
             %[
             arguments
                 this
-                meta
+                meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
 
             [longY, longX, ~] = longYXZ{:};
 
-            opt.user_ar = this.Settings.Autoregression;
+            
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;
@@ -40,8 +40,6 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
-
-            opt.bex  = this.Settings.BlockExogenous;
 
             [~, ~, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, ~, numBRows, sizeB] = bear.olsvar(longY, longX, opt.const, opt.p);
 
@@ -68,10 +66,10 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
             [betabar, omegabar] = bear.mpost(beta0, omega0, sigma, LX, Y(:), sizeB, numEn);
             %===============================================================================
 
-            function sampleStruct = sampler()
+            function sample = sampler()
                 beta = betabar + chol(bear.nspd(omegabar), 'lower') * randn(sizeB, 1);
-                sampleStruct.beta = beta;
-                sampleStruct.sigma = sigma;
+                sample.beta = beta;
+                sample.sigma = sigma;
                 this.SampleCounter = this.SampleCounter + 1;
             end%
 

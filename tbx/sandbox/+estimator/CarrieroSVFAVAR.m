@@ -1,9 +1,10 @@
-classdef CarrieroSV < estimator.Base
-%SV for large models in BEAR5, stvol=3
+classdef CarrieroSVFAVAR < estimator.Base
+%FAVAR version of SV for large models in BEAR5, stvol=3
+% 
 
     properties
         CanHaveDummies = false
-        CanHaveReducibles = false
+        CanHaveReducibles = true
         HasCrossUnits = false
     end
 
@@ -19,7 +20,7 @@ classdef CarrieroSV < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYXZ{:};
+            [longY, longX, longZ] = longYXZ{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -37,19 +38,21 @@ classdef CarrieroSV < estimator.Base
 
             opt.ar = this.Settings.Autoregression;
 
-            
+            favar.onestep = false;
+            favar.numpc = meta.NumFactors;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
 
-            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
+            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, numEx, p, estimLength, numBRows, sizeB] = ...
+                bear.olsvar(FY, longX, opt.const, opt.p);
 
-            [arvar]  =  bear.arloop(longY, opt.const, p, numEn);
+            [arvar]  =  bear.arloop(FY, opt.const, p, numY);
 
 
             %create matrices
-            [yt, Xt, Xbart]  =  bear.stvoltmat(Y, LX, numEn, estimLength); %create TV matrices
+            [yt, Xt, Xbart]  =  bear.stvoltmat(Y, LX, numY, estimLength); %create TV matrices
             [B0, phi0, G, I_o, omega, f0, upsilon0] = bear.stvol3prior(opt.ar, arvar, opt.lambda1, opt.lambda3, opt.lambda4, ...
-                numEn, numEx, p, estimLength, numBRows, sizeB, opt.gamma, priorexo);
+                numY, numEx, p, estimLength, numBRows, sizeB, opt.gamma, priorexo);
 
             % preliminary elements for the algorithm
             % compute the product G' * I_gamma * G (to speed up computations of deltabar)
@@ -64,7 +67,7 @@ classdef CarrieroSV < estimator.Base
             % initial value for beta
             beta = betahat;
 
-            B = reshape(beta, [], numEn);
+            B = reshape(beta, [], numY);
 
             % initial value for f_2, ..., f_n
             % obtain the triangular factorisation of sigmahat
@@ -74,13 +77,13 @@ classdef CarrieroSV < estimator.Base
             F = Fhat;
 
             % obtain the inverse of Fhat
-            [invFhat] = bear.invltod(Fhat, numEn);
+            [invFhat] = bear.invltod(Fhat, numY);
 
             % create the cell storing the different vectors of invF
-            Finv = cell(numEn, 1);
+            Finv = cell(numY, 1);
 
             % store the vectors
-            for ii = 2:numEn
+            for ii = 2:numY
                 Finv{ii, 1} = invFhat(ii, 1:ii - 1);
             end
 
@@ -102,10 +105,14 @@ classdef CarrieroSV < estimator.Base
             lambda_t = repmat(diag(sbar), 1, 1, estimLength);
             sigma_t  =  repmat(sigmahat, 1, 1, estimLength);
 
+            
+            LD = favar.L;
+
+
             function sample  =  sampler()
 
                 summ1 = zeros(numBRows, numBRows);
-                summ2 = zeros(numBRows, numEn);
+                summ2 = zeros(numBRows, numY);
 
                 % run the summation
                 for zz = 1:estimLength
@@ -129,7 +136,7 @@ classdef CarrieroSV < estimator.Base
                 Bbar = phibar * (summ2 + invphi0 * B0);
 
                 % draw B from its posterior
-                B = bear.matrixndraw(Bbar, sigma, phibar, numBRows, numEn);
+                B = bear.matrixndraw(Bbar, sigma, phibar, numBRows, numY);
 
                 % finally recover beta by vectorising
                 beta = B(:);
@@ -141,7 +148,7 @@ classdef CarrieroSV < estimator.Base
                 end
 
                 % then draw the vectors in turn
-                for zz = 2:numEn
+                for zz = 2:numY
                     % first compute the summations required for upsilonbar and fbar
                     summ1 = zeros(zz - 1, zz - 1);
                     summ2 = zeros(zz - 1, 1);
@@ -173,13 +180,13 @@ classdef CarrieroSV < estimator.Base
                 end
 
                 % recover the inverse of F
-                invF = eye(numEn);
-                for zz = 2:numEn
+                invF = eye(numY);
+                for zz = 2:numY
                     invF(zz, 1:zz - 1) = Finv{zz, 1};
                 end
 
                 % eventually recover F
-                F = bear.invltod(invF, numEn);
+                F = bear.invltod(invF, numY);
 
                 % update sigma
                 sigma = F * Lambda * F';
@@ -218,7 +225,7 @@ classdef CarrieroSV < estimator.Base
                     cand = lambdabar + phibar^0.5 * randn;
 
                     % compute the acceptance probability
-                    prob = bear.mhprob3(cand, L(kk, 1), sbar, epst(:, 1, kk), Finv, numEn);
+                    prob = bear.mhprob3(cand, L(kk, 1), sbar, epst(:, 1, kk), Finv, numY);
 
                     % draw a uniform random number
                     draw = rand;
@@ -249,6 +256,9 @@ classdef CarrieroSV < estimator.Base
                     sample.sigma_t{zz, 1} = sigma_t(:, :, zz);
                 end
 
+                sample.FY = FY(:);
+                sample.LD = LD(:);      
+
             end
 
             this.Sampler = @sampler;
@@ -262,8 +272,9 @@ classdef CarrieroSV < estimator.Base
 
             %sizes
             numEn = meta.NumEndogenousNames;
-            numARows = numEn * meta.Order;
-            numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
+            numPC = meta.NumFactors;
+            numY = numEn + numPC;
+            numARows = numY * meta.Order;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
@@ -274,7 +285,7 @@ classdef CarrieroSV < estimator.Base
 
                 beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, [], numEn);
+                B = reshape(beta, [], numY);
 
                 % draw F from its posterior distribution
                 F = sparse(sample.F(:,:));
@@ -319,14 +330,14 @@ classdef CarrieroSV < estimator.Base
 
                 beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, [], numEn);
+                B = reshape(beta, [], numY);
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
 
                 draw.A = repmat({A}, horizon, 1);
                 draw.C = repmat({C}, horizon, 1);
-                draw.Sigma = reshape(sample.sigmaAvg, numEn, numEn);
-
+                draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
+                draw.LD = reshape(sample.LD, [], numY);
             end
 
             function draw = historyDrawer(sample)
@@ -334,7 +345,7 @@ classdef CarrieroSV < estimator.Base
                 beta = sample.beta;
 
                 % reshape it to obtain B
-                B = reshape(beta, [], numEn);
+                B = reshape(beta, [], numY);
                 A = B(1:numARows, :);
                 C = B(numARows + 1:end, :);
                 draw.A = repmat({A}, estimationHorizon, 1);

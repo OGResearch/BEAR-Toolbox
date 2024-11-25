@@ -1,9 +1,8 @@
-classdef BetaTV < estimator.Base
-%TV coefficients, tvbvar=1 in BEAR5
-
+classdef BetaTVFAVAR < estimator.Base
+%FAVAR verison of TV coefficients model, tvbvar=1 in BEAR5
     properties
         CanHaveDummies = false
-        CanHaveReducibles = false
+        CanHaveReducibles = true
         HasCrossUnits = false
     end
 
@@ -20,18 +19,24 @@ classdef BetaTV < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYXZ{:};
+            [longY, longX, longZ] = longYXZ{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
-            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = ...
-                bear.olsvar(longY, longX, opt.const, opt.p);
+            %% FAVAR settings, maybe we can move this to a separate function
 
-            [arvar] = bear.arloop(longY, opt.const, p, numEn);
+            favar.onestep = false;
+            favar.numpc = meta.NumFactors;            
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
 
-            [~, y, ~, ~, Xbar] = bear.tvbvarmat(Y, LX, numEn, sizeB, estimLength); %create TV matrices
-            [chi, psi, kappa, S, H, I_tau] = bear.tvbvar1prior(arvar, numEn, sizeB, estimLength);
+            [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
+                bear.olsvar(FY, longX, opt.const, opt.p);
+
+            [arvar] = bear.arloop(FY, opt.const, p, numY);
+
+            [~, y, ~, ~, Xbar] = bear.tvbvarmat(Y, LX, numY, sizeB, estimLength); %create TV matrices
+            [chi, psi, kappa, S, H, I_tau] = bear.tvbvar1prior(arvar, numY, sizeB, estimLength);
 
             % preliminary elements for the algorithm
             % set tau as a large value
@@ -45,9 +50,6 @@ classdef BetaTV < estimator.Base
 
             % step 1: determine initial values for the algorithm
 
-            % initial value for B
-            B = kron(ones(estimLength, 1), betahat);
-
             % initial value Omega
             omega = diag(diag(betahat * betahat'));
 
@@ -59,26 +61,30 @@ classdef BetaTV < estimator.Base
 
             % invert sigma
             C = bear.trns(chol(bear.nspd(sigma), 'Lower'));
-            invC = C \ speye(numEn);
+            invC = C \ speye(numY);
             invsigma = invC * invC';
 
-            %% Let's redo X'X and X'Y
-            pre_xx = Xbar'*kron(speye(estimLength), ones(numEn, numEn)) * Xbar;   % like setting invsigma to a matrix of (numEn,numEn) ones
+            %Let's redo X'X and X'Y
+            pre_xx = Xbar'*kron(speye(estimLength), ones(numY, numY)) * Xbar;   % like setting invsigma to a matrix of (numY,numY) ones
 
-            pre_xy = NaN(estimLength * sizeB, numEn);
+            pre_xy = NaN(estimLength * sizeB, numY);
             for i = 1:estimLength
-                pre_xy(1 + (i - 1) * sizeB:i * sizeB, :) = kron(ones(numEn, 1), kron(y(1 + (i - 1) * numEn:i * numEn)', ...
-                    Xbar(1 + numEn * (i - 1), 1 + sizeB * (i - 1):sizeB * (i - 1) + sizeB / numEn)'));
+                pre_xy(1 + (i - 1) * sizeB:i * sizeB, :) = kron(ones(numY, 1), kron(y(1 + (i - 1) * numY:i * numY)', ...
+                    Xbar(1 + numY * (i - 1), 1 + sizeB * (i - 1):sizeB * (i - 1) + sizeB / numY)'));
             end
+
+            LD = favar.L;
+            
+            %===============================================================================
 
             function sample  =  sampler()
 
                 % step 2: draw B
                 invomegabar = H' * kron(I_tau, invomega) * H + ...
-                    kron(speye(estimLength), kron(invsigma, ones(sizeB / numEn, sizeB / numEn))) .* pre_xx;
+                    kron(speye(estimLength), kron(invsigma, ones(sizeB / numY, sizeB / numY))) .* pre_xx;
 
                 % compute temporary value
-                temp = sum(kron(ones(estimLength, 1), kron(invsigma, ones(sizeB / numEn, 1))) .* pre_xy, 2);
+                temp = sum(kron(ones(estimLength, 1), kron(invsigma, ones(sizeB / numY, 1))) .* pre_xy, 2);
 
                 % solve
                 Bbar = invomegabar \ temp;
@@ -101,7 +107,7 @@ classdef BetaTV < estimator.Base
                 % step 4: draw sigma from its posterior
                 %estimate the residuals
                 eps = y - Xbar * B;
-                Eps = reshape(eps, numEn, estimLength);
+                Eps = reshape(eps, numY, estimLength);
 
                 % estimate Sbar
                 Sbar = Eps * Eps' + S;
@@ -111,13 +117,15 @@ classdef BetaTV < estimator.Base
 
                 % invert it for next iteration
                 C = bear.trns(chol(bear.nspd(sigma), 'Lower'));
-                invC = C \ speye(numEn);
+                invC = C \ speye(numY);
                 invsigma = invC * invC';
 
                 % record phase
                 sample.beta = mat2cell(B, repmat(sizeB, estimLength, 1));
                 sample.omega = diag(omega);
                 sample.sigma = sigma;
+                sample.FY = FY(:);
+                sample.LD = LD(:);                
             end
 
             this.Sampler = @sampler;
@@ -127,11 +135,12 @@ classdef BetaTV < estimator.Base
 
 
         function createDrawers(this, meta)
-
             numEn = meta.NumEndogenousNames;
-            numARows = numEn * meta.Order;
+            numPC = meta.NumFactors;
+            numY = numEn + numPC;
+            numARows = numY * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
-            sizeB = numEn * numBRows;
+            sizeB = numY * numBRows;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
@@ -151,14 +160,14 @@ classdef BetaTV < estimator.Base
                 draw.A = cell(forecastHorizon, 1);
                 draw.C = cell(forecastHorizon, 1);
                 draw.Sigma = cell(forecastHorizon, 1);
-                Sigma = reshape(sample.sigma, numEn, numEn);
+                Sigma = reshape(sample.sigma, numY, numY);
 
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:forecastHorizon
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
-                    B = reshape(beta, [], numEn);
+                    B = reshape(beta, [], numY);
                     draw.A{jj, 1}(:, :) = B(1:numARows, :);
                     draw.C{jj, 1}(:, :) = B(numARows + 1:end, :);
                     draw.Sigma{jj, 1}(:, :) = Sigma;
@@ -208,28 +217,30 @@ classdef BetaTV < estimator.Base
                 draw.A = cell(horizon, 1);
                 draw.C = cell(horizon, 1);
 
+
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:horizon
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
-                    B = reshape(beta, [], numEn);
+                    B = reshape(beta, [], numY);
                     draw.A{jj,1}(:, :) = B(1:numARows, :);
                     draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end
 
-                draw.Sigma = reshape(sample.sigma, numEn, numEn);
+                draw.Sigma = reshape(sample.sigma, numY, numY);                
+                draw.LD = reshape(sample.LD, [], numY); 
                 %]
             end%
 
             function draw = historyDrawer(sample)
                 %[
                 for jj = 1:estimationHorizon
-                    B = reshape(sample.beta{jj}, [], numEn);
+                    B = reshape(sample.beta{jj}, [], numY);
                     draw.A{jj,1}(:, :) = B(1:numARows, :);
                     draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
                 end
-                draw.Sigma = repmat({reshape(sample.sigma, numEn, numEn)}, estimationHorizon, 1);
+                draw.Sigma = repmat({reshape(sample.sigma, numY, numY)}, estimationHorizon, 1);
                 %]
             end%
 

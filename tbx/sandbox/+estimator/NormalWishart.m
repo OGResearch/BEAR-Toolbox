@@ -1,6 +1,6 @@
 
 classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
-
+%prior =21 and 22 in BEAR5
     properties
         DescriptionUX = "BVAR with Normal-Wishart prior"
 
@@ -22,7 +22,6 @@ classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
 
             [longY, longX, ~] = longYXZ{:};
 
-            opt.user_ar = this.Settings.Autoregression;
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda3 = this.Settings.Lambda3;
             opt.lambda4 = this.Settings.Lambda4;
