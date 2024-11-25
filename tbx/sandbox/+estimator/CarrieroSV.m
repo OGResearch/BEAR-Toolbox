@@ -115,7 +115,7 @@ classdef CarrieroSV < estimator.Base
                 end
 
                 % then obtain the inverse of phi0
-                invphi0 = diag(1. / diag(phi0));
+                invphi0 = diag(1./ diag(phi0));
 
                 % obtain the inverse of phibar
                 invphibar = summ1 + invphi0;
@@ -157,7 +157,7 @@ classdef CarrieroSV < estimator.Base
                     summ2 = ( - 1 / sbar(zz, 1)) * summ2;
 
                     % then obtain the inverse of upsilon0
-                    invupsilon0 = diag(1. / diag(upsilon0{zz, 1}));
+                    invupsilon0 = diag(1./ diag(upsilon0{zz, 1}));
 
                     % obtain upsilonbar
                     invupsilonbar = summ1 + invupsilon0;

@@ -123,7 +123,7 @@ classdef CogleySargentSVFAVAR < estimator.Base
                 end
 
                 % then obtain the inverse of omega0
-                invomega0 = diag(1. / diag(omega0));
+                invomega0 = diag(1./ diag(omega0));
                 % obtain the inverse of omegabar
                 invomegabar = summ1 + invomega0;
 
@@ -319,7 +319,7 @@ classdef CogleySargentSVFAVAR < estimator.Base
                     Lambda = sparse(diag(sbar .* exp(lambda)));
 
                     % recover sigma_t and draw the residuals
-                    draw. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
+                    draw.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
             end
 

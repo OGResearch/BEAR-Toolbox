@@ -330,7 +330,7 @@ classdef RandomInertiaSV < estimator.Base
                     Lambda = sparse(diag(sbar .* exp(lambda)));
 
                     % recover sigma_t and draw the residuals
-                    draw. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
+                    draw.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
             end%
 

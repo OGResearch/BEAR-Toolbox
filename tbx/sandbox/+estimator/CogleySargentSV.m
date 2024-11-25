@@ -100,7 +100,6 @@ classdef CogleySargentSV < estimator.Base
             lambda_t = repmat(diag(sbar), [1 1 estimLength]);
             sigma_t = repmat(sigmahat, [1 1 estimLength]);
 
-
             function sample   =   sampler()
 
                 summ1  =  zeros(sizeB, sizeB);
@@ -114,7 +113,7 @@ classdef CogleySargentSV < estimator.Base
                 end
 
                 % then obtain the inverse of omega0
-                invomega0 = diag(1. / diag(omega0));
+                invomega0 = diag(1./ diag(omega0));
                 % obtain the inverse of omegabar
                 invomegabar = summ1 + invomega0;
 
@@ -306,7 +305,7 @@ classdef CogleySargentSV < estimator.Base
                     Lambda = sparse(diag(sbar .* exp(lambda)));
 
                     % recover sigma_t and draw the residuals
-                    draw. Sigma{jj, 1}(:, :) = full(F * Lambda * F');
+                    draw.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
                 end
             end
 
