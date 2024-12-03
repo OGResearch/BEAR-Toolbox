@@ -159,9 +159,9 @@ classdef BetaTV < estimator.Base
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
                     B = reshape(beta, [], numEn);
-                    draw.A{jj, 1}(:, :) = B(1:numARows, :);
-                    draw.C{jj, 1}(:, :) = B(numARows + 1:end, :);
-                    draw.Sigma{jj, 1}(:, :) = Sigma;
+                    draw.A{jj}(:, :) = B(1:numARows, :);
+                    draw.C{jj}(:, :) = B(numARows + 1:end, :);
+                    draw.Sigma{jj}(:, :) = Sigma;
                 end
             end
 
@@ -197,7 +197,7 @@ classdef BetaTV < estimator.Base
 
                 %draw beta, omega from their posterior distribution
                 % draw beta
-                beta = sample.beta{end, 1};
+                beta = sample.beta{end};
 
                 % draw omega
                 omega = sample.omega;
@@ -214,8 +214,8 @@ classdef BetaTV < estimator.Base
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
                     B = reshape(beta, [], numEn);
-                    draw.A{jj,1}(:, :) = B(1:numARows, :);
-                    draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
+                    draw.A{jj}(:, :) = B(1:numARows, :);
+                    draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
 
                 draw.Sigma = reshape(sample.sigma, numEn, numEn);
@@ -226,8 +226,8 @@ classdef BetaTV < estimator.Base
                 %[
                 for jj = 1:estimationHorizon
                     B = reshape(sample.beta{jj}, [], numEn);
-                    draw.A{jj,1}(:, :) = B(1:numARows, :);
-                    draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
+                    draw.A{jj}(:, :) = B(1:numARows, :);
+                    draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
                 draw.Sigma = repmat({reshape(sample.sigma, numEn, numEn)}, estimationHorizon, 1);
                 %]

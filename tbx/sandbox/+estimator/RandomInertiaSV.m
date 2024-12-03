@@ -32,7 +32,7 @@ classdef RandomInertiaSV < estimator.Base
             opt.lambda5 = this.Settings.Lambda5;
             priorexo = this.Settings.Exogenous;
 
-            opt.gamma0 = this.Settings.HeteroskedasticityAutoRegressionMean;
+            opt.gamma0 = this.Settings.HeteroskedasticityAutoRegression;
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
             opt.delta0 = this.Settings.HeteroskedasticityScale;
             opt.zeta0 = this.Settings.HeteroskedasticityAutoRegressionVariance;

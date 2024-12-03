@@ -354,7 +354,7 @@ classdef GeneralTV < estimator.Base
                 %
                 %draw beta, omega from their posterior distribution
                 % draw beta
-                beta = sample.beta{end, 1};
+                beta = sample.beta{end};
                 %
                 omega = sample.omega;
                 %
