@@ -169,6 +169,14 @@ classdef StaticCrossPanel < estimator.Base
                 draw.Sigma = Sigma;
             end
 
+            function draw = drawer(sample, horizon)
+
+                draw = betaDrawer(sample, horizon);
+                drawS = sigmaDrawer(sample, horizon);
+                draw.Sigma = drawS.Sigma;
+
+            end
+
             function draw = unconditionalDrawer(sample, start, forecastHorizon)
 
                 draw = betaDrawer(sample, forecastHorizon);

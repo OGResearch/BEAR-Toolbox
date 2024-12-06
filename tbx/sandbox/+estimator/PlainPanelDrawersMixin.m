@@ -82,6 +82,14 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
 
             end%
 
+            function draw = drawer(sample, horizon)
+
+                draw = betaDrawer(sample, horizon);
+                drawS = sigmaDrawer(sample, horizon);
+                draw.Sigma = drawS.Sigma;
+
+            end%
+
             function draw = historyDrawer(sample)
 
                 draw = betaDrawer(sample, estimationHorizon);

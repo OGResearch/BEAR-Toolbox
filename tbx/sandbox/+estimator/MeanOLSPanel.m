@@ -107,6 +107,14 @@ classdef MeanOLSPanel < estimator.Base
                 %]
             end%
 
+            function draw = drawer(sample, horizon)
+                %[
+                draw = betaDrawer(sample, estimationHorizon);
+                drawS = sigmaDrawer(sample, estimationHorizon);
+                draw.Sigma = drawS.Sigma;
+                %]
+            end%
+
             function draw = unconditionalDrawer(sample, start, forecastHorizon)
                 %[
                 draw = betaDrawer(sample, forecastHorizon);
