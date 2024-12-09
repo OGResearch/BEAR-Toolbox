@@ -1,32 +1,53 @@
 
 function D = candidateFromFactorConstrained(P, R)
 
+    n = size(P, 1);
+
     % Transpose from row-oriented to column-oriented VAR systems
     % Row-oriented means time-t vectors of variables are row vectors
-    P = transpose(P);
-    R = transpose(R);
+    Pt = transpose(P);
+    Rt = transpose(R);
 
     % Calculations for column-oriented VAR system
-    n = size(P, 1);
-    Q = nan(n, n);
+    Qt = nan(n, n);
+
+    % Pre-generate random numbers for all shocks
+    X = randn(n, n);
 
     for i = 1 : n
-        inx = R(:, i) == 0;
-        Rj = [P(inx, :); transpose(Q(:, 1:i-1))];
-        Nj = null(Rj);
-        v = randn(size(Nj, 2), 1);
-        Q(:, i) = Nj * v / norm(v);
+        inx = Rt(:, i) == 0;
+        Ri = [Pt(inx, :); transpose(Qt(:, 1:i-1))];
+
+        % Ni = null(Ri);
+        % x = randn(size(Ni, 2), 1);
+        % Qi = Ni * x / norm(x);
+
+        x = X(:, i);
+
+        if isempty(Ri)
+            Qi = x / norm(x);
+        else
+            Ni = null(Ri);
+            Ni_x = transpose(Ni) * x;
+            Qi = Ni * (Ni_x / norm(Ni_x));
+        end
+
+        Qt(:, i) = Qi;
     end
 
-    if any(isnan(Q(:)))
+    if any(isnan(Qt(:)))
         error("Cannot find orthonormal matrix with the given instant zero restrictions.");
     end
 
+    Q = transpose(Qt);
+
     % Rotate the Cholesky factor matrix to get the candidate D matrix
-    D = P * Q;
+    % Dt = Pt * Qt;
+
+    D = Q * P;
 
     % Transpose back to row-oriented VAR systems
-    D = transpose(D);
+    % D = transpose(Dt);
 
 end%
 

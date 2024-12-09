@@ -4,7 +4,7 @@
 %
 %}
 
-classdef Structural < handle & model.PresampleMixin
+classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
 
     properties
         ReducedForm
@@ -35,12 +35,12 @@ classdef Structural < handle & model.PresampleMixin
 
         function this = Structural(options)
             arguments
-                options.ReducedForm (1, 1) model.ReducedForm
-                options.Identifier (1, 1) identifier.Base
+                options.reducedForm (1, 1) model.ReducedForm
+                options.identifier (1, 1) identifier.Base
             end
             %
-            this.ReducedForm = options.ReducedForm;
-            this.Identifier = options.Identifier;
+            this.ReducedForm = options.reducedForm;
+            this.Identifier = options.identifier;
         end%
 
 
@@ -50,7 +50,7 @@ classdef Structural < handle & model.PresampleMixin
                 numToPresample (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
             end
             this.Presampled = cell(1, numToPresample);
-            this.ReducedForm.resetPresampled(numToPresample);
+            %this.ReducedForm.resetPresampled(numToPresample);
         end%
 
 
@@ -66,48 +66,24 @@ classdef Structural < handle & model.PresampleMixin
         end%
 
 
-        function outTbx = simulateResponses(this, options)
-            %[
-            arguments
-                this
-                %
-                options.IncludeInitial (1, 1) logical = true
-                options.Transform = []
-            end
-            %
+        function varargout = simulateResponses(this, varargin)
             meta = this.Meta;
-            numY = meta.NumEndogenousNames;
-            order = meta.Order;
-            numE = meta.NumShocks;
-            numT = meta.IdentificationHorizon;
-            numPresampled = this.NumPresampled;
-            drawer = this.IdentificationDrawer;
-            %
-            Y = nan(numT, numY, numE, numPresampled);
-            %
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                [Y4S, sample] = this.simulateResponses4S(sample);
-                this.Presampled{i} = sample;
-                if ~isempty(options.Transform)
-                    Y4S = options.Transform(Y4S);
-                end
-                Y(:, :, :, i) = Y4S;
-            end
-            %
-            shortStart = datex.shift(meta.EstimationEnd, 1);
-            shortEnd = datex.shift(meta.EstimationEnd, numT);
-            outSpan = datex.span(shortStart, shortEnd);
-            if options.IncludeInitial
-                Y = [zeros(order, numY, numE, numPresampled); Y];
-                outSpan = datex.longSpanFromShortSpan(outSpan, order);
-            end
-            %
-            outShockNames = meta.ShockNames;
-            outNames = meta.EndogenousNames;
-            outTbx = tablex.fromNumericArray(Y, outNames, outSpan, variantDim=4);
-            outTbx = tablex.setHigherDims(outTbx, outShockNames);
-            %]
+            calculate4S = @this.simulateResponses4S;
+            startPeriod = datex.shift(meta.EstimationEnd, 1);
+            endPeriod = datex.shift(meta.EstimationEnd, meta.IdentificationHorizon);
+            span = datex.span(startPeriod, endPeriod);
+            variantDim = 4;
+            initFunc = @zeros;
+            dimNames = {this.Meta.EndogenousNames, this.Meta.ShockNames};
+            options = [{"includeInitial", true}, varargin];
+            [varargout{1:nargout}] = this.tabulateAcrossSamples( ...
+                calculate4S, ...
+                span, ...
+                variantDim, ...
+                initFunc, ...
+                dimNames, ...
+                options{:} ...
+            );
         end%
 
 
@@ -119,11 +95,11 @@ classdef Structural < handle & model.PresampleMixin
             end
             draw = sample.IdentificationDraw;
             % Array Y4S is numT x numY x numP x numUnits
-            Y4S = system.finiteVMA(draw.A, sample.D);
+            Y4S = system.filterPulses(draw.A, sample.D);
         end%
 
 
-        function outTbx = estimateShocks(this, varargin)
+        function [varargout] = estimateShocks(this, varargin)
 %{
 % # calculateShocks
 %
@@ -132,18 +108,26 @@ classdef Structural < handle & model.PresampleMixin
 %}
             meta = this.Meta;
             longYXZ = this.DataHolder.getYXZ(span=meta.LongSpan);
-            E = nan(meta.NumShortSpan, meta.NumShocks, this.NumPresampled);
-            for i = 1 : this.NumPresampled
-                sample = this.Presampled{i};
-                E(:, :, i) = this.estimateShocks4S(sample, longYXZ);
-            end
-            outNames = meta.ShockNames;
-            outSpan = meta.ShortSpan;
-            outTbx = tablex.fromNumericArray(E, outNames, outSpan, variantDim=3);
+            function [Y4S, sample] = calculate4S(sample)
+                [Y4S, sample] = this.estimateShocks4S(sample, longYXZ);
+            end%
+            span = meta.ShortSpan;
+            variantDim = 3;
+            initFunc = @zeros;
+            dimNames = {meta.ShockNames};
+            options = [{"includeInitial", false}, varargin];
+            [varargout{1:nargout}] = this.tabulateAcrossSamples( ...
+                @calculate4S, ...
+                span, ...
+                variantDim, ...
+                initFunc, ...
+                dimNames, ...
+                options{:} ...
+            );
         end%
 
 
-        function e = estimateShocks4S(this, sample, longYXZ)
+        function [e, sample] = estimateShocks4S(this, sample, longYXZ)
             u = this.ReducedForm.estimateResiduals4S(sample, longYXZ);
             D = sample.D;
             % U = E * D => E = U / D
@@ -151,14 +135,14 @@ classdef Structural < handle & model.PresampleMixin
         end%
 
 
-        function outTbx = breakdown(this)
+        function outTbx = calculateContributions(this)
             meta = this.Meta;
-            numPresampled = this.NumPresampled;
+            numV = this.NumPresampled;
             drawer = this.HistoryDrawer;
             longYXZ = this.getLongYXZ();
             %
-            C = cell(1, numPresampled);
-            for i = 1 : numPresampled
+            C = cell(1, numV);
+            for i = 1 : numV
                 sample = this.Presampled{i};
                 draw = drawer(sample);
                 e = this.estimateShocks4S(sample, longYXZ);
@@ -179,19 +163,42 @@ classdef Structural < handle & model.PresampleMixin
         end%
 
 
-        function C = breakdownToShocks4S(this, sample, shockEstimates)
+        % Legacy name
+        function varargout = breakdown(varargin)
+            [varargout{1:nargout}] = computeShockContributions(varargin{:});
+        end%
+
+
+        function C = calculateShockContributions4S(this, sample, shockEstimates)
             draw = this.HistoryDrawer(sample);
             C = system.contributionsShocks(draw.A, sample.D, shockEstimates);
         end%
 
 
-        function outTbx = calculateFEVD(this, varargin)
-            transform = @(vma) cumsum(vma .^ 2, 1);
-            outTbx = this.simulateResponses( ...
-                includeInitial=false, ...
-                transform=transform ...
+        function varargout = calculateFEVD(this, varargin)
+            function [fevd, sample] = calculateFEVD4S(sample)
+                [vma, sample] = this.simulateResponses4S(sample);
+                fevd = system.finiteFEVD(vma);
+            end%
+            meta = this.Meta;
+            calculate4S = @calculateFEVD4S;
+            startPeriod = datex.shift(meta.EstimationEnd, 1);
+            endPeriod = datex.shift(meta.EstimationEnd, meta.IdentificationHorizon);
+            span = datex.span(startPeriod, endPeriod);
+            variantDim = 4;
+            initFunc = @zeros;
+            dimNames = {this.Meta.EndogenousNames, this.Meta.ShockNames};
+            options = [{"includeInitial", true}, varargin];
+            [varargout{1:nargout}] = this.tabulateAcrossSamples( ...
+                calculate4S, ...
+                span, ...
+                variantDim, ...
+                initFunc, ...
+                dimNames, ...
+                options{:} ...
             );
         end%
+
 
         function outTbx = conditionalForecast(this, fcastSpan, options)
             %[
@@ -225,13 +232,13 @@ classdef Structural < handle & model.PresampleMixin
             legacyOptions.cfblocks = cfblocks;
             legacyOptions.cfshocks = cfshocks;
             %
-            numPresampled = this.NumPresampled;
-            progressMessage = sprintf("Conditional forecast [%g]", numPresampled);
-            pbar = progress.Bar(progressMessage, numPresampled);
+            numV = this.NumPresampled;
+            progressMessage = sprintf("Conditional forecast [%g]", numV);
+            pbar = progress.Bar(progressMessage, numV);
             %
-            fcastY = cell(1, numPresampled);
-            fcastE = cell(1, numPresampled);
-            for i = 1 : numPresampled
+            fcastY = cell(1, numV);
+            fcastE = cell(1, numV);
+            for i = 1 : numV
                 sample = this.Presampled{i};
                 draw = this.ConditionalDrawer(sample, fcastStartIndex, fcastHorizon);
                 D = sample.D;

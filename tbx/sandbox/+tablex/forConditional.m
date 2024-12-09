@@ -1,4 +1,8 @@
 
+%
+% tablex.forConditional  Create data table and simulation plan table for conditional forecast
+%
+
 function [dataTbx, planTbx] = forConditional(model, span)
 
     meta = model.Meta;

@@ -21,20 +21,25 @@
 
 function Y = filterPulses(A, permutedPulses, lt)
 
-    arguments
-        A (:, 1) cell {mustBeNonempty}
-        permutedPulses (:, :, :, :) double
-        lt (1, :, :, :) double = double.empty(1, 0)
+    % arguments
+    %     A (:, 1) cell {mustBeNonempty}
+    %     permutedPulses (:, :, :, :) double
+    %     lt (1, :, :, :) double = double.empty(1, 0)
+    % end
+
+    if nargin < 3
+        lt = [];
     end
 
     numT = numel(A);
-    [order, numY] = system.orderFromA(A{1});
+    numY = size(A{1}, 2);
+    order = size(A{1}, 1) / numY;
     numUnits = size(A{1}, 3);
 
-    % permutedPulses is expected numP x numY x numT to avoid unnecessary
-    % permute/ipermute
+    % The input array permutedPulses is expected numP x numY x numT to avoid
+    % unnecessary permute/ipermute
     numP = size(permutedPulses, 1);
-    lastP = size(permutedPulses, 3);
+    lastPulse = size(permutedPulses, 3);
 
     if numY ~= size(permutedPulses, 2)
         error("The second dimension of permutedPulses must match the number of endogenous variables");
@@ -52,13 +57,13 @@ function Y = filterPulses(A, permutedPulses, lt)
         yt = lt * A{t}(:, :, n) + permutedPulses(:, :, t, n);
         Y(:, :, t, n) = yt;
 
-        for t = 2 : lastP
+        for t = 2 : lastPulse
             lt = [yt, lt(:, 1:end-numY)];
             yt = lt * A{t}(:, :, n) + permutedPulses(:, :, t, n);
             Y(:, :, t, n) = yt;
         end
 
-        for t = lastP+1 : numT
+        for t = lastPulse+1 : numT
             lt = [yt, lt(:, 1:end-numY)];
             yt = lt * A{t}(:, :, n);
             Y(:, :, t, n) = yt;

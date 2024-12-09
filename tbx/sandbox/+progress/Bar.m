@@ -3,6 +3,7 @@
 
 classdef Bar < handle
     properties
+        Active (1, 1) logical = true
         Title (1, 1) string = ""
         TitleRow (1, 1) string = ""
         NumProgress = 50
@@ -25,26 +26,36 @@ classdef Bar < handle
 
 
     methods
-        function this = Bar(varargin)
-            if nargin>=1
-                this.Title = varargin{1};
+        function this = Bar(title, totalCount, options)
+            arguments
+                title (1, 1) string = ""
+                totalCount (1, 1) double {mustBeNonnegative} = 0
+                options.Active (1, 1) logical = true
             end
-            if nargin>=2
-                this.TotalCount = double(varargin{2});
-                this.RunningCount = 0;
-            end
+            this.Title = title;
+            this.TotalCount = totalCount;
+            this.RunningCount = 0;
+            this.Active = options.Active;
             this.TitleRow = string(repmat(' ', 1, strlength(this.LEFT_EDGE))) + this.Title;
+            this.Diary = cell.empty(0, 2);
+            this.start();
+        end%
+
+
+        function start(this)
+            if ~this.Active || this.Done
+                return
+            end
             fprintf("\n%s", this.TitleRow);
             this.LastIndicatorRow = sprintf('%s%*s%s', this.LEFT_EDGE, this.NumProgress, ' ', this.RIGHT_EDGE);
             fprintf('\n');
             fprintf('%s', this.LastIndicatorRow);
-            this.Diary = cell.empty(0, 2);
             this.update(0);
         end%
 
 
         function update(this, varargin)
-            if this.Done
+            if ~this.Active || this.Done
                 return
             end
             [numCompleted, permille] = getNumBars(this, varargin{:});
@@ -73,6 +84,9 @@ classdef Bar < handle
 
 
         function done(this)
+            if ~this.Active || this.Done
+                return
+            end
             if ~this.Done
                 this.Done = true;
                 fprintf('\n\n');

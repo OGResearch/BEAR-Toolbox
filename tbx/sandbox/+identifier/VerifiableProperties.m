@@ -123,7 +123,7 @@ classdef VerifiableProperties < handle
                 if isempty(this.ValueSHKEST)
                     this.ValueSHKEST = this.Model.estimateShocks4S(this.Sample, this.LongYXZ);
                 end
-                this.ValueSHKCONT = this.Model.breakdownToShocks4S(this.Sample, this.ValueSHKEST);
+                this.ValueSHKCONT = this.Model.computeShockContributions4S(this.Sample, this.ValueSHKEST);
             end
             period = datex.toFieldable(period);
             value = this.ValueSHKCONT( ...

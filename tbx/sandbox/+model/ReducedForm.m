@@ -1,5 +1,5 @@
 
-classdef ReducedForm < handle & model.PresampleMixin
+classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
     properties (Constant, Hidden)
         DEFAULT_STABILITY_THRESHOLD = Inf % 1 - 1e-10
@@ -319,24 +319,41 @@ classdef ReducedForm < handle & model.PresampleMixin
             out = this.Estimator.UnconditionalDrawer;
         end%
 
-        function outTbx = estimateResiduals(this)
+        function varargout = estimateResiduals(this, varargin)
 %{
 % # calculateResiduals
 %
 % {==Calculate reduced-form residuals==}
 %
 %}
+            % meta = this.Meta;
+            % numPresampled = this.NumPresampled;
+            % U = nan(meta.NumShortSpan, meta.NumShocks, this.NumPresampled);
+            % for i = 1 : numPresampled
+            %     sample = this.Presampled{i};
+            %     U(:, :, i) = this.estimateResiduals4S(sample, longYXZ);
+            % end
+            % outNames = this.Meta.ResidualNames;
+            % outSpan = this.Meta.ShortSpan;
+            % outTbx = tablex.fromNumericArray(U, outNames, outSpan, variantDim=3);
             meta = this.Meta;
-            numPresampled = this.NumPresampled;
             longYXZ = this.DataHolder.getYXZ(span=meta.LongSpan);
-            U = nan(meta.NumShortSpan, meta.NumShocks, this.NumPresampled);
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                U(:, :, i) = this.estimateResiduals4S(sample, longYXZ);
-            end
-            outNames = this.Meta.ResidualNames;
-            outSpan = this.Meta.ShortSpan;
-            outTbx = tablex.fromNumericArray(U, outNames, outSpan, variantDim=3);
+            function [Y4S, sample] = calculate4S(sample)
+                [Y4S, sample] = this.estimateResiduals4S(sample, longYXZ);
+            end%
+            span = meta.ShortSpan;
+            variantDim = 3;
+            initFunc = @nan;
+            dimNames = {meta.ResidualNames};
+            options = [{"includeInitial", true}, varargin];
+            [varargout{1:nargout}] = this.tabulateAcrossSamples( ...
+                @calculate4S, ...
+                span, ...
+                variantDim, ...
+                initFunc, ...
+                dimNames, ...
+                options{:} ...
+            );
         end%
 
 
@@ -345,7 +362,7 @@ classdef ReducedForm < handle & model.PresampleMixin
         end%
 
 
-        function u = estimateResiduals4S(this, sample, longYXZ)
+        function [u, sample] = estimateResiduals4S(this, sample, longYXZ)
             draw = this.Estimator.HistoryDrawer(sample);
             meta = this.Meta;
             u = system.calculateResiduals( ...

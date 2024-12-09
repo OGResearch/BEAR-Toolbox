@@ -11,8 +11,6 @@ classdef Verifiables < identifier.Base
         ExactZeros (1, 1) identifier.ExactZeros
         VerifiableTests identifier.VerifiableTests
         MaxCandidates (1, 1) double {mustBePositive} = identifier.Verifiables.DEFAULT_MAX_CANDIDATES
-        FlipSign (1, 1) logical = identifier.Verifiables.DEFAULT_FLIP_SIGN
-        EvaluateMethod (1, 1) string
     end
 
 
@@ -34,13 +32,8 @@ classdef Verifiables < identifier.Base
             this.ExactZeros = options.ExactZeros;
             this.VerifiableTests = identifier.VerifiableTests(tests);
             this.MaxCandidates = options.MaxCandidates;
-            this.FlipSign = options.FlipSign;
-            if options.ShortCircuit
-                this.EvaluateMethod = "evaluateShortCircuit";
-            else
-                this.EvaluateMethod = "evaluateAll";
-            end
         end%
+
 
         function initializeSampler(this, modelS)
             %[
@@ -49,56 +42,117 @@ classdef Verifiables < identifier.Base
                 modelS (1, 1) model.Structural
             end
             %
-            samplerR = modelS.ReducedForm.Estimator.Sampler;
-            drawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
-            % candidator = @identifier.candidateFromFactorUnconstrained;
+            reducedFormSampler = modelS.ReducedForm.Estimator.Sampler;
+            identificationDrawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
+            historyDrawer = modelS.ReducedForm.Estimator.HistoryDrawer;
+            meta = modelS.Meta;
+            numShocks = modelS.Meta.NumShockNames;
+            order = meta.Order;
+            hasIntercept = meta.HasIntercept;
+            longYXZ = modelS.getLongYXZ();
+            %
+            [testFunc, occurrence] = this.VerifiableTests.buildTestEnvironment(modelS.Meta);
+            has = struct();
+            for n = ["SHKRESP", "FEVD", "SHKEST", "SHKCONT"]
+                has.(n) = isfield(occurrence, n);
+            end
+            %
             candidator = this.ExactZeros.getCandidator();
-            vp = identifier.VerifiableProperties(modelS);
-            vt = this.VerifiableTests;
-            method = this.EvaluateMethod;
             %
             function sample = samplerS()
-                tracker = [];
+                % Loop until a valid sample-candidate is found
                 while true
-                    sample = samplerR();
+                    sample = reducedFormSampler();
+                    identificationDraw = identificationDrawer(sample);
+                    sample.IdentificationDraw = identificationDraw;
+                    if has.SHKEST
+                        historyDraw = historyDrawer(sample);
+                        residuals = system.calculateResiduals( ...
+                            historyDraw.A, historyDraw.C, longYXZ ...
+                            , hasIntercept=hasIntercept ...
+                            , order=meta.Order ...
+                        );
+                    end
+
                     this.SampleCounter = this.SampleCounter + 1;
                     %
-                    draw = drawer(sample);
-                    sample.IdentificationDraw = draw;
-                    %
-                    % u = e*D or e = u/D
-                    % Sigma = D'*D
-                    Sigma = (draw.Sigma + draw.Sigma')/2;
+                    Sigma = sample.sigma;
+                    Sigma = (Sigma + Sigma')/2;
                     P = chol(Sigma);
                     %
-                    attemptCounter = 0;
-                    while attemptCounter < this.MaxCandidates
+                    propertyValues = struct();
+                    initCandidateCounter = this.CandidateCounter;
+                    while (this.CandidateCounter - initCandidateCounter) < this.MaxCandidates
+                        %
+                        % Generate a candidate D based on the factor matrix P
                         sample.D = candidator(P);
-                        disp(sample.D)
-                        attemptCounter = attemptCounter + 1;
-                        %
                         this.CandidateCounter = this.CandidateCounter + 1;
-                        vp.initialize4S(sample);
-                        success = vt.(method)(vp);
-                        if all(success)
-                            tracker = [tracker, success];
-                            sample.Tracker = tracker;
-                            return
+
+
+                        if has.SHKRESP
+                            propertyValues.SHKRESP = system.filterPulses(identificationDraw.A, sample.D);
                         end
                         %
-                        if ~this.FlipSign
-                            continue
+                        if has.FEVD
+                            propertyValues.FEVD = system.finiteFEVD(propertyValues.SHKRESP);
                         end
                         %
-                        sample.D = -sample.D;
-                        vp.initialize4S(sample);
-                        success = vt.(method)(vp);
+                        if has.SHKEST
+                            % residuals = shocks * D => shocks = residuals / D
+                            propertyValues.SHKEST = residuals / sample.D;
+                        end
+                        %
+                        if has.SHKCONT
+                            propertyValues.SHKCONT = system.contributionsShocks(historyDraw.A, sample.D, propertyValues.SHKEST);
+                        end
+
+
+                        success = testFunc(propertyValues);
                         if all(success)
-                            tracker = [tracker, success];
-                            sample.Tracker = tracker;
                             return
                         end
-                        tracker = [tracker, success];
+                        numSuccess = nnz(success);
+                        %
+                        for i = 1 : numShocks
+                            %
+                            % Store copies of the current state for a possible
+                            % reversal
+                            numSuccess0 = numSuccess;
+                            D0 = sample.D;
+                            propertyValues0 = propertyValues;
+                            %
+                            %
+                            % Flip sign for the i-th shock
+                            % The cost of ANY abstraction here is extremely
+                            % high. Inline everything for quasi-optimal
+                            % performance.
+                            sample.D(i, :) = -sample.D(i, :);
+                            %
+                            if has.SHKRESP
+                                propertyValues.SHKRESP(:, :, i) = -propertyValues.SHKRESP(:, :, i);
+                            end
+                            %
+                            if has.SHKEST
+                                propertyValues.SHKEST(:, i) = -propertyValues.SHKEST(:, i);
+                            end
+                            %
+                            %
+                            % Evaluate the tests again with a flipped sign for
+                            % the i-th shock
+                            success = testFunc(propertyValues);
+                            if all(success)
+                                return
+                            end
+                            numSuccess = nnz(success);
+                            % Keep the flipped sign only if it improves the number of
+                            % successful tests; otherwise, revert to the
+                            % original sign in the i-th shock
+                            if numSuccess <= numSuccess0
+                                numSuccess = numSuccess0;
+                                sample.D = D0;
+                                propertyValues = propertyValues0;
+                            end
+                        end
                     end
                 end
             end%
@@ -106,6 +160,7 @@ classdef Verifiables < identifier.Base
             this.Sampler = @samplerS;
             %]
         end%
+
     end
 
 end

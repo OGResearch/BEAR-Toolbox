@@ -123,14 +123,16 @@ classdef Meta < matlab.mixin.Copyable
             this.HasIntercept = options.intercept;
             this.Order = options.order;
             %
-            this.populateShockConcepts(options);
+            this.populateShockConcepts(options.shockConcepts);
             this.IdentificationHorizon = options.identificationHorizon;
+            %
+            this.catchDuplicateNames();
         end%
 
 
-        function populateShockConcepts(this, options)
-            if ~isempty(options.shockConcepts)
-                this.ShockConcepts = options.shockConcepts;
+        function populateShockConcepts(this, shockConcepts)
+            if ~isempty(shockConcepts)
+                this.ShockConcepts = shockConcepts;
             else
                 this.ShockConcepts = meta.autogenerateShockConcepts(this.NumEndogenousConcepts);
             end
@@ -332,6 +334,22 @@ classdef Meta < matlab.mixin.Copyable
                 return
             end
             dataArray = reshape(dataArray, size(dataArray, 1), [], this.NumUnits);
+        end%
+    end
+
+
+    methods (Access=protected)
+        function catchDuplicateNames(this)
+            allNames = [ ...
+                this.EndogenousNames, ...
+                this.ExogenousNames, ...
+                this.ReducibleNames, ...
+                this.ShockNames ...
+            ];
+            if numel(allNames) ~= numel(unique(allNames))
+                nonuniques = textual.nonunique(allNames);
+                error("Duplicate model name(s): " + join(nonuniques, ", "));
+            end
         end%
     end
 

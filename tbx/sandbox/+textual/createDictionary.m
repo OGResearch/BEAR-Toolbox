@@ -1,11 +1,10 @@
 
-function dict = createDictionary(list)
+function dict = createDictionary(list, dict)
 
     arguments
         list (1, :) string
+        dict (1, 1) struct = struct()
     end
-
-    dict = struct();
 
     if isempty(list) || isequal(list, [""])
         return

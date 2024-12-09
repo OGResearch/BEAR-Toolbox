@@ -25,6 +25,7 @@ function contribs = contributionsShocks(A, D, E)
         permutedPulses(:, :, t) = et * D;
     end
 
+    % Contributions are numT x numY x numP x numUnits
     contribs = system.filterPulses(A, permutedPulses);
 
 end%

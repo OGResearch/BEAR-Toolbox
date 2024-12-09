@@ -1,9 +1,9 @@
 
 function [order, numY] = orderFromA(A)
 
-    arguments
-        A (:, :, :) double
-    end
+    % arguments
+    %     A (:, :, :) double
+    % end
 
     numY = size(A, 2);
     order = size(A, 1) / numY;

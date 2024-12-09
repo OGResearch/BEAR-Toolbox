@@ -7,21 +7,23 @@ classdef PresampleMixin < handle
 
 
     methods
-        function info = presample(this, numToPresample)
+        function info = presample(this, numToPresample, options)
             arguments
                 this
                 numToPresample (1, 1) double {mustBeInteger, mustBeNonnegative}
+                options.Progress (1, 1) logical = true
             end
+            %
             this.resetPresampled(numToPresample);
             sampler = this.Sampler;
             progressMessage = sprintf("Presampling %s (%s) [%g]", class(this), this.Estimator.ShortClassName, numToPresample);
-            pbar = progress.Bar(progressMessage, numToPresample);
+            progressBar = progress.Bar(progressMessage, numToPresample, active=options.Progress);
             initSampleCount = this.SampleCounter;
             initCandidateCount = this.CandidateCounter;
             for i = 1 : numToPresample
                 sample = sampler();
                 this.storePresampled(i, sample);
-                pbar.increment();
+                progressBar.increment();
             end
             info = struct();
             info.SampleCount = double(this.SampleCounter - initSampleCount);
