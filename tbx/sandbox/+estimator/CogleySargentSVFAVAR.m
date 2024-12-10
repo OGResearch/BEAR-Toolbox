@@ -251,8 +251,8 @@ classdef CogleySargentSVFAVAR < estimator.Base
                 sample.sigmaAvg = sigma(:);
                 sample.sbar = sbar;
 
-                sample.FY = FY(:);
-                sample.LD = LD(:);
+                sample.FY = FY;
+                sample.LD = LD;
                 
                 for zz = 1:estimLength
                     sample.lambda_t{zz, 1} = lambda_t(:, :, zz);

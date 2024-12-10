@@ -124,8 +124,8 @@ classdef BetaTVFAVAR < estimator.Base
                 sample.beta = mat2cell(B, repmat(sizeB, estimLength, 1));
                 sample.omega = diag(omega);
                 sample.sigma = sigma;
-                sample.FY = FY(:);
-                sample.LD = LD(:);                
+                sample.FY = FY;
+                sample.LD = LD;                
             end
 
             this.Sampler = @sampler;
