@@ -89,8 +89,12 @@ classdef Meta < matlab.mixin.Copyable
         LongStart
         LongEnd
         LongSpan
-        %
         NumShortSpan
+        %
+        HasSeparableUnits
+        NumSeparableUnits
+        SeparableShockNames
+        SeparableEndogenousNames
     end
 
 
@@ -330,10 +334,22 @@ classdef Meta < matlab.mixin.Copyable
                 this
                 dataArray double
             end
-            if this.HasCrossUnits || this.NumUnits == 1
+            if ~this.HasSeparableUnits
                 return
             end
             dataArray = reshape(dataArray, size(dataArray, 1), [], this.NumUnits);
+        end%
+
+
+        function unitData = extractUnitFromCells(this, data, unit)
+            if ~this.HasSeparableUnits
+                unitData = data;
+                return
+            end
+            unitData = cell(size(data));
+            for i = 1 : numel(data)
+                unitData{i} = data{i}(:, :, unit);
+            end
         end%
     end
 
@@ -450,6 +466,18 @@ classdef Meta < matlab.mixin.Copyable
         function out = get.HasUnits(this)
             out = ~isequal(this.Units, "");
         end%
+
+        function out = get.HasSeparableUnits(this)
+            out = this.HasUnits && ~this.HasCrossUnits;
+        end%
+
+        function out = get.NumSeparableUnits(this)
+            if this.HasSeparableUnits
+                out = this.NumUnits;
+            else
+                out = 1;
+            end
+        end%
     end
 
 
@@ -474,6 +502,22 @@ classdef Meta < matlab.mixin.Copyable
             out = string.empty(1, 0);
             for unit = this.Units
                 out = [out, meta.concatenate(unit, this.ShockConcepts)];
+            end
+        end%
+
+        function out = get.SeparableShockNames(this)
+            if this.HasSeparableUnits
+                out = this.ShockConcepts;
+            else
+                out = this.ShockNames;
+            end
+        end%
+
+        function out = get.SeparableEndogenousNames(this)
+            if this.HasSeparableUnits
+                out = this.EndogenousConcepts;
+            else
+                out = this.EndogenousNames;
             end
         end%
     end

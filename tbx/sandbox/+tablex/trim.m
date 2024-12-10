@@ -8,7 +8,7 @@ function outTable = trim(inTable)
     periods = inTable.Time;
     dataArray = inTable{:, :};
     if ~isnumeric(dataArray)
-        error('Input timetable must contain only numeric data');
+        error("Input timetable must contain only numeric data");
     end
 
     inxNaN = all(isnan(dataArray), 2);

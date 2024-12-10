@@ -15,23 +15,22 @@ classdef (Abstract) PlainDrawersMixin < handle
             numL = numY * order;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
+            wrap = @(x, horizon) repmat({x}, horizon, 1);
             %
             function draw = drawer(sample, horizon)
                 sample.B = reshape(sample.beta, [], numY);
                 A = sample.B(1:numL, :);
                 C = sample.B(numL+1:end, :);
-                wrap = @(x) repmat({x}, horizon, 1);
                 draw = struct();
-                draw.A = wrap(A);
-                draw.C = wrap(C);
-                draw.Sigma = wrap(sample.sigma);
+                draw.A = wrap(A, horizon);
+                draw.C = wrap(C, horizon);
+                draw.Sigma = wrap(sample.sigma, horizon);
             end%
             %
             function draw = conditionaldrawer(sample, horizon)
                 beta = sample.beta;
-                wrap = @(x) repmat({x}, horizon, 1);
                 draw = struct();
-                draw.beta = wrap(beta);
+                draw.beta = wrap(beta, horizon);
             end%
             %
             function draw = identificationDrawer(sample)
@@ -39,10 +38,9 @@ classdef (Abstract) PlainDrawersMixin < handle
                 sample.B = reshape(sample.beta, [], numY);
                 A = sample.B(1:numL, :);
                 C = sample.B(numL+1:end, :);
-                wrap = @(x) repmat({x}, horizon, 1);
                 draw = struct();
-                draw.A = wrap(A);
-                draw.C = wrap(C);
+                draw.A = wrap(A, horizon);
+                draw.C = wrap(C, horizon);
                 draw.Sigma = sample.sigma;
             end%
             %

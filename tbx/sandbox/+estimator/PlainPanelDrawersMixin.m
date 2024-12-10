@@ -7,105 +7,62 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
             %[
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
-            numARows = numEndog*meta.Order;
+            numRowsA = numEndog*meta.Order;
             numExog = meta.NumExogenousNames+double(meta.HasIntercept);
-            numBRows = numARows + numExog;
+            numRowsB = numRowsA + numExog;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
+            wrap = @(x, horizon) repmat({x}, horizon, 1);
 
-
-            function draw = betaDrawer(sample, horizon)
-
+            function [A, C] = betaDrawer(sample, horizon)
                 beta = sample.beta;
-
-                % initialization
-                A = nan(numARows, numEndog, numCountries);
+                A = nan(numRowsA, numEndog, numCountries);
                 C = nan(numExog, numEndog, numCountries);
-
-                % iterate over countries
                 for ii = 1 : numCountries
-
-                    tempB = reshape( ...
-                        beta(:, ii), ...
-                        numBRows, ...
-                        numEndog ...
-                    );
-
-                    % Pack in blocks
-                    tempA = tempB(1:numARows,:);
-
-                    tempC = tempB(numARows+1:end,:);
-
-                    % Pack in blocks
-                    A(:,:, ii) = tempA;
-
-                    C(:,:, ii) = tempC;
-
+                    temp = reshape(beta(:, ii), numRowsB, numEndog);
+                    A(:,:, ii) = temp(1:numRowsA, :);
+                    C(:,:, ii) = temp(numRowsA+1:end, :);
                 end
+                if horizon > 0
+                    A = wrap(A, horizon);
+                    C = wrap(C, horizon);
+                end
+            end%
 
-                draw = struct();
-                draw.A = repmat({A}, horizon, 1);
-                draw.C = repmat({C}, horizon, 1);
-
-            end
-
-            function draw = sigmaDrawer(sample, horizon)
-
-                sigma = sample.sigma;
-
-                % initialization
+            function Sigma = sigmaDrawer(sample, horizon)
                 Sigma = nan(numEndog, numEndog, numCountries);
-
-                % iterate over countries
                 for ii = 1 : numCountries
-
-                    tempSigma = reshape( ...
-                        sigma(:, ii), ...
-                        numEndog, ...
-                        numEndog ...
-                    );
-
-                    Sigma(:,:, ii) = tempSigma;
-
+                    Sigma(:, :, ii) = reshape(sample.sigma(:, ii), numEndog, numEndog);
                 end
-
-                draw = struct();
-                draw.Sigma = Sigma;
-
+                if horizon > 0
+                    Sigma = wrap(Sigma, horizon);
+                end
             end
 
             function draw = unconditionalDrawer(sample, start, forecastHorizon)
-
-                draw = betaDrawer(sample, forecastHorizon);
-                drawS = sigmaDrawer(sample, forecastHorizon);
-                draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
-
+                draw = struct();
+                [draw.A, draw.C] = betaDrawer(sample, forecastHorizon);
+                draw.Sigma = sigmaDrawer(sample, forecastHorizon);
             end%
 
-            function draw = drawer(sample, horizon)
-
-                draw = betaDrawer(sample, horizon);
-                drawS = sigmaDrawer(sample, horizon);
-                draw.Sigma = drawS.Sigma;
-
+            function draw = identificationDrawer(sample)
+                draw = struct();
+                [draw.A, draw.C] = betaDrawer(sample, identificationHorizon);
+                draw.Sigma = sigmaDrawer(sample, 0);
             end%
 
             function draw = historyDrawer(sample)
-
-                draw = betaDrawer(sample, estimationHorizon);
-                drawS = sigmaDrawer(sample, estimationHorizon);
-                draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
-
+                draw = struct();
+                [draw.A, draw.C] = betaDrawer(sample, estimationHorizon);
+                draw.Sigma = sigmaDrawer(sample, estimationHorizon);
             end%
 
             function draw = conditionalDrawer(sample, startingIndex, forecastHorizon)
-
-                beta = sample.beta;
-                draw.beta = repmat({beta}, forecastHorizon, 1);
-
+                draw = struct();
+                draw.beta = wrap(sample.beta, forecastHorizon);
             end%
 
-            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
+            this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.ConditionalDrawer = @conditionalDrawer;

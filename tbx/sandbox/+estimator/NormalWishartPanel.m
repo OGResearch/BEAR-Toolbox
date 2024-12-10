@@ -66,76 +66,59 @@ classdef NormalWishartPanel < estimator.Base
             %[
             numCountries = meta.NumUnits;
             numEndog = meta.NumEndogenousConcepts;
-            numARows = numEndog*meta.Order;
+            numRowsA = numEndog*meta.Order;
             numExog = meta.NumExogenousNames+double(meta.HasIntercept);
-            numBRows = numARows + numExog;
+            numRowsB = numRowsA + numExog;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
+            wrap = @(x, horizon) repmat({x}, horizon, 1);
 
-            function draw = betaDrawer(sample, horizon)
-
-                beta = sample.beta;
-
-                B_temp = reshape(...
-                    beta,...
-                    numBRows,...
-                    numEndog...
-                    );
-
-                A_temp = B_temp(1:numARows,:);
-
-                C_temp = B_temp(numARows+1:end,:);
-
-                A = repmat(A_temp, [1, 1, numCountries]);
-                C = repmat(C_temp, [1, 1, numCountries]);
-
-                draw = struct();
-                draw.A = repmat({A}, horizon, 1);
-                draw.C = repmat({C}, horizon, 1);
-                
+            function [A, C] = betaDrawer(sample, horizon)
+                beta = reshape(sample.beta, numRowsB, numEndog);
+                A = beta(1:numRowsA,:);
+                C = beta(numRowsA+1:end,:);
+                A = repmat(A, [1, 1, numCountries]);
+                C = repmat(C, [1, 1, numCountries]);
+                if horizon > 0
+                    A = wrap(A, horizon);
+                    C = wrap(C, horizon);
+                end
             end%
 
-            function draw = sigmaDrawer(sample, horizon)
-
-                sigma = sample.sigma;
-
-                sigma_temp = reshape(...
-                    sigma,...
-                    numEndog,...
-                    numEndog...
-                    );
-
-                Sigma = repmat(sigma_temp, [1, 1, numCountries]);
-
-                draw = struct();
-                draw.Sigma = Sigma;
-
+            function sigma = sigmaDrawer(sample, horizon)
+                sigma = reshape(sample.sigma, numEndog, numEndog);
+                sigma = repmat(sigma, [1, 1, numCountries]);
+                if horizon > 0
+                    sigma = wrap(sigma, horizon);
+                end
             end%
 
-            function draw = unconditionalDrawer(sample, start, forecastHorizon)
+            function draw = identificationDrawer(sample)
+                draw = struct();
+                [draw.A, draw.C] = betaDrawer(sample, identificationHorizon);
+                draw.Sigma = sigmaDrawer(sample, 0);
+            end%
 
-                draw = betaDrawer(sample, forecastHorizon);
-                drawS = sigmaDrawer(sample, forecastHorizon);
-                draw.Sigma = repmat({drawS.Sigma}, forecastHorizon, 1);
-
+            function draw = unconditionalDrawer(sample, startIndex, forecastHorizon)
+                draw = struct();
+                [draw.A, draw.C] = betaDrawer(sample, forecastHorizon);
+                draw.Sigma = sigmaDrawer(sample, forecastHorizon);
             end%
 
             function draw = historyDrawer(sample)
-                draw = betaDrawer(sample, estimationHorizon);
-                drawS = sigmaDrawer(sample, estimationHorizon);
-                draw.Sigma = repmat({drawS.Sigma}, estimationHorizon, 1);
+                draw = struct();
+                [draw.A, draw.C] = betaDrawer(sample, estimationHorizon);
+                draw.Sigma = sigmaDrawer(sample, estimationHorizon);
             end%
 
-            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
-
-                beta = sample.beta;
-                draw.beta = repmat({beta}, forecastHorizon, 1);
-
+            function draw = conditionalDrawer(sample, startIndex, forecastHorizon)
+                draw = struct();
+                draw.beta = wrap(sample.beta, forecastHorizon);
             end%
 
+            this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.IdentificationDrawer = @(sample) drawer(sample, identificationHorizon);
             this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%

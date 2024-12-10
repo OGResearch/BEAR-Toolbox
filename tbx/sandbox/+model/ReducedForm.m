@@ -201,53 +201,48 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
                 options.IncludeInitial (1, 1) logical = true
             end
             %
+            variantDim = 3;
             meta = this.Meta;
             forecastStart = forecastSpan(1);
             forecastEnd = forecastSpan(end);
             shortForecastSpan = datex.span(forecastStart, forecastEnd);
             this.checkForecastSpan(forecastStart, forecastEnd);
             forecastStartIndex = datex.diff(forecastStart, meta.ShortStart) + 1;
-            %
             forecastHorizon = numel(shortForecastSpan);
             longForecastSpan = datex.longSpanFromShortSpan(shortForecastSpan, meta.Order);
-            %
             longYXZ = this.getSomeYXZ(longForecastSpan);
             %
+            % Loop over all samples
             numPresampled = this.NumPresampled;
-            %
-            % Multiple-unit output data will be always captured as flat
-            numY = meta.NumEndogenousNames;
-            Y0 = nan(meta.Order, numY, numPresampled);
-            Y = nan(forecastHorizon, numY, numPresampled);
-            U = nan(forecastHorizon, numY, numPresampled);
-            %
+            Y = cell(1, numPresampled);
+            U = cell(1, numPresampled);
+            initY = cell(1, numPresampled);
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
-                [y, init, u] = this.forecast4S( ...
+                [Y{i}, U{i}, initY{i}] = this.forecast4S( ...
                     sample, longYXZ, forecastStartIndex, forecastHorizon ...
                     , stochasticResiduals=options.StochasticResiduals ...
                     , hasIntercept=meta.HasIntercept ...
                     , order=meta.Order ...
                 );
-                % Flatten (unfold) multiple-unit data back to 2D
-                U(:, :, i) = u(:, :);
-                Y(:, :, i) = y(:, :);
-                Y0(:, :, i) = init(:, :);
             end
-            %
+            YU = [cat(variantDim, Y{:}), cat(variantDim, U{:})];
             outSpan = shortForecastSpan;
+            %
+            % Create and add initial condition if requested
             if options.IncludeInitial
-                Y = [Y0; Y];
-                U = [nan(meta.Order, size(U, 2), numPresampled); U];
+                initY = cat(variantDim, initY{:});
+                initU = nan(size(initY));
+                YU = [[initY, initU]; YU];
                 outSpan = longForecastSpan;
             end
             %
             outNames = [meta.EndogenousNames, meta.ResidualNames];
-            outTable = tablex.fromNumericArray([Y, U], outNames, outSpan, variantDim=3);
+            outTable = tablex.fromNumericArray(YU, outNames, outSpan, variantDim=variantDim);
         end%
 
 
-        function [y, init, u] = forecast4S(this, sample, longYXZ, forecastStartIndex, forecastHorizon, options)
+        function [y, u, initY] = forecast4S(this, sample, longYXZ, forecastStartIndex, forecastHorizon, options)
             arguments
                 this
                 sample
@@ -259,17 +254,36 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
                 options.Order (1, 1) double {mustBeInteger, mustBePositive}
             end
             %
+            meta = this.Meta;
             draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
-            % Multiple-unit data are 3D
-            u = system.generateResiduals( ...
-                draw.Sigma ...
-                , stochasticResiduals=options.StochasticResiduals ...
-            );
-            [y, init] = system.forecast( ...
-                draw.A, draw.C, longYXZ, u ...
-                , hasIntercept=options.HasIntercept ...
-                , order=options.Order ...
-            );
+            numP = meta.NumSeparableUnits;
+            y = cell(1, numP);
+            u = cell(1, numP);
+            initY = cell(1, numP);
+            for i = 1 : numP
+                %
+                % Extract unit-specific data
+                unitYXZ = [meta.extractUnitFromCells(longYXZ(1), i), longYXZ(2), longYXZ(3)];
+                unitSigma = meta.extractUnitFromCells(draw.Sigma, i);
+                unitA = meta.extractUnitFromCells(draw.A, i);
+                unitC = meta.extractUnitFromCells(draw.C, i);
+                %
+                % Generate unit-specific residuals
+                u{i} = system.generateResiduals( ...
+                    unitSigma ...
+                    , stochasticResiduals=options.StochasticResiduals ...
+                );
+                %
+                % Run unit-specific forecast
+                [y{i}, initY{i}] = system.forecast( ...
+                    unitA, unitC, unitYXZ, u{i} ...
+                    , hasIntercept=options.HasIntercept ...
+                    , order=options.Order ...
+                );
+            end
+            y = cat(2, y{:});
+            u = cat(2, u{:});
+            initY = cat(2, initY{:});
         end%
 
     end
@@ -326,50 +340,44 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 % {==Calculate reduced-form residuals==}
 %
 %}
-            % meta = this.Meta;
-            % numPresampled = this.NumPresampled;
-            % U = nan(meta.NumShortSpan, meta.NumShocks, this.NumPresampled);
-            % for i = 1 : numPresampled
-            %     sample = this.Presampled{i};
-            %     U(:, :, i) = this.estimateResiduals4S(sample, longYXZ);
-            % end
-            % outNames = this.Meta.ResidualNames;
-            % outSpan = this.Meta.ShortSpan;
-            % outTbx = tablex.fromNumericArray(U, outNames, outSpan, variantDim=3);
             meta = this.Meta;
-            longYXZ = this.DataHolder.getYXZ(span=meta.LongSpan);
+            longYXZ = this.getLongYXZ();
             function [Y4S, sample] = calculate4S(sample)
                 [Y4S, sample] = this.estimateResiduals4S(sample, longYXZ);
             end%
-            span = meta.ShortSpan;
-            variantDim = 3;
-            initFunc = @nan;
-            dimNames = {meta.ResidualNames};
             options = [{"includeInitial", true}, varargin];
-            [varargout{1:nargout}] = this.tabulateAcrossSamples( ...
-                @calculate4S, ...
-                span, ...
-                variantDim, ...
-                initFunc, ...
-                dimNames, ...
+            [varargout{1:nargout}] = this.tabulateSamples( ...
+                "calculator", @calculate4S, ...
+                "span", meta.ShortSpan, ...
+                "variantDim", 3, ...
+                "initiator", @nan, ...
+                "dimNames", {meta.ResidualNames}, ...
                 options{:} ...
             );
         end%
 
 
-        function varargout = calculateResiduals(this, varargin)
-            [varargout{1:nargout}] = this.estimateResiduals(varargin{:});
+        function [u, sample] = estimateResiduals4S(this, sample, longYXZ)
+            meta = this.Meta;
+            draw = this.Estimator.HistoryDrawer(sample);
+            numP = meta.NumSeparableUnits;
+            u = cell(1, numP);
+            for i = 1 : numP
+                unitYXZ = [meta.extractUnitFromCells(longYXZ(1), i), longYXZ(2), longYXZ(3)];
+                unitA = meta.extractUnitFromCells(draw.A, i);
+                unitC = meta.extractUnitFromCells(draw.C, i);
+                u{i} = system.calculateResiduals( ...
+                    unitA, unitC, unitYXZ ...
+                    , hasIntercept=meta.HasIntercept ...
+                    , order=meta.Order ...
+                );
+            end
+            u = cat(2, u{:});
         end%
 
 
-        function [u, sample] = estimateResiduals4S(this, sample, longYXZ)
-            draw = this.Estimator.HistoryDrawer(sample);
-            meta = this.Meta;
-            u = system.calculateResiduals( ...
-                draw.A, draw.C, longYXZ ...
-                , hasIntercept=meta.HasIntercept ...
-                , order=meta.Order ...
-            );
+        function varargout = calculateResiduals(this, varargin)
+            [varargout{1:nargout}] = this.estimateResiduals(varargin{:});
         end%
 
 

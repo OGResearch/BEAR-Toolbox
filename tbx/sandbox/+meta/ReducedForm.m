@@ -4,33 +4,33 @@
 classdef ReducedForm < handle
 
     properties (SetAccess=protected)
-        % Endogenous concepts
+        % EndogenousConcepts  Names of endogenous concepts
         EndogenousConcepts (1, :) string
 
-        % Units in panel models
+        % Units  Names of units in panel models
         Units (1, :) string = ""
 
-        % Names of exogenous variables
+        % ExogenousNames  Names of exogenous variables
         ExogenousNames (1, :) string
 
-        % Names of reducible variables
+        % ReducibleNames  Names of reducible variables
         ReducibleNames (1, :) string = string.empty(1, 0)
 
-        % Residual prefix
+        % ResidualPrefix  Prefix prepended to the names of residuals
         ResidualPrefix (1, 1) string = "resid"
 
-        % Order of the VAR model
+        % Order  Order of the VAR model
         Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
 
-        % Presence of an intercept (constant) in the model
+        % HasIntercept  Presence of an intercept (constant) in the model
         HasIntercept (1, 1) logical
 
-        % Number of factors to be formed from reducibles
+        % NumFactors  Number of factors to be formed from reducibles
         NumFactors (1, 1) double {mustBeInteger, mustBePositive} = 1
     end
 
     properties
-        % True if cross-effects are present in models with multiple units
+        % HasCrossUnits  True if the model has cross-effects between units
         HasCrossUnits (1, 1) logical = false
     end
 

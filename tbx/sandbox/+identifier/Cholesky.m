@@ -26,7 +26,7 @@ classdef Cholesky < identifier.Base
             meta = modelS.Meta;
             horizon = modelS.Meta.IdentificationHorizon;
             samplerR = modelS.ReducedForm.Estimator.Sampler;
-            drawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
+            identificationDrawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
             %
             [order, backOrder] = this.resolveOrder(meta);
             if isempty(order)
@@ -37,30 +37,49 @@ classdef Cholesky < identifier.Base
                 candidator = @(Sigma) backorder(reorder(Sigma));
             end
             %
-            function sample = samplerS()
+            %
+            function sample = structuralSampler()
                 this.SampleCounter = this.SampleCounter + 1;
                 sample = samplerR();
-                draw = drawer(sample);
+                draw = identificationDrawer(sample);
                 % u = e*D or e = u/D
                 % Sigma = D'*D
                 sample.IdentificationDraw = draw;
-                Sigma = (draw.Sigma + draw.Sigma')/2;
-                sample.D = candidator(Sigma);
+                numUnits = size(draw.Sigma, 3);
+                D = cell(1, numUnits);
+                % Make sure we do not repeat the Cholesky decomposition for the
+                % same Sigma matrix
+                prevSigma = [];
+                prevD = [];
+                for i = 1 : numUnits
+                    Sigma = draw.Sigma(:, :, i);
+                    if isequal(Sigma, prevSigma)
+                        D{i} = prevD;
+                    else
+                        symmetricSigma = (Sigma + Sigma')/2;
+                        D{i} = candidator(symmetricSigma);
+                        prevSigma = Sigma;
+                        prevD = D{i};
+                    end
+                end
+                sample.D = cat(3, D{:});
                 this.CandidateCounter = this.CandidateCounter + 1;
             end%
             %
-            this.Sampler = @samplerS;
+            %
+            this.Sampler = @structuralSampler;
             %]
         end%
 
         function [order, backOrder] = resolveOrder(this, meta)
+            %[
             customOrder = this.Order;
             if isempty(customOrder)
                 order = [];
                 backOrder = [];
                 return
             end
-            endogenousNames = meta.EndogenousNames;
+            endogenousNames = meta.SeparableEndogenousNames;
             dict = textual.createDictionary(endogenousNames);
             endogenousNamesReordered = [customOrder, setdiff(endogenousNames, customOrder, "stable")];
             order = [];
@@ -68,6 +87,7 @@ classdef Cholesky < identifier.Base
                 order(end+1) = dict.(n);
             end
             [~, backOrder] = sort(order);
+            %]
         end%
     end
 
