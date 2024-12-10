@@ -77,8 +77,8 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
                 sample.beta = B(:);
                 sample.sigma = sigma;
-                sample.FY = FY(:);
-                sample.LD = LD(:);
+                sample.FY = FY;
+                sample.LD = LD;
                 this.SampleCounter = this.SampleCounter + 1;
 
             end%

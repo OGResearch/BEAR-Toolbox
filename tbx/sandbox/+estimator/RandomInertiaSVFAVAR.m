@@ -273,8 +273,8 @@ classdef RandomInertiaSVFAVAR < estimator.Base
                 sample.gamma = gamma;
                 sample.sbar = sbar;
 
-                sample.FY = FY(:);
-                sample.LD = LD(:); 
+                sample.FY = FY;
+                sample.LD = LD; 
 
 
                 for zz = 1:estimLength

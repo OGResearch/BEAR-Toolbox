@@ -257,8 +257,8 @@ classdef GeneralTVFAVAR < estimator.Base
                     sample.lambda_t{jj, 1}(:, :) = lambda_t(:, :, jj);
                     sample.sigma_t{jj, 1}(:, :) = sigma_t(:, :, jj);
                 end
-                sample.FY = FY(:);
-                sample.LD = LD(:);
+                sample.FY = FY;
+                sample.LD = LD;
 
             end
                 

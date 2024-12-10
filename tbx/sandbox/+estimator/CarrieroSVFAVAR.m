@@ -256,8 +256,8 @@ classdef CarrieroSVFAVAR < estimator.Base
                     sample.sigma_t{zz, 1} = sigma_t(:, :, zz);
                 end
 
-                sample.FY = FY(:);
-                sample.LD = LD(:);      
+                sample.FY = FY;
+                sample.LD = LD;      
 
             end
 
