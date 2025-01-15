@@ -76,7 +76,7 @@ classdef Verifiables < identifier.Base
 
                     this.SampleCounter = this.SampleCounter + 1;
                     %
-                    Sigma = sample.sigma;
+                    Sigma = identificationDraw.Sigma;
                     Sigma = (Sigma + Sigma')/2;
                     P = chol(Sigma);
                     %
