@@ -76,9 +76,24 @@ classdef ExactZeros < identifier.Base
                 this.SampleCounter = this.SampleCounter + 1;
                 draw = drawer(sample);
                 sample.IdentificationDraw = draw;
-                Sigma = (draw.Sigma + draw.Sigma')/2;
-                P = chol(Sigma);
-                sample.D = candidator(P);
+                numUnits = size(draw.Sigma, 3);
+                D = cell(1, numUnits);
+                % Make sure we do not repeat the Cholesky decomposition for the
+                % same Sigma matrix
+                prevSigma = [];
+                prevD = [];
+                for i = 1 : numUnits
+                    Sigma = draw.Sigma(:, :, i);
+                    if isequal(Sigma, prevSigma)
+                        D{i} = prevD;
+                    else
+                        symmetricSigma = (Sigma + Sigma')/2;
+                        D{i} = candidator(symmetricSigma);
+                        prevSigma = Sigma;
+                        prevD = D{i};
+                    end
+                end
+                sample.D = cat(3, D{:});
                 this.CandidateCounter = this.CandidateCounter + 1;
                 %
             end%
