@@ -1,8 +1,9 @@
 
-classdef ExactZeros < identifier.Base
+classdef ExactZeros < identifier.Base & identifier.InstantMixin
 
     properties
         RestrictionTable
+        RestrictionMatrix (:, :) double
     end
 
 
@@ -19,102 +20,98 @@ classdef ExactZeros < identifier.Base
             this.RestrictionTable = restrictionTable;
         end%
 
-        function checkConsistency(this, modelS)
+        function checkRestrictionTableConsistency(this, meta)
             if isempty(this.RestrictionTable)
                 return
             end
+            compareLists = @isequal;
             tablex.checkConsistency(this.RestrictionTable);
-            %
-            meta = modelS.Meta;
-            hasCrossUnits = meta.HasCrossUnits;
-            %
-            % TODO: Refactor
-            if ~hasCrossUnits
-                modelEndogenousHeadings = textual.stringify(meta.EndogenousConcepts);
-                modelShockHeadings = textual.stringify(meta.ShockConcepts);
-            else
-                modelEndogenousHeadings = textual.stringify(meta.EndogenousNames);
-                modelShockHeadings = textual.stringify(meta.ShockNames);
-            else
-            %
             tableEndogenousHeadings = textual.stringify(this.RestrictionTable.Properties.RowNames);
             tableShockHeadings = textual.stringify(this.RestrictionTable.Properties.VariableNames);
-            if modelEndogenousHeadings ~= tableEndogenousHeadings || modelShockHeadings ~= tableShockHeadings
-                error("Row names and variable names in the restriction table must match the model.");
+            if ~compareLists(this.SeparableEndogenousNames, tableEndogenousHeadings)
+                error("Row names in the restriction table must match endogenous names in the model.");
+            end
+            if ~compareLists(this.SeparableShockNames, tableShockHeadings)
+                error("Column names in the restriction table must match shock names in the model.");
             end
         end%
 
-        function R = getRestrictionMatrix(this)
+        function populateRestrictionMatrix(this, meta)
+            arguments
+                this
+                meta (1, 1) model.Meta
+            end
+            this.RestrictionMatrix = double.empty(0, 0);
             if isempty(this.RestrictionTable)
-                R = [];
                 return
             end
-            meta = modelS.Meta;
-            estimator = modelS.ReducedForm.Estimator;
-            endogenousNames = textual.stringify(this.RestrictionTable.Properties.RowNames);
-            shockNames = textual.stringify(this.RestrictionTable.Properties.VariableNames);
-            R = this.RestrictionTable{endogenousNames, shockNames};
+            R = this.RestrictionTable{this.SeparableEndogenousNames, this.SeparableShockNames};
             %
             % Transpose the restriction matrix so that the rows correspond to
             % shocks and columns to endogenous variables; this is consistent
             % with the row-oriented VAR system representation in BEAR
-            R = transpose(R);
-        end%
-
-        function candidator = getCandidator(this)
-            %[
-            if this.NumRestrictions > 0
-                R = this.getRestrictionMatrix();
-                candidator = @(P) identifier.candidateFromFactorConstrained(P, R);
-            else
-                candidator = @identifier.candidateFromFactorUnconstrained;
-            end
-            %]
+            this.RestrictionMatrix = transpose(R);
         end%
 
         function choleskator = getCholeskator(this)
             choleskator = @chol;
         end%
 
-        function initializeSampler(this, modelS)
+        function candidator = getCandidator(this)
+            if this.NumRestrictions > 0
+                R = this.RestrictionMatrix;
+                candidator = @(P) identifier.candidateFromFactorConstrained(P, R);
+            else
+                candidator = @identifier.candidateFromFactorUnconstrained;
+            end
+        end%
+
+        function beforeInitializeSampler(this, modelS)
             arguments
                 this
                 modelS (1, 1) model.Structural
             end
-            %
-            if ~isempty(this.RestrictionTable)
-                this.checkConsistency(modelS);
-            end
             meta = modelS.Meta;
-            estimator = modelS.ReducedForm.Estimator;
-            numUnits = meta.NumUnits;
-            hasCrossUnitVariationInSigma = estimator.HasCrossUnitVariationInSigma;
-            samplerR = estimator.Sampler;
-            drawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
-            candidator = this.getCandidator();
-            choleskator = this.getCholeskator();
-            %
-            function sample = samplerS()
-                sample = samplerR();
-                this.SampleCounter = this.SampleCounter + 1;
-                draw = drawer(sample);
-                sample.IdentificationDraw = draw;
-                Sigma = identifier.makeSymmetric(draw.Sigma);
-                P = choleskator(Sigma);
-                D = candidator(P);
-                sample.D = D;
-                this.CandidateCounter = this.CandidateCounter + 1;
-                %
-            end%
-            %
-            this.Sampler = @samplerS;
+            this.checkRestrictionTableConsistency(meta);
+            this.populateRestrictionMatrix(meta);
         end%
+
+        % function initializeSampler(this, modelS)
+        %     arguments
+        %         this
+        %         modelS (1, 1) model.Structural
+        %     end
+        %     %
+        %     meta = modelS.Meta;
+        %     estimator = modelS.ReducedForm.Estimator;
+        %     numUnits = meta.NumUnits;
+        %     hasCrossUnitVariationInSigma = estimator.HasCrossUnitVariationInSigma;
+        %     sampler = estimator.Sampler;
+        %     drawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
+        %     candidator = this.getCandidator();
+        %     choleskator = this.getCholeskator();
+        %     %
+        %     function sample = samplerS()
+        %         sample = sampler();
+        %         this.SampleCounter = this.SampleCounter + 1;
+        %         draw = drawer(sample);
+        %         sample.IdentificationDraw = draw;
+        %         Sigma = identifier.makeSymmetric(draw.Sigma);
+        %         P = choleskator(Sigma);
+        %         D = candidator(P);
+        %         sample.D = D;
+        %         this.CandidateCounter = this.CandidateCounter + 1;
+        %         %
+        %     end%
+        %     %
+        %     this.Sampler = @samplerS;
+        % end%
     end
 
 
     methods
         function n = get.NumRestrictions(this)
-            n = nnz(~isnan(this.getRestrictionMatrix()));
+            n = nnz(~isnan(this.RestrictionMatrix));
         end%
     end
 

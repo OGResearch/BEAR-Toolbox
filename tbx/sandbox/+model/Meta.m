@@ -111,6 +111,7 @@ classdef Meta < matlab.mixin.Copyable
                 options.intercept (1, 1) logical = true
                 options.numFactors (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
                 options.shockConcepts (1, :) string = string.empty(1, 0)
+                options.shocks (1, :) string = string.empty(1, 0)
                 options.identificationHorizon (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
             end
             %
@@ -127,6 +128,9 @@ classdef Meta < matlab.mixin.Copyable
             this.HasIntercept = options.intercept;
             this.Order = options.order;
             %
+            if isempty(options.shockConcepts) && ~isempty(options.shocks)
+                options.shockConcepts = options.shocks;
+            end
             this.populateShockConcepts(options.shockConcepts);
             this.IdentificationHorizon = options.identificationHorizon;
             %
@@ -341,14 +345,24 @@ classdef Meta < matlab.mixin.Copyable
         end%
 
 
-        function unitData = extractUnitFromCells(this, data, unit)
+        function unitData = extractUnitFromCells(this, data, unit, opt)
+            arguments
+                this
+                data (:, :) cell
+                unit (1, 1) double
+                opt.Dim (1, 1) double = NaN
+            end
             if ~this.HasSeparableUnits
                 unitData = data;
                 return
             end
             unitData = cell(size(data));
+            ndimsData = ndims(data{1});
+            if isnan(opt.Dim), dim = ndimsData; else, dim = opt.Dim; end
+            ref = repmat({':'}, 1, ndimsData);
             for i = 1 : numel(data)
-                unitData{i} = data{i}(:, :, unit);
+                ref{dim} = unit;
+                unitData{i} = data{i}(ref{:});
             end
         end%
     end

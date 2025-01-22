@@ -1,5 +1,5 @@
 
-classdef Cholesky < identifier.Base
+classdef Cholesky < identifier.Base & identifier.InstantMixin
 
     properties
         Order (1, :) string
@@ -7,7 +7,20 @@ classdef Cholesky < identifier.Base
         BackorderIndex (1, :) double
     end
 
+    properties (Dependent)
+        HasReordering
+    end
+
     methods
+        function beforeInitializeSampler(this, modelS)
+            arguments
+                this
+                modelS (1, 1) model.Structural
+            end
+            meta = modelS.Meta;
+            this.resolveOrder(meta);
+        end%
+
         function this = Cholesky(options)
             arguments
                 options.Order (1, :) string = string.empty(1, 0)
@@ -18,99 +31,53 @@ classdef Cholesky < identifier.Base
             this.Order = options.Order;
         end%
 
-        function getCholeskator(this)
+        function choleskator = getCholeskator(this)
             function P = choleskatorNoReordering(Sigma)
                 P = chol(Sigma);
             end%
             %
+            orderIndex = this.OrderIndex;
+            backorderIndex = this.BackorderIndex;
             function P = choleskatorWithReordering(Sigma)
-                P = chol(Sigma(order, order));
-                P = P(:, backOrder);
+                P = chol(Sigma(orderIndex, orderIndex));
+                P = P(:, backOrderIndex);
             end%
-            choleskator = @chol;
-        end%
-
-        function initializeSampler(this, modelS)
-            %[
-            arguments
-                this
-                modelS (1, 1) model.Structural
-            end
             %
-            meta = modelS.Meta;
-            estimator = modelS.ReducedForm.Estimator;
-            samplerR = estimator.Sampler;
-            numUnits = meta.NumUnits;
-            hasCrossUnitVariationInSigma = estimator.HasCrossUnitVariationInSigma;
-            identificationDrawer = estimator.IdentificationDrawer;
-            horizon = modelS.Meta.IdentificationHorizon;
-            %
-            [order, backOrder] = this.resolveOrder(meta);
-            %
-            % if isempty(order)
-            %     candidator = @(Sigma) chol(identifier.makeSymmetric(Sigma));
-            % else
-            %     reorder = @(Sigma) chol(Sigma(order, order));
-            %     backorder = @(P) P(:, backOrder);
-            %     candidator = @(Sigma) backorder(reorder(identifier.makeSymmetric(Sigma));
-            % end
-            if isempty(order)
+            if this.HasReordering
                 choleskator = @choleskatorNoReordering;
             else
                 choleskator = @choleskatorWithReordering;
             end
-            candidator = @(X) X;
-            %
-            %
-            function sample = structuralSampler()
-                this.SampleCounter = this.SampleCounter + 1;
-                sample = samplerR();
-                draw = identificationDrawer(sample);
-                % u = e*D or e = u/D
-                % Sigma = D'*D
-                sample.IdentificationDraw = draw;
-                % TODO: Refactor and get rid of an if statement
-                if hasCrossUnitVariationInSigma
-                    D = cell(1, numUnits);
-                    for i = 1 : numUnits
-                        Sigma = identifier.makeSymmetric(draw.Sigma(:, :, i));
-                        P = choleskator(Sigma);
-                        D{i} = candidator(P);
-                        end
-                    end
-                    D = cat(3, D{:});
-                else
-                    Sigma = identifier.makeSymmetric(draw.Sigma(:, :, 1));
-                    P = choleskator(Sigma);
-                    D = candidator(P);
-                    D = repmat(D, 1, 1, numUnits);
-                end
-                sample.D = D;
-                this.CandidateCounter = this.CandidateCounter + 1;
-            end%
-            %
-            %
-            this.Sampler = @structuralSampler;
-            %]
         end%
 
-        function [order, backOrder] = resolveOrder(this, meta)
+        function candidator = getCandidator(this)
+            candidator = @(P) P;
+        end%
+
+        function resolveOrder(this, meta)
             %[
-            customOrder = this.Order;
-            if isempty(customOrder)
-                order = [];
-                backOrder = [];
+            this.OrderIndex = double.empty(1, 0);
+            this.BackorderIndex = double.empty(1, 0);
+            %
+            if isempty(this.Order)
                 return
             end
+            %
             endogenousNames = meta.SeparableEndogenousNames;
             dict = textual.createDictionary(endogenousNames);
-            endogenousNamesReordered = [customOrder, setdiff(endogenousNames, customOrder, "stable")];
+            endogenousNamesReordered = [this.Order, setdiff(endogenousNames, this.Order, "stable")];
             order = [];
             for n = endogenousNamesReordered
                 order(end+1) = dict.(n);
             end
             [~, backOrder] = sort(order);
+            this.OrderIndex = order;
+            this.BackorderIndex = backOrder;
             %]
+        end%
+
+        function out = get.HasReordering(this)
+            out = ~isempty(this.Order);
         end%
     end
 

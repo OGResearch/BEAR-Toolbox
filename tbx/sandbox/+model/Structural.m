@@ -94,7 +94,7 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             numP = meta.NumSeparableUnits;
             y = cell(1, numP);
             for i = 1 : numP
-                unitA = meta.extractUnitFromCells(draw.A, i);
+                unitA = meta.extractUnitFromCells(draw.A, i, dim=3);
                 unitD = sample.D(:, :, i);
                 y{i} = system.filterPulses(unitA, unitD);
             end
@@ -219,35 +219,68 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, fcastSpan);
             cfshocks = conditional.createShocksCF(meta, options.Plan, fcastSpan);
             cfblocks = conditional.createBlocksCF(cfconds, cfshocks);
+            numShockConcepts = meta.NumShockConcepts;
             %
             legacyOptions = struct();
             legacyOptions.hasIntercept = meta.HasIntercept;
             legacyOptions.order = meta.Order;
-            legacyOptions.cfconds = cfconds;
-            legacyOptions.cfblocks = cfblocks;
-            legacyOptions.cfshocks = cfshocks;
+            legacyOptions.cfconds = [];
+            legacyOptions.cfblocks = [];
+            legacyOptions.cfshocks = [];
             %
             numV = this.NumPresampled;
             progressMessage = sprintf("Conditional forecast [%g]", numV);
-            pbar = progress.Bar(progressMessage, numV);
             %
+            %
+            numUnits = meta.NumSeparableUnits;
+            if numUnits > 1
+                if ~isempty(cfconds)
+                    cfconds = reshape(cfconds, size(cfconds, 1), [], numUnits);
+                end
+                if ~isempty(cfshocks)
+                    cfshocks = reshape(cfshocks, size(cfshocks, 1), [], numUnits);
+                end
+                if ~isempty(cfblocks)
+                    cfblocks = reshape(cfblocks, size(cfblocks, 1), [], numUnits);
+                end
+            end
             fcastY = cell(1, numV);
             fcastE = cell(1, numV);
+            pbar = progress.Bar(progressMessage, numV*numUnits);
             for i = 1 : numV
                 sample = this.Presampled{i};
                 draw = this.ConditionalDrawer(sample, fcastStartIndex, fcastHorizon);
-                D = sample.D;
-                beta_iter = [draw.beta{:}];
-                [fcastY{i}, fcastE{i}] = conditional.forecast(D, beta_iter, initY, fcastX, fcastHorizon, legacyOptions);
-                pbar.increment();
+                for j = 1 : numUnits
+                    if ~isempty(cfconds)
+                        legacyOptions.cfconds = cfconds(:, :, j);
+                    end
+                    if ~isempty(cfshocks)
+                        legacyOptions.cfshocks = cfshocks(:, :, j);
+                        for k = 1 : numel(legacyOptions.cfshocks)
+                            legacyOptions.cfshocks{k} = legacyOptions.cfshocks{k} - (j-1)*numShockConcepts;
+                        end
+                    end
+                    if ~isempty(cfblocks)
+                        legacyOptions.cfblocks = cfblocks(:, :, j);
+                    end
+                    unitInitY = initY(:, :, j);
+                    unitD = sample.D(:, :, j);
+                    unitBeta = meta.extractUnitFromCells(draw.beta, j, dim=2);
+                    unitBeta = [unitBeta{:}];
+                    [unitY, unitE] = conditional.forecast(unitD, unitBeta, unitInitY, fcastX, fcastHorizon, legacyOptions);
+                    fcastY{i} = [fcastY{i}, unitY];
+                    fcastE{i} = [fcastE{i}, unitE];
+                    pbar.increment();
+                end
             end
-            %
             fcastY = cat(3, fcastY{:});
             fcastE = cat(3, fcastE{:});
+            %
             %
             outNames = [meta.EndogenousNames, meta.ShockNames];
             outSpan = fcastSpan;
             if options.IncludeInitial
+                initY = initY(:, :);
                 fcastY = [repmat(initY, 1, 1, size(fcastY, 3)); fcastY];
                 fcastE = [zeros(meta.Order, size(fcastE, 2), size(fcastE, 3)); fcastE];
                 outSpan = datex.longSpanFromShortSpan(fcastSpan, meta.Order);
