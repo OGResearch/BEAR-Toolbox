@@ -756,7 +756,7 @@ try
                 % compute posterior estimates
                 [beta_median,beta_std,beta_lbound,beta_ubound,sigma_median]=bear.mestimates(betabar,omegabar,sigma,q,cband);
 
-
+keyboard
                 % estimation of BVAR if a normal-Wishart prior has been chosen (i.e., prior has been set to 21 or 22)
             elseif opts.prior==21||opts.prior==22
                 if IRFt<=4
@@ -830,7 +830,7 @@ try
                     % median of the posterior estimates in this case
                     [beta_median,B_median,beta_std,beta_lbound,beta_ubound,sigma_median]=bear.favar_doestimates(favar);
                 end
-
+keyboard
 
                 % mean-adjusted BVAR model
             elseif opts.prior==61

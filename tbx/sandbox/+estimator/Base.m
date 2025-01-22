@@ -16,6 +16,8 @@ classdef (Abstract) Base < handle
 
     properties (SetAccess=private)
         BeenInitialized (1, 1) logical = false
+        HasCrossUnitVariationInBeta (1, 1) logical = false
+        HasCrossUnitVariationInSigma (1, 1) logical = false
     end
 
     properties (Dependent)

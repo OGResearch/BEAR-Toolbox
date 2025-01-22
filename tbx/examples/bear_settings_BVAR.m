@@ -23,9 +23,9 @@ end
 % data frequency (1=yearly, 2= quarterly, 3=monthly, 4=weekly, 5=daily, 6=undated)
 s.frequency=2;
 % sample start date; must be a string consistent with the date formats of the toolbox
-s.startdate='1974q1';
+s.startdate='1971q1';
 % sample end date; must be a string consistent with the date formats of the toolbox
-s.enddate='2018q4';
+s.enddate='2020q1';
 % endogenous variables; must be a single string, with variable names separated by a space
 s.varendo='YER HICSA STN';
 % endogenous variables; must be a single string, with variable names separated by a space
@@ -54,7 +54,7 @@ s.favar.FAVAR=0;
 % 31=Independent Normal-Wishart(S0 as univariate AR), 32=Independent Normal-Wishart(S0 as identity)
 % 41=Normal-diffuse
 % 51=Dummy observations
-s.prior=12;
+s.prior=51;
 % hyperparameter: autoregressive coefficient
 s.ar=0.8;
 % set to 1 if you want individual priors, 0 for default
@@ -78,11 +78,11 @@ s.lambda7=0.1;
 % hyperparameter: lambda8
 s.lambda8=1;
 
-
+s.Bu=0;
 % total number of iterations for the Gibbs sampler
-s.It=5000;
+s.It=10000;
 % number of burn-in iterations for the Gibbs sampler
-s.Bu=2000;
+
 % hyperparameter optimisation by grid search (1=yes, 0=no)
 s.hogs=0;
 % block exogeneity (1=yes, 0=no)
