@@ -12,6 +12,13 @@ classdef MeanOLSPanel < estimator.Base
 
     methods
 
+        function this = MeanOLSPanel(varargin)
+            this = this@estimator.Base(varargin{:});
+            this.HasCrossUnitVariationInBeta = true;
+            this.HasCrossUnitVariationInSigma = true;
+        end%
+
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments

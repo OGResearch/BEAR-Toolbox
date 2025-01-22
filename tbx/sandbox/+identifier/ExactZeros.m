@@ -23,17 +23,24 @@ classdef ExactZeros < identifier.Base
             if isempty(this.RestrictionTable)
                 return
             end
-            meta = modelS.Meta;
             tablex.checkConsistency(this.RestrictionTable);
-            modelEndogenousNames = textual.stringify(meta.EndogenousNames);
-            modelShockNames = textual.stringify(meta.ShockNames);
-            tableEndogenousNames = textual.stringify(this.RestrictionTable.Properties.RowNames);
-            tableShockNames = textual.stringify(this.RestrictionTable.Properties.VariableNames);
-            if modelEndogenousNames ~= tableEndogenousNames
-                error("Endogenous names in the model and the restriction table must match.");
-            end
-            if modelShockNames ~= tableShockNames
-                error("Shock names in the model and the restriction table must match.");
+            %
+            meta = modelS.Meta;
+            hasCrossUnits = meta.HasCrossUnits;
+            %
+            % TODO: Refactor
+            if ~hasCrossUnits
+                modelEndogenousHeadings = textual.stringify(meta.EndogenousConcepts);
+                modelShockHeadings = textual.stringify(meta.ShockConcepts);
+            else
+                modelEndogenousHeadings = textual.stringify(meta.EndogenousNames);
+                modelShockHeadings = textual.stringify(meta.ShockNames);
+            else
+            %
+            tableEndogenousHeadings = textual.stringify(this.RestrictionTable.Properties.RowNames);
+            tableShockHeadings = textual.stringify(this.RestrictionTable.Properties.VariableNames);
+            if modelEndogenousHeadings ~= tableEndogenousHeadings || modelShockHeadings ~= tableShockHeadings
+                error("Row names and variable names in the restriction table must match the model.");
             end
         end%
 
@@ -42,6 +49,8 @@ classdef ExactZeros < identifier.Base
                 R = [];
                 return
             end
+            meta = modelS.Meta;
+            estimator = modelS.ReducedForm.Estimator;
             endogenousNames = textual.stringify(this.RestrictionTable.Properties.RowNames);
             shockNames = textual.stringify(this.RestrictionTable.Properties.VariableNames);
             R = this.RestrictionTable{endogenousNames, shockNames};
@@ -63,22 +72,37 @@ classdef ExactZeros < identifier.Base
             %]
         end%
 
+        function choleskator = getCholeskator(this)
+            choleskator = @chol;
+        end%
+
         function initializeSampler(this, modelS)
+            arguments
+                this
+                modelS (1, 1) model.Structural
+            end
+            %
             if ~isempty(this.RestrictionTable)
                 this.checkConsistency(modelS);
             end
-            samplerR = modelS.ReducedForm.Estimator.Sampler;
+            meta = modelS.Meta;
+            estimator = modelS.ReducedForm.Estimator;
+            numUnits = meta.NumUnits;
+            hasCrossUnitVariationInSigma = estimator.HasCrossUnitVariationInSigma;
+            samplerR = estimator.Sampler;
             drawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
             candidator = this.getCandidator();
+            choleskator = this.getCholeskator();
             %
             function sample = samplerS()
                 sample = samplerR();
                 this.SampleCounter = this.SampleCounter + 1;
                 draw = drawer(sample);
                 sample.IdentificationDraw = draw;
-                Sigma = (draw.Sigma + draw.Sigma')/2;
-                P = chol(Sigma);
-                sample.D = candidator(P);
+                Sigma = identifier.makeSymmetric(draw.Sigma);
+                P = choleskator(Sigma);
+                D = candidator(P);
+                sample.D = D;
                 this.CandidateCounter = this.CandidateCounter + 1;
                 %
             end%

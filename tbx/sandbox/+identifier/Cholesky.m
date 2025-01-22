@@ -3,6 +3,8 @@ classdef Cholesky < identifier.Base
 
     properties
         Order (1, :) string
+        OrderIndex (1, :) double
+        BackorderIndex (1, :) double
     end
 
     methods
@@ -16,6 +18,18 @@ classdef Cholesky < identifier.Base
             this.Order = options.Order;
         end%
 
+        function getCholeskator(this)
+            function P = choleskatorNoReordering(Sigma)
+                P = chol(Sigma);
+            end%
+            %
+            function P = choleskatorWithReordering(Sigma)
+                P = chol(Sigma(order, order));
+                P = P(:, backOrder);
+            end%
+            choleskator = @chol;
+        end%
+
         function initializeSampler(this, modelS)
             %[
             arguments
@@ -24,18 +38,28 @@ classdef Cholesky < identifier.Base
             end
             %
             meta = modelS.Meta;
+            estimator = modelS.ReducedForm.Estimator;
+            samplerR = estimator.Sampler;
+            numUnits = meta.NumUnits;
+            hasCrossUnitVariationInSigma = estimator.HasCrossUnitVariationInSigma;
+            identificationDrawer = estimator.IdentificationDrawer;
             horizon = modelS.Meta.IdentificationHorizon;
-            samplerR = modelS.ReducedForm.Estimator.Sampler;
-            identificationDrawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
             %
             [order, backOrder] = this.resolveOrder(meta);
+            %
+            % if isempty(order)
+            %     candidator = @(Sigma) chol(identifier.makeSymmetric(Sigma));
+            % else
+            %     reorder = @(Sigma) chol(Sigma(order, order));
+            %     backorder = @(P) P(:, backOrder);
+            %     candidator = @(Sigma) backorder(reorder(identifier.makeSymmetric(Sigma));
+            % end
             if isempty(order)
-                candidator = @chol;
+                choleskator = @choleskatorNoReordering;
             else
-                reorder = @(Sigma) chol(Sigma(order, order));
-                backorder = @(P) P(:, backOrder);
-                candidator = @(Sigma) backorder(reorder(Sigma));
+                choleskator = @choleskatorWithReordering;
             end
+            candidator = @(X) X;
             %
             %
             function sample = structuralSampler()
@@ -45,24 +69,23 @@ classdef Cholesky < identifier.Base
                 % u = e*D or e = u/D
                 % Sigma = D'*D
                 sample.IdentificationDraw = draw;
-                numUnits = size(draw.Sigma, 3);
-                D = cell(1, numUnits);
-                % Make sure we do not repeat the Cholesky decomposition for the
-                % same Sigma matrix
-                prevSigma = [];
-                prevD = [];
-                for i = 1 : numUnits
-                    Sigma = draw.Sigma(:, :, i);
-                    if isequal(Sigma, prevSigma)
-                        D{i} = prevD;
-                    else
-                        symmetricSigma = (Sigma + Sigma')/2;
-                        D{i} = candidator(symmetricSigma);
-                        prevSigma = Sigma;
-                        prevD = D{i};
+                % TODO: Refactor and get rid of an if statement
+                if hasCrossUnitVariationInSigma
+                    D = cell(1, numUnits);
+                    for i = 1 : numUnits
+                        Sigma = identifier.makeSymmetric(draw.Sigma(:, :, i));
+                        P = choleskator(Sigma);
+                        D{i} = candidator(P);
+                        end
                     end
+                    D = cat(3, D{:});
+                else
+                    Sigma = identifier.makeSymmetric(draw.Sigma(:, :, 1));
+                    P = choleskator(Sigma);
+                    D = candidator(P);
+                    D = repmat(D, 1, 1, numUnits);
                 end
-                sample.D = cat(3, D{:});
+                sample.D = D;
                 this.CandidateCounter = this.CandidateCounter + 1;
             end%
             %
