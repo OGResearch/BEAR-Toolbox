@@ -14,7 +14,7 @@ classdef (Abstract) Base < handle
         IdentificationDrawer
     end
 
-    properties (SetAccess=private)
+    properties
         BeenInitialized (1, 1) logical = false
         HasCrossUnitVariationInBeta (1, 1) logical = false
         HasCrossUnitVariationInSigma (1, 1) logical = false

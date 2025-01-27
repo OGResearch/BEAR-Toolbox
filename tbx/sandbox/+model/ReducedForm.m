@@ -256,17 +256,17 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
             %
             meta = this.Meta;
             draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
-            numP = meta.NumSeparableUnits;
-            y = cell(1, numP);
-            u = cell(1, numP);
-            initY = cell(1, numP);
-            for i = 1 : numP
+            numUnits = meta.NumSeparableUnits;
+            y = cell(1, numUnits);
+            u = cell(1, numUnits);
+            initY = cell(1, numUnits);
+            for i = 1 : numUnits
                 %
                 % Extract unit-specific data
-                unitYXZ = [meta.extractUnitFromCells(longYXZ(1), i), longYXZ(2), longYXZ(3)];
-                unitSigma = meta.extractUnitFromCells(draw.Sigma, i);
-                unitA = meta.extractUnitFromCells(draw.A, i);
-                unitC = meta.extractUnitFromCells(draw.C, i);
+                unitYXZ = [meta.extractUnitFromCells(longYXZ(1), i, dim=3), longYXZ(2), longYXZ(3)];
+                unitSigma = meta.extractUnitFromCells(draw.Sigma, i, dim=3);
+                unitA = meta.extractUnitFromCells(draw.A, i, dim=3);
+                unitC = meta.extractUnitFromCells(draw.C, i, dim=3);
                 %
                 % Generate unit-specific residuals
                 u{i} = system.generateResiduals( ...
@@ -360,9 +360,9 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
         function [u, sample] = estimateResiduals4S(this, sample, longYXZ)
             meta = this.Meta;
             draw = this.Estimator.HistoryDrawer(sample);
-            numP = meta.NumSeparableUnits;
-            u = cell(1, numP);
-            for i = 1 : numP
+            numUnits = meta.NumSeparableUnits;
+            u = cell(1, numUnits);
+            for i = 1 : numUnits
                 unitYXZ = [meta.extractUnitFromCells(longYXZ(1), i), longYXZ(2), longYXZ(3)];
                 unitA = meta.extractUnitFromCells(draw.A, i);
                 unitC = meta.extractUnitFromCells(draw.C, i);

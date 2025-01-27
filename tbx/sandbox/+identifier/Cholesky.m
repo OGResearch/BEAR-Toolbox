@@ -1,11 +1,26 @@
 
-classdef Cholesky < identifier.Base
+classdef Cholesky < identifier.Base & identifier.InstantMixin
 
     properties
         Order (1, :) string
+        OrderIndex (1, :) double
+        BackorderIndex (1, :) double
+    end
+
+    properties (Dependent)
+        HasReordering
     end
 
     methods
+        function beforeInitializeSampler(this, modelS)
+            arguments
+                this
+                modelS (1, 1) model.Structural
+            end
+            meta = modelS.Meta;
+            this.resolveOrder(meta);
+        end%
+
         function this = Cholesky(options)
             arguments
                 options.Order (1, :) string = string.empty(1, 0)
@@ -16,78 +31,53 @@ classdef Cholesky < identifier.Base
             this.Order = options.Order;
         end%
 
-        function initializeSampler(this, modelS)
-            %[
-            arguments
-                this
-                modelS (1, 1) model.Structural
-            end
-            %
-            meta = modelS.Meta;
-            horizon = modelS.Meta.IdentificationHorizon;
-            samplerR = modelS.ReducedForm.Estimator.Sampler;
-            identificationDrawer = modelS.ReducedForm.Estimator.IdentificationDrawer;
-            %
-            [order, backOrder] = this.resolveOrder(meta);
-            if isempty(order)
-                candidator = @chol;
-            else
-                reorder = @(Sigma) chol(Sigma(order, order));
-                backorder = @(P) P(:, backOrder);
-                candidator = @(Sigma) backorder(reorder(Sigma));
-            end
-            %
-            %
-            function sample = structuralSampler()
-                this.SampleCounter = this.SampleCounter + 1;
-                sample = samplerR();
-                draw = identificationDrawer(sample);
-                % u = e*D or e = u/D
-                % Sigma = D'*D
-                sample.IdentificationDraw = draw;
-                numUnits = size(draw.Sigma, 3);
-                D = cell(1, numUnits);
-                % Make sure we do not repeat the Cholesky decomposition for the
-                % same Sigma matrix
-                prevSigma = [];
-                prevD = [];
-                for i = 1 : numUnits
-                    Sigma = draw.Sigma(:, :, i);
-                    if isequal(Sigma, prevSigma)
-                        D{i} = prevD;
-                    else
-                        symmetricSigma = (Sigma + Sigma')/2;
-                        D{i} = candidator(symmetricSigma);
-                        prevSigma = Sigma;
-                        prevD = D{i};
-                    end
-                end
-                sample.D = cat(3, D{:});
-                this.CandidateCounter = this.CandidateCounter + 1;
+        function choleskator = getCholeskator(this)
+            function P = choleskatorNoReordering(Sigma)
+                P = chol(Sigma);
             end%
             %
+            orderIndex = this.OrderIndex;
+            backorderIndex = this.BackorderIndex;
+            function P = choleskatorWithReordering(Sigma)
+                P = chol(Sigma(orderIndex, orderIndex));
+                P = P(:, backOrderIndex);
+            end%
             %
-            this.Sampler = @structuralSampler;
-            %]
+            if this.HasReordering
+                choleskator = @choleskatorNoReordering;
+            else
+                choleskator = @choleskatorWithReordering;
+            end
         end%
 
-        function [order, backOrder] = resolveOrder(this, meta)
+        function candidator = getCandidator(this)
+            candidator = @(P) P;
+        end%
+
+        function resolveOrder(this, meta)
             %[
-            customOrder = this.Order;
-            if isempty(customOrder)
-                order = [];
-                backOrder = [];
+            this.OrderIndex = double.empty(1, 0);
+            this.BackorderIndex = double.empty(1, 0);
+            %
+            if isempty(this.Order)
                 return
             end
+            %
             endogenousNames = meta.SeparableEndogenousNames;
             dict = textual.createDictionary(endogenousNames);
-            endogenousNamesReordered = [customOrder, setdiff(endogenousNames, customOrder, "stable")];
+            endogenousNamesReordered = [this.Order, setdiff(endogenousNames, this.Order, "stable")];
             order = [];
             for n = endogenousNamesReordered
                 order(end+1) = dict.(n);
             end
             [~, backOrder] = sort(order);
+            this.OrderIndex = order;
+            this.BackorderIndex = backOrder;
             %]
+        end%
+
+        function out = get.HasReordering(this)
+            out = ~isempty(this.Order);
         end%
     end
 

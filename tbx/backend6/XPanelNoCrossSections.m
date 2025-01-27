@@ -1,14 +1,36 @@
-%% Panel models
+%% Panel models (no cross-sections)
 
+
+%% Clear workspace
+%
+
+clc
 clear
+clear classes
 close all
 rehash path
 
-addpath ../sandbox
-addpath ../bear
+disp(pwd())
+addpath ../sandbox -end
+addpath ../bear -end
+
+
+%% Convenience functions
+% 
+
+percentiles = [10, 50, 90];
+
+prctileFunc = @(x) prctile(x, percentiles, 2);
+
+extremesFunc = @(x) [min(x, [], 2), max(x, [], 2)];
+
+defaultColors = get(0, "defaultAxesColorOrder");
+
 
 
 %% Prepare data and a reduced-form model
+% 
+
 
 inputTbx = tablex.fromCsv("panel_data.csv");
 
@@ -17,111 +39,161 @@ estimEnd = datex.q(2014,4);
 estimSpan = datex.span(estimStart, estimEnd);
 
 meta = model.Meta( ...
-    endogenous=["YER", "HICSA", "STN"], ...
-    units=["US", "EA", "UK"], ...
-    exogenous=["Oil"], ...
+    endogenous=["YER", "HICSA", "STN", ], ...
+    units=["US", "EA", ], ...
+    exogenous=["Oil", ], ...
     order=4, ...
     intercept=true, ...
     estimationSpan=estimSpan, ...
     ...
     identificationHorizon=12, ...
-    shockConcepts=["DEM", "SUP", "POL"] ...
+    shocks=["DEM", "SUP", "POL", ] ...
 );
+
+disp(meta);
+
+
+%% Create a data holder
+%
 
 dataH = model.DataHolder(meta, inputTbx);
 
-
-%% Mean OLS and Normal Wishart Models
-
-numSamples = 10;
-
-estimatorR1 = estimator.MeanOLSPanel(meta);
-estimatorR1.Settings
+disp(dataH);
 
 
-estimatorR2 = estimator.NormalWishartPanel(meta);
+%% Select model
+%
 
-modelR1 = model.ReducedForm( ...
+numSamples = 100;
+
+% Mean OLS (not working for one country example - no country variations)
+% estimatorR = estimator.MeanOLSPanel(meta);
+
+% Normal Wishart Models
+% estimatorR = estimator.NormalWishartPanel(meta);
+
+% Random effect - Zellner Hong
+estimatorR = estimator.ZellnerHongPanel(meta);
+
+% Random effect - hierarchical
+% estimatorR = estimator.HierarchicalPanel(meta);
+
+estimatorR.Settings
+
+
+%% Reduced form model
+
+modelR = model.ReducedForm( ...
     meta=meta ...
     , dataHolder=dataH ...
-    , estimator=estimatorR1 ...
-    , stabilityThreshold=Inf ...
-);
-
-modelR2 = model.ReducedForm( ...
-    meta=meta ...
-    , dataHolder=dataH ...
-    , estimator=estimatorR2 ...
-    , stabilityThreshold=Inf ...
-);
-
-rng(0)
-modelR1.initialize();
-info1 = modelR1.presample(numSamples);
-% disp('Beta Median OLS Model:')
-% betaMedian1 = calcMedian(modelR1,"beta");
-
-rng(0)
-modelR2.initialize();
-info2 = modelR2.presample(numSamples);
-% disp('Beta Median Normal Wishart Model:')
-% betaMedian2 = calcMedian(modelR2,"beta");
-
-
-
-%% Random Effect Models
-
-estimatorR3 = estimator.ZellnerHongPanel(meta);
-estimatorR3.Settings
-
-estimatorR4 = estimator.HierarchicalPanel(meta);
-estimatorR4.Settings
-
-modelR3 = model.ReducedForm( ...
-    meta=meta ...
-    , dataHolder=dataH ...
-    , estimator=estimatorR3 ...
-    , stabilityThreshold=Inf ...
-);
-
-modelR4 = model.ReducedForm( ...
-    meta=meta ...
-    , dataHolder=dataH ...
-    , estimator=estimatorR4 ...
+    , estimator=estimatorR ...
     , stabilityThreshold=Inf ...
 );
 
 rng(0)
-modelR3.initialize();
-info3 = modelR3.presample(numSamples);
-% disp('Beta Median Zellner Hong Model:')
-% betaMedian3 = calcMedian(modelR3,"beta")
+modelR.initialize();
+info = modelR.presample(numSamples);
+disp(info);
 
-rng(0)
-modelR4.initialize();
-info4 = modelR4.presample(numSamples);
-% disp('Beta Median Hierarchical Model:')
-% betaMedian4 = calcMedian(modelR4,"beta")
+% disp('Beta Median:')
+% betaMedian = calcMedian(modelR,"beta");
+
+
+%% Specify exact zero restrictions 
+
+exactZerosTbx = tablex.forExactZeros(modelR);
+exactZerosTbx{"HICSA", "DEM"} = 0;  
+exactZerosTbx{"STN", "SUP"} = 0;
+
+disp(exactZerosTbx)
+
+
+%% Identify a SVAR using exact zero restrictions
+
+identExactZeros = identifier.ExactZeros(exactZerosTbx);
+
+disp(identExactZeros);
+
+modelS1 = model.Structural( ...
+    reducedForm=modelR, ...
+    identifier=identExactZeros ...
+);
+
+disp(modelS1);
+
+modelS1.initialize();
+info1 = modelS1.presample(100);
+
+respTbx1 = modelS1.simulateResponses();
+respTbx1 = tablex.apply(respTbx1, extremesFunc);
+respTbx1 = tablex.flatten(respTbx1);
+
+disp(respTbx1)
+
+
+%% Identify a SVAR using sign restrictions
+
+%{
+rng(0);
+
+signStrings = [
+    "$SHKRESP(2, 'US_YER', 'US_DEM') > 0"
+    "$SHKRESP(2, 'US_HICSA', 'US_DEM') > 0"
+    
+    "$SHKRESP(3, 'US_YER', 'US_DEM') > 0"
+    "$SHKRESP(3, 'US_HICSA', 'US_DEM') > 0"
+
+    "$SHKRESP(2, 'US_YER', 'US_SUP') < 0"    
+    "$SHKRESP(2, 'US_HICSA', 'US_SUP') > 0"
+
+    "$SHKRESP(3, 'US_YER', 'US_SUP') < 0"
+    "$SHKRESP(3, 'US_HICSA', 'US_SUP') > 0"
+]
+
+identVerifiables = identifier.Verifiables( ...
+    signStrings, ...
+    maxCandidates=50, ...
+    shortCircuit=false ...
+);
+
+modelS2 = model.Structural( ...
+    reducedForm=modelR, ...
+    identifier=identVerifiables ...
+);
+
+modelS2
+
+modelS2.initialize();
+info2 = modelS2.presample(100);
+info2
+
+respTbx2 = modelS2.simulateResponses();
+respTbx2 = tablex.apply(respTbx2, extremesFunc);
+respTbx2 = tablex.flatten(respTbx2);
+
+respTbx2
+%}
 
 
 %% Estimate residuals
+% 
 
-resid1 = modelR1.estimateResiduals();
-resid2 = modelR2.estimateResiduals();
-resid3 = modelR3.estimateResiduals();
-resid4 = modelR4.estimateResiduals();
+residTbx = modelR.estimateResiduals();
+
+residTbx %#ok<NOPTS>
 
 
 %% Run unconditional forecast
+% 
+
 
 fcastStart = datex.shift(estimEnd, -9);
 fcastEnd = datex.shift(estimEnd, 0);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 
-fcast1 = modelR1.forecast(fcastSpan);
-fcast2 = modelR2.forecast(fcastSpan);
-fcast3 = modelR3.forecast(fcastSpan);
-fcast4 = modelR4.forecast(fcastSpan);
+fcastTb = modelR.forecast(fcastSpan);
+
+fcastTb %#ok<NOPTS>
 
 
 %% Indentify a SVAR using Cholesky (without reordering)
@@ -129,34 +201,107 @@ fcast4 = modelR4.forecast(fcastSpan);
 
 identChol = identifier.Cholesky(order=["HICSA", "STN"]);
 
-modelS1 = model.Structural(reducedForm=modelR1, identifier=identChol);
-modelS1.initialize();
-info1 = modelS1.presample(numSamples);
-
-modelS2 = model.Structural(reducedForm=modelR2, identifier=identChol);
-modelS2.initialize();
-info2 = modelS2.presample(numSamples);
-
-modelS3 = model.Structural(reducedForm=modelR3, identifier=identChol);
-modelS3.initialize();
-info3 = modelS3.presample(numSamples);
-
-modelS4 = model.Structural(reducedForm=modelR4, identifier=identChol);
-modelS4.initialize();
-info4 = modelS4.presample(numSamples);
+modelS = model.Structural(reducedForm=modelR, identifier=identChol);
+modelS.initialize();
+info = modelS.presample(numSamples);
 
 
 %% Simulate shock responses
+%
 
-resp1 = modelS1.simulateResponses();
-resp2 = modelS2.simulateResponses();
-resp3 = modelS3.simulateResponses();
-resp4 = modelS4.simulateResponses();
+resp = modelS.simulateResponses();
+
+
+%% Plot results
+%
+
+respTbx = tablex.apply(resp, prctileFunc);
+respTbx = tablex.flatten(respTbx);
+
+respTbx %#ok<NOPTS>
+
+
+tablex.plot(respTbx, "US_YER___DEM");
+title("US GDP (deman shock)");
+
+
+%% Uncoditional forecast
+
+fcastStart = datex.shift(modelS.Meta.EstimationEnd, -10);
+fcastEnd = datex.shift(modelS.Meta.EstimationEnd, 0);
+fcastSpan = datex.span(fcastStart, fcastEnd);
+
+fcastTbx = modelS.forecast(fcastSpan);
+fcastPrctileTbx = tablex.apply(fcastTbx, prctileFunc);
+fcastPrctileTbx = tablex.flatten(fcastPrctileTbx);
+
+fcastTbx %#ok<NOPTS>
+
+tablex.plot( ...
+    fcastPrctileTbx, "US_YER", ...
+    plotSettings={{"lineStyle"}, {":"; "-"; ":"}} ...
+);
+title("US GDP");
 
 
 %% Calcuate FEVD
+% 
 
-fevd1 = modelS1.calculateFEVD();
-fevd2 = modelS2.calculateFEVD();
-fevd3 = modelS3.calculateFEVD();
-fevd4 = modelS4.calculateFEVD();
+fevd = modelS.calculateFEVD();
+
+
+%% Conditional forecast
+%
+% Create forecast assumptions
+
+fcastStart = datex.shift(estimEnd, 1);
+fcastEnd = datex.shift(estimEnd, 12);
+fcastSpan = datex.span(fcastStart, fcastEnd);
+initStart = datex.shift(fcastStart, -modelS.Meta.Order);
+
+[dataTbx, planTbx] = tablex.forConditional(modelS, fcastSpan);
+
+dataTbx{datex("2015-Q1"), "US_YER"} = -1.5;
+dataTbx{datex("2015-Q4"), "EA_HICSA"} = 5.5;
+
+
+dataTbx{:, "Oil"} = inputTbx{end, "Oil"};
+
+dataTbx %#ok<NOPTS>
+planTbx %#ok<NOPTS>
+
+
+% Run across-the-board vs selective conditions forecasts
+
+planTbx{datex.q(2015,1), "US_YER"} = "US_DEM US_POL";
+planTbx{datex.q(2015,4), "EA_HICSA"} = "EA_DEM EA_SUP";
+
+planTbx %#ok<NOPTS>
+
+rng(0);
+cfcastTbx1 = modelS.conditionalForecast(fcastSpan, conditions=dataTbx, plan=[]);
+
+cfcastPrctilesTbx1 = tablex.apply(cfcastTbx1, prctileFunc);
+
+rng(0);
+cfcastTbx2 = modelS.conditionalForecast(fcastSpan, conditions=dataTbx, plan=planTbx);
+cfcastPrctilesTbx2 = tablex.apply(cfcastTbx2, prctileFunc);
+
+
+
+plotSettings = { ...
+   {"color"}, {defaultColors(2,:); defaultColors(1,:); defaultColors(2,:)},  ...
+   {"lineStyle"}, {":";"-";":"}, ...
+};
+
+ch = visual.Chartpack( ...
+    span=datex.span(initStart, fcastEnd), ...
+    namesToPlot=[modelS.Meta.EndogenousNames, modelS.Meta.ShockNames], ...
+    plotSettings=plotSettings ...
+);
+
+ch.Captions = "Across-the-board conditional forecast";
+ch.plot(cfcastPrctilesTbx1);
+
+ch.Captions = "Selective conditional forecast";
+ch.plot(cfcastPrctilesTbx2);
