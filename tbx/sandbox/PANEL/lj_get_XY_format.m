@@ -29,7 +29,9 @@ function [Y, X] = lj_get_XY_format(data_endo,data_exo,const,lags)
 
       % to build Xi, take off the n initial columns of temp
       % Xi(:,:,ii)=[temp(:,n+1:end)];
-      X = [X [temp(:,n+1:end) data_exo]];
+      X = [X temp(:,n+1:end)];
     end
 
+    % add exogenous variables to the end
+    X = [X data_exo];
 end

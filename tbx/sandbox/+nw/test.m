@@ -124,6 +124,8 @@ function runExcelUX(uxFilePath)
         modelS.presample(100);
     logger.info("√ Done")
 
+    keyboard
+
 end%
 
 

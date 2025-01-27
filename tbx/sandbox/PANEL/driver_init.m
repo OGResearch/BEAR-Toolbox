@@ -16,9 +16,9 @@ varendo = 'YER HICSA STN';
 % exogenous variables, if any; must be a single string, with variable names separated by a space
 varexo = 'Oil';
 % number of lags
-lags = 13;
+lags = 4;13;
 % inclusion of a constant (1=yes, 0=no)
-const = 0;
+const = 1;0;
 % excel results file name
 results_sub = 'results_Panel';
 results_path = fullfile(fileparts(mfilename('fullpath')),'results');
@@ -32,9 +32,9 @@ workspace = 0;
 %% Specifications options
 unitnames = 'US EA UK';
 % total number of iterations for the Gibbs sampler
-It=2000;
+It=1000;
 % number of burn-in iterations for the Gibbs sampler
-Bu=1000;   
+Bu=0;   
 % choice of retaining only one post burn iteration over 'pickf' iterations (1=yes, 0=no)
 pick = false;
 % frequency of iteration picking (e.g. pickf=20 implies that only 1 out of 20 iterations will be retained)
@@ -74,12 +74,12 @@ IRF = 1;
 % activate unconditional forecasts (1=yes, 0=no)
 F = 1;
 % activate forecast error variance decomposition (1=yes, 0=no)
-FEVD = 1;
+FEVD = 0;1;
 % activate historical decomposition (1=yes, 0=no)
-HD = 1;
+HD = 0;1;
 Dall = 0;
 % activate conditional forecasts (1=yes, 0=no)
-CF = 1;
+CF = 0;1;
 % panel type:
 % 1 - mean OLS
 % 2 - Bayesian
@@ -97,8 +97,6 @@ CF = 1;
 % panel 5 (1-3)
 % panel 6 (1-3)
 IRFt = 2;
-% activate forecast evaluation (1=yes, 0=no)
-Feval = 1;
 % type of conditional forecasts
 % 1=standard (all shocks), 2=standard (shock-specific)
 % 3=tilting (median), 4=tilting (interval)
@@ -106,11 +104,11 @@ CFt = 1;
 % number of periods for impulse response functions
 IRFperiods = 20;
 % start date for forecasts (has to be an in-sample date; otherwise, ignore and set Fendsmpl=1)
-Fstartdate = '2014q2';
+Fstartdate = '2012q1';%'2014q2';
 % end date for forecasts
-Fenddate = '2015q4';
+Fenddate = '2014q4';%'2015q4';
 % activate forecast evaluation (1=yes, 0=no)
-Feval=1;
+Feval=0;1;
 % start forecasts immediately after the final sample period (1=yes, 0=no)
 % has to be set to 1 if start date for forecasts is not in-sample
 Fendsmpl = 0;
@@ -125,7 +123,7 @@ cband = 0.68;
 % confidence/credibility level for impusle response functions
 IRFband = 0.68;
 % confidence/credibility level for forecasts
-Fband = 0.68;
+Fband = 0.9;0.68;
 % confidence/credibility level for forecast error variance decomposition
 FEVDband = 0.68;
 % confidence/credibility level for historical decomposition
@@ -144,7 +142,7 @@ pref = struct('excelFile', excelFile, ...
         'results_path', results_path, ...
         'results_sub', results_sub, ...
         'results', results, ...
-        'plot', plot, ...
+        'plot', pplot, ...
         'workspace', workspace);
 
 
