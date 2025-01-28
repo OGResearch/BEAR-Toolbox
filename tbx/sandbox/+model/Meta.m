@@ -93,8 +93,13 @@ classdef Meta < matlab.mixin.Copyable
         %
         HasSeparableUnits
         NumSeparableUnits
-        SeparableShockNames
+
+        % SeparableEndogenousNames  Endogenous names or endogenous concepts depending on cross-units
         SeparableEndogenousNames
+
+        % SeparableShockNames  Shock names or shock concepts depending on cross-units
+        SeparableShockNames
+
     end
 
 

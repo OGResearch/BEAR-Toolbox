@@ -57,6 +57,7 @@ classdef Verifiables < identifier.Base
                 has.(n) = isfield(occurrence, n);
             end
             %
+            this.ExactZeros.initialize(modelS);
             candidator = this.ExactZeros.getCandidator();
             %
             function sample = samplerS()
