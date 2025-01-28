@@ -22,7 +22,7 @@ for iteration=1:numt % beginning of forecasting loop
                     =bear.gensamplepan(startdate,enddate,Units,opts.panel,Fstartdate,Fenddate,Fendsmpl,endo,exo,frequency,lags,F,CF,pref,ar,0,0, n);
       % generate the strings and decimal vectors of dates
       [decimaldates1,decimaldates2,stringdates1,stringdates2,stringdates3,Fstartlocation,Fendlocation]=bear.gendates(names,lags,frequency,startdate,enddate,Fstartdate,Fenddate,Fcenddate,Fendsmpl,F,CF,favar);
-    end
+  end
 
     %% BLOCK 1: MODEL ESTIMATION
     [beta_median, beta_std, beta_lbound, beta_ubound, sigma_median,Yi,Xi,beta_gibbs,sigma_gibbs,N,n,m,p,k,T,q] = driver_estimation_panel_random_eff_hier(data_endo,data_exo,const,lags,lambda2,lambda3,lambda4,It,Bu,cband,s0,v0,pick,pickf);

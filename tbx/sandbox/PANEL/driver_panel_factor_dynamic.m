@@ -5,8 +5,8 @@ panel = 6;
 
 run("driver_init.m");
 % it is too slow, so I am decreasing number of draws havily just to get some results
-It = 200; % orig 2000
-Bu = 100; % orig 1000
+% It = 200; % orig 2000
+% Bu = 100; % orig 1000
 
 rng('default');
 
@@ -37,11 +37,6 @@ for iteration=1:numt % beginning of forecasting loop
 
     %% BLOCK 1: MODEL ESTIMATION
     [theta_median,theta_std,theta_lbound,theta_ubound,sigma_median,Ymat,y, Xtilde,theta_gibbs,sigma_gibbs,sigmatilde_gibbs,Zeta_gibbs,phi_gibbs,B_gibbs,Xi,thetabar,N,n,m,p,T,d,k,q,d1,d2,d3,d4,d5,acceptrate] = driver_estimation_panel_factor_dynamic(data_endo,data_exo,const,lags,It,Bu,cband,alpha0,delta0,pick,pickf,rho,gamma,a0,b0,psi);
-
-    %% Construct draw for beta from iSample sample for Fstartlocation-1:Fstartlocation-1+Fperiods
-    Flocation = Fstartlocation-1;
-    iSample = 50;
-    [beta_draw] = lj_panel_factor_dynamic_drawer(Zeta_gibbs, phi_gibbs, B_gibbs, theta_gibbs, thetabar, Xi, d, rho, gamma, Flocation, Fperiods, iSample);
 
     %% BLOCK 2: IRFS
     % impulse response functions (if activated)
@@ -101,7 +96,7 @@ for iteration=1:numt % beginning of forecasting loop
     end
 
     %% BLOCK 7: DISPLAY OF THE RESULTS
-    bear.panel6disp(n,N,m,p,k,T,d1,d2,d3,d4,d5,d,Ymat,Xtilde,Units,endo,exo,const,Xi,theta_median,theta_std,theta_lbound,theta_ubound,sigma_median,...
-      D_estimates,gamma_estimates,alpha0,delta0,gamma,a0,b0,rho,psi,acceptrate,startdate,enddate,forecast_record,forecast_estimates,Fcperiods,...
-      stringdates3,Fstartdate,Fcenddate,Feval,Fcomp,data_endo_c,IRF,IRFt,pref,names);
+    % bear.panel6disp(n,N,m,p,k,T,d1,d2,d3,d4,d5,d,Ymat,Xtilde,Units,endo,exo,const,Xi,theta_median,theta_std,theta_lbound,theta_ubound,sigma_median,...
+    %   D_estimates,gamma_estimates,alpha0,delta0,gamma,a0,b0,rho,psi,acceptrate,startdate,enddate,forecast_record,forecast_estimates,Fcperiods,...
+    %   stringdates3,Fstartdate,Fcenddate,Feval,Fcomp,data_endo_c,IRF,IRFt,pref,names);
   end

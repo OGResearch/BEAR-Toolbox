@@ -1,7 +1,7 @@
 clear all
 close all
 
-panel = 3;
+panel = 5;
 
 run("driver_init.m");
 
@@ -23,51 +23,30 @@ for iteration=1:numt % beginning of forecasting loop
       % generate the strings and decimal vectors of dates
       [decimaldates1,decimaldates2,stringdates1,stringdates2,stringdates3,Fstartlocation,Fendlocation]=bear.gendates(names,lags,frequency,startdate,enddate,Fstartdate,Fenddate,Fcenddate,Fendsmpl,F,CF,favar);
     end
-    
-    % get dimensions
-    numLags       = lags;
-    numCountries  = size(data_endo,3);
-    numEndog      = size(data_endo,2);
-    numExog       = size(data_exo,2);
-    if const
-      numExog     = numExog+1;
-    end
 
-    meta = struct();
-    meta.flagConst    = const;
-    meta.numLags      = numLags;
-    meta.numCountries = numCountries;
-    meta.numEndog     = numEndog;
-    meta.numExog      = numExog;
-
-    hyper = struct();
-    hyper.lambda1 = lambda1;
-    
-    longY = data_endo;
-    longX = data_exo;
-    longZ = [];
+    numLags = lags;
 
     % get sampler
-    outSampler = lj_panel_rand_eff_smpl(meta, hyper, longY, longX, longZ);
+    outSampler = lj_panel_factor_static_smpl(data_endo,data_exo,const,numLags,alpha0,delta0,Bu);
     % call sampler to get one gibbs sample
     smpl = outSampler();
+    % get data in X and Y format to have something to play with
+    [Y, X] = lj_get_XY_format(data_endo,data_exo,const,numLags);
 
-    % get drawer
-    [drawerH, timelessDrawerH] = lj_panel_rand_eff_drawer(meta);
+    % get dimensions
+    numCountries = size(data_endo,3);
+    numEndog = size(data_endo,2);
+    numExog = size(data_exo,2);
+    if const
+      numExog = numExog+1;
+    end
 
-    % call drawer
-    drw = drawerH(smpl, Fperiods);
-    tl_drw = timelessDrawerH(smpl,Fstartlocation,Fperiods);
-
-
-    % % get data in X and Y format to have something to play with
-    % [Y, X] = lj_get_XY_format(data_endo,data_exo,const,numLags);
-
-    % % get B and Sigma in the matrix format
-    % [A, C, D, Sigma] = lj_panel_rand_eff_drawer(smpl,numCountries,numEndog,numLags,numExog, IRFt);
+    % get B and Sigma in the matrix format
+    [B,Sigma] = lj_panel_factor_static_drawer(smpl,numCountries,numEndog,numLags,numExog);
 
     % test if it works
-    % eps = Y - X*B;
+    eps = Y - X*B;
 
-    % lj_simulate(Y,X,B,Fperiods,numLags,numCountries,numEndog,numExog);
+    lj_simulate(Y,X,B,Fperiods,numLags,numCountries,numEndog,numExog);
+ 
   end

@@ -40,15 +40,20 @@ for iteration=1:numt % beginning of forecasting loop
     meta.numEndog     = numEndog;
     meta.numExog      = numExog;
 
-    hyper = struct();
-    hyper.lambda1 = lambda1;
-    
+    this.Settings = struct();
+    this.Settings.lambda1 = lambda1;
+    this.Settings.lambda3 = lambda3;
+    this.Settings.lambda4 = lambda4;
+    this.Settings.ar      = ar;
+    this.Settings.priorexo = priorexo;
+
     longY = data_endo;
     longX = data_exo;
     longZ = [];
 
+keyboard
     % get sampler
-    outSampler = lj_panel_rand_eff_smpl(meta, hyper, longY, longX, longZ);
+    outSampler = lj_panel_bayesian_smpl(this, meta, {longY, longX, longZ});
     % call sampler to get one gibbs sample
     smpl = outSampler();
 
