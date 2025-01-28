@@ -23,8 +23,7 @@ classdef MixedFrequencyBVAR < estimator.Base
 
             const = meta.HasIntercept;
             numLags = meta.Order;
-
-            keyboard
+            
             % Find the last row where not all elements are NaN
             lastDataRow = find(any(~isnan(longY), 2), 1, 'last');
             H = size(longY,1) - lastDataRow;
@@ -38,7 +37,7 @@ classdef MixedFrequencyBVAR < estimator.Base
             Nm       = 10; % meta.NumberOfMonthlyData;
             Nq       = meta.NumEndogenousNames - Nm;
 
-            YYY      = longY;
+            YYY      = longY(1:lastDataRow,:);
             
             % nsim     = mf_setup.It;% number of draws from Posterior Density
             % nburn    = mf_setup.Bu;
@@ -87,7 +86,7 @@ classdef MixedFrequencyBVAR < estimator.Base
             % lstate    = zeros(Nq,Tnobs);    % Tnobs = usable monthly observations
             YYactsim  = zeros(4,nv);
             XXactsim  = zeros(4,nv*p+nex);
-            YY_past_forfcast  = zeros(p,nv);
+            YY_past_forfcast  = zeros(Tstar,nv);
 
             At_mat    = zeros(Tnobs,Nq*(p+1));
             % mine
@@ -157,11 +156,19 @@ classdef MixedFrequencyBVAR < estimator.Base
             % Observations in Monthly Freq
             Yq   = YQ(T0+1:nobs+T0,:);
             Ym   = YM(T0+1:nobs+T0,:);
+
+            At_draw = zeros(nobs,Nq*(p+1));
+            Pmean = [];
             
 
             function sample = sampler()
                 
                 j = 1; %fix to one
+
+                if this.SampleCounter>0
+                    At   = At_draw(1,:)';
+                    Pt   = Pmean;
+                end
                 % Kalman Filter loop
                 for t = 1:nobs            % note that t=T0+t originally
                     
@@ -352,8 +359,6 @@ classdef MixedFrequencyBVAR < estimator.Base
                 
                 %% balanced dataset
                 
-                At_draw = zeros(nobs,Nq*(p+1));
-                
                 for kk=1:p+1
                     At_draw(nobs,(kk-1)*Nq+1:kk*Nq) = ...
                         AT_draw(1,kk*Nm+(kk-1)*Nq+1:kk*(Nm+Nq));
@@ -407,8 +412,9 @@ classdef MixedFrequencyBVAR < estimator.Base
 
                 YYactsim(:,:) = YYact(end-3:end,:);
                 XXactsim(:,:) = XXact(end-3:end,:);
-                YY_past_forfcast(:,:) = YYact(end-p+1:end,:);
-
+                YY_past_forfcast(:,:) = [YYY(1:p,:); YY(1:p,:); YYact];
+                % YYact(end-p+1:end,:);
+                
                 % draws from posterior distribution
                 [Tdummy,~] = size(YYdum);
                 [Tobs,n]   = size(YYact);
@@ -425,7 +431,6 @@ classdef MixedFrequencyBVAR < estimator.Base
                 Phi_tilde = (vr.*repmat(di',n*p+1,1))*B;
                 Sigma     = (Y-X*Phi_tilde)'*(Y-X*Phi_tilde);
                 
-
                 invSigma    = Sigma\eye(n);
                 inv_draw    = bear.wish(invSigma,T-n*p-1);
                 sigma       = inv_draw\eye(n);
@@ -498,8 +503,8 @@ classdef MixedFrequencyBVAR < estimator.Base
 %                 YYvector_ql  = zeros(floor(H/3),Nm+Nq);
 %                 YYvector_qg  = zeros(floor(H/3),Nm+Nq);
 
-                YYact_s    = squeeze(YYactsim(end,:));
-                XXact_s    = squeeze(XXactsim(end,:));
+                YYact_s    = squeeze(YYactsim(end,:))';
+                XXact_s    = squeeze(XXactsim(end,:))';
                 post_phi = squeeze(Phip(:,:));
                 post_sig = squeeze(Sigmap(:,:));
                 
@@ -520,7 +525,6 @@ classdef MixedFrequencyBVAR < estimator.Base
                 error_pred = zeros(H+1,nv);
                 
                 for h=1:H+1
-                    
                     error_pred(h,:) = mvnrnd(zeros(nv,1), post_sig);
                     
                 end
@@ -576,6 +580,7 @@ classdef MixedFrequencyBVAR < estimator.Base
                 sample.beta = reshape(Phip,(nv*p+nex)*nv,1);
                 sample.sigma = reshape(Sigmap,nv^2,1);
                 sample.initForForfcast = YY_past_forfcast;
+                this.SampleCounter = this.SampleCounter + 1;
             end%
 
             this.Sampler = @sampler;
