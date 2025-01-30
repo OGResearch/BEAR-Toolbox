@@ -264,7 +264,7 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
                         legacyOptions.cfblocks = cfblocks(:, :, j);
                     end
                     unitInitY = initY(:, :, j);
-                    unitD = sample.D(:, :, j);
+                    unitD = sample.D(:, :, j)';
                     unitBeta = meta.extractUnitFromCells(draw.beta, j, dim=2);
                     unitBeta = [unitBeta{:}];
                     [unitY, unitE] = conditional.forecast(unitD, unitBeta, unitInitY, fcastX, fcastHorizon, legacyOptions);
