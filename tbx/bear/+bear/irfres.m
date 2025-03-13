@@ -1,4 +1,4 @@
-function [irf_record,D_record,gamma_record,ETA_record,beta_record,sigma_record,favar,acc_rate]...
+function [irf_record,D_record,gamma_record,ETA_record,beta_record,sigma_record,favar]...
     =irfres(beta_gibbs,sigma_gibbs,C_draws,IV_draws,IRFperiods,n,m,p,k,Y,X,FEVDresperiods,strctident,pref,favar,IRFt,It,Bu)
 % inputs:  - matrix 'betahat': OLS estimate for beta
 %          - matrix 'sigmahats': OLS estimate for sigma
@@ -323,20 +323,11 @@ not_successful=0;
 hbartext=['Progress of ',hbartext_signres,hbartext_favar_signres,hbartext_zerores,hbartext_favar_zerores,hbartext_magnres,hbartext_favar_magnres,hbartext_relmagnres,hbartext_favar_relmagnres,hbartext_FEVDres,hbartext_favar_FEVDres,hbartext_CorrelInstrumentShock,':::',' Restriction Draws.'];
 hbartext=erase(hbartext,', :::'); % delete the last ,
 hbar=bear.parfor_progressbar(Acc,hbartext);
-
-% !!!!! 
-% parfor ii=1:Acc %parfor
-
-% !!!!!
-ATTEMPTS = zeros(1, Acc);
 rng(0);
-tic
-
-for ii=1:Acc %parfor
+parfor ii=1:Acc %parfor
     % initiate the variable 'success'; this variable will be used to check whether the restrictions are satisfied
     % if there are only zero restrictions, they will be satisfied by construction, and 'success' will simply be ignored
     success=0;
-    attempts = 0;
     % how the algorithm will be conducted will depend on the types of restrictions implemented
     % if there are only zero restrictions, the algorithm is simple as no checking is required: the conditions are satisfied by construction
     if IRFt==4 && zerores==1 && signres==0 && magnres==0 && relmagnres==0 && favar_signres==0 && favar_magnres==0
@@ -379,21 +370,12 @@ for ii=1:Acc %parfor
             % IV_draws C_draws in this case
             if IRFt==4
                 % draw randomly the vector of VAR coefficients: draw a random index
-                
-                % !!!!!
-                % index=floor(rand*(Acc))+1;
-                index = 1;
-
+                index=floor(rand*(Acc))+1;
                 % then draw a random set of beta and sigma corresponding to this index (this is done to make it possible to draw, if required, an infinite number of values from the gibbs sampler record, with equal probability on each value)
                 beta=beta_gibbs(:,index);
                 sigma=squeeze(sigma_gibbs(:,:,index));
                 %sigma=reshape(sigma_gibbs(:,index),n,n);
-                
-                % !!!!!
-                % hsigma=chol(bear.nspd(sigma),'lower');
-                hsigma = chol(sigma, "lower");
-
-
+                hsigma=chol(bear.nspd(sigma),'lower');
                 if bvar==1
                     Xg=squeeze(Xgibbs(:,:,index));
                     Yg=squeeze(Ygibbs(:,:,index));
@@ -468,14 +450,6 @@ for ii=1:Acc %parfor
                 end
             end
             
-            % !!!!! 
-            attempts = attempts + 1;
-            QQQ = bear.qzerores(n,Zcell,stackedirfmat);
-            DDD = hsigma * QQQ;
-            if attempts == 1
-                % keyboard
-            end
-
             % now start looping over the shocks and checking sequentially whether conditions on these shocks hold
             % stop as soon as one restriction fails
             % initiate Qj
@@ -487,15 +461,11 @@ for ii=1:Acc %parfor
                 okay(1,1)=1; % first shock is okay
                 jj=2; % skip the first iteration
             end
-
+            
             while success==1 && jj<=n && sum(okay)<n
                 % build column j of the random matrix Q
                 if IRFt==4 && zerores==1 || magnres==1 %if we have zero restrictions, we cannot reshuffle the columns
-                    
-                    % !!!!!
-                    % qj=bear.qrandj(n,Zcell{1,jj},stackedirfmat,Qj);
-                    qj=QQQ(:,jj);
-                    
+                    qj=bear.qrandj(n,Zcell{1,jj},stackedirfmat,Qj);
                     % obtain the candidate column fj
                     fj=stackedirfmat*qj;
                     % check restrictions: first sign restrictions
@@ -760,15 +730,7 @@ for ii=1:Acc %parfor
     
     % update progress by one iteration
     hbar.iterate(1);
-
-    ATTEMPTS(ii) = attempts;
-    disp(attempts)
 end
-
-toc
-keyboard
-
-
 close(hbar);   %close progress bar
 
 %% reorganise storage
@@ -814,7 +776,6 @@ fid=fopen(filelocation,'at');
 fprintf('%s\n','');
 fprintf(fid,'%s\n','');
 fprintf('Accepted Draws in Percent of Total Number of Draws: %f', 100*(Acc)/(not_successful + Acc)); %from posterior
-acc_rate = 100*(Acc)/(not_successful + Acc);
 fprintf(fid,'Accepted Draws in Percent of Total Number of Draws: %f', 100*(Acc)/(not_successful + Acc));
 fprintf('%s\n','');
 fprintf(fid,'%s\n','');
