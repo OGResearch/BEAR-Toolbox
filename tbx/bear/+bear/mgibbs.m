@@ -14,7 +14,7 @@ function [beta_gibbs sigma_gibbs]=mgibbs(It,Bu,betabar,omegabar,sigma,q)
 %          - matrix'sigma_gibbs': record of the gibbs sampler draws for the sigma matrix (vectorised)
 
 % !!!!!
-rng(0);
+%rng(0);
 
 % start iterations
 for ii=1:(It-Bu)
