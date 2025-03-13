@@ -40,7 +40,7 @@ estimSpan = datex.span(estimStart, estimEnd);
 
 meta = model.Meta( ...
     endogenous=["YER", "HICSA", "STN", ], ...
-    units=["US", "EA", ], ...
+    units=["US", "EA",], ...
     exogenous=["Oil", ], ...
     order=4, ...
     intercept=true, ...
@@ -66,7 +66,7 @@ disp(dataH);
 
 numSamples = 100;
 
-% Mean OLS (not working for one country example - no country variations)
+% Mean OLS
 % estimatorR = estimator.MeanOLSPanel(meta);
 
 % Normal Wishart Models
@@ -99,9 +99,11 @@ disp(info);
 % betaMedian = calcMedian(modelR,"beta");
 
 
-%% Specify exact zero restrictions 
+%% Specify exact zero restrictions
 
 exactZerosTbx = tablex.forExactZeros(modelR);
+
+
 exactZerosTbx{"HICSA", "DEM"} = 0;  
 exactZerosTbx{"STN", "SUP"} = 0;
 
@@ -109,6 +111,7 @@ disp(exactZerosTbx)
 
 
 %% Identify a SVAR using exact zero restrictions
+
 
 identExactZeros = identifier.ExactZeros(exactZerosTbx);
 
@@ -209,13 +212,13 @@ info = modelS.presample(numSamples);
 %% Simulate shock responses
 %
 
-resp = modelS.simulateResponses();
+respTbx = modelS.simulateResponses();
 
 
 %% Plot results
 %
 
-respTbx = tablex.apply(resp, prctileFunc);
+respTbx = tablex.apply(respTbx, prctileFunc);
 respTbx = tablex.flatten(respTbx);
 
 respTbx %#ok<NOPTS>
