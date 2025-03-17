@@ -64,7 +64,7 @@ classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
             % obtain posterior distribution parameters
             [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, numEn, estimLength, numBRows);
 
-            function sample = sampler()
+            function sample = sampler_()
                 B = bear.matrixtdraw(Bbar, Sbar, phibar, alphatilde, numBRows, numEn);
                 sigma = bear.iwdraw(Sbar, alphabar);
                 sample.beta = B(:);
@@ -72,7 +72,7 @@ classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
                 this.SampleCounter = this.SampleCounter + 1;
             end%
             %
-            this.Sampler = @sampler;
+            this.Sampler = @sampler_;
             %]
         end%
 

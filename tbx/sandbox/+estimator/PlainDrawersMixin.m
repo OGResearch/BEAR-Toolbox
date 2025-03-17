@@ -9,8 +9,8 @@ classdef (Abstract) PlainDrawersMixin < handle
             end
             %[
             %
-            numY = meta.NumEndogenousNames;
             % numBRows = numY * meta.Order + meta.NumExogenousNames + double(meta.HasIntercept);
+            numY = meta.NumEndogenousNames;
             order = meta.Order;
             numL = numY * order;
             estimationHorizon = numel(meta.ShortSpan);

@@ -10,10 +10,14 @@ function plotHandles = plot(table, names, options)
         options.Variant = ':'
         options.Dims (1, :) cell = cell.empty(1, 0)
         options.PlotSettings (1, :) cell = {}
-        options.PlotFunc function_handle = @plot
+        options.PlotFunc = @plot
         options.BarStyle (1, 1) string = "stacked"
     end
 
+    if ischar(options.PlotFunc) || isstring(options.PlotFunc)
+        options.PlotFunc = str2func(options.PlotFunc);
+    end
+    
     if isstring(options.Variant)
         options.Variant = char(options.Variant);
     end
@@ -41,7 +45,7 @@ function plotHandles = plot(table, names, options)
     end
 
     plotHandles = options.PlotFunc( ...
-        ax, periods, [dataCell{:}], barStyle{:} ...
+        ax, periods, [dataCell{:}(:,:)], barStyle{:} ...
     );
 
     if ~isempty(options.PlotSettings)

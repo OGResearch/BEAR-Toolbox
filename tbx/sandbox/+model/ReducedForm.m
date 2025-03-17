@@ -192,98 +192,137 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
         end%
 
 
-        function outTable = forecast(this, forecastSpan, options)
+        function [forecaster, tabulator] = prepareForecaster(this, shortFcastSpan, options)
             arguments
                 this
-                forecastSpan (1, :) datetime
-                %
-                options.StochasticResiduals (1, 1) logical = true
-                options.IncludeInitial (1, 1) logical = true
+                shortFcastSpan (1, :) datetime
+                options.StochasticResiduals
+                options.IncludeInitial
             end
             %
             variantDim = 3;
             meta = this.Meta;
-            forecastStart = forecastSpan(1);
-            forecastEnd = forecastSpan(end);
-            shortForecastSpan = datex.span(forecastStart, forecastEnd);
-            this.checkForecastSpan(forecastStart, forecastEnd);
-            forecastStartIndex = datex.diff(forecastStart, meta.ShortStart) + 1;
-            forecastHorizon = numel(shortForecastSpan);
-            longForecastSpan = datex.longSpanFromShortSpan(shortForecastSpan, meta.Order);
-            longYXZ = this.getSomeYXZ(longForecastSpan);
+            fcastStart = shortFcastSpan(1);
+            fcastEnd = shortFcastSpan(end);
+            this.checkForecastSpan(fcastStart, fcastEnd);
+            forecastStartIndex = datex.diff(fcastStart, meta.ShortStart) + 1;
+            forecastHorizon = numel(shortFcastSpan);
+            longFcastSpan = datex.longSpanFromShortSpan(shortFcastSpan, meta.Order);
+            longYXZ = this.getSomeYXZ(longFcastSpan);
+            outNames = [meta.EndogenousNames, meta.ResidualNames, meta.ExogenousNames];
+            numX = meta.NumExogenousNames;
+            order = meta.Order;
             %
-            % Loop over all samples
-            numPresampled = this.NumPresampled;
-            Y = cell(1, numPresampled);
-            U = cell(1, numPresampled);
-            initY = cell(1, numPresampled);
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                [Y{i}, U{i}, initY{i}] = this.forecast4S( ...
+            function [shortY, shortU, initY, shortX, draw] = forecaster__(sample)
+                [shortY, shortU, initY, shortX, draw] = this.forecast4S( ...
                     sample, longYXZ, forecastStartIndex, forecastHorizon ...
                     , stochasticResiduals=options.StochasticResiduals ...
                     , hasIntercept=meta.HasIntercept ...
                     , order=meta.Order ...
                 );
-            end
-            YU = [cat(variantDim, Y{:}), cat(variantDim, U{:})];
-            outSpan = shortForecastSpan;
+            end%
             %
-            % Create and add initial condition if requested
-            if options.IncludeInitial
-                initY = cat(variantDim, initY{:});
-                initU = nan(size(initY));
-                YU = [[initY, initU]; YU];
-                outSpan = longForecastSpan;
-            end
+            function outTable = tabulator__(shortY, shortU, initY, shortX)
+                numPresampled = numel(shortY);
+                shortY = cat(variantDim, shortY{:});
+                shortU = cat(variantDim, shortU{:});
+                shortX = cat(variantDim, shortX{:});
+                if options.IncludeInitial
+                    outSpan = longFcastSpan;
+                    initY = cat(variantDim, initY{:});
+                    initU = nan(size(initY));
+                    initX = nan([order, numX, numPresampled]);
+                    outData = [[initY, initU, initX]; [shortY, shortU, shortX]];
+                else
+                    outSpan = shortFcastSpan;
+                    outData = [shortY, shortU, shortX];
+                end
+                %
+                outTable = tablex.fromNumericArray(outData, outNames, outSpan, variantDim=variantDim);
+            end%
             %
-            outNames = [meta.EndogenousNames, meta.ResidualNames];
-            outTable = tablex.fromNumericArray(YU, outNames, outSpan, variantDim=variantDim);
+            forecaster = @forecaster__;
+            tabulator = @tabulator__;
         end%
 
 
-        function [y, u, initY] = forecast4S(this, sample, longYXZ, forecastStartIndex, forecastHorizon, options)
+        function varargout = forecast(this, fcastSpan, options)
+            arguments
+                this
+                fcastSpan (1, :) datetime
+                options.StochasticResiduals (1, 1) logical = false
+                options.IncludeInitial (1, 1) logical = false
+            end
+            %
+            fcastSpan = datex.ensureSpan(fcastSpan);
+            [forecaster, tabulator] = this.prepareForecaster( ...
+                fcastSpan, ...
+                stochasticResiduals=options.StochasticResiduals, ...
+                includeInitial=options.IncludeInitial ...
+            );
+            %
+            numPresampled = this.NumPresampled;
+            shortY = cell(1, numPresampled);
+            shortX = cell(1, numPresampled);
+            shortU = cell(1, numPresampled);
+            initY = cell(1, numPresampled);
+            for i = 1 : numPresampled
+                sample = this.Presampled{i};
+                [shortY{i}, shortU{i}, initY{i}, shortX{i}] = forecaster(sample);
+            end
+            [varargout{1:nargout}] = tabulator(shortY, shortU, initY, shortX);
+        end%
+
+
+        function [shortY, shortU, initY, shortX, draw] = forecast4S(this, sample, longYXZ, forecastStartIndex, forecastHorizon, options)
             arguments
                 this
                 sample
                 longYXZ (1, 3) cell
                 forecastStartIndex (1, 1) double
                 forecastHorizon (1, 1) double
+                %
                 options.StochasticResiduals (1, 1) logical
                 options.HasIntercept (1, 1) logical
                 options.Order (1, 1) double {mustBeInteger, mustBePositive}
             end
             %
+            unitDim = 2;
             meta = this.Meta;
             draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
             numUnits = meta.NumSeparableUnits;
-            y = cell(1, numUnits);
-            u = cell(1, numUnits);
+            shortY = cell(1, numUnits);
+            shortU = cell(1, numUnits);
             initY = cell(1, numUnits);
+            shortX = cell(1, numUnits);
             for i = 1 : numUnits
                 %
                 % Extract unit-specific data
+                %
                 unitYXZ = [meta.extractUnitFromCells(longYXZ(1), i, dim=3), longYXZ(2), longYXZ(3)];
                 unitSigma = meta.extractUnitFromCells(draw.Sigma, i, dim=3);
                 unitA = meta.extractUnitFromCells(draw.A, i, dim=3);
                 unitC = meta.extractUnitFromCells(draw.C, i, dim=3);
                 %
                 % Generate unit-specific residuals
-                u{i} = system.generateResiduals( ...
+                %
+                shortU{i} = system.generateResiduals( ...
                     unitSigma ...
                     , stochasticResiduals=options.StochasticResiduals ...
                 );
                 %
                 % Run unit-specific forecast
-                [y{i}, initY{i}] = system.forecast( ...
-                    unitA, unitC, unitYXZ, u{i} ...
+                %
+                [shortY{i}, initY{i}, shortX{i}] = system.forecast( ...
+                    unitA, unitC, unitYXZ, shortU{i} ...
                     , hasIntercept=options.HasIntercept ...
                     , order=options.Order ...
                 );
             end
-            y = cat(2, y{:});
-            u = cat(2, u{:});
-            initY = cat(2, initY{:});
+            shortY = cat(unitDim, shortY{:});
+            shortU = cat(unitDim, shortU{:});
+            initY = cat(unitDim, initY{:});
+            shortX = cat(unitDim, shortX{:});
         end%
 
     end
@@ -381,15 +420,15 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
         end%
 
 
-        function checkForecastSpan(this, forecastStart, forecastEnd)
-            beforeStart = datex.shift(forecastStart, -1);
+        function checkForecastSpan(this, fcastStart, fcastEnd)
+            beforeStart = datex.shift(fcastStart, -1);
             if ~any(beforeStart == this.Meta.ShortSpan)
                 error("Forecast start period out of range");
             end
             if ~this.Meta.HasExogenous
                 return
             end
-            if ~any(forecastEnd == this.DataHolder.Span)
+            if ~any(fcastEnd == this.DataHolder.Span)
                 error("Forecast end period out of range");
             end
         end%

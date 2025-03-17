@@ -19,21 +19,12 @@
 %
 %}
 
-function Y = filterPulses(A, permutedPulses, lt)
-
-    % arguments
-    %     A (:, 1) cell {mustBeNonempty}
-    %     permutedPulses (:, :, :, :) double
-    %     lt (1, :, :, :) double = double.empty(1, 0)
-    % end
-
-    if nargin < 3
-        lt = [];
-    end
+function Y = filterPulses(A, permutedPulses, L)
 
     numT = numel(A);
     numY = size(A{1}, 2);
     order = size(A{1}, 1) / numY;
+    numL = numY * order;
     numUnits = size(A{1}, 3);
 
     % The input array permutedPulses is expected numP x numY x numT to avoid
@@ -48,10 +39,12 @@ function Y = filterPulses(A, permutedPulses, lt)
     % Work with Y as numP x numY x numT x numUnits
     Y = zeros(numP, numY, numT, numUnits);
 
+    if nargin < 3 || isempty(L)
+        L = zeros(numP, numL, 1, numUnits);
+    end
+
     for n = 1 : numUnits
-        if isempty(lt)
-            lt = zeros(numP, numY * order);
-        end
+        lt = L(:, :, 1, n);
 
         t = 1;
         yt = lt * A{t}(:, :, n) + permutedPulses(:, :, t, n);

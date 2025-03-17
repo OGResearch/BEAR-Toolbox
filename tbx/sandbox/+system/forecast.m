@@ -1,10 +1,11 @@
+
 %{
 %
 % system.forecast  Calculate forecast for reduced-form VARX model
 %
 %}
 
-function [Y, initY] = forecast(A, C, longYXZ, U, options)
+function [shortY, initY, shortX] = forecast(A, C, longYXZ, U, options)
 
     arguments
         A (:, 1) cell
@@ -23,26 +24,26 @@ function [Y, initY] = forecast(A, C, longYXZ, U, options)
     numY = size(A{1}, 2);
     numUnits = size(A{1}, 3);
 
-    X = longX(order+1:end, :);
-    X = system.addInterceptWhenNeeded(X, hasIntercept);
+    shortX = longX(order+1:end, :);
+    shortXI = system.addInterceptWhenNeeded(shortX, hasIntercept);
 
     initY = longY(1:order, :, :);
 
-    if numel(C) ~= horizon || size(U, 1) ~= horizon || size(X, 1) ~= horizon
+    if numel(C) ~= horizon || size(U, 1) ~= horizon || size(shortXI, 1) ~= horizon
         error("Invalid dimensions of input data");
     end
 
-    Y = cell(1, numUnits);
+    shortY = cell(1, numUnits);
     for n = 1 : numUnits
-        Y{n} = nan(horizon, numY);
+        shortY{n} = nan(horizon, numY);
         lt = system.reshapeInit(initY(:, :, n));
         for t = 1 : horizon
-            yt = lt * A{t}(:, :, n) + X(t, :) * C{t}(:, :, n) + U(t, :, n);
+            yt = lt * A{t}(:, :, n) + shortXI(t, :) * C{t}(:, :, n) + U(t, :, n);
             lt = [yt, lt(:, 1:end-numY)];
-            Y{n}(t, :) = yt;
+            shortY{n}(t, :) = yt;
         end
     end
-    Y = cat(3, Y{:});
+    shortY = cat(3, shortY{:});
 
 end%
 

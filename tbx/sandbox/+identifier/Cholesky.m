@@ -40,13 +40,13 @@ classdef Cholesky < identifier.Base & identifier.InstantMixin
             backorderIndex = this.BackorderIndex;
             function P = choleskatorWithReordering(Sigma)
                 P = chol(Sigma(orderIndex, orderIndex));
-                P = P(:, backOrderIndex);
+                P = P(:, backorderIndex);
             end%
             %
             if this.HasReordering
-                choleskator = @choleskatorNoReordering;
-            else
                 choleskator = @choleskatorWithReordering;
+            else
+                choleskator = @choleskatorNoReordering;
             end
         end%
 

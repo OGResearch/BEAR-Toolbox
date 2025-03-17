@@ -128,43 +128,52 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
 
         function [e, sample] = estimateShocks4S(this, sample, longYXZ)
             u = this.ReducedForm.estimateResiduals4S(sample, longYXZ);
-            D = sample.D;
-            % U = E * D => E = U / D
-            e = u / D;
+            e = shocksFromResiduals_(u, sample.D);
         end%
 
 
-        function outTbx = calculateContributions(this)
+        function outTbl = calculateContributions(this, options)
+            arguments
+                this
+                options.IncludeInitial (1, 1) logical = true
+            end
             meta = this.Meta;
-            numV = this.NumPresampled;
+            numPresampled = this.NumPresampled;
             drawer = this.HistoryDrawer;
             longYXZ = this.getLongYXZ();
+            order = meta.Order;
             %
-            C = cell(1, numV);
-            for i = 1 : numV
+            contrib = cell(1, numPresampled);
+            for i = 1 : numPresampled
                 sample = this.Presampled{i};
                 draw = drawer(sample);
-                e = this.estimateShocks4S(sample, longYXZ);
-                ce = system.contributionsShocks(draw.A, sample.D, e);
-                cx = system.contributionsExogenous(draw.A, draw.C, longYXZ);
-                ci = system.contributionsInit(draw.A, longYXZ);
-                C{i} = cat(3, ce, cx, ci);
+                shortE = this.estimateShocks4S(sample, longYXZ);
+                initY = longYXZ{1}(1:order, :, :);
+                shortX = longYXZ{2}(order+1:end, :, :);
+                contrib{i} = calculateContributions4S_(draw.A, draw.C, sample.D, shortE, shortX, initY);
             end
+            outTbl = this.tabulateContributions(contrib, meta.ShortSpan);
             %
-            thirdDim = {[meta.ShockNames, "Exogenous", "Initials"]};
-            outTbx = tablex.fromNumericArray( ...
-                cat(4, C{:}), ...
-                meta.EndogenousNames, ...
-                meta.ShortSpan, ...
-                variantDim=4, ...
-                higherDims=thirdDim ...
-            );
         end%
 
 
-        % Legacy name
-        function varargout = breakdown(varargin)
-            [varargout{1:nargout}] = computeShockContributions(varargin{:});
+        function outTbl = tabulateContributions(this, C, span)
+            arguments
+                this
+                C (1, :) cell
+                span (1, :) datetime
+            end
+            VARIANT_DIM = 4;
+            meta = this.Meta;
+            outData = cat(VARIANT_DIM, C{:});
+            higherDims = {[meta.SeparableShockNames, "Exogenous", "Initials"]};
+            outTbl = tablex.fromNumericArray( ...
+                outData, ...
+                meta.EndogenousNames, ...
+                span, ...
+                variantDim=VARIANT_DIM, ...
+                higherDims=higherDims ...
+            );
         end%
 
 
@@ -195,7 +204,7 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
         end%
 
 
-        function outTbx = conditionalForecast(this, fcastSpan, options)
+        function [outTbl, contribTbl] = conditionalForecast(this, fcastSpan, options)
             %[
             arguments
                 this
@@ -203,21 +212,32 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
                 options.Conditions (:, :) timetable
                 options.Plan = []
                 options.IncludeInitial (1, 1) logical = true
+                options.Contributions (1, 1) logical = false
+                options.Precontributions = []
             end
             %
+            if ~isempty(options.Precontributions)
+                error("Precontributions disabled");
+            end
+            %
+            VARIANT_DIM = 3;
+            CONTRIB_DIM = 3;
             meta = this.Meta;
-            fcastStart = fcastSpan(1);
-            fcastEnd = fcastSpan(end);
-            fcastSpan = datex.span(fcastStart, fcastEnd);
+            numY = meta.NumEndogenousNames;
+            order = meta.Order;
+            numL = numY * order;
+            shortFcastSpan = datex.ensureSpan(fcastSpan);
+            fcastStart = shortFcastSpan(1);
+            longFcastSpan = datex.longSpanFromShortSpan(shortFcastSpan, meta.Order);
             fcastStartIndex = datex.diff(fcastStart, meta.ShortStart) + 1;
-            fcastHorizon = numel(fcastSpan);
-            initSpan = datex.initSpanFromShortSpan(fcastSpan, meta.Order);
+            fcastHorizon = numel(shortFcastSpan);
+            initSpan = datex.initSpanFromShortSpan(shortFcastSpan, meta.Order);
             initYXZ = this.getSomeYXZ(initSpan);
             initY = initYXZ{1};
-            fcastX = tablex.retrieveData(options.Conditions, meta.ExogenousNames, fcastSpan);
+            fcastX = tablex.retrieveData(options.Conditions, meta.ExogenousNames, shortFcastSpan);
             %
-            cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, fcastSpan);
-            cfshocks = conditional.createShocksCF(meta, options.Plan, fcastSpan);
+            cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, shortFcastSpan);
+            cfshocks = conditional.createShocksCF(meta, options.Plan, shortFcastSpan);
             cfblocks = conditional.createBlocksCF(cfconds, cfshocks);
             numShockConcepts = meta.NumShockConcepts;
             %
@@ -228,8 +248,8 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             legacyOptions.cfblocks = [];
             legacyOptions.cfshocks = [];
             %
-            numV = this.NumPresampled;
-            progressMessage = sprintf("Conditional forecast [%g]", numV);
+            numPresampled = this.NumPresampled;
+            progressMessage = sprintf("Conditional forecast [%g]", numPresampled);
             %
             %
             numUnits = meta.NumSeparableUnits;
@@ -244,10 +264,13 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
                     cfblocks = reshape(cfblocks, size(cfblocks, 1), [], numUnits);
                 end
             end
-            fcastY = cell(1, numV);
-            fcastE = cell(1, numV);
-            pbar = progress.Bar(progressMessage, numV*numUnits);
-            for i = 1 : numV
+            fcastY = cell(1, numPresampled);
+            fcastE = cell(1, numPresampled);
+            if options.Contributions
+                contribs = cell(1, numPresampled);
+            end
+            pbar = progress.Bar(progressMessage, numPresampled*numUnits);
+            for i = 1 : numPresampled
                 sample = this.Presampled{i};
                 draw = this.ConditionalDrawer(sample, fcastStartIndex, fcastHorizon);
                 for j = 1 : numUnits
@@ -264,57 +287,116 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
                         legacyOptions.cfblocks = cfblocks(:, :, j);
                     end
                     unitInitY = initY(:, :, j);
-                    unitD = sample.D(:, :, j)';
+                    unitD = sample.D(:, :, j);
                     unitBeta = meta.extractUnitFromCells(draw.beta, j, dim=2);
-                    unitBeta = [unitBeta{:}];
-                    [unitY, unitE] = conditional.forecast(unitD, unitBeta, unitInitY, fcastX, fcastHorizon, legacyOptions);
+                    [unitY, unitE] = conditional.forecast(transpose(unitD), [unitBeta{:}], unitInitY, fcastX, fcastHorizon, legacyOptions);
                     fcastY{i} = [fcastY{i}, unitY];
                     fcastE{i} = [fcastE{i}, unitE];
+                    if options.Contributions
+                        unitA = cell(1, fcastHorizon);
+                        unitC = cell(1, fcastHorizon);
+                        for k = 1 : fcastHorizon
+                            unitB = reshape(unitBeta{k}, [], numY);
+                            unitA{k} = unitB(1:numL, :);
+                            unitC{k} = unitB(numL+1:end, :);
+                        end
+                        unitContribs = calculateContributions4S_(unitA, unitC, unitD, unitE, fcastX, unitInitY);
+                        contribs{i} = [contribs{i}, unitContribs];
+                    end
                     pbar.increment();
                 end
             end
-            fcastY = cat(3, fcastY{:});
-            fcastE = cat(3, fcastE{:});
-            %
-            %
+            fcastY = cat(VARIANT_DIM, fcastY{:});
+            fcastE = cat(VARIANT_DIM, fcastE{:});
             outNames = [meta.EndogenousNames, meta.ShockNames];
-            outSpan = fcastSpan;
+            outData = [fcastY, fcastE];
+            outSpan = shortFcastSpan;
             if options.IncludeInitial
-                initY = initY(:, :);
-                fcastY = [repmat(initY, 1, 1, size(fcastY, 3)); fcastY];
-                fcastE = [zeros(meta.Order, size(fcastE, 2), size(fcastE, 3)); fcastE];
-                outSpan = datex.longSpanFromShortSpan(fcastSpan, meta.Order);
+                outSpan = longFcastSpan;
+                initData = [repmat(initY(:, :), 1, 1, numPresampled), zeros(order, numY, numPresampled)];
+                outData = [initData; outData];
             end
-            outTbx = tablex.fromNumericArray([fcastY, fcastE], outNames, outSpan, variantDim=3);
+            %
+            outTbl = tablex.fromNumericArray(outData, outNames, outSpan, variantDim=VARIANT_DIM);
+            %
+            contribTbl = [];
+            if options.Contributions
+                contribTbl = this.tabulateContributions(contribs, shortFcastSpan);
+            end
             %]
         end%
 
-        % function [sampler, shockIndex] = getSamplerVMA(this, numPeriods, shockIndex)
-        %     arguments
-        %         this
-        %         numPeriods (1, 1) double
-        %         shockIndex (1, :)
-        %     end
-        %     %
-        %     meta = this.Meta;
-        %     shockIndex = textual.resolveNameIndex(meta.ShockNames, shockIndex);
-        %     %
-        %     function VMA = sampleVMA()
-        %         strSystem = this.nextPresampledSystem();
-        %         [A, C, Sigma, D, stdVec] = strSystem{:};
-        %         VMA = system.finiteVMA(A, D(shockIndex, :), numPeriods);
-        %     end%
-        %     %
-        %     sampler = @sampleVMA;
-        % end%
-
+        function [outputTbl, contribTbl] = forecast(this, fcastSpan, options)
+            arguments
+                this
+                fcastSpan (1, :) datetime
+                options.StochasticResiduals (1, 1) logical = true
+                options.IncludeInitial (1, 1) logical = true
+                options.Contributions (1, 1) logical = false
+                options.Precontributions = []
+            end
+            %
+            if ~isempty(options.Precontributions)
+                error("Precontributions disabled");
+            end
+            %
+            meta = this.Meta;
+            order = meta.Order;
+            fcastSpan = datex.ensureSpan(fcastSpan);
+            [forecaster, tabulator] = this.ReducedForm.prepareForecaster( ...
+                fcastSpan, ...
+                stochasticResiduals=options.StochasticResiduals, ...
+                includeInitial=options.IncludeInitial ...
+            );
+            numPresampled = this.NumPresampled;
+            shortY = cell(1, numPresampled);
+            shortX = cell(1, numPresampled);
+            shortU = cell(1, numPresampled);
+            initY = cell(1, numPresampled);
+            if options.Contributions
+                contribs = cell(1, numPresampled);
+                precontribs = double.empty(0, 0, 0, numPresampled);
+                if isempty(options.Precontributions)
+                    contributor = @calculateContributions4S_;
+                else
+                    fcastStart = fcastSpan(1);
+                    precontribStart = meta.ShortStart;
+                    precontribEnd = datex.shift(fcastStart, -1);
+                    precontribSpan = datex.span(precontribStart, precontribEnd);
+                    precontribs = tablex.retrieveData( ...
+                        options.Precontributions, meta.EndogenousNames, precontribSpan, ...
+                        variant=':', ...
+                        permute=[1, 4, 3, 2] ...
+                    );
+                    histInitYXZ = this.getInitYXZ();
+                    histInitY = histInitYXZ{1};
+                    numY = size(histInitY, 2);
+                    numContrib = size(precontribs, 3);
+                    precontribs = [zeros(order, numY, numContrib, numPresampled); precontribs];
+                    for i = 1 : numPresampled
+                        precontribs(1:order, :, end, i) = histInitY(:, :, min(end, i));
+                    end
+                    precontribs = precontribs(end-order+1:end, :, :, :);
+                    contributor = @extendPrecontributions4S_;
+                end
+            end
+            for i = 1 : numPresampled
+                sample = this.Presampled{i};
+                [shortY{i}, shortU{i}, initY{i}, shortX{i}, draw] = forecaster(sample);
+                shortE = shocksFromResiduals_(shortU{i}, sample.D);
+                if options.Contributions
+                    contribs{i} = contributor(draw.A, draw.C, sample.D, shortE, shortX{i}, initY{i}, precontribs(:, :, :, i));
+                end
+            end
+            outputTbl = tabulator(shortY, shortU, initY, shortX);
+            contribTbl = [];
+            if options.Contributions
+                contribTbl = this.tabulateContributions(contribs, fcastSpan);
+            end
+        end%
 
         function varargout = asymptoticMean(this, varargin)
             [varargout{1:nargout}] = this.ReducedForm.asymptoticMean(varargin{:});
-        end%
-
-        function varargout = forecast(this, varargin)
-            [varargout{1:nargout}] = this.ReducedForm.forecast(varargin{:});
         end%
 
         function varargout = estimateResiduals(this, varargin)
@@ -382,4 +464,32 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
     end
 
 end
+
+
+function e = shocksFromResiduals_(u, D)
+    % U = E * D => E = U / D
+    e = u / D;
+end%
+
+
+function contrib = calculateContributions4S_(A, C, D, shortE, shortX, initY, ~)
+    CONTRIB_DIM = 3;
+    ce = system.contributionsShocks(A, D, shortE);
+    cx = system.contributionsExogenous(A, C, shortX);
+    ci = system.contributionsInit(A, initY);
+    contrib = cat(CONTRIB_DIM, ce, cx, ci);
+end%
+
+
+function contrib = extendPrecontributions4S_(A, C, D, shortE, shortX, initY, precontribs)
+    CONTRIB_DIM = 3;
+    numE = size(shortE, 2);
+    initContE = precontribs(:, :, 1:numE);
+    initContX = precontribs(:, :, numE+1);
+    initContI = precontribs(:, :, end);
+    ce = system.contributionsShocks(A, D, shortE);
+    cx = system.contributionsExogenous(A, C, shortX);
+    ci = system.contributionsInit(A, initContI);
+    contrib = cat(CONTRIB_DIM, ce, cx, ci);
+end%
 
