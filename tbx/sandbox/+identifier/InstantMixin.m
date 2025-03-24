@@ -36,7 +36,7 @@ classdef (Abstract) InstantMixin < handle
                     Sigma = (Sigma + pagetranspose(Sigma)) / 2;
                     D = cell(1, numUnits);
                     for i = 1 : numUnits
-                        P = choleskator(Sigma);
+                        P = choleskator(Sigma(:,:,i));
                         D{i} = candidator(P);
                     end
                     D = cat(3, D{:});

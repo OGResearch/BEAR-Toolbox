@@ -128,7 +128,17 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
 
         function [e, sample] = estimateShocks4S(this, sample, longYXZ)
             u = this.ReducedForm.estimateResiduals4S(sample, longYXZ);
-            e = shocksFromResiduals_(u, sample.D);
+            % Handle panel data
+            meta = this.Meta;
+            numP = meta.NumSeparableUnits;
+            e = cell(1, numP);
+            u = meta.reshapeCrossUnitData(u);
+            for i = 1 : numP
+                unitD = sample.D(:, :, i);
+                unitU = u(:,:,i);
+                e{i} = shocksFromResiduals_(unitU,unitD);
+            end
+            e = cat(3, e{:});
         end%
 
 
@@ -144,13 +154,23 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             order = meta.Order;
             %
             contrib = cell(1, numPresampled);
+            numUnits = meta.NumSeparableUnits;
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
                 draw = drawer(sample);
                 shortE = this.estimateShocks4S(sample, longYXZ);
-                initY = longYXZ{1}(1:order, :, :);
-                shortX = longYXZ{2}(order+1:end, :, :);
-                contrib{i} = calculateContributions4S_(draw.A, draw.C, sample.D, shortE, shortX, initY);
+                for j = 1 : numUnits
+                    unitYXZ = [meta.extractUnitFromCells(longYXZ(1), j, dim=3), longYXZ(2), longYXZ(3)];
+                    unitInitY = unitYXZ{1}(1:order, :, :);
+                    shortX = unitYXZ{2}(order+1:end, :, :);
+                    unitD = sample.D(:, :, j);
+                    unitA = meta.extractUnitFromCells(draw.A, j, dim=3);
+                    unitC = meta.extractUnitFromCells(draw.C, j, dim=3);
+                    unitShortE = shortE(:, :, j);
+                    unitContrib = calculateContributions4S_(unitA, unitC, unitD, unitShortE, shortX, unitInitY);
+                    contrib{i} = [contrib{i}, unitContrib];
+                end
+                % contrib{i} = calculateContributions4S_(draw.A, draw.C, sample.D, shortE, shortX, initY);
             end
             outTbl = this.tabulateContributions(contrib, meta.ShortSpan);
             %
@@ -223,7 +243,7 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             VARIANT_DIM = 3;
             CONTRIB_DIM = 3;
             meta = this.Meta;
-            numY = meta.NumEndogenousNames;
+            numY = meta.NumEndogenousConcepts;
             order = meta.Order;
             numL = numY * order;
             shortFcastSpan = datex.ensureSpan(fcastSpan);
@@ -349,6 +369,7 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
                 includeInitial=options.IncludeInitial ...
             );
             numPresampled = this.NumPresampled;
+            numUnits = meta.NumSeparableUnits;
             shortY = cell(1, numPresampled);
             shortX = cell(1, numPresampled);
             shortU = cell(1, numPresampled);
@@ -383,9 +404,20 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
                 [shortY{i}, shortU{i}, initY{i}, shortX{i}, draw] = forecaster(sample);
-                shortE = shocksFromResiduals_(shortU{i}, sample.D);
-                if options.Contributions
-                    contribs{i} = contributor(draw.A, draw.C, sample.D, shortE, shortX{i}, initY{i}, precontribs(:, :, :, i));
+                % iterate over units
+                unflatShortU = meta.reshapeCrossUnitData(shortU{i});
+                unflatInitY = meta.reshapeCrossUnitData(initY{i});
+                for j = 1 : numUnits
+                    unitD = sample.D(:, :, j);
+                    unitU = unflatShortU(:,:,j);
+                    unitInitY = unflatInitY(:,:,j);
+                    unitA = meta.extractUnitFromCells(draw.A, j, dim=3);
+                    unitC = meta.extractUnitFromCells(draw.C, j, dim=3);
+                    shortE = shocksFromResiduals_(unitU, unitD);
+                    if options.Contributions
+                        unitContribs = contributor(unitA, unitC, unitD, shortE, shortX{i}, unitInitY, precontribs(:, :, :, i));
+                        contribs{i} = [contribs{i}, unitContribs];
+                    end
                 end
             end
             outputTbl = tabulator(shortY, shortU, initY, shortX);
