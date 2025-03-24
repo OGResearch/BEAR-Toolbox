@@ -1,5 +1,12 @@
 
 classdef MeanOLSPanel < estimator.Base
+% Mean OLS Panel BVAR
+
+    methods (Static)
+        function info = getModelReference()
+            info.category = "panel";
+        end
+    end
 
     properties
         DescriptionUX = "Mean OLS Panel BVAR"

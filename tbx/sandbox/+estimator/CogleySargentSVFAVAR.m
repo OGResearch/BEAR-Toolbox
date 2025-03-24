@@ -1,6 +1,12 @@
 classdef CogleySargentSVFAVAR < estimator.Base
 %FAVAR version of Standard SV model, in BEAR5,  stvol =1
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "favar";
+        end
+    end
+
     properties
         CanHaveDummies = false
         CanHaveReducibles = true

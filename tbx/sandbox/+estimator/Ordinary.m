@@ -1,6 +1,12 @@
 
 classdef Ordinary < estimator.Base & estimator.PlainDrawersMixin
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "basic_bvar";
+        end
+    end
+
     properties
         DescriptionUX = "Ordinary least squares VAR"
 

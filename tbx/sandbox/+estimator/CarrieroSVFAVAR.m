@@ -2,6 +2,12 @@ classdef CarrieroSVFAVAR < estimator.Base
 %FAVAR version of SV for large models in BEAR5, stvol=3
 % 
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "favar";
+        end
+    end
+    
     properties
         CanHaveDummies = false
         CanHaveReducibles = true

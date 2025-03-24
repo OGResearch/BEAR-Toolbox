@@ -19,9 +19,19 @@ function out = getEstimatorSettings()
             if prop.Hidden || prop.Constant
                 continue
             end
-            settings.(prop.Name) = {prop.DefaultValue, prop.Description};
+            settings.(prop.Name) = {prop.DefaultValue, prop.Description, prop.DetailedDescription};
         end
-        out.(name) = settings;
+        try 
+            estimatorReference = estimator.(name).getModelReference();
+        catch
+            estimatorReference = [];
+        end
+        if ~isempty(estimatorReference) && isfield(estimatorReference, "category")
+            out.(estimatorReference.category).(name).settings = settings;
+            out.(estimatorReference.category).(name).description = estimatorMC.Description;
+            out.(estimatorReference.category).(name).detailedDesc = estimatorMC.DetailedDescription;
+        end
+
     end
 
 end%

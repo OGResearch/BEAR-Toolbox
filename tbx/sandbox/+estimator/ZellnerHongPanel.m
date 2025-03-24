@@ -1,6 +1,12 @@
 
 classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "panel";
+        end
+    end
+    
     properties
         DescriptionUX = "Zellner-Hong Panel BVAR"
 

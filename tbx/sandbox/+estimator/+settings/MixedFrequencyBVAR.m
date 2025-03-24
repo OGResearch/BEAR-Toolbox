@@ -2,8 +2,10 @@
 classdef (CaseInsensitiveProperties=true) MixedFrequencyBVAR < estimator.settings.Base
 
     properties     
-        % how many monhtly forecast to do in the original MF-BVAR code. Can be replaced in the future with Fsample_end-Fsample_start from BEAR
+        % Numeber of periods to forecast in a Kalman filter
+        % H
         KalmanFcastPeriod double = 7
+        % how many monhtly forecast to do in the original MF-BVAR code. Can be replaced in the future with Fsample_end-Fsample_start from BEAR
 
         % hyperparameter: lambda1
         MfLambda1 double = 1.e-01;

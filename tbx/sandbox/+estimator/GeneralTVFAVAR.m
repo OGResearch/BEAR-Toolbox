@@ -1,6 +1,13 @@
 
 classdef GeneralTVFAVAR < estimator.Base
 %FAVAR verison of General TV model tvbvar = 2
+
+    methods (Static)
+        function info = getModelReference()
+            info.category = "favar";
+        end
+    end
+
     properties
         CanHaveDummies = false
         CanHaveReducibles = true

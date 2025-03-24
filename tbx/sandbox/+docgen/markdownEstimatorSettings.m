@@ -1,42 +1,73 @@
 
 function out = markdownEstimatorSettings()
+    % clear cache of all classes
+    clear classes
 
-    PATH = fullfile("quickref", "estimatorSettings.md");
+    currentFile = which('docgen.markdownEstimatorSettings');
+    rootDir = fileparts(fileparts(fileparts(fileparts(currentFile))));
 
     estimatorSettings = docgen.getEstimatorSettings();
 
-    lines = string.empty(0, 1);
-    lines = [
-        lines
-        "# Estimator settings"
-        ""
-        "Estimators in alphabetical order"
-        ""
+    pages = [
+        "basic_bvar",...
+        "stochastic_volatility",...
+        "panel",...
+        "favar",...
+        "time_varying",...
+        "mixed_freq"...
     ];
 
-    estimatorNames = textual.stringify(fieldnames(estimatorSettings));
-    estimatorNames = sort(estimatorNames);
-    for i = 1 : numel(estimatorNames)
-        lines(end+1) = "";
-        lines(end+1) = "";
-        lines(end+1) = "## Settings for the `" + estimatorNames(i) + "` estimator";
-        lines(end+1) = "";
-        lines(end+1) = "Name | Default | Description";
-        lines(end+1) = "-----|--------:|------------";
-        settings = estimatorSettings.(estimatorNames(i));
-        settingNames = textual.stringify(fieldnames(settings));
-        settingNames = sort(settingNames);
-        for j = 1 : numel(settingNames)
-            settingName = settingNames(j);
-            setting = settings.(settingName);
-            lines(end+1) = sprintf("`%s` | `%s` | %s", settingName, printSetting(setting{1}), setting{2});
+    pageTitles = [
+        "Basic BVAR",...
+        "Stochastic volatility",...
+        "Panel",...
+        "FAVAR",...
+        "Time-varying BVAR",...
+        "Mixed frequency BVAR"...
+    ];
+
+    for page_ind = 1:numel(pages)
+        pageName = pages(page_ind);
+        PATH = fullfile(rootDir, "mkdocs_estimator", "docs", pageName+".md");
+        lines = string.empty(0, 1);
+        lines = [
+            lines
+            "# " + pageTitles(page_ind) + " estimators"
+            ""
+            "Estimators in alphabetical order"
+            ""
+        ];
+
+        estimatorNames = textual.stringify(fieldnames(estimatorSettings.(pageName)));
+        estimatorNames = sort(estimatorNames);
+        for i = 1 : numel(estimatorNames)
+            estimator = estimatorSettings.(pageName).(estimatorNames(i));
+            lines(end+1) = "";
+            lines(end+1) = "";
+            lines(end+1) = "## `" + estimatorNames(i) + "` ";
+            lines(end+1) = "";
+            lines(end+1) = estimator.description;
+            lines(end+1) = "";
+            lines(end+1) = estimator.detailedDesc;
+            lines(end+1) = "";
+            lines(end+1) = "### Settings ";
+            lines(end+1) = "Name | Default | Description | BEAR5 reference";
+            lines(end+1) = "------|-------:|-----------|-";
+            settings = estimator.settings;
+            settingNames = textual.stringify(fieldnames(settings));
+            settingNames = sort(settingNames);
+            for j = 1 : numel(settingNames)
+                settingName = settingNames(j);
+                setting = settings.(settingName);
+                lines(end+1) = sprintf("`%s` | `%s` | %s | %s", settingName, printSetting(setting{1}), setting{2},setting{3});
+            end
         end
+
+        lines(end+1) = "";
+        out = join(lines, newline());
+
+        writematrix(out, PATH, fileType="text", quoteStrings=false);
     end
-
-    lines(end+1) = "";
-    out = join(lines, newline());
-
-    writematrix(out, PATH, fileType="text", quoteStrings=false);
 
 end%
 

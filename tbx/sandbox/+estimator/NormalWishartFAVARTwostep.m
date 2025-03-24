@@ -1,6 +1,14 @@
 
 classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
-%FAVAR version of prior =21 22 in BEAR5
+% BFAVAR with Normal-Wishart prior
+% FAVAR version of prior =21 22 in BEAR5
+
+    methods (Static)
+        function info = getModelReference()
+            info.category = "favar";
+        end
+    end
+
     properties
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
 

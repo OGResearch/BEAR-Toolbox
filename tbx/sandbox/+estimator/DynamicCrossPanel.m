@@ -1,6 +1,12 @@
 
 classdef DynamicCrossPanel < estimator.Base
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "panel";
+        end
+    end
+    
     properties
         Description = "Dynamic Cross-Panel Model"
         %
