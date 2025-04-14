@@ -20,6 +20,7 @@ function [outputTbl, contribTbl] = forecast(this, fcastSpan, options)
     );
 
     numPresampled = this.NumPresampled;
+    numUnits = meta.NumSeparableUnits;
     shortY = cell(1, numPresampled);
     shortX = cell(1, numPresampled);
     shortU = cell(1, numPresampled);
@@ -35,6 +36,19 @@ function [outputTbl, contribTbl] = forecast(this, fcastSpan, options)
         shortE = system.shocksFromResiduals(shortU{i}, sample.D);
         if options.Contributions
             contribs{i} = contributor(draw.A, draw.C, sample.D, shortE, shortX{i}, initY{i}, precontribs(:, :, :, i));
+            %    % iterate over units
+            %    unflatShortU = meta.reshapeCrossUnitData(shortU{i});
+            %    unflatInitY = meta.reshapeCrossUnitData(initY{i});
+            %    for j = 1 : numUnits
+            %        unitD = sample.D(:, :, j);
+            %        unitU = unflatShortU(:, :, j);
+            %        unitInitY = unflatInitY(:, :, j);
+            %        unitA = meta.extractUnitFromCells(draw.A, j, dim=3);
+            %        unitC = meta.extractUnitFromCells(draw.C, j, dim=3);
+            %        shortE = shocksFromResiduals_(unitU, unitD);
+            %        unitContribs = contributor(unitA, unitC, unitD, shortE, shortX{i}, unitInitY, precontribs(:, :, :, i));
+            %        contribs{i} = [contribs{i}, unitContribs];
+            %    end
         end
     end
 
