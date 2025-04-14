@@ -39,6 +39,8 @@ classdef LargeShockSV < estimator.Base
 
             opt.TP = this.Settings.Turningpoint;
 
+            solver = this.Settings.Solver;
+
             [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, numBRows, ~] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
@@ -50,14 +52,11 @@ classdef LargeShockSV < estimator.Base
 
             %Get initial theta as a vector maximizing the posterior
             targFun = @(x) -largeshocksv.postlmpdf(x, opt, prior, Y, LX, T0SS);
-            optimopts = optimset(optimset("fminsearch"), ...
-                "display", "iter", ...
-                "tolX", 1e-16, ...
-                "tolFun", 1e-16 ...
-                );
 
-            hypers =  [opt.mult0, opt.AR0];
-            [initTheta] = fminsearch(targFun, hypers, optimopts);
+            inits =  [opt.mult0, opt.AR0];
+            % [initTheta] = fminsearch(targFun, hypers, optimopts);
+
+            [initTheta] = solver(targFun, inits);
 
             H = largeshocksv.DERIVESTsuite.hessian(@(x)targFun(x), initTheta);
 
