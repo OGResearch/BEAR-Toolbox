@@ -1,4 +1,4 @@
-classdef LargeShockSV < estimator.Base
+classdef GenLargeShockSV < estimator.Base
     %SV for large models in BEAR5, stvol=3
 
     properties
@@ -32,16 +32,16 @@ classdef LargeShockSV < estimator.Base
             opt.mult0 = this.Settings.Mult0; %initial mean of scaling factors
             opt.scaleTheta = this.Settings.ScaleMult; %scale on covariance scalingfactors' Pareto distribution
             opt.shapeTheta = this.Settings.ShapeMult; %shape on covariance scalingfactors ' Pareto distribution
+            opt.propStdTheta = this.Settings.PropStdMult; %std of multipliers's proposal
 
             opt.AR0 = this.Settings.MultAR0; %scaling factor's AR parameter's initial mean
             opt.alphaAR = this.Settings.AlphaMultAR; %scaling factor's AR parameter's alpha value in beta  distribution
             opt.betaAR = this.Settings.BetaMultAR; %scaling factor's  AR parameter's beta value in beta  distribution
+            opt.propStdAR = this.Settings.PropStdAR; %std of AR parameter's proposal 
 
             opt.TP = this.Settings.Turningpoint;
 
-            solver = this.Settings.Solver;
-
-            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, numBRows, ~] = ...
+            [~, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
 
             T0LS = find(meta.LongSpan == opt.TP);
@@ -50,25 +50,45 @@ classdef LargeShockSV < estimator.Base
             varScale = bear.arloop(longY(1:T0LS-1,:), opt.const, 1, numEn);
             prior = largeshocksv.get_MH_Prior(opt, numEn, numBRows, varScale);
 
-            %Get initial theta as a vector maximizing the posterior
-            targFun = @(x) -largeshocksv.postlmpdf(x, opt, prior, Y, LX, T0SS);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            initTheta = [opt.mult0, opt.AR0];
+            numTheta = numel(initTheta);
+            [scY, scX] = largeshocksv.scaleData(Y, LX, T0SS, initTheta);
+            posterior = largeshocksv.get_NIW_Posterior(prior, scY, scX);
 
-            inits =  [opt.mult0, opt.AR0];
-            % [initTheta] = fminsearch(targFun, hypers, optimopts);
+            initChain = 1e4;
+            sizeCholSigma = numEn*(numEn + 1 )/2;
+            smpl = nan(sizeB + sizeCholSigma, initChain);
+            rng(0)
+            for ii = 1:initChain
+                [B, Sigma] = largeshocksv.sample_posterior(posterior);
+                chSigma = largeshocksv.vech(chol(Sigma, "lower"));
+                smpl(:, ii) = [B(:); chSigma(:)];
+            end
 
-            [initTheta] = solver(targFun, inits);
+            % Initial state of the chain for B/cholSigma calculated from the posteriror sample
+            initBCholSigma = mean(smpl');
 
-            H = largeshocksv.DERIVESTsuite.hessian(@(x)targFun(x), initTheta);
+            % Proposal covariance for B/cholSigma calculated from the posterior sample
+            postCovBCholSigma = cov(smpl');
 
-            %getting proposals for the MH algo
-            propCholCov = chol(inv(H), "lower");
-            propScale   = 8.5e-2;
+            init = [initBCholSigma initTheta];
+            % [initB, initCholSigma, initTheta] = bvar.prior.pars2mat(init, bvar);
+
+            % Cholesky factor of proposal covariance for B/cholSigma/theta
+            propCovTheta = diag([opt.propStdTheta opt.propStdAR].^2);
+            propCholCov = chol(blkdiag(postCovBCholSigma, propCovTheta), "lower");
+            propScale = 8.5e-2;
+
 
             scaledPropCholCov = propScale*propCholCov;
-            propGen = @()scaledPropCholCov * randn(numel(initTheta), 1);
+            propGen = @()scaledPropCholCov * randn(numel(init), 1);
 
-            prevAccepted      = initTheta;
-            prevLogTargetPDF  = -targFun(prevAccepted);
+            %Get initial theta as a vector maximizing the posterior
+            targFun = @(x) -largeshocksv.postlpdf(x, opt, prior, Y, LX, T0SS, numBRows, sizeB, numTheta);
+            prevAccepted = init;
+            prevLogTargetPDF = -targFun(prevAccepted);
+
 
             function sample  =  sampler()
 
@@ -76,23 +96,20 @@ classdef LargeShockSV < estimator.Base
                 while ~accepted
                     %Getting sampled theta from MH
                     proposal = propGen()';
-                    cand = prevAccepted + proposal;
+                    cand = prevAccepted + proposal;                    
                     candLogTargetPDF = -targFun(cand);
                     alpha = min(1, exp(candLogTargetPDF - prevLogTargetPDF));
                     accepted = rand() < alpha;
                 end
 
-                sample.theta = cand;
+                [sample.B, cholSigma, sample.theta]  = largeshocksv.pars2mat(cand, numBRows, sizeB, numTheta);
+                sample.Sigma_avg = cholSigma*cholSigma';
+
                 prevAccepted = cand;
                 prevLogTargetPDF = candLogTargetPDF;
 
-                %Get conditional Sigma and B
-                [scY, scX] = largeshocksv.scaleData(Y, LX, T0SS, sample.theta);
-                posterior = largeshocksv.get_NIW_Posterior(prior, scY, scX);
-    
-                [sample.B, sample.Sigma_avg] = largeshocksv.sample_posterior(posterior);
+
                 sample.sf = largeshocksv.scaleFactor(sample.theta, estimLength, T0SS);
-    
                 for zz = 1:estimLength
                     sample.Sigma_t{zz, 1} = sample.sf(zz)^2*sample.Sigma_avg;
                 end
