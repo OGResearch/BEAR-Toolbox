@@ -18,6 +18,7 @@ classdef (Abstract) Base < handle
         BeenInitialized (1, 1) logical = false
         HasCrossUnitVariationInBeta (1, 1) logical = false
         HasCrossUnitVariationInSigma (1, 1) logical = false
+        HasTimeVariationInBeta (1, 1) logical = false
     end
 
     properties (Dependent)

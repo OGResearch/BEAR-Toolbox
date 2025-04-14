@@ -10,6 +10,12 @@ classdef GeneralTV < estimator.Base
 
     methods
 
+        function this = GeneralTV(varargin)
+            this = this@estimator.Base(varargin{:});
+            this.HasTimeVariationInBeta = true;
+        end%
+
+
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
             arguments

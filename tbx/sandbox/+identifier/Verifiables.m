@@ -15,25 +15,34 @@ classdef Verifiables < identifier.Base
 
 
     methods
-        function this = Verifiables(tests, options)
+        function this = Verifiables(options)
             arguments
-                tests
-                %
-                options.ExactZeros (1, 1) identifier.ExactZeros = identifier.ExactZeros()
+                options.TestStrings (:, 1) string = string.empty(0, 1)
+                options.ExactZeros = [] % identifier.ExactZeros()
+                options.ExactZerosTable = []
+                options.SignRestrictionsTable = []
                 options.MaxCandidates (1, 1) double = identifier.Verifiables.DEFAULT_MAX_CANDIDATES
                 options.FlipSign (1, 1) logical = identifier.Verifiables.DEFAULT_FLIP_SIGN
                 options.ShortCircuit (1, 1) logical = true
             end
             %
-            if istable(tests)
-                tests = tablex.toVerifiables(tests);
-            end
-            tests = textual.stringify(tests);
-            this.ExactZeros = options.ExactZeros;
-            this.VerifiableTests = identifier.VerifiableTests(tests);
+            testStrings = options.TestStrings;
+            this.addExactZeros(options);
+            addTests = this.addSignRestrictions(options);
+            testStrings = [testStrings; addTests];
+            this.VerifiableTests = identifier.VerifiableTests(testStrings);
             this.MaxCandidates = options.MaxCandidates;
         end%
 
+        function whenPairedWithModel(this, modelS)
+            arguments
+                this
+                modelS (1, 1) model.Structural
+            end
+            if ~isempty(this.ExactZeros)
+                this.ExactZeros.whenPairedWithModel(modelS);
+            end
+        end%
 
         function initializeSampler(this, modelS)
             %[
@@ -160,6 +169,26 @@ classdef Verifiables < identifier.Base
             %
             this.Sampler = @samplerS;
             %]
+        end%
+
+        function addExactZeros(this, options)
+            if ~isempty(options.ExactZeros)
+                this.ExactZeros = options.ExactZeros;
+                return
+            end
+            if ~isempty(options.ExactZerosTable)
+                this.ExactZeros = identifier.ExactZeros(options.ExactZerosTable);
+                return
+            end
+        end%
+
+        function addTestStrings = addSignRestrictions(this, options)
+            tbl = options.SignRestrictionsTable;
+            if isempty(tbl)
+                addTestStrings = string.empty(0, 1);
+                return
+            end
+            addTestStrings = identifier.SignRestrictions.toVerifiableTestStrings(tbl);
         end%
 
     end

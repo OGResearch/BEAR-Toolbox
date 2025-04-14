@@ -28,6 +28,12 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
 
         Lambda5 double = 0.001 % %lambda5 block exogeneity shrinkage hyperparameter
 
+        % StabilityThreshold  Threshold for maximum eigenvalue magnitude
+        StabilityThreshold (1, 1) double = Inf
+
+        % MaxNumUnstableAttempts  Maximum number of unstable sampling attempts
+        MaxNumUnstableAttempts (1, 1) double = 1000
+
     end
 
 

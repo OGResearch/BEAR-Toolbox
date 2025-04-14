@@ -100,6 +100,9 @@ classdef Meta < matlab.mixin.Copyable
         % SeparableShockNames  Shock names or shock concepts depending on cross-units
         SeparableShockNames
 
+        % NumRowsA  Number of rows in the transition matrix
+        NumRowsTransition
+
     end
 
 

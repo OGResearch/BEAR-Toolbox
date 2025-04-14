@@ -41,6 +41,7 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             %
             this.ReducedForm = options.reducedForm;
             this.Identifier = options.identifier;
+            this.Identifier.whenPairedWithModel(this);
         end%
 
 
@@ -128,7 +129,7 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
 
         function [e, sample] = estimateShocks4S(this, sample, longYXZ)
             u = this.ReducedForm.estimateResiduals4S(sample, longYXZ);
-            e = shocksFromResiduals_(u, sample.D);
+            e = system.shocksFromResiduals(u, sample.D);
         end%
 
 
@@ -143,16 +144,16 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             longYXZ = this.getLongYXZ();
             order = meta.Order;
             %
-            contrib = cell(1, numPresampled);
+            [contributor, contribs] = this.prepareForContributions(meta.ShortSpan, []);
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
                 draw = drawer(sample);
                 shortE = this.estimateShocks4S(sample, longYXZ);
                 initY = longYXZ{1}(1:order, :, :);
                 shortX = longYXZ{2}(order+1:end, :, :);
-                contrib{i} = calculateContributions4S_(draw.A, draw.C, sample.D, shortE, shortX, initY);
+                contribs{i} = contributor(draw.A, draw.C, sample.D, shortE, shortX, initY);
             end
-            outTbl = this.tabulateContributions(contrib, meta.ShortSpan);
+            outTbl = this.tabulateContributions(contribs, meta.ShortSpan);
             %
         end%
 
@@ -203,197 +204,9 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
             );
         end%
 
-
-        function [outTbl, contribTbl] = conditionalForecast(this, fcastSpan, options)
-            %[
-            arguments
-                this
-                fcastSpan (1, :) datetime
-                options.Conditions (:, :) timetable
-                options.Plan = []
-                options.IncludeInitial (1, 1) logical = true
-                options.Contributions (1, 1) logical = false
-                options.Precontributions = []
-            end
-            %
-            if ~isempty(options.Precontributions)
-                error("Precontributions disabled");
-            end
-            %
-            VARIANT_DIM = 3;
-            CONTRIB_DIM = 3;
-            meta = this.Meta;
-            numY = meta.NumEndogenousNames;
-            order = meta.Order;
-            numL = numY * order;
-            shortFcastSpan = datex.ensureSpan(fcastSpan);
-            fcastStart = shortFcastSpan(1);
-            longFcastSpan = datex.longSpanFromShortSpan(shortFcastSpan, meta.Order);
-            fcastStartIndex = datex.diff(fcastStart, meta.ShortStart) + 1;
-            fcastHorizon = numel(shortFcastSpan);
-            initSpan = datex.initSpanFromShortSpan(shortFcastSpan, meta.Order);
-            initYXZ = this.getSomeYXZ(initSpan);
-            initY = initYXZ{1};
-            fcastX = tablex.retrieveData(options.Conditions, meta.ExogenousNames, shortFcastSpan);
-            %
-            cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, shortFcastSpan);
-            cfshocks = conditional.createShocksCF(meta, options.Plan, shortFcastSpan);
-            cfblocks = conditional.createBlocksCF(cfconds, cfshocks);
-            numShockConcepts = meta.NumShockConcepts;
-            %
-            legacyOptions = struct();
-            legacyOptions.hasIntercept = meta.HasIntercept;
-            legacyOptions.order = meta.Order;
-            legacyOptions.cfconds = [];
-            legacyOptions.cfblocks = [];
-            legacyOptions.cfshocks = [];
-            %
-            numPresampled = this.NumPresampled;
-            progressMessage = sprintf("Conditional forecast [%g]", numPresampled);
-            %
-            %
-            numUnits = meta.NumSeparableUnits;
-            if numUnits > 1
-                if ~isempty(cfconds)
-                    cfconds = reshape(cfconds, size(cfconds, 1), [], numUnits);
-                end
-                if ~isempty(cfshocks)
-                    cfshocks = reshape(cfshocks, size(cfshocks, 1), [], numUnits);
-                end
-                if ~isempty(cfblocks)
-                    cfblocks = reshape(cfblocks, size(cfblocks, 1), [], numUnits);
-                end
-            end
-            fcastY = cell(1, numPresampled);
-            fcastE = cell(1, numPresampled);
-            if options.Contributions
-                contribs = cell(1, numPresampled);
-            end
-            pbar = progress.Bar(progressMessage, numPresampled*numUnits);
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                draw = this.ConditionalDrawer(sample, fcastStartIndex, fcastHorizon);
-                for j = 1 : numUnits
-                    if ~isempty(cfconds)
-                        legacyOptions.cfconds = cfconds(:, :, j);
-                    end
-                    if ~isempty(cfshocks)
-                        legacyOptions.cfshocks = cfshocks(:, :, j);
-                        for k = 1 : numel(legacyOptions.cfshocks)
-                            legacyOptions.cfshocks{k} = legacyOptions.cfshocks{k} - (j-1)*numShockConcepts;
-                        end
-                    end
-                    if ~isempty(cfblocks)
-                        legacyOptions.cfblocks = cfblocks(:, :, j);
-                    end
-                    unitInitY = initY(:, :, j);
-                    unitD = sample.D(:, :, j);
-                    unitBeta = meta.extractUnitFromCells(draw.beta, j, dim=2);
-                    [unitY, unitE] = conditional.forecast(transpose(unitD), [unitBeta{:}], unitInitY, fcastX, fcastHorizon, legacyOptions);
-                    fcastY{i} = [fcastY{i}, unitY];
-                    fcastE{i} = [fcastE{i}, unitE];
-                    if options.Contributions
-                        unitA = cell(1, fcastHorizon);
-                        unitC = cell(1, fcastHorizon);
-                        for k = 1 : fcastHorizon
-                            unitB = reshape(unitBeta{k}, [], numY);
-                            unitA{k} = unitB(1:numL, :);
-                            unitC{k} = unitB(numL+1:end, :);
-                        end
-                        unitContribs = calculateContributions4S_(unitA, unitC, unitD, unitE, fcastX, unitInitY);
-                        contribs{i} = [contribs{i}, unitContribs];
-                    end
-                    pbar.increment();
-                end
-            end
-            fcastY = cat(VARIANT_DIM, fcastY{:});
-            fcastE = cat(VARIANT_DIM, fcastE{:});
-            outNames = [meta.EndogenousNames, meta.ShockNames];
-            outData = [fcastY, fcastE];
-            outSpan = shortFcastSpan;
-            if options.IncludeInitial
-                outSpan = longFcastSpan;
-                initData = [repmat(initY(:, :), 1, 1, numPresampled), zeros(order, numY, numPresampled)];
-                outData = [initData; outData];
-            end
-            %
-            outTbl = tablex.fromNumericArray(outData, outNames, outSpan, variantDim=VARIANT_DIM);
-            %
-            contribTbl = [];
-            if options.Contributions
-                contribTbl = this.tabulateContributions(contribs, shortFcastSpan);
-            end
-            %]
-        end%
-
-        function [outputTbl, contribTbl] = forecast(this, fcastSpan, options)
-            arguments
-                this
-                fcastSpan (1, :) datetime
-                options.StochasticResiduals (1, 1) logical = true
-                options.IncludeInitial (1, 1) logical = true
-                options.Contributions (1, 1) logical = false
-                options.Precontributions = []
-            end
-            %
-            if ~isempty(options.Precontributions)
-                error("Precontributions disabled");
-            end
-            %
-            meta = this.Meta;
-            order = meta.Order;
-            fcastSpan = datex.ensureSpan(fcastSpan);
-            [forecaster, tabulator] = this.ReducedForm.prepareForecaster( ...
-                fcastSpan, ...
-                stochasticResiduals=options.StochasticResiduals, ...
-                includeInitial=options.IncludeInitial ...
-            );
-            numPresampled = this.NumPresampled;
-            shortY = cell(1, numPresampled);
-            shortX = cell(1, numPresampled);
-            shortU = cell(1, numPresampled);
-            initY = cell(1, numPresampled);
-            if options.Contributions
-                contribs = cell(1, numPresampled);
-                precontribs = double.empty(0, 0, 0, numPresampled);
-                if isempty(options.Precontributions)
-                    contributor = @calculateContributions4S_;
-                else
-                    fcastStart = fcastSpan(1);
-                    precontribStart = meta.ShortStart;
-                    precontribEnd = datex.shift(fcastStart, -1);
-                    precontribSpan = datex.span(precontribStart, precontribEnd);
-                    precontribs = tablex.retrieveData( ...
-                        options.Precontributions, meta.EndogenousNames, precontribSpan, ...
-                        variant=':', ...
-                        permute=[1, 4, 3, 2] ...
-                    );
-                    histInitYXZ = this.getInitYXZ();
-                    histInitY = histInitYXZ{1};
-                    numY = size(histInitY, 2);
-                    numContrib = size(precontribs, 3);
-                    precontribs = [zeros(order, numY, numContrib, numPresampled); precontribs];
-                    for i = 1 : numPresampled
-                        precontribs(1:order, :, end, i) = histInitY(:, :, min(end, i));
-                    end
-                    precontribs = precontribs(end-order+1:end, :, :, :);
-                    contributor = @extendPrecontributions4S_;
-                end
-            end
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                [shortY{i}, shortU{i}, initY{i}, shortX{i}, draw] = forecaster(sample);
-                shortE = shocksFromResiduals_(shortU{i}, sample.D);
-                if options.Contributions
-                    contribs{i} = contributor(draw.A, draw.C, sample.D, shortE, shortX{i}, initY{i}, precontribs(:, :, :, i));
-                end
-            end
-            outputTbl = tabulator(shortY, shortU, initY, shortX);
-            contribTbl = [];
-            if options.Contributions
-                contribTbl = this.tabulateContributions(contribs, fcastSpan);
-            end
-        end%
+        varargout = forecast(varargin)
+        varargout = conditionalForecast(varargin)
+        varargout = prepareForContributions(varargin)
 
         function varargout = asymptoticMean(this, varargin)
             [varargout{1:nargout}] = this.ReducedForm.asymptoticMean(varargin{:});
@@ -465,31 +278,4 @@ classdef Structural < handle & model.PresampleMixin & model.TabulateMixin
 
 end
 
-
-function e = shocksFromResiduals_(u, D)
-    % U = E * D => E = U / D
-    e = u / D;
-end%
-
-
-function contrib = calculateContributions4S_(A, C, D, shortE, shortX, initY, ~)
-    CONTRIB_DIM = 3;
-    ce = system.contributionsShocks(A, D, shortE);
-    cx = system.contributionsExogenous(A, C, shortX);
-    ci = system.contributionsInit(A, initY);
-    contrib = cat(CONTRIB_DIM, ce, cx, ci);
-end%
-
-
-function contrib = extendPrecontributions4S_(A, C, D, shortE, shortX, initY, precontribs)
-    CONTRIB_DIM = 3;
-    numE = size(shortE, 2);
-    initContE = precontribs(:, :, 1:numE);
-    initContX = precontribs(:, :, numE+1);
-    initContI = precontribs(:, :, end);
-    ce = system.contributionsShocks(A, D, shortE);
-    cx = system.contributionsExogenous(A, C, shortX);
-    ci = system.contributionsInit(A, initContI);
-    contrib = cat(CONTRIB_DIM, ce, cx, ci);
-end%
 

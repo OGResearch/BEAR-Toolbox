@@ -1,6 +1,7 @@
 
 classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
-%prior =11 12 and 13 in BEAR5
+
+    %prior =11 12 and 13 in BEAR5
     properties
         DescriptionUX = "BVAR with Minnesota prior"
 
@@ -22,7 +23,6 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
 
             [longY, longX, ~] = longYXZ{:};
 
-            
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;
@@ -73,7 +73,32 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
                 this.SampleCounter = this.SampleCounter + 1;
             end%
 
+            numY = meta.NumEndogenousNames;
+            order = meta.Order;
+            numL = numY * order;
+
+            function A = retriever(sample, t)
+                B = reshape(sample.beta, [], numY);
+                A = B(1:numL, :);
+            end%
+
+            stabilityThreshold = this.Settings.StabilityThreshold;
+            maxNumUnstableAttempts = this.Settings.MaxNumUnstableAttempts;
+            needsStabilityCheck = stabilityThreshold < Inf;
+
             this.Sampler = @sampler;
+
+            if needsStabilityCheck
+                this.Sampler = estimator.wrapInStabilityCheck( ...
+                    sampler=this.Sampler, ...
+                    retriever=@retriever, ...
+                    threshold=stabilityThreshold, ...
+                    numY=numY, ...
+                    order=order, ...
+                    numPeriodsToCheck=1, ...
+                    maxNumAttempts=maxNumUnstableAttempts ...
+                );
+            end
 
             %===============================================================================
 

@@ -16,6 +16,10 @@ classdef PresampleMixin < handle
             %
             this.resetPresampled(numToPresample);
             sampler = this.Sampler;
+            if isempty(sampler)
+                error("Sampler must be initialized before presampling.");
+            end
+            %
             progressMessage = sprintf("Presampling %s (%s) [%g]", class(this), this.Estimator.ShortClassName, numToPresample);
             progressBar = progress.Bar(progressMessage, numToPresample, active=options.Progress);
             initSampleCount = this.SampleCounter;

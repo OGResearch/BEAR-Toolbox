@@ -155,9 +155,9 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
         function sampler = getSampler(this)
             sampler = this.Estimator.Sampler;
-            if this.StabilityThreshold < Inf
-                sampler = this.decorateStability(sampler);
-            end
+            % if this.StabilityThreshold < Inf
+            %     sampler = this.decorateStability(sampler);
+            % end
         end%
 
 
@@ -174,22 +174,22 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
         end%
 
 
-        function outSampler = decorateStability(this, inSampler)
-            meta = this.Meta;
-            threshold = this.StabilityThreshold;
-            %
-            function sample = samplerWithStabilityCheck()
-                while true
-                    sample = inSampler();
-                    A = meta.ayeFromSample(sample);
-                    if system.stability(A, threshold)
-                        break
-                    end
-                end
-            end%
-            %
-            outSampler = @samplerWithStabilityCheck;
-        end%
+        % function outSampler = decorateStability(this, inSampler)
+        %     meta = this.Meta;
+        %     threshold = this.StabilityThreshold;
+        %     %
+        %     function sample = samplerWithStabilityCheck()
+        %         while true
+        %             sample = inSampler();
+        %             A = meta.ayeFromSample(sample);
+        %             if system.stability(A, threshold)
+        %                 break
+        %             end
+        %         end
+        %     end%
+        %     %
+        %     outSampler = @samplerWithStabilityCheck;
+        % end%
 
 
         function [forecaster, tabulator] = prepareForecaster(this, shortFcastSpan, options)
@@ -347,9 +347,9 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
         function out = get.Sampler(this)
             out = this.Estimator.Sampler;
-            if this.StabilityThreshold < Inf
-                out = this.decorateStability(out);
-            end
+            % if this.StabilityThreshold < Inf
+            %     out = this.decorateStability(out);
+            % end
         end%
 
         function out = get.SampleCounter(this)
@@ -423,13 +423,13 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
         function checkForecastSpan(this, fcastStart, fcastEnd)
             beforeStart = datex.shift(fcastStart, -1);
             if ~any(beforeStart == this.Meta.ShortSpan)
-                error("Forecast start period out of range");
+                error("Forecast start period out of range.");
             end
             if ~this.Meta.HasExogenous
                 return
             end
             if ~any(fcastEnd == this.DataHolder.Span)
-                error("Forecast end period out of range");
+                error("Forecast end period out of range.");
             end
         end%
 

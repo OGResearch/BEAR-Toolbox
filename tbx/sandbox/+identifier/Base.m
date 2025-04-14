@@ -65,6 +65,9 @@ classdef (Abstract) Base < handle
             this.SeparableShockNames = meta.SeparableShockNames;
         end%
 
+        function whenPairedWithModel(this, modelS)
+        end%
+
         function beforeInitializeSampler(this, modelS)
         end%
 

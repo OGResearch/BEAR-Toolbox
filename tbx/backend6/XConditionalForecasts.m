@@ -1,5 +1,5 @@
-%% Conditional forecasts
-%% 
+%% Conditional forecasts 
+%
 % * Prepare a reduced-form model for experiments with zero restrictions
 % * Prepare a table with conditions
 % * Prepare a table with a "simulation plan"
@@ -13,23 +13,30 @@ rehash path
 addpath ../sandbox
 addpath ../bear
 
-%% Convenience functions
+
+%% Define convenience functions 
 %
-% The |extremesFunc| function compresses any number of samples (draws from the 
+% The |extremesFunc| function compresses any number of samples (draws from the
 % posterior) into two numbers - the minimum and the maximum.
 
 
 percentiles = [10, 50, 90];
 prctilesFunc = @(x) prctile(x, percentiles, 2);
+medianFunc = @(x) median(x, 2);
 extremesFunc = @(x) [min(x, [], 2), max(x, [], 2)];
 
 defaultColors = get(0, "defaultAxesColorOrder");
 
-%% Prepare data and a reduced-form model
+
+%% Prepare data and a reduced-form model 
 %
 % * Same as in introCommonTasks
 
-inputTbx = tablex.fromCsv("exampleData.csv");
+inputTbl = tablex.fromCsv("exampleData.csv");
+
+inputTbl = tablex.extend(inputTbl, -Inf, datex.q(2017,4));
+inputTbl.Oil = fillmissing(inputTbl.Oil, "nearest");
+
 
 estimStart = datex.q(1975,1);
 estimEnd = datex.q(2014,4);
@@ -47,7 +54,7 @@ meta = model.Meta( ...
     shockConcepts=["DEM", "SUP", "POL"] ...
 );
 
-dataH = model.DataHolder(meta, inputTbx);
+dataH = model.DataHolder(meta, inputTbl);
 
 estimatorR = estimator.NormalWishart(meta);
 
@@ -58,11 +65,12 @@ modelR = model.ReducedForm( ...
     , stabilityThreshold=Inf ...
 );
 
-%% Indentify a SVAR using Cholesky with reordering
-% 
-% * Use Cholesky as if the endogenous variables were ordered in a different 
+
+%% Identify a SVAR using Cholesky with reordering 
+%
+% * Use Cholesky as if the endogenous variables were ordered in a different
 % way than in meta
-% * If a certain trailing portion of the order follows the meta order, you can 
+% * If a certain trailing portion of the order follows the meta order, you can
 % omit that part
 
 
@@ -81,69 +89,86 @@ info0 = modelS0.presample(100);
 modelS0.Presampled{1}.D
 modelS0.Presampled{2}.D
 
-respTbx0 = modelS0.simulateResponses();
-respTbx0 = tablex.apply(respTbx0, extremesFunc);
-respTbx0 = tablex.flatten(respTbx0);
+respTbl0 = modelS0.simulateResponses();
+respTbl0 = tablex.apply(respTbl0, extremesFunc);
+respTbl0 = tablex.flatten(respTbl0);
 
-respTbx0
+respTbl0
 
 
-%% Create forecast assumptions
-
+%% Create forecast assumptions 
 
 fcastStart = datex.shift(estimEnd, 1);
 fcastEnd = datex.shift(estimEnd, 12);
 fcastSpan = datex.span(fcastStart, fcastEnd);
 initStart = datex.shift(fcastStart, -modelS0.Meta.Order);
 
-[dataTbx, planTbx] = tablex.forConditional(modelS0, fcastSpan);
-dataTbx
-planTbx
+[dataTbl, planTbl] = tablex.forConditional(modelS0, fcastSpan);
+dataTbl
+planTbl
 
-dataTbx{datex("2015-Q4"), "DOM_GDP"} = -1.5;
-dataTbx{datex("2016-Q4"), "DOM_CPI"} = 5.5;
-%dataTbx{datex("2016-Q3"), "STN"} = 5.5;
+dataTbl{datex("2015-Q4"), "DOM_GDP"} = -1.5;
+dataTbl{datex("2016-Q4"), "DOM_CPI"} = 5.5;
+%dataTbl{datex("2016-Q3"), "STN"} = 5.5;
 
-dataTbx{:, "Oil"} = inputTbx{end, "Oil"};
-
-
-%% Run across-the-board vs selective conditions forecasts
+dataTbl{:, "Oil"} = inputTbl{end, "Oil"};
 
 
-planTbx{datex("2015-Q4"), "DOM_GDP"} = "DEM POL";
-planTbx{datex("2016-Q4"), "DOM_CPI"} = "DEM SUP";
-%planTbx{datex("2016-Q3"), "DOM_CPI"} = "SUP";
+%% Run across-the-board vs selective conditions forecasts 
+%
+
+planTbl{datex("2015-Q4"), "DOM_GDP"} = "DEM POL";
+planTbl{datex("2016-Q4"), "DOM_CPI"} = "DEM SUP";
+%planTbl{datex("2016-Q3"), "DOM_CPI"} = "SUP";
 
 
-histContTbx = modelS0.calculateContributions();
+% Calculate contributions of shocks, exogenous and initials on the estimation
+% span
+histContTbl = modelS0.calculateContributions();
 
-rng(0);
 
-[cfcastTbx1, cfcastContTbx1] = modelS0.conditionalForecast( ...
+% Run unconditional forecast and calculate contributions starting at the
+% beginning of the forecast
+[fcastTbl1, fcastContTbl1] = modelS0.forecast( ...
     fcastSpan, ...
-    conditions=dataTbx, ...
+    contributions=true ...
+);
+
+
+% Run unconditional forecast and calculate contributions starting at the
+% beginning of the estimation span
+[fcastTbl2, fcastContTbl2] = modelS0.forecast( ...
+    fcastSpan, ...
+    contributions=true, ...
+    precontributions=histContTbl ...
+);
+
+
+% Run unconditional forecast and calculate contributions starting at the
+% beginning of the estimation span
+[condTbl1, condContTbl1] = modelS0.conditionalForecast( ...
+    fcastSpan, ...
+    conditions=dataTbl, ...
     plan=[], ...
     contributions=true ...
 );
 
-cfcastPrctilesTbx1 = tablex.apply(cfcastTbx1, prctilesFunc);
-
-
-
-rng(0);
-
-[cfcastTbx2, cfcastContTbx2] = modelS0.conditionalForecast( ...
+[condTbl2, condContTbl2] = modelS0.conditionalForecast( ...
     fcastSpan, ...
-    conditions=dataTbx, ...
-    plan=planTbx, ...
-    contributions=true ...
+    conditions=dataTbl, ...
+    plan=[], ...
+    contributions=true, ...
+    precontributions=histContTbl ...
 );
 
-cfcastPrctilesTbx2 = tablex.apply(cfcastTbx2, prctilesFunc);
+condPrctilesTbl1 = tablex.apply(condTbl1, prctilesFunc);
+condPrctilesTbl2 = tablex.apply(condTbl2, prctilesFunc);
+
+return
 
 
-%% Visualize conditional forecasts
-
+%% Visualize conditional forecasts 
+%
 
 plotSettings = { ...
    {"color"}, {defaultColors(2,:); defaultColors(1,:); defaultColors(2,:)},  ...
@@ -157,7 +182,12 @@ ch = visual.Chartpack( ...
 );
 
 ch.Captions = "Across-the-board conditional forecast";
-ch.plot(cfcastPrctilesTbx1);
+ch.plot(condPrctilesTbl1);
 
 ch.Captions = "Selective conditional forecast";
-ch.plot(cfcastPrctilesTbx2);
+ch.plot(condPrctilesTbl2);
+
+
+%% Visualize contributions 
+
+

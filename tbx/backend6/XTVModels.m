@@ -8,6 +8,7 @@
 
 clear
 close all
+clear classes
 rehash path
 
 addpath ../sandbox
@@ -49,24 +50,32 @@ meta = model.Meta( ...
 
 dataH = model.DataHolder(meta, inputTbx);
 
-%% Time-varying models
+%% Set up time-varying models
+
 % Time-varying coefficients (BetaTV)
 
 
-estimatorR1 = estimator.BetaTV(meta);
+estimatorR1 = estimator.BetaTV(meta, stabilityThreshold=0.9999);
 
 modelR1 = model.ReducedForm( ...
     meta=meta ...
     , dataHolder=dataH ...
     , estimator=estimatorR1 ...
-    , stabilityThreshold=Inf ...
 );
 
 modelR1.Estimator.Settings
+modelR1.initialize();
+modelR1.presample(50);
 
-%% 
-% and General time-varying (i.e parameters and covariance are both TV)
+s = [];
+for i = 1 : 50
+    s = [s, modelR1.Presampled{i}.AbsMaxEigval];
+end
 
+return
+
+
+% General time-varying (i.e parameters and covariance are both TV)
 
 estimatorR2 = estimator.GeneralTV(meta);
 
@@ -74,7 +83,6 @@ modelR2 = model.ReducedForm( ...
     meta=meta ...
     , dataHolder=dataH ...
     , estimator=estimatorR2 ...
-    , stabilityThreshold=Inf ...
 );
 modelR2.Estimator.Settings
 

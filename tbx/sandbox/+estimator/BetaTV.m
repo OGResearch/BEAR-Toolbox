@@ -1,3 +1,4 @@
+
 classdef BetaTV < estimator.Base
 %TV coefficients, tvbvar=1 in BEAR5
 
@@ -9,6 +10,12 @@ classdef BetaTV < estimator.Base
 
 
     methods %(Access = protected)
+
+        function this = BetaTV(varargin)
+            this = this@estimator.Base(varargin{:});
+            this.HasTimeVariationInBeta = true;
+        end%
+
 
         function initializeSampler(this, meta, longYXZ, dummiesYLX)
             %[
@@ -22,11 +29,14 @@ classdef BetaTV < estimator.Base
 
             [longY, longX, ~] = longYXZ{:};
 
+            order = meta.Order;
             opt.const = meta.HasIntercept;
-            opt.p = meta.Order;
+            opt.p = order;
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
+
+            numARows = numEn * order;
 
             [arvar] = bear.arloop(longY, opt.const, p, numEn);
 
@@ -74,6 +84,7 @@ classdef BetaTV < estimator.Base
             function sample  =  sampler()
 
                 % step 2: draw B
+
                 invomegabar = H' * kron(I_tau, invomega) * H + ...
                     kron(speye(estimLength), kron(invsigma, ones(sizeB / numEn, sizeB / numEn))) .* pre_xx;
 
@@ -85,6 +96,7 @@ classdef BetaTV < estimator.Base
 
                 % simulation phase:
                 B = Bbar + chol(invomegabar, 'Lower')' \ randn(sizeB * estimLength, 1);
+
                 % reshape
                 Beta = reshape(B, sizeB, estimLength);
 
@@ -118,9 +130,30 @@ classdef BetaTV < estimator.Base
                 sample.beta = mat2cell(B, repmat(sizeB, estimLength, 1));
                 sample.omega = diag(omega);
                 sample.sigma = sigma;
-            end
+            end%
+
+            function A = retriever(sample, t)
+                B = reshape(sample.beta{t}, [], numEn);
+                A = B(1:numARows, :);
+            end%
+
+            stabilityThreshold = this.Settings.StabilityThreshold;
+            maxNumUnstableAttempts = this.Settings.MaxNumUnstableAttempts;
+            needsStabilityCheck = stabilityThreshold < Inf;
 
             this.Sampler = @sampler;
+
+            if needsStabilityCheck
+                this.Sampler = estimator.wrapInStabilityCheck( ...
+                    sampler=this.Sampler, ...
+                    retriever=@retriever, ...
+                    threshold=stabilityThreshold, ...
+                    numY=numEn, ...
+                    order=order, ...
+                    numPeriodsToCheck=estimLength, ...
+                    maxNumAttempts=maxNumUnstableAttempts ...
+                );
+            end
 
             %]
         end%
@@ -135,12 +168,12 @@ classdef BetaTV < estimator.Base
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
-            function [draw] = unconditionalDrawer(sample, startingIndex, forecastHorizon)
+            function [draw] = unconditionalDrawer(sample, startIndex, forecastHorizon)
 
                 %draw beta, omega and sigma and F from their posterior distributions
 
                 % draw beta
-                beta = sample.beta{startingIndex - 1, 1};
+                beta = sample.beta{startIndex - 1, 1};
 
                 % draw omega
                 omega = sample.omega;
@@ -165,12 +198,12 @@ classdef BetaTV < estimator.Base
                 end
             end
 
-            function [draw] = conditionalDrawer(sample, startingIndex, forecastHorizon )
+            function [draw] = conditionalDrawer(sample, startIndex, forecastHorizon )
 
                 %draw beta, omega and sigma and F from their posterior distributions
 
                 % draw beta
-                beta = sample.beta{startingIndex - 1, 1};
+                beta = sample.beta{startIndex - 1, 1};
 
                 % draw omega
                 omega = sample.omega;
@@ -179,7 +212,7 @@ classdef BetaTV < estimator.Base
                 cholomega = sparse(diag(omega));
 
                 draw.beta = cell(forecastHorizon, 1);
-                
+
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:forecastHorizon
@@ -188,7 +221,6 @@ classdef BetaTV < estimator.Base
                     draw.beta{jj, 1}(:) = beta;
                 end
             end
-
 
 
             function [draw] = identificationDrawer(sample)
@@ -224,7 +256,7 @@ classdef BetaTV < estimator.Base
 
             function draw = historyDrawer(sample)
                 %[
-                for jj = 1:estimationHorizon
+                for jj = 1 : estimationHorizon
                     B = reshape(sample.beta{jj}, [], numEn);
                     draw.A{jj}(:, :) = B(1:numARows, :);
                     draw.C{jj}(:, :) = B(numARows + 1:end, :);

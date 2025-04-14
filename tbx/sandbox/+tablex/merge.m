@@ -20,8 +20,7 @@ function outTable = merge(firstTable, secondTable)
     secondNames = string(secondTable.Properties.VariableNames);
     allNames = unique([firstNames, secondNames], "stable");
 
-    [firstSpan, secondSpan, allSpan] ...
-        = locallyResolveSpans(firstTable, secondTable);
+    [firstSpan, secondSpan, allSpan] = resolveSpans_(firstTable, secondTable);
 
     numFirstPeriods = numel(firstSpan);
     numSecondPeriods = numel(secondSpan);
@@ -56,7 +55,8 @@ function outTable = merge(firstTable, secondTable)
 
 end%
 
-function [firstSpan, secondSpan, allSpan] = locallyResolveSpans(firstTable, secondTable)
+
+function [firstSpan, secondSpan, allSpan] = resolveSpans_(firstTable, secondTable)
 
     firstSpan = tablex.span(firstTable);
     secondSpan = tablex.span(secondTable);
