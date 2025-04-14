@@ -294,7 +294,7 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
             shortY = cell(1, numUnits);
             shortU = cell(1, numUnits);
             initY = cell(1, numUnits);
-            shortX = cell(1, numUnits);
+            shortX = [];
             for i = 1 : numUnits
                 %
                 % Extract unit-specific data
@@ -313,7 +313,7 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
                 %
                 % Run unit-specific forecast
                 %
-                [shortY{i}, initY{i}, shortX{i}] = system.forecast( ...
+                [shortY{i}, initY{i}, shortX] = system.forecast( ...
                     unitA, unitC, unitYXZ, shortU{i} ...
                     , hasIntercept=options.HasIntercept ...
                     , order=options.Order ...
@@ -322,7 +322,6 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
             shortY = cat(unitDim, shortY{:});
             shortU = cat(unitDim, shortU{:});
             initY = cat(unitDim, initY{:});
-            shortX = cat(unitDim, shortX{:});
         end%
 
     end

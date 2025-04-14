@@ -1,5 +1,13 @@
 classdef CarrieroSV < estimator.Base
 %SV for large models in BEAR5, stvol=3
+% ...
+
+
+    methods (Static)
+        function info = getModelReference()
+            info.category = "stochastic_volatility";
+        end
+    end
 
     properties
         CanHaveDummies = false

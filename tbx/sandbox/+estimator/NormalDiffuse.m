@@ -1,6 +1,13 @@
 
 classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
 %prior =41 in BEAR5
+    
+    methods (Static)
+        function info = getModelReference()
+            info.category = "basic_bvar";
+        end
+    end
+    
     properties
         DescriptionUX = "BVAR with Normal-Diffuse prior"
 

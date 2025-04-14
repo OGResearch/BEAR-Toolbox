@@ -1,5 +1,11 @@
 classdef StaticCrossPanel < estimator.Base
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "panel";
+        end
+    end
+    
     properties
         DescriptionUX = "Static Cross-Sectional Panel BVAR"
 

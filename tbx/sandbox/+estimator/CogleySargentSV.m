@@ -1,5 +1,12 @@
 classdef CogleySargentSV < estimator.Base
 %Standard model, in BEAR5,  stvol =1
+    
+    methods (Static)
+        function info = getModelReference()
+            info.category = "stochastic_volatility";
+        end
+    end
+    
     properties
         CanHaveDummies = false
         CanHaveReducibles = false

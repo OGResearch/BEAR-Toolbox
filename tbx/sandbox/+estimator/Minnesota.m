@@ -1,7 +1,14 @@
 
 classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
+    % BVAR with Minnesota prior
+    % prior =11 12 and 13 in BEAR5
 
-    %prior =11 12 and 13 in BEAR5
+    methods (Static)
+        function info = getModelReference()
+            info.category = "basic_bvar";
+        end
+    end
+
     properties
         DescriptionUX = "BVAR with Minnesota prior"
 

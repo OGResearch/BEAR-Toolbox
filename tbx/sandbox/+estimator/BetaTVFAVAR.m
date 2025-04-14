@@ -1,5 +1,14 @@
 classdef BetaTVFAVAR < estimator.Base
-%FAVAR verison of TV coefficients model, tvbvar=1 in BEAR5
+%% FAVAR verison of TV coefficients model, tvbvar=1 in BEAR5
+% ...
+
+
+    methods (Static)
+        function info = getModelReference()
+            info.category = "favar";
+        end
+    end
+
     properties
         CanHaveDummies = false
         CanHaveReducibles = true

@@ -5,28 +5,41 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
 
     properties
 
-        % Burnin  Number of burn-in draws
+        % Number of burn-in draws
+        %Bu
         Burnin (1, 1) double = 0 %Bu in BEAR5
 
-        % Exogenous  True or false for priors on exogenous variables
-        Exogenous (:, :) logical = false %priorexogenous in BEAR5, controls wheter to use priors on exogenous
+        % Priors on exogenous variables flag
+        %priorexogenous
+        Exogenous (:, :) logical = false %% priorexogenous in BEAR5, controls wheter to use priors on exogenous
 
-        % BlockExogenous  True or false for block exogeneity
+        % Block exogeneity flag
+        % bex
         BlockExogenous (:, :) logical = false %bex in BEAR5, controls wheter to use block exogenity
 
-        % Autoregression  Prior on first-order autoregression
+        % Prior on first-order autoregression
+        % ar
         Autoregression (:, 1) double = 0.8 %ar in BEAR5, the prior mean of the first lag
 
-        % Lambda1  Tightness
+        % Overal tightness of priors
+        % lambda1
         Lambda1 double = 0.1 %lambda1 in BEAR5 , contols the overal tightness of priors
 
+        % Variable weighting
+        % lambda2
         Lambda2 double = 0.5 %lambda2 in BEAR5, controls cross variable weightning
- 
+        
+        % Leg decay
+        % lambda3
         Lambda3 double = 1 %lambda 3 in BEAR5, controls leg decay
 
+        % Exogenous variable tightness
+        % lambda4
         Lambda4 (:, :) double = 100 %lambda4 in BEAR5, controls exogenous variable tightness
 
-        Lambda5 double = 0.001 % %lambda5 block exogeneity shrinkage hyperparameter
+        % Block exogeneity shrinkage
+        % lambda5
+        Lambda5 double = 0.001 %lambda5 block exogeneity shrinkage hyperparameter
 
         % StabilityThreshold  Threshold for maximum eigenvalue magnitude
         StabilityThreshold (1, 1) double = Inf

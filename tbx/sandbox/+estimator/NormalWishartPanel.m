@@ -1,5 +1,10 @@
 classdef NormalWishartPanel < estimator.Base
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "panel";
+        end
+    end
     properties
         DescriptionUX = "Normal-Wishart Panel BVAR"
 
@@ -113,7 +118,8 @@ classdef NormalWishartPanel < estimator.Base
 
             function draw = conditionalDrawer(sample, startIndex, forecastHorizon)
                 draw = struct();
-                draw.beta = wrap(sample.beta, forecastHorizon);
+                draw.beta = wrap(repmat(sample.beta,1,meta.NumSeparableUnits),forecastHorizon); 
+                % draw.beta = wrap(sample.beta, forecastHorizon);
             end%
 
             this.IdentificationDrawer = @identificationDrawer;

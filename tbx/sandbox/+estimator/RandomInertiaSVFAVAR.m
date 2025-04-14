@@ -1,6 +1,12 @@
 
 classdef RandomInertiaSVFAVAR < estimator.Base
-%FAVAR version of random inertia SV model, in BEAR5,  stvol =3
+% FAVAR version of random inertia SV model, in BEAR5,  stvol =3
+
+    methods (Static)
+        function info = getModelReference()
+            info.category = "favar";
+        end
+    end
 
     properties
         CanHaveDummies = false

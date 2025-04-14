@@ -2,6 +2,12 @@
 classdef GeneralTV < estimator.Base
 %general time varying in bear5, tvbvar=2
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "time_varying";
+        end
+    end
+    
     properties
         CanHaveDummies = false
         CanHaveReducibles = false

@@ -1,5 +1,12 @@
 classdef MixedFrequencyBVAR < estimator.Base
-    % MixedFrequencyBVAR
+% Mixed-frequency BVAR
+
+    methods (Static)
+        function info = getModelReference()
+            info.category = "mixed_freq";
+        end
+    end
+    
     properties
         DescriptionUX = "Mixed-frequency BVAR"
 

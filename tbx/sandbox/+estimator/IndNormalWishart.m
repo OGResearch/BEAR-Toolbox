@@ -1,6 +1,14 @@
 
 classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
-%prior =31, 32 and 33
+% BVAR with indenpendent Normal-Wishart priors
+% prior =31, 32 and 33
+    
+    
+    methods (Static)
+        function info = getModelReference()
+            info.category = "basic_bvar";
+        end
+    end
     properties
         DescriptionUX = "BVAR with indenpendent Normal-Wishart priors"
 
