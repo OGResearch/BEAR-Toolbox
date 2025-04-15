@@ -264,7 +264,6 @@ classdef CarrieroSVFAVAR < estimator.Base
 
                 sample.FY = FY;
                 sample.LD = LD;      
-                keyboard
 
             end
 
