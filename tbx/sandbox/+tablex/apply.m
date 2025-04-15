@@ -64,7 +64,7 @@ function outTable = apply(inTable, func, varargin)
 
     try
         higherDims = tablex.getHigherDims(inTable);
-        outTable = tablex.setHigherDims(outTable, higherDims{:});
+        outTable = tablex.setHigherDims(outTable, higherDims);
     end
 
 end%

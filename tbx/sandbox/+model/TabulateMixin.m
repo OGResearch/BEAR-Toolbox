@@ -40,7 +40,7 @@ classdef TabulateMixin < handle
             %
             outNames = input.DimNames{1};
             outTbx = tablex.fromNumericArray(Y, outNames, span, variantDim=input.VariantDim);
-            outTbx = tablex.setHigherDims(outTbx, input.DimNames{2:end});
+            outTbx = tablex.setHigherDims(outTbx, input.DimNames(2:end));
             %]
         end%
     end

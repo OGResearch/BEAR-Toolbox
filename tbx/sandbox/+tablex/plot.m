@@ -17,7 +17,7 @@ function plotHandles = plot(table, names, options)
     if ischar(options.PlotFunc) || isstring(options.PlotFunc)
         options.PlotFunc = str2func(options.PlotFunc);
     end
-    
+
     if isstring(options.Variant)
         options.Variant = char(options.Variant);
     end

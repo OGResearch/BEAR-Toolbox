@@ -47,7 +47,7 @@ function outTable = fromNumericArray(dataArray, names, rows, options)
     outTable = tablex.addCustom(outTable, "HigherDims", cell(1, numHigherDims));
 
     if ~isempty(options.HigherDims)
-        outTable = tablex.setHigherDims(outTable, options.HigherDims{:});
+        outTable = tablex.setHigherDims(outTable, options.HigherDims);
     end
 
 end%

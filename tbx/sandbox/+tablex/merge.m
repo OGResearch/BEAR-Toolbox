@@ -53,6 +53,11 @@ function outTable = merge(firstTable, secondTable)
     end
     outTable = tablex.fromCellArray(allData, allNames, allSpan);
 
+    try
+        higherDimNames = tablex.getHigherDims(firstTable);
+        outTable = tablex.setHigherDims(outTable, higherDimNames);
+    end
+
 end%
 
 

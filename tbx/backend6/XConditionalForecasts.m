@@ -3,12 +3,15 @@
 % * Prepare a reduced-form model for experiments with zero restrictions
 % * Prepare a table with conditions
 % * Prepare a table with a "simulation plan"
-% * Run and report a conditional report using all shocks vs seletected shocks
-
+% * Run and report an unconditional forecast
+% * Run and report a conditional forecast using all shocks vs seletected shocks
+% * Calculate and report the contributions of shocks, exogenous, initials
+%
 
 clear
 close all
 rehash path
+%#ok<*NOPTS>
 
 addpath ../sandbox
 addpath ../bear
@@ -96,7 +99,7 @@ respTbl0 = tablex.flatten(respTbl0);
 respTbl0
 
 
-%% Create forecast assumptions 
+%% Create condtional forecast assumptions 
 
 fcastStart = datex.shift(estimEnd, 1);
 fcastEnd = datex.shift(estimEnd, 12);
@@ -109,7 +112,7 @@ planTbl
 
 dataTbl{datex("2015-Q4"), "DOM_GDP"} = -1.5;
 dataTbl{datex("2016-Q4"), "DOM_CPI"} = 5.5;
-%dataTbl{datex("2016-Q3"), "STN"} = 5.5;
+% dataTbl{datex("2016-Q3"), "STN"} = 5.5;
 
 dataTbl{:, "Oil"} = inputTbl{end, "Oil"};
 
@@ -119,24 +122,26 @@ dataTbl{:, "Oil"} = inputTbl{end, "Oil"};
 
 planTbl{datex("2015-Q4"), "DOM_GDP"} = "DEM POL";
 planTbl{datex("2016-Q4"), "DOM_CPI"} = "DEM SUP";
-%planTbl{datex("2016-Q3"), "DOM_CPI"} = "SUP";
+% planTbl{datex("2016-Q3"), "DOM_CPI"} = "SUP";
 
 
-% Calculate contributions of shocks, exogenous and initials on the estimation
-% span
+% Calculate the contributions on the estimation span
+
 histContTbl = modelS0.calculateContributions();
 
 
-% Run unconditional forecast and calculate contributions starting at the
+% Run an unconditional forecast and calculate contributions starting at the
 % beginning of the forecast
+
 [fcastTbl1, fcastContTbl1] = modelS0.forecast( ...
     fcastSpan, ...
     contributions=true ...
 );
 
 
-% Run unconditional forecast and calculate contributions starting at the
-% beginning of the estimation span
+% Run an unconditional forecast and calculate contributions starting at the
+% beginning of the historical (estimation) span
+
 [fcastTbl2, fcastContTbl2] = modelS0.forecast( ...
     fcastSpan, ...
     contributions=true, ...
@@ -144,14 +149,18 @@ histContTbl = modelS0.calculateContributions();
 );
 
 
-% Run unconditional forecast and calculate contributions starting at the
-% beginning of the estimation span
+% Run a conditional forecast and calculate contributions starting at the
+% beginning of the forecast span
+
 [condTbl1, condContTbl1] = modelS0.conditionalForecast( ...
     fcastSpan, ...
     conditions=dataTbl, ...
     plan=[], ...
     contributions=true ...
 );
+
+% Run a conditional forecast and calculate contributions starting at the
+% beginning of the historical (estimation) span
 
 [condTbl2, condContTbl2] = modelS0.conditionalForecast( ...
     fcastSpan, ...
@@ -163,8 +172,6 @@ histContTbl = modelS0.calculateContributions();
 
 condPrctilesTbl1 = tablex.apply(condTbl1, prctilesFunc);
 condPrctilesTbl2 = tablex.apply(condTbl2, prctilesFunc);
-
-return
 
 
 %% Visualize conditional forecasts 
@@ -185,9 +192,73 @@ ch.Captions = "Across-the-board conditional forecast";
 ch.plot(condPrctilesTbl1);
 
 ch.Captions = "Selective conditional forecast";
-ch.plot(condPrctilesTbl2);
+% ch.plot(condPrctilesTbl2);
+
+
+%% Calculate median contributions, merge with history 
+
+histContribMedianTbl = tablex.apply(histContTbl, medianFunc);
+
+condContribMedianTbl1 = tablex.apply(condContTbl1, medianFunc);
+
+condContribMedianTbl2 = tablex.apply(condContTbl2, medianFunc);
+
+
+% Merge history and conditional forecast contributions
+
+allContribMedianTbl = tablex.merge( ...
+    histContribMedianTbl, ...
+    condContribMedianTbl2 ...
+);
 
 
 %% Visualize contributions 
+
+legendEntries = tablex.getHigherDims(allContribMedianTbl, 3);
+
+plotFunc = @(tbl, name, span) {
+    tablex.plot(tbl, name, periods=span, plotFunc=@bar, dims={1:3})
+    tablex.plot(tbl, name, periods=span, dims={4}, plotSettings={"lineWidth", 4})
+    tablex.plot(tbl, name, periods=span, dims={5}, plotSettings={"lineWidth", 4})
+    title(name, interpreter="none")
+};
+
+
+% Create three figures:
+% Fig 1: Forecast span, no precontributions
+% Fig 2: Forecast span, including precontributions
+% Fig 3: Entire span (history & forecast)
+
+fig1 = figure(name="Contributions with no precontributions");
+fig2 = figure(name="Contributions including precontributions");
+fig3 = figure(name="Contributions, all history and forecast");
+
+
+% Loop over and plot the endogenous names
+
+for i = 1 : 3
+
+    name = modelS0.Meta.EndogenousNames(i);
+
+    figure(fig1);
+    subplot(2, 2, i);
+    hold on;
+    plotFunc(condContribMedianTbl1, name, fcastSpan);
+    legend(legendEntries);
+
+    figure(fig2);
+    subplot(2, 2, i);
+    hold on;
+    plotFunc(allContribMedianTbl, name, fcastSpan);
+    legend(legendEntries);
+
+    figure(fig3);
+    subplot(2, 2, i);
+    hold on;
+    plotFunc(allContribMedianTbl, name, Inf);
+    xline(fcastSpan(1)-0.5, lineWidth=3);
+    legend([legendEntries, "Start of forecast"]);
+
+end
 
 
