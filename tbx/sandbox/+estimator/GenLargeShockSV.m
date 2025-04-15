@@ -59,7 +59,7 @@ classdef GenLargeShockSV < estimator.Base
             initChain = 1e4;
             sizeCholSigma = numEn*(numEn + 1 )/2;
             smpl = nan(sizeB + sizeCholSigma, initChain);
-            rng(0)
+ 
             for ii = 1:initChain
                 [B, Sigma] = largeshocksv.sample_posterior(posterior);
                 chSigma = largeshocksv.vech(chol(Sigma, "lower"));
@@ -73,13 +73,11 @@ classdef GenLargeShockSV < estimator.Base
             postCovBCholSigma = cov(smpl');
 
             init = [initBCholSigma initTheta];
-            % [initB, initCholSigma, initTheta] = bvar.prior.pars2mat(init, bvar);
 
             % Cholesky factor of proposal covariance for B/cholSigma/theta
             propCovTheta = diag([opt.propStdTheta opt.propStdAR].^2);
             propCholCov = chol(blkdiag(postCovBCholSigma, propCovTheta), "lower");
             propScale = 8.5e-2;
-
 
             scaledPropCholCov = propScale*propCholCov;
             propGen = @()scaledPropCholCov * randn(numel(init), 1);
@@ -107,7 +105,6 @@ classdef GenLargeShockSV < estimator.Base
 
                 prevAccepted = cand;
                 prevLogTargetPDF = candLogTargetPDF;
-
 
                 sample.sf = largeshocksv.scaleFactor(sample.theta, estimLength, T0SS);
                 for zz = 1:estimLength
