@@ -349,7 +349,7 @@ classdef CogleySargentSVFAVAR < estimator.Base
                 draw.A = repmat({A}, horizon, 1);
                 draw.C = repmat({C}, horizon, 1);
                 draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
-                draw.LD = reshape(sample.LD, [], numY); 
+                % draw.LD = reshape(sample.LD, [], numY); 
 
             end
 

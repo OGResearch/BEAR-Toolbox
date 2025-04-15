@@ -389,7 +389,7 @@ classdef GeneralTVFAVAR < estimator.Base
                 end
                 %
                 draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
-                draw.LD = reshape(sample.LD, [], numY);                %
+                % draw.LD = reshape(sample.LD, [], numY);                %
             end%
 
 

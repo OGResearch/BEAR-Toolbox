@@ -264,6 +264,7 @@ classdef CarrieroSVFAVAR < estimator.Base
 
                 sample.FY = FY;
                 sample.LD = LD;      
+                keyboard
 
             end
 
@@ -343,7 +344,6 @@ classdef CarrieroSVFAVAR < estimator.Base
                 draw.A = repmat({A}, horizon, 1);
                 draw.C = repmat({C}, horizon, 1);
                 draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
-                draw.LD = reshape(sample.LD, [], numY);
             end
 
             function draw = historyDrawer(sample)

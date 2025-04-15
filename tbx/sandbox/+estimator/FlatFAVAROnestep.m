@@ -124,7 +124,6 @@ classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
                 sample.FY = FY;
                 sample.LD = LD;
                 this.SampleCounter = this.SampleCounter + 1;
-
             end%
 
             this.Sampler = @sampler;

@@ -233,12 +233,12 @@ classdef BetaTVFAVAR < estimator.Base
                     % update beta
                     beta = beta + cholomega*randn(sizeB, 1);
                     B = reshape(beta, [], numY);
-                    draw.A{jj,1}(:, :) = B(1:numARows, :);
-                    draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
+                    draw.A{jj}(:, :) = B(1:numARows, :);
+                    draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
 
                 draw.Sigma = reshape(sample.sigma, numY, numY);                
-                draw.LD = reshape(sample.LD, [], numY); 
+                % draw.LD = reshape(sample.LD, [], numY); 
                 %]
             end%
 
