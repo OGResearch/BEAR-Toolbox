@@ -246,8 +246,8 @@ classdef BetaTVFAVAR < estimator.Base
                 %[
                 for jj = 1:estimationHorizon
                     B = reshape(sample.beta{jj}, [], numY);
-                    draw.A{jj,1}(:, :) = B(1:numARows, :);
-                    draw.C{jj,1}(:, :) = B(numARows + 1:end, :);
+                    draw.A{jj}(:, :) = B(1:numARows, :);
+                    draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
                 draw.Sigma = repmat({reshape(sample.sigma, numY, numY)}, estimationHorizon, 1);
                 %]
