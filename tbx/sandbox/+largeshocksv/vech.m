@@ -1,8 +1,34 @@
-function v = vech(s)
+function v = vech(s, inclDiag, byRows)
 
-n   = size(s, 1);
-ind = 1:n;
-trilInd = ind' >= ind;
-v = s(trilInd);
+arguments
+  s
+  inclDiag  (1, 1) logical = true
+  byRows    (1, 1) logical = false
+end
+
+n     = size(s, 1);
+ind   = 1:n;
+
+if byRows
+
+  s = s';
+
+  if inclDiag
+    matInd = ind' <= ind;
+  else
+    matInd = ind' < ind;
+  end
+
+else
+
+  if inclDiag
+    matInd = ind' >= ind;
+  else
+    matInd = ind' > ind;
+  end
+
+end
+
+v = s(matInd);
 
 end
