@@ -1,4 +1,4 @@
-function pars = drawB(pars, prior, numEn, sizeB,numBRows, estimLength, Y, LX)
+function pars = drawB(pars, prior, numEn, sizeB, numBRows, estimLength, Y, LX)
 
       priorMeanB  = prior.meanB(:);
       priorPrecB  = prior.precB;
