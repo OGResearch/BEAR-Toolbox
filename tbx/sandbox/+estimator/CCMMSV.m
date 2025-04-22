@@ -95,24 +95,21 @@ classdef CCMMSV < estimator.Base
             %sizes
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
-            numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 
 
             function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon)
 
-                beta = sample.beta;
                 % reshape it to obtain B
-                B = reshape(beta, [], numEn);
+                B = sample.B;
 
                 % draw F from its posterior distribution
                 F = sparse(sample.F(:,:));
 
                 % step 4: draw phi and gamma from their posteriors
-                phi = sample.phi;
-                lambda =  sample.L{startingIndex-1, 1};
-                sbar = sample.sbar;
+                cholphi = largeshocksv.unvech(sample.cholPhi);
+                lambda =  sample.logLambda(:, startingIndex-1);
 
                 draw.Sigma = cell(forecastHorizon, 1);
 
@@ -125,10 +122,13 @@ classdef CCMMSV < estimator.Base
                 % for each iteration ii, repeat the process for periods estimLength+1 to estimLength+h
                 for jj = 1:forecastHorizon
 
-                    lambda = gamma * lambda + phi^0.5 * randn;
+                    n = length(lambda);
+                    z = randn(n, 1);         % standard normal column vector
+                    error = cholphi * z;         % apply Cholesky to get desired covariance
+                    lambda = lambda + error;
 
                     % obtain Lambda_t
-                    Lambda = sparse(diag(exp(lambda * sbar)));
+                    Lambda = sparse(diag(exp(lambda)));
 
                     % recover sigma_t and draw the residuals
                     draw.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
