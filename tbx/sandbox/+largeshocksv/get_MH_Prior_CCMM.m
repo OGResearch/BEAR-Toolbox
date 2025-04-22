@@ -65,7 +65,11 @@ function [prior] = get_MH_Prior_CCMM(opt, numEn, numBrows, numEx, varScale, mode
     
     precB = [precBen; precBex];
     prior.precB   = diag(precB(:));
-    
+
+    prior.covB = inv(prior.precB);
+    prior.cholCovB = chol(prior.covB, "lower");
+
+
     precF = 1e-6;
     meanFRow = cell(numEn-1, 1);
     precFRow = cell(numEn-1, 1);
@@ -79,12 +83,12 @@ function [prior] = get_MH_Prior_CCMM(opt, numEn, numBrows, numEx, varScale, mode
     prior.precF  = blkdiag(precFRow{:});
     
     prior.covF       = inv(prior.precF);
-    prior.cholCovInvA  = chol(prior.covF, "lower");
+    prior.cholCovF   = chol(prior.covF, "lower");
     
-    prior.meanLogLambda0 = zeros(1, numEn);
-    prior.precLogLambda0 = 0.1 * ones(1, numEn);
-    prior.covLogLambda0 = diag(1./prior.precLogLambda0);
-    prior.cholCovLogLambda0 = sqrt(prior.covLogLambda0);
+    prior.meanlogLambda = zeros(1, numEn);
+    prior.preclogLambda = 0.1 * ones(1, numEn);
+    prior.covlogLambda = diag(1./prior.preclogLambda);
+    prior.cholCovlogLambda = sqrt(prior.covlogLambda);
     
     if isfield(opt, "freqO")
     

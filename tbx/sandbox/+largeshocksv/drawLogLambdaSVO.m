@@ -16,8 +16,8 @@
       cholPhi   = pars.cholPhi;
       sqrtPHI_  = largeshocksv.unvech(cholPhi);
 
-      Vol_0mean     = prior.meanLogLambda0;
-      Vol_0vcvsqrt  = prior.covLogLambda0;
+      Vol_0mean     = prior.meanlogLambda;
+      Vol_0vcvsqrt  = prior.covlogLambda;
 
       O       = pars.O;
       SVOlog2 = 2*log(O);

@@ -71,7 +71,7 @@ nx = length(x0);
 
 % get the diagonal elements of the hessian (2nd partial
 % derivatives wrt each variable.)
-[hess,err] = hessdiag(fun,x0);
+[hess,err] = largeshocksv.DERIVESTsuite.hessdiag(fun,x0);
 
 % form the eventual hessian matrix, stuffing only
 % the diagonals for now.
@@ -84,7 +84,7 @@ end
 
 % get the gradient vector. This is done only to decide
 % on intelligent step sizes for the mixed partials
-[grad,graderr,stepsize] = gradest(fun,x0);
+[grad,graderr,stepsize] = largeshocksv.DERIVESTsuite.gradest(fun,x0);
 
 % Get params.RombergTerms+1 estimates of the upper
 % triangle of the hessian matrix
