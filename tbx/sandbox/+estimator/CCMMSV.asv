@@ -46,6 +46,8 @@ classdef CCMMSV < estimator.Base
             sbar = diag(Lambdahat);
             Lambda = sparse(diag(sbar));
 
+            keyboard
+
             [arvar, arEPS]  =  bear.arloop(longY, opt.const, 1, numEn);
 
             modelfreq = datex.frequency(meta.EstimationStart);

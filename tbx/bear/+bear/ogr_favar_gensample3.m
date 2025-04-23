@@ -68,6 +68,7 @@ elseif favar.onestep==0 % two-step
             data_endo(:,favar.variablestrings_factorsonly(ii))=favar.XZ_rotated(:,ii);
         end
     end
+    
     % state-space representation
     favar.XY=[favar.X,favar.data_exfactors];
     % new loadings
