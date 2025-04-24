@@ -36,8 +36,7 @@ classdef BetaTVFAVAR < estimator.Base
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = meta.NumFactors;            
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
@@ -145,7 +144,7 @@ classdef BetaTVFAVAR < estimator.Base
 
         function createDrawers(this, meta)
             numEn = meta.NumEndogenousNames;
-            numPC = meta.NumFactors;
+            numPC = meta.NumFactorNames;
             numY = numEn + numPC;
             numARows = numY * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;

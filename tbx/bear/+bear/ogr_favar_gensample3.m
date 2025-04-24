@@ -1,4 +1,4 @@
-function [data_endo,favar]=ogr_favar_gensample3(data_endo,favar)
+function [data_endo,favar]=ogr_favar_gensample3(data_endo, favar)
 
 % determine the numbers of variables other than factors
 favar.numdata_exfactors=size(favar.data_exfactors,2);
@@ -58,9 +58,9 @@ if favar.onestep==1
     
 elseif favar.onestep==0 % two-step
     if favar.numdata_exfactors==0
-        favar.slowfast=0; % this identifiaction is not applicable in a pure factor model
+        favar.slowfast = false; % slowfast identifiaction is not applicable in a pure factor model
     end
-    if isfield(favar, "slowfast") && favar.slowfast==1 %apply slowfast recursive identification as in BBE (2005)
+    if favar.slowfast  %apply slowfast recursive identification as in BBE (2005)
         % factor roation with slow/fast scheme
         favar.XZ_rotated=bear.favar_facrot(favar.XZ,favar.data_exfactors(:,end),favar.XZ_slow); %end, has eventually to be changed
         %replace factors with factors rotated
@@ -74,7 +74,8 @@ elseif favar.onestep==0 % two-step
     % new loadings
     favar.L=(bear.favar_olssvd(favar.XY,data_endo))';
     % manipulate loadings matrix for blocks
-    if isfield(favar, "blocks") && favar.blocks==1
+
+    if favar.blocks
         for bb=1:favar.nbnames
             Xbindex=favar.blockindex_each{bb,1};
             Xbindex2=favar.blockindex_each{bb,1}==0;

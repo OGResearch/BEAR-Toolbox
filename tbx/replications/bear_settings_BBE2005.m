@@ -17,7 +17,7 @@ s.startdate='1959m2'; %(first differnces)
 % sample end date; must be a string consistent with the date formats of the toolbox
 s.enddate='2001m8';
 % endogenous variables; must be a single string, with variable names separated by a space
-s.varendo='factor1 factor2 factor3 FYFF';
+s.varendo='fast.factor1 fast.factor2 fast.factor3 slow.factor1 slow.factor2 FYFF';
 % exogenous variables, if any; must be a single string, with variable names separated by a space
 s.varexo='';
 % number of lags
@@ -47,11 +47,11 @@ s.favar.numpc=3;
 
 
 % slow fast scheme for recursive identification (IRFt 2, 3) as in BBE (2005)
-s.favar.slowfast=1;  % assign variables in the excel sheet 'factor data' in the 'block' row to "slow" or "fast"
+s.favar.slowfast=0;  % assign variables in the excel sheet 'factor data' in the 'block' row to "slow" or "fast"
 
 % VARtype specific FAVAR options
 
-s.favar.onestep=1; % Bayesian estimation of factors and the model in an one-step estimation (1=yes, 0=no (two-step))
+s.favar.onestep=0; % Bayesian estimation of factors and the model in an one-step estimation (1=yes, 0=no (two-step))
 % thining of Gibbs draws
 s.favar.thin=1; % (=1 default, no thinning)
 % priors on factor equation
@@ -62,10 +62,10 @@ s.favar.a0=3; %BBE set-up
 s.favar.b0=0.001; %BBE set-up
 
 % blocks/categories (1=yes, 0=no), specify in excel sheet
-s.favar.blocks=0;
+s.favar.blocks=1;
 if s.favar.blocks==1 % assign information variables to blocks
     s.favar.blocknames='slow fast'; % specify in excel sheet 'factor data'
-    s.favar.blocknumpc='2 2'; %block-specific number of factors (principal components)
+    s.favar.blocknumpc='2 3'; %block-specific number of factors (principal components)
 end
 
 % specify information variables of interest (IRF, FEVD, HD)

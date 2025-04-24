@@ -10,7 +10,7 @@ classdef (Abstract) PlainFAVARDrawersMixin < handle
             %[
             %
             numEn = meta.NumEndogenousNames;
-            numPC = meta.NumFactors;
+            numPC = meta.NumFactorNames;
             numY = numEn + numPC;
             % numBRows = numY * meta.Order + meta.NumExogenousNames + double(meta.HasIntercept);
             order = meta.Order;

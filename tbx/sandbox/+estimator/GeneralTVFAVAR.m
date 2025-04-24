@@ -36,8 +36,7 @@ classdef GeneralTVFAVAR < estimator.Base
             opt.delta0 = this.Settings.HeteroskedasticityScale;
             
             favar.onestep = false;
-            favar.numpc = meta.NumFactors;            
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
@@ -280,7 +279,7 @@ classdef GeneralTVFAVAR < estimator.Base
 
             %sizes
             numEn = meta.NumEndogenousNames;
-            numPC = meta.NumFactors;
+            numPC = meta.NumFactorNames;
             numY = numEn + numPC;
             numARows = numY * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;

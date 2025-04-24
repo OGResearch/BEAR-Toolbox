@@ -22,7 +22,7 @@ function outTable = FAVARforecast(this, forecastSpan, options)
     numPresampled = this.NumPresampled;
     %
     % Multiple-unit output data will be always captured as flat
-    numY = meta.NumEndogenousNames+meta.NumFactors;
+    numY = meta.NumEndogenousNames+meta.NumFactorNames;
     Y0 = nan(meta.Order, numY, numPresampled);
     Y = nan(forecastHorizon, numY, numPresampled);
     U = nan(forecastHorizon, numY, numPresampled);
@@ -48,7 +48,7 @@ function outTable = FAVARforecast(this, forecastSpan, options)
         outSpan = longForecastSpan;
     end
     %
-    endoNames = [strcat("Factor", string(1:meta.NumFactors)) meta.EndogenousNames ];
+    endoNames = [meta.FactorNames meta.EndogenousNames ];
     outNames = [endoNames, strcat("resid_", endoNames)];
     outTable = tablex.fromNumericArray([Y, U], outNames, outSpan, variantDim=3);
 end%

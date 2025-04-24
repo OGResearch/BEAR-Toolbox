@@ -16,7 +16,15 @@ classdef Meta < matlab.mixin.Copyable
         ExogenousNames (1, :) string
         %
         % ReducibleNames  Names of reducible variables in factor models
-        ReducibleNames (1, :) string = string.empty(1, 0)
+        ReducibleNames (1, :) string 
+
+        % ReducibleBlocks  Names of blocks the corresponding reducibles
+        % belong to
+        ReducibleBlocks (1, :) string
+
+        % Blocktype for FAVARS
+        BlockType (1,:) string
+
         %
         % ResidualPrefix  Prefix prepended to residual names
         ResidualPrefix (1, 1) string = "resid"
@@ -28,7 +36,7 @@ classdef Meta < matlab.mixin.Copyable
         HasIntercept (1, 1) logical
         %
         % NumFactors  Number of factors to be formed from reducibles
-        NumFactors (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
+        NumFactors
 
         % ShortSpan  Span of fitted data
         ShortSpan
@@ -69,6 +77,7 @@ classdef Meta < matlab.mixin.Copyable
         HasReducibles
         HasUnits
         ShockNames
+        FactorNames
         %
         NumEndogenousNames
         NumExogenousNames
@@ -79,6 +88,7 @@ classdef Meta < matlab.mixin.Copyable
         NumShockConcepts
         NumShocks
         NumShockNames
+        NumFactorNames
         %
         EstimationSpan
         EstimationStart
@@ -114,10 +124,12 @@ classdef Meta < matlab.mixin.Copyable
 
                 options.exogenousNames (1, :) string = string.empty(1, 0)
                 options.reducibleNames (1, :) string = string.empty(1, 0)
+                options.reducibleBlocks (1, :) string = string.empty(1, 0)
+                options.blockType (1,:) string  = string.empty(1, 0)
                 options.units (1, :) string = ""
                 options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
                 options.intercept (1, 1) logical = true
-                options.numFactors (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
+                options.numFactors 
                 options.shockConcepts (1, :) string = string.empty(1, 0)
                 options.shocks (1, :) string = string.empty(1, 0)
                 options.identificationHorizon (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
@@ -132,6 +144,8 @@ classdef Meta < matlab.mixin.Copyable
             this.Units = options.units;
             this.ExogenousNames = options.exogenousNames;
             this.ReducibleNames = options.reducibleNames;
+            this.ReducibleBlocks = options.reducibleBlocks;
+            this.BlockType = options.blockType; 
             this.NumFactors = options.numFactors;
             this.HasIntercept = options.intercept;
             this.Order = options.order;
@@ -405,6 +419,20 @@ classdef Meta < matlab.mixin.Copyable
             out = meta.concatenate(this.ResidualPrefix, this.EndogenousNames);
         end%
 
+        function out = get.FactorNames(this)
+            out = strings(1,0);
+            if strcmp(this.BlockType, "blocks")
+                bnames = sort(unique(this.ReducibleBlocks));
+                for ii = 1:numel(bnames)
+                    out = [out, bnames(ii) + "_Factor" + string(1:this.NumFactors.(bnames(ii)))];
+                end
+            elseif this.NumFactors > 0
+                out = "Factor" + string(1:this.NumFactors);
+            end
+        end%
+
+
+
         function num = get.NumEndogenousNames(this)
             num = this.NumEndogenousConcepts * this.NumUnits;
         end%
@@ -416,6 +444,10 @@ classdef Meta < matlab.mixin.Copyable
         function num = get.NumReducibleNames(this)
             num = numel(this.ReducibleNames);
         end%
+
+        function num = get.NumFactorNames(this)
+            num = numel(this.FactorNames);
+        end
 
         function num = get.NumUnits(this)
             num = numel(this.Units);

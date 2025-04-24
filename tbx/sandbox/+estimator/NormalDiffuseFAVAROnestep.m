@@ -60,8 +60,7 @@ classdef NormalDiffuseFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = true;
-            favar.numpc = meta.NumFactors;            
-            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
+            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
 
             [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);

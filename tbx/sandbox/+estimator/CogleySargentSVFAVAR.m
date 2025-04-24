@@ -48,8 +48,7 @@ classdef CogleySargentSVFAVAR < estimator.Base
             
 
             favar.onestep = false;
-            favar.numpc = meta.NumFactors;            
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
@@ -278,7 +277,7 @@ classdef CogleySargentSVFAVAR < estimator.Base
 
             %sizes
             numEn = meta.NumEndogenousNames;
-            numPC = meta.NumFactors;
+            numPC = meta.NumFactorNames;
             numY = numEn + numPC;
             numARows = numY * meta.Order;
             estimationHorizon = numel(meta.ShortSpan);

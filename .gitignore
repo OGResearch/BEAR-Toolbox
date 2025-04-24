@@ -5,3 +5,4 @@ mkdocs/site
 .DS_Store
 .obsidian/
 
+*.asv

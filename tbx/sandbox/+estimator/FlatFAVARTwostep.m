@@ -38,8 +38,7 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
             %% FAVAR settings, maybe we can move this to a separate function
 
             favar.onestep = false;
-            favar.numpc = meta.NumFactors;            
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p);
+            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
 
 
             [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = ...
