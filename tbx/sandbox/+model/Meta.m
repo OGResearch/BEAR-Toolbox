@@ -129,7 +129,7 @@ classdef Meta < matlab.mixin.Copyable
                 options.units (1, :) string = ""
                 options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
                 options.intercept (1, 1) logical = true
-                options.numFactors 
+                options.numFactors = 0
                 options.shockConcepts (1, :) string = string.empty(1, 0)
                 options.shocks (1, :) string = string.empty(1, 0)
                 options.identificationHorizon (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
