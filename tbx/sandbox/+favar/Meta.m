@@ -33,24 +33,38 @@ classdef Meta < model.Meta
 
     methods
         function this = Meta(options)
-            arguments
-                options.endogenousConcepts (1, :) string {mustBeNonempty}
-                options.estimationSpan (1, :) datetime {mustBeNonempty}
 
-                options.exogenousNames (1, :) string = string.empty(1, 0)
-                options.reducibleNames (1, :) string = string.empty(1, 0)
-                options.reducibleBlocks (1, :) string = string.empty(1, 0)
-                options.blocktype (1,1) string {mustBeMember(options.blocktype, ["blocks", "slowfast"])} = "blocks";
-                options.units (1, :) string = ""
-                options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
-                options.intercept (1, 1) logical = true
-                options.numFactors struct = struct() 
-                options.shockConcepts (1, :) string = string.empty(1, 0)
-                options.shocks (1, :) string = string.empty(1, 0)
-                options.identificationHorizon (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
-            end
-            %
-            this@model.Meta(options);
+        arguments
+
+            options.endogenousConcepts (1, :) string {mustBeNonempty}
+            options.estimationSpan (1, :) datetime {mustBeNonempty}
+    
+            options.exogenousNames (1, :) string = string.empty(1, 0)
+            options.units (1, :) string = ""
+            options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
+            options.intercept (1, 1) logical = true
+            options.shockConcepts (1, :) string = string.empty(1, 0)
+            options.shocks (1, :) string = string.empty(1, 0)
+            options.identificationHorizon (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
+    
+            options.reducibleNames (1, :) string = string.empty(1, 0)
+            options.reducibleBlocks (1, :) string = string.empty(1, 0)
+            options.blockType (1,1) string {mustBeMember(options.blockType, ["blocks", "slowfast"])} = "blocks"
+            options.numFactors struct = struct()
+        end
+
+            this@model.Meta( ...
+                'endogenousConcepts', options.endogenousConcepts, ...
+                'estimationSpan', options.estimationSpan, ...
+                'exogenousNames', options.exogenousNames, ...
+                'units', options.units, ...
+                'order', options.order, ...
+                'intercept', options.intercept, ...
+                'shockConcepts', options.shockConcepts, ...
+                'shocks', options.shocks, ...
+                'identificationHorizon', options.identificationHorizon ...
+            );
+
             this.ReducibleNames = options.reducibleNames;
             this.ReducibleBlocks = options.reducibleBlocks;
             this.BlockType = options.blockType; 
