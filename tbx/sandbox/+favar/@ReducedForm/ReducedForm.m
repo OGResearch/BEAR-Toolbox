@@ -56,37 +56,6 @@ classdef ReducedForm < model.ReducedForm
             tabulator = @tabulator__;
         end%
 
-
-        function varargout = forecast(this, fcastSpan, options)
-            arguments
-                this
-                fcastSpan (1, :) datetime
-                options.StochasticResiduals (1, 1) logical = false
-                options.IncludeInitial (1, 1) logical = false
-            end
-            %
-            fcastSpan = datex.ensureSpan(fcastSpan);
-            [forecaster, tabulator] = this.prepareForecaster( ...
-                fcastSpan, ...
-                stochasticResiduals=options.StochasticResiduals, ...
-                includeInitial=options.IncludeInitial ...
-            );
-            %
-            numPresampled = this.NumPresampled;
-            shortY = cell(1, numPresampled);
-            shortX = cell(1, numPresampled);
-            shortU = cell(1, numPresampled);
-            initY = cell(1, numPresampled);
-         
-            for i = 1 : numPresampled
-                sample = this.Presampled{i};
-                [shortY{i}, shortU{i}, initY{i}, shortX{i}] = forecaster(sample);
-            end
-            
-            [varargout{1:nargout}] = tabulator(shortY, shortU, initY, shortX);
-        end%
-
-
         function [shortY, shortU, initY, shortX, draw] = forecast4S(this, sample, longX, forecastStartIndex, forecastHorizon, options)
             arguments
                 this
@@ -122,29 +91,11 @@ classdef ReducedForm < model.ReducedForm
 
     methods
 
-        function varargout = estimateResiduals(this, varargin)
 
-            meta = this.Meta;
-            longYXZ = this.getLongYXZ();
-            [~, longX, ~] = longYXZ{:};
-            function [Y4S, sample] = calculate4S(sample)
-                [Y4S, sample] = this.estimateResiduals4S(sample, longX);
-            end%
-            options = [{"includeInitial", true}, varargin];
-            [varargout{1:nargout}] = this.tabulateSamples( ...
-                "calculator", @calculate4S, ...
-                "span", meta.ShortSpan, ...
-                "variantDim", 3, ...
-                "initiator", @nan, ...
-                "dimNames", {meta.ResidualNames}, ...
-                options{:} ...
-            );
-        end%
-
-
-        function [u, sample] = estimateResiduals4S(this, sample, longX)
+        function [u, sample] = estimateResiduals4S(this, sample, longYXZ)
             meta = this.Meta;
             draw = this.Estimator.HistoryDrawer(sample);
+            [~, longX, ~] = longYXZ{:};
             u = system.calculateResidualsFAVAR( ...
                     draw.A, draw.C, sample.FY, longX ...
                     , hasIntercept=meta.HasIntercept ...
@@ -152,11 +103,6 @@ classdef ReducedForm < model.ReducedForm
                 );
         end
         
-
-
-        function varargout = calculateResiduals(this, varargin)
-            [varargout{1:nargout}] = this.estimateResiduals(varargin{:});
-        end%
 
 
     end
