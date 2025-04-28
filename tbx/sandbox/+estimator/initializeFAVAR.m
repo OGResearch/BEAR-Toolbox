@@ -2,14 +2,8 @@ function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar, p , meta)
 
     if strcmp(meta.BlockType, "blocks")
        favar.blocks = true;
-    else
+    elseif strcmp(meta.BlockType, "slowfast")
        favar.blocks = false;
-    end
-
-    if strcmp(meta.BlockType, "slowfast")
-       favar.slowfast = true;
-    else
-       favar.slowfast = false;
     end
 
     favar.nfactorvar = meta.NumReducibleNames;
