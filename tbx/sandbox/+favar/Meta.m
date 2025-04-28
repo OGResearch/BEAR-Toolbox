@@ -70,8 +70,23 @@ classdef Meta < model.Meta
             this.BlockType = options.blockType; 
             this.NumFactors = options.numFactors;
 
+            this.populateShockConcepts(options.shockConcepts);         
+            this.catchDuplicateNames();
+
+
         end%
 
+        function populateShockConcepts(this, shockConcepts)
+            if ~isempty(shockConcepts)
+                this.ShockConcepts = shockConcepts;
+            else
+                this.ShockConcepts = meta.autogenerateShockConcepts(this.NumEndogenousConcepts + ...
+                    this.NumFactorNames);
+            end
+            if this.NumShockNames ~= this.NumEndogenousNames + this.NumFactorNames
+                error("Number of shock names must match number of endogenous variables, including factors");
+            end
+        end%
 
         function someYXZ = getSomeYXZ(this, someSpanFromShortSpan, dataTable, shortSpan, varargin)
         
@@ -104,6 +119,8 @@ classdef Meta < model.Meta
                 error("Duplicate model name(s): " + join(nonuniques, ", "));
             end
         end%
+
+
     end
 
 
@@ -112,13 +129,9 @@ classdef Meta < model.Meta
 
         function out = get.FactorNames(this)
             out = strings(1,0);
-            if strcmp(this.BlockType, "blocks")
-                bnames = sort(unique(this.ReducibleBlocks));
-                for ii = 1:numel(bnames)
-                    out = [out, bnames(ii) + "_Factor" + string(1:this.NumFactors.(bnames(ii)))];
-                end
-            elseif this.NumFactors > 0
-                out = "Factor" + string(1:this.NumFactors);
+            bnames = sort(unique(this.ReducibleBlocks));
+            for ii = 1:numel(bnames)
+                out = [out, bnames(ii) + "_Factor" + string(1:this.NumFactors.(bnames(ii)))];
             end
         end%
 

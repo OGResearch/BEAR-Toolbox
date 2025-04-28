@@ -100,6 +100,7 @@ classdef Meta < matlab.mixin.Copyable
 
     methods
         function this = Meta(options)
+            
             arguments
                 options.endogenousConcepts (1, :) string {mustBeNonempty}
                 options.estimationSpan (1, :) datetime {mustBeNonempty}
@@ -390,8 +391,12 @@ classdef Meta < matlab.mixin.Copyable
         end%
 
         function out = get.ResidualNames(this)
-            out = meta.concatenate(this.ResidualPrefix, this.EndogenousNames);
-        end%
+            if isa(this, 'favar.Meta')
+                out = meta.concatenate(this.ResidualPrefix, [this.FactorNames, this.EndogenousNames]);
+            else
+                out = meta.concatenate(this.ResidualPrefix, [this.EndogenousNames]);
+            end
+        end
 
 
         function num = get.NumEndogenousNames(this)
