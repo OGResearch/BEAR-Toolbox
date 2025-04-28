@@ -18,9 +18,6 @@ function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar, p , meta)
     endo = [meta.FactorNames, meta.EndogenousNames];     
     [data, favar, indexnM] = bear.ogr_favar_gensample2(longY, endo, p, favar);
 
-    x = meta.NumEndogenousNames;
-    data = [data(:, x+1:end), data(:, 1:x)];
-
     % gensample 3
     [FY, favar] = bear.ogr_favar_gensample3(data, favar);
     
