@@ -9,7 +9,7 @@ classdef NormalWishartPanel < estimator.Base
         DescriptionUX = "Normal-Wishart Panel BVAR"
 
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

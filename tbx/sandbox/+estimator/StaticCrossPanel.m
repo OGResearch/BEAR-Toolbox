@@ -10,7 +10,7 @@ classdef StaticCrossPanel < estimator.Base
         DescriptionUX = "Static Cross-Sectional Panel BVAR"
 
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = true
     end
 

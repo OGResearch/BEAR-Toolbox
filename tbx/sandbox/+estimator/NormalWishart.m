@@ -12,7 +12,7 @@ classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
         DescriptionUX = "BVAR with Normal-Wishart prior"
 
         CanHaveDummies = true
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

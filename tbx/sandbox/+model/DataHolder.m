@@ -5,7 +5,6 @@ classdef DataHolder < handle
         Span
         Endogenous
         Exogenous
-        Reducibles
     end
 
 
@@ -23,7 +22,6 @@ classdef DataHolder < handle
             this.Span = tablex.span(dataTable);
             this.Endogenous = tablex.retrieveData(dataTable, meta.EndogenousNames, this.Span, varargin{:});
             this.Exogenous = tablex.retrieveData(dataTable, meta.ExogenousNames, this.Span, varargin{:});
-            this.Reducibles = tablex.retrieveData(dataTable, meta.ReducibleNames, this.Span, varargin{:});
         end%
 
 
@@ -64,12 +62,11 @@ classdef DataHolder < handle
             numIndex = numel(index);
             Y = nan(numIndex, size(this.Endogenous, 2), size(this.Endogenous, 3));
             X = nan(numIndex, size(this.Exogenous, 2), size(this.Exogenous, 3));
-            Z = nan(numIndex, size(this.Reducibles, 2), size(this.Reducibles, 3));
+            Z = nan(numIndex, 0, 0);
             within = index >= 1 & index <= numel(this.Span);
             indexWithin = index(within);
             Y(within, :, :) = this.Endogenous(indexWithin, :, :);
             X(within, :, :) = this.Exogenous(indexWithin, :, :);
-            Z(within, :, :) = this.Reducibles(indexWithin, :, :);
             YXZ = {Y, X, Z};
         end%
 

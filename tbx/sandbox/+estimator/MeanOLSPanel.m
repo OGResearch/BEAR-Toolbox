@@ -12,7 +12,7 @@ classdef MeanOLSPanel < estimator.Base
         DescriptionUX = "Mean OLS Panel BVAR"
 
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

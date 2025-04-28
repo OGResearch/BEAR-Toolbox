@@ -11,7 +11,7 @@ classdef BetaTVFAVAR < estimator.Base
 
     properties
         CanHaveDummies = false
-        CanHaveReducibles = true
+        
         HasCrossUnits = false
     end
 

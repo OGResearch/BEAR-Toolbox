@@ -13,7 +13,7 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
 
         CanHaveDummies = false
-        CanHaveReducibles = true
+        
         HasCrossUnits = false
     end
 

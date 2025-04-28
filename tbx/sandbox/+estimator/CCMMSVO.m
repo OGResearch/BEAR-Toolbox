@@ -3,7 +3,7 @@ classdef CCMMSVO < estimator.Base
 
     properties
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

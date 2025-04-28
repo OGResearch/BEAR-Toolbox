@@ -27,7 +27,6 @@ classdef (Abstract) Base < handle
 
     properties (Abstract)
         CanHaveDummies
-        CanHaveReducibles
         HasCrossUnits
     end
 
@@ -55,17 +54,7 @@ classdef (Abstract) Base < handle
         end%
 
         function checkConsistency(this, meta, dummies)
-            this.checkCanHaveReducibles(meta);
             this.checkCanHaveDummies(dummies);
-        end%
-
-        function checkCanHaveReducibles(this, meta)
-            if ~this.CanHaveReducibles && meta.HasReducibles
-                error( ...
-                    "Estimator %s does not allow for reduciables and factors" ...
-                    , this.ShortClassName ...
-                );
-            end
         end%
 
         function checkCanHaveDummies(this, dummies)

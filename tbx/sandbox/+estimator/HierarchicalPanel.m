@@ -11,7 +11,7 @@ classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
         Description = "Hierarchical Panel"
 
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

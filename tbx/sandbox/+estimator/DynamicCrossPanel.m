@@ -11,7 +11,7 @@ classdef DynamicCrossPanel < estimator.Base
         Description = "Dynamic Cross-Panel Model"
         %
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = true
     end
 

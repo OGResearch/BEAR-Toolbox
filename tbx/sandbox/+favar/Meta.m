@@ -1,0 +1,123 @@
+
+% model.Meta  Meta information about reduced-form and structural models
+
+classdef Meta < model.Meta
+
+    % Reduced-form model meta information
+    properties (SetAccess=protected)
+        %
+        % ReducibleNames  Names of reducible variables in factor models
+        ReducibleNames (1, :) string 
+
+        % ReducibleBlocks  Names of blocks the corresponding reducibles
+        % belong to
+        ReducibleBlocks (1, :) string
+
+        % Blocktype for FAVARS
+        BlockType (1,:) string
+
+        % NumFactors  Number of factors to be formed from reducibles
+        NumFactors struct 
+
+    end
+
+
+    properties (Dependent)
+    
+        FactorNames
+        NumFactorNames
+        NumReducibleNames
+
+    end
+
+
+    methods
+        function this = Meta(options)
+            arguments
+                options.endogenousConcepts (1, :) string {mustBeNonempty}
+                options.estimationSpan (1, :) datetime {mustBeNonempty}
+
+                options.exogenousNames (1, :) string = string.empty(1, 0)
+                options.reducibleNames (1, :) string = string.empty(1, 0)
+                options.reducibleBlocks (1, :) string = string.empty(1, 0)
+                options.blocktype (1,1) string {mustBeMember(options.blocktype, ["blocks", "slowfast"])} = "blocks";
+                options.units (1, :) string = ""
+                options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
+                options.intercept (1, 1) logical = true
+                options.numFactors struct = struct() 
+                options.shockConcepts (1, :) string = string.empty(1, 0)
+                options.shocks (1, :) string = string.empty(1, 0)
+                options.identificationHorizon (1, 1) double {mustBeNonnegative, mustBeInteger} = 0
+            end
+            %
+            this@model.Meta(options);
+            this.ReducibleNames = options.reducibleNames;
+            this.ReducibleBlocks = options.reducibleBlocks;
+            this.BlockType = options.blockType; 
+            this.NumFactors = options.numFactors;
+
+        end%
+
+
+        function someYXZ = getSomeYXZ(this, someSpanFromShortSpan, dataTable, shortSpan, varargin)
+        
+            someYXZ = getSomeYXZ@model.Meta(this, someSpanFromShortSpan, dataTable, shortSpan, varargin{:});
+            someYXZ{3} = tablex.retrieveData(dataTable, this.ReducibleNames, someSpan, varargin{:});
+
+        end%
+
+
+        function emptyYXZ = createEmptyYXZ(this)
+        
+            emptyYXZ = createEmptyYXZ@model.Meta(this);
+            
+            numZ = this.NumReducibleNames;
+            emptyYXZ{3} = zeros(0, numZ);
+            
+        end%
+    end
+
+    methods (Access=protected)
+        function catchDuplicateNames(this)
+            allNames = [ ...
+                this.EndogenousNames, ...
+                this.ExogenousNames, ...
+                this.ReducibleNames, ...
+                this.ShockNames ...
+            ];
+            if numel(allNames) ~= numel(unique(allNames))
+                nonuniques = textual.nonunique(allNames);
+                error("Duplicate model name(s): " + join(nonuniques, ", "));
+            end
+        end%
+    end
+
+
+    % Reduced-form dependent properties
+    methods
+
+        function out = get.FactorNames(this)
+            out = strings(1,0);
+            if strcmp(this.BlockType, "blocks")
+                bnames = sort(unique(this.ReducibleBlocks));
+                for ii = 1:numel(bnames)
+                    out = [out, bnames(ii) + "_Factor" + string(1:this.NumFactors.(bnames(ii)))];
+                end
+            elseif this.NumFactors > 0
+                out = "Factor" + string(1:this.NumFactors);
+            end
+        end%
+
+        function num = get.NumReducibleNames(this)
+            num = numel(this.ReducibleNames);
+        end%
+
+        function num = get.NumFactorNames(this)
+            num = numel(this.FactorNames);
+        end
+        
+
+        end
+
+end
+

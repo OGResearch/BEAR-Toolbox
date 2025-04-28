@@ -13,7 +13,7 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
         DescriptionUX = "BVAR with indenpendent Normal-Wishart priors"
 
         CanHaveDummies = true
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

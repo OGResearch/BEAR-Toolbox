@@ -10,7 +10,7 @@ classdef GeneralTVFAVAR < estimator.Base
 
     properties
         CanHaveDummies = false
-        CanHaveReducibles = true
+        
         HasCrossUnits = false
     end
 

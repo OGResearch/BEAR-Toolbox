@@ -13,7 +13,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
         DescriptionUX = "BFAVAR with Normal-Wishart prior"
 
         CanHaveDummies = false
-        CanHaveReducibles = true
+        
         HasCrossUnits = false
     end
 

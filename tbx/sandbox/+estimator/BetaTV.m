@@ -14,7 +14,7 @@ classdef BetaTV < estimator.Base
         % Dummies in the model
         CanHaveDummies = false
         % FAVAR model
-        CanHaveReducibles = false
+        
         % Cross-unit variation in beta
         HasCrossUnits = false
     end

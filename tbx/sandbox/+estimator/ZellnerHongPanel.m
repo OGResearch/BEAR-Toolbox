@@ -11,7 +11,7 @@ classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
         DescriptionUX = "Zellner-Hong Panel BVAR"
 
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

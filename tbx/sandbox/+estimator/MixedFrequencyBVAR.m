@@ -11,7 +11,7 @@ classdef MixedFrequencyBVAR < estimator.Base
         DescriptionUX = "Mixed-frequency BVAR"
 
         CanHaveDummies = false
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 

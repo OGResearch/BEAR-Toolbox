@@ -12,7 +12,7 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
         DescriptionUX = "BFAVAR with Individual Normal-Wishart prior"
 
         CanHaveDummies = false
-        CanHaveReducibles = true
+        
         HasCrossUnits = false
     end
 

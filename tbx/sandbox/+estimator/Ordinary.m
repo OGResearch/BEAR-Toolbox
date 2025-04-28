@@ -11,7 +11,7 @@ classdef Ordinary < estimator.Base & estimator.PlainDrawersMixin
         DescriptionUX = "Ordinary least squares VAR"
 
         CanHaveDummies = true
-        CanHaveReducibles = false
+        
         HasCrossUnits = false
     end
 
