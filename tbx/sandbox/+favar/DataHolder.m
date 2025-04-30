@@ -3,6 +3,8 @@ classdef DataHolder < model.DataHolder
 
     properties
         Reducibles
+        ReduciblesStandardized
+        ReduciblesMeanStd
     end
 
 
@@ -16,18 +18,26 @@ classdef DataHolder < model.DataHolder
             arguments (Repeating)
                 varargin
             end
-            this@model.DataHolder
+            this = this@model.DataHolder();
             this.Reducibles = tablex.retrieveData(dataTable, meta.ReducibleNames, this.Span, varargin{:});
+            this.ReduciblesStandardized, this.ReduciblesMeanStd = transform.standardize(this.Reducibles);
         end%
 
-        function YXZ = getYXZ(this, options)
 
+        function YXZ = getYXZ(this, options)
+            arguments
+                this
+                %
+                options.Span (1, :) datetime = []
+                options.Index (1, :) double = []
+            end
+            %
             if ~isempty(options.Index)
                 index = options.Index;
             else
                 index = this.getSpanIndex(options.Span);
             end
-
+            %
             YXZ = getYXZ@model.DataHolder(this, options);
             numIndex = numel(index);
             Z = nan(numIndex, size(this.Reducibles, 2), size(this.Reducibles, 3));
@@ -35,7 +45,6 @@ classdef DataHolder < model.DataHolder
             indexWithin = index(within);
             Z(within, :, :) = this.Reducibles(indexWithin, :, :);
             YXZ{3} = Z;
-
         end%
 
     end
