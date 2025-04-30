@@ -25,7 +25,7 @@ classdef DataHolder < model.DataHolder
 
 
         function standardizeReducibles(this, meta)
-            Z = this.getZ(span=meta.LongSpan);
+            Z = this.getZ(span=meta.LongSpan,standardized=false);
             [this.StandardizedReducibles, this.MeanStdReducibles] = transform.standardize(Z);
         end%
 
