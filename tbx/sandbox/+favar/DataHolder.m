@@ -3,8 +3,8 @@ classdef DataHolder < model.DataHolder
 
     properties
         Reducibles
-        ReduciblesStandardized
-        ReduciblesMeanStd
+        StandardizedReducibles
+        MeanStdReducibles
     end
 
 
@@ -18,9 +18,15 @@ classdef DataHolder < model.DataHolder
             arguments (Repeating)
                 varargin
             end
-            this = this@model.DataHolder();
+            this = this@model.DataHolder(meta, dataTable, varargin{:});
             this.Reducibles = tablex.retrieveData(dataTable, meta.ReducibleNames, this.Span, varargin{:});
-            this.ReduciblesStandardized, this.ReduciblesMeanStd = transform.standardize(this.Reducibles);
+            this.standardizeReducibles(meta);
+        end%
+
+
+        function standardizeReducibles(this, meta)
+            Z = this.getZ(span=meta.LongSpan);
+            [this.StandardizedReducibles, this.MeanStdReducibles] = transform.standardize(Z);
         end%
 
 
@@ -30,6 +36,7 @@ classdef DataHolder < model.DataHolder
                 %
                 options.Span (1, :) datetime = []
                 options.Index (1, :) double = []
+                options.Standardized (1, 1) logical = true
             end
             %
             if ~isempty(options.Index)
@@ -38,12 +45,38 @@ classdef DataHolder < model.DataHolder
                 index = this.getSpanIndex(options.Span);
             end
             %
-            YXZ = getYXZ@model.DataHolder(this, options);
+            YXZ = getYXZ@model.DataHolder(this, span=options.Span, index=options.Index);
+            Z = this.getZ(span=options.Span, index=options.Index, standardized=options.Standardized);
+            YXZ{3} = Z;
+        end%
+
+
+        function Z = getZ(this, options)
+            arguments
+                this
+                %
+                options.Span (1, :) datetime = []
+                options.Index (1, :) double = []
+                options.Standardized (1, 1) logical = true
+            end
+            %
+            if ~isempty(options.Index)
+                index = options.Index;
+            else
+                index = this.getSpanIndex(options.Span);
+            end
+            %
+            if options.Standardized
+                sourceZ = this.StandardizedReducibles;
+            else
+                sourceZ = this.Reducibles;
+            end
+            %
             numIndex = numel(index);
             Z = nan(numIndex, size(this.Reducibles, 2), size(this.Reducibles, 3));
             within = index >= 1 & index <= numel(this.Span);
             indexWithin = index(within);
-            Z(within, :, :) = this.Reducibles(indexWithin, :, :);
+            Z(within, :, :) = sourceZ(indexWithin, :, :);
             YXZ{3} = Z;
         end%
 

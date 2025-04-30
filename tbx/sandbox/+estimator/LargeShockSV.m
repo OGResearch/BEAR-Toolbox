@@ -127,23 +127,23 @@ classdef LargeShockSV < estimator.Base
             draw.Sigma = cell(forecastHorizon, 1);
 
             AR = sample.theta(end);
-            sf = sample.sf(startingIndex:end);
+            sf = sample.sf(startingIndex - 1 :end);
             sf_periods = numel(sf);
 
-            for rng = sf_periods + 1 : forecastHorizon
+            for rng = sf_periods + 1 : forecastHorizon + 1
                 sf(rng) = 1 + (sf(rng-1) - 1) * AR;
             end
 
             % then generate Sigma forecasts recursively
             for jj = 1:forecastHorizon
                 % recover sigma_t and draw the residuals
-                draw.Sigma{jj, 1}(:, :) = sf(jj)^2*sample.Sigma_avg;
+                draw.Sigma{jj, 1}(:, :) = sf(jj+1)^2*sample.Sigma_avg;
             end
         end
 
         function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
 
-            beta = sample.B{:};
+            beta = sample.B(:);
             draw.beta = repmat({beta}, forecastHorizon, 1);
 
         end%

@@ -10,7 +10,7 @@ function [data, favar, indexnM] = ogr_favar_gensample2(longY, endo, lags, favar)
     indexnM = find(indexnM==1);
 
     if favar.blocks
-        tmp = favar.data_exfactors;
+        tmp = [];
 
         for jj = 1:favar.nbnames
             pattern = favar.bnames(jj) + "_";
@@ -18,11 +18,11 @@ function [data, favar, indexnM] = ogr_favar_gensample2(longY, endo, lags, favar)
             tmp = [tmp favar.XZ_block{jj}];
         end
 
-        data = tmp;
+       data = [tmp favar.data_exfactors];
 
     else
         
-        data = [favar.data_exfactors favar.XZ];
+        data = [favar.XZ favar.data_exfactors];
     
     end
     
