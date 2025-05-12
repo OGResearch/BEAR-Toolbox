@@ -106,7 +106,6 @@ classdef Meta < matlab.mixin.Copyable
                 options.estimationSpan (1, :) datetime {mustBeNonempty}
 
                 options.exogenousNames (1, :) string = string.empty(1, 0)
-                options.blockType (1,:) string  = string.empty(1, 0)
                 options.units (1, :) string = ""
                 options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
                 options.intercept (1, 1) logical = true
@@ -221,7 +220,6 @@ classdef Meta < matlab.mixin.Copyable
                 , removeMissing=false ...
             );
         end%
-
 
         function [YLX, periods] = getDataYLX(this, dataTable, periods, options)
             arguments

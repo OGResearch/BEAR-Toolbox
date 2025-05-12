@@ -12,7 +12,7 @@ classdef DataHolder < model.DataHolder
 
         function this = DataHolder(meta, dataTable, varargin)
             arguments
-                meta (1, 1) model.Meta
+                meta (1, 1) favar.Meta
                 dataTable (:, :) timetable
             end
             arguments (Repeating)
@@ -77,7 +77,6 @@ classdef DataHolder < model.DataHolder
             within = index >= 1 & index <= numel(this.Span);
             indexWithin = index(within);
             Z(within, :, :) = sourceZ(indexWithin, :, :);
-            YXZ{3} = Z;
         end%
 
     end
