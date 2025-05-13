@@ -50,13 +50,14 @@ classdef MeanAdjusted < estimator.Base
                 [blockexo] = bear.loadbex(endo, pref);
             end
             
-            [Y, L, numEn, p, T, numBRows, q1] = bear.ogrTVEmaprelim(longY, opt.p);
+            [~, ~, ~, L, ~, Y, ~, ~, ~, numEn, ~, p, T , numBRows, sizeB] = ...
+                bear.olsvar(longY, [], false, opt.p);
 
             %variance from univariate OLS for priors
             arvar = bear.arloop(longY, true, opt.p, numEn);
             
             [beta0, omega0] = bear.ogrmaprior(ar, arvar, opt.lambda1, opt.lambda2, ...
-                opt.lambda3, opt.lambda5, numEn, p, numBRows, q1, opt.bex, blockexo);
+                opt.lambda3, opt.lambda5, numEn, p, numBRows, sizeB, opt.bex, blockexo);
 
             [psi0, lambda0] = bear.ogrTVEcreatePriorDeterministic(longY, longX, p, ...
                 bounds, trendCount, numRegimes, regimes, estimStart, opt.f);
@@ -159,14 +160,14 @@ classdef MeanAdjusted < estimator.Base
                 % first obtain the omegabar matrix
                 invomegabar = invomega0 + kron(invsigma, Lhat'*Lhat);
                 C = bear.trns(chol(bear.nspd(invomegabar), 'Lower'));
-                invC = C\speye(q1);
+                invC = C\speye(sizeB);
                 omegabar = invC*invC';
 
                 % following, obtain betabar
                 betabar = omegabar*(invomega0*beta0 + kron(invsigma, Lhat')*yhat);
 
                 % draw from N(betabar,omegabar);
-                beta = betabar + chol(bear.nspd(omegabar),'lower')*randn(q1, 1);
+                beta = betabar + chol(bear.nspd(omegabar),'lower')*randn(sizeB, 1);
                 
                 % reshape to obtain B
                 B = reshape(beta, numBRows, numEn);
