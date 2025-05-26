@@ -1,6 +1,12 @@
 classdef GenLargeShockSV < estimator.Base
     %SV for large models in BEAR5, stvol=3
 
+    methods (Static)
+        function info = getModelReference()
+            info.category = "large_scale";
+        end
+    end
+    
     properties
         CanHaveDummies = false
         CanHaveReducibles = false

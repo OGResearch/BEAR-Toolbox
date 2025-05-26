@@ -6,11 +6,11 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
     properties
 
         % Number of burn-in draws
-        %Bu
+        % Bu
         Burnin (1, 1) double = 0 %Bu in BEAR5
 
         % Priors on exogenous variables flag
-        %priorexogenous
+        % priorexogenous
         Exogenous (:, :) logical = false %% priorexogenous in BEAR5, controls wheter to use priors on exogenous
 
         % Block exogeneity flag
@@ -41,10 +41,10 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         % lambda5
         Lambda5 double = 0.001 %lambda5 block exogeneity shrinkage hyperparameter
 
-        % StabilityThreshold  Threshold for maximum eigenvalue magnitude
+        % Threshold for maximum eigenvalue magnitude
         StabilityThreshold (1, 1) double = Inf
 
-        % MaxNumUnstableAttempts  Maximum number of unstable sampling attempts
+        % Maximum number of unstable sampling attempts
         MaxNumUnstableAttempts (1, 1) double = 1000
 
     end

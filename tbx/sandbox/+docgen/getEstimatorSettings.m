@@ -19,7 +19,12 @@ function out = getEstimatorSettings()
             if prop.Hidden || prop.Constant
                 continue
             end
-            settings.(prop.Name) = {prop.DefaultValue, prop.Description, prop.DetailedDescription};
+            % comment out for now, will see if we need it later
+            % DefaultValue = '';
+            % if isfield(prop,'DefaultValue')
+            %     DefaultValue = prop.DefaultValue;
+            % end
+            settings.(prop.Name) = {prop.Description, prop.DetailedDescription};
         end
         try 
             estimatorReference = estimator.(name).getModelReference();
