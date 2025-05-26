@@ -11,17 +11,19 @@ FAVAR verison of TV coefficients model, tvbvar=1 in BEAR5
   ...
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `CarrieroSVFAVAR` 
@@ -31,20 +33,22 @@ FAVAR version of SV for large models in BEAR5, stvol=3
 
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`HeteroskedasticityAutoRegression` | `1` | AR coefficient on residual variance |   gamma
-`HeteroskedasticityScale` | `0.001` | IG scale on residual variance |   delta0
-`HeteroskedasticityShape` | `0.001` | IG shape on residual variance |   alpha0
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`HeteroskedasticityAutoRegression` | AR coefficient on residual variance |   gamma
+`HeteroskedasticityScale` | IG scale on residual variance |   delta0
+`HeteroskedasticityShape` | IG shape on residual variance |   alpha0
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `CogleySargentSVFAVAR` 
@@ -54,20 +58,22 @@ FAVAR version of Standard SV model, in BEAR5,  stvol =1
 
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`HeteroskedasticityAutoRegression` | `1` | AR coefficient on residual variance |   gamma
-`HeteroskedasticityScale` | `0.001` | IG scale on residual variance |   delta0
-`HeteroskedasticityShape` | `0.001` | IG shape on residual variance |   alpha0
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`HeteroskedasticityAutoRegression` | AR coefficient on residual variance |   gamma
+`HeteroskedasticityScale` | IG scale on residual variance |   delta0
+`HeteroskedasticityShape` | IG shape on residual variance |   alpha0
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `FlatFAVAROnestep` 
@@ -77,20 +83,22 @@ FAVAR version of prior =41 within lambda> 999 BEAR5
 
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`LoadingVariance` | `1` | Loading Variance |   L0
-`SigmaScale` | `0.001` | Sigma scale |   b0
-`SigmaShape` | `3` | Sigma shape |   a0
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`LoadingVariance` | Loading Variance |   L0
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`SigmaScale` | Sigma scale |   b0
+`SigmaShape` | Sigma shape |   a0
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `FlatFAVARTwostep` 
@@ -100,17 +108,19 @@ FAVAR version of prior =41 within lambda> 999 BEAR5
 
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `GeneralTVFAVAR` 
@@ -120,20 +130,22 @@ FAVAR verison of General TV model tvbvar = 2
 
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`HeteroskedasticityAutoRegression` | `1` | AR coefficient on residual variance |   gamma
-`HeteroskedasticityScale` | `0.001` | IG scale on residual variance |   delta0
-`HeteroskedasticityShape` | `0.001` | IG shape on residual variance |   alpha0
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`HeteroskedasticityAutoRegression` | AR coefficient on residual variance |   gamma
+`HeteroskedasticityScale` | IG scale on residual variance |   delta0
+`HeteroskedasticityShape` | IG shape on residual variance |   alpha0
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `IndNormalWishartFAVAROnestep` 
@@ -143,21 +155,23 @@ BFAVAR with Individual Normal-Wishart prior
   FAVAR version of prior =31 32 BEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`LoadingVariance` | `1` | Loading Variance |   L0
-`Sigma` | `"ar"` | Method of calculating priors on covariance matrix (ar;eye) |   prior = 31 and 32 respectively
-`SigmaScale` | `0.001` | Sigma scale |   b0
-`SigmaShape` | `3` | Sigma shape |   a0
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`LoadingVariance` | Loading Variance |   L0
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`Sigma` | Method of calculating priors on covariance matrix (ar;eye) |   prior = 31 and 32 respectively
+`SigmaScale` | Sigma scale |   b0
+`SigmaShape` | Sigma shape |   a0
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `IndNormalWishartFAVARTwostep` 
@@ -167,18 +181,20 @@ BFAVAR with Individual Normal-Wishart prior
   FAVAR version of prior =31 32 BEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`Sigma` | `"ar"` | Method of calculating priors on covariance matrix (ar;eye) |   prior = 31 and 32 respectively
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`Sigma` | Method of calculating priors on covariance matrix (ar;eye) |   prior = 31 and 32 respectively
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `MinnesotaFAVAROnestep` 
@@ -188,21 +204,23 @@ BFAVAR with Normal-Wishart prior
   FAVAR version of prior =11 12 and 13 BEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`LoadingVariance` | `1` | Loading Variance |   L0
-`Sigma` | `"ar"` | Method of calculating priors on covariance matrix (ar;diag;full) |   prior = 11, 12 and 13 respectively    
-`SigmaScale` | `0.001` | Sigma scale |   b0
-`SigmaShape` | `3` | Sigma shape |   a0
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`LoadingVariance` | Loading Variance |   L0
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`Sigma` | Method of calculating priors on covariance matrix (ar;diag;full) |   prior = 11, 12 and 13 respectively    
+`SigmaScale` | Sigma scale |   b0
+`SigmaShape` | Sigma shape |   a0
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `MinnesotaFAVARTwostep` 
@@ -212,18 +230,20 @@ BFAVAR with Normal-Wishart prior
   FAVAR version of prior =11 12 and 13 BEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`Sigma` | `"ar"` | Method of calculating priors on covariance matrix (ar;diag;full) |   prior = 11, 12 and 13 respectively    
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`Sigma` | Method of calculating priors on covariance matrix (ar;diag;full) |   prior = 11, 12 and 13 respectively    
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `NormalDiffuseFAVAROnestep` 
@@ -233,20 +253,22 @@ BFAVAR with Normal-Wishart prior
   FAVAR version of prior =41 BEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`LoadingVariance` | `1` | Loading Variance |   L0
-`SigmaScale` | `0.001` | Sigma scale |   b0
-`SigmaShape` | `3` | Sigma shape |   a0
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`LoadingVariance` | Loading Variance |   L0
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`SigmaScale` | Sigma scale |   b0
+`SigmaShape` | Sigma shape |   a0
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `NormalDiffuseFAVARTwostep` 
@@ -256,17 +278,19 @@ BFAVAR with Normal-Wishart prior
   FAVAR version of prior =41 BEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `NormalWishartFAVAROnestep` 
@@ -276,21 +300,23 @@ BFAVAR with Normal-Wishart prior
   FAVAR version of prior =21 22 inBEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`LoadingVariance` | `1` | Loading Variance |   L0
-`Sigma` | `"ar"` | Method of calculating priors on covariance matrix (ar;eye) |   prior =21  and 22 respectively
-`SigmaScale` | `0.001` | Sigma scale |   b0
-`SigmaShape` | `3` | Sigma shape |   a0
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`LoadingVariance` | Loading Variance |   L0
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`Sigma` | Method of calculating priors on covariance matrix (ar;eye) |   prior =21  and 22 respectively
+`SigmaScale` | Sigma scale |   b0
+`SigmaShape` | Sigma shape |   a0
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `NormalWishartFAVARTwostep` 
@@ -300,18 +326,20 @@ BFAVAR with Normal-Wishart prior
   FAVAR version of prior =21 22 in BEAR5
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
-`Sigma` | `"ar"` | Method of calculating priors on covariance matrix (ar;eye) |   prior =21  and 22 respectively
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`Sigma` | Method of calculating priors on covariance matrix (ar;eye) |   prior =21  and 22 respectively
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 
 
 ## `RandomInertiaSVFAVAR` 
@@ -321,19 +349,21 @@ FAVAR version of random inertia SV model, in BEAR5,  stvol =3
 
 
 ### Settings 
-Name | Default | Description | BEAR5 reference
-------|-------:|-----------|-
-`Autoregression` | `0.8` | Prior on first-order autoregression |   ar
-`BlockExogenous` | `false` | Block exogeneity flag |   bex
-`Burnin` | `0` | Number of burn-in draws |  Bu
-`Exogenous` | `false` | Priors on exogenous variables flag |  priorexogenous
-`HeteroskedasticityAutoRegression` | `1` | AR coefficient on residual variance |   gamma
-`HeteroskedasticityAutoRegressionVariance` | `0.01` | Prior variance of inertia |   zeta0
-`HeteroskedasticityScale` | `0.001` | IG scale on residual variance |   delta0
-`HeteroskedasticityShape` | `0.001` | IG shape on residual variance |   alpha0
-`Lambda1` | `0.1` | Overal tightness of priors |   lambda1
-`Lambda2` | `0.5` | Variable weighting |   lambda2
-`Lambda3` | `1` | Leg decay |   lambda3
-`Lambda4` | `100` | Exogenous variable tightness |   lambda4
-`Lambda5` | `0.001` | Block exogeneity shrinkage |   lambda5
+Name | Description | BEAR5 reference
+------|-----------|-
+`Autoregression` | Prior on first-order autoregression |   ar
+`BlockExogenous` | Block exogeneity flag |   bex
+`Burnin` | Number of burn-in draws |   Bu
+`Exogenous` | Priors on exogenous variables flag |   priorexogenous
+`HeteroskedasticityAutoRegression` | AR coefficient on residual variance |   gamma
+`HeteroskedasticityAutoRegressionVariance` | Prior variance of inertia |   zeta0
+`HeteroskedasticityScale` | IG scale on residual variance |   delta0
+`HeteroskedasticityShape` | IG shape on residual variance |   alpha0
+`Lambda1` | Overal tightness of priors |   lambda1
+`Lambda2` | Variable weighting |   lambda2
+`Lambda3` | Leg decay |   lambda3
+`Lambda4` | Exogenous variable tightness |   lambda4
+`Lambda5` | Block exogeneity shrinkage |   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
 

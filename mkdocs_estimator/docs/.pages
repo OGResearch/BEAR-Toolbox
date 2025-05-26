@@ -10,6 +10,7 @@ nav:
         - FAVAR: favar.md
         - Panel: panel.md
         - Time-varying BVAR: time_varying.md
+        - Large-scale BVAR: large_scale.md
     # - Model specification: specs
     # - Graphical user interface: gui
     # - Command line interface: cli
