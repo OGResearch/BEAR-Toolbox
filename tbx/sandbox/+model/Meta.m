@@ -5,43 +5,43 @@ classdef Meta < matlab.mixin.Copyable
 
     % Reduced-form model meta information
     properties (SetAccess=protected)
-        % EndogenousConcepts Endogenous concepts; the entire names will be created
+        % Endogenous concepts; the entire names will be created
         % by prepending unit names to endogenous concepts
         EndogenousConcepts (1, :) string
-        %
-        % Units  Names of units in panel models
+        
+        % Names of units in panel models
         Units (1, :) string = ""
-        %
-        % ExogenousNames  Names of exogenous variables
-        ExogenousNames (1, :) string
-        %
-        % ReducibleNames  Names of reducible variables in factor models
+        
+        % Names of exogenous variables
+        ExogenousNames (1, :) string %Names of exogenous variables
+        
+        % Names of reducible variables in factor models
         ReducibleNames (1, :) string = string.empty(1, 0)
-        %
-        % ResidualPrefix  Prefix prepended to residual names
+        
+        % Prefix prepended to residual names
         ResidualPrefix (1, 1) string = "resid"
-        %
-        % Order  Autoregressive order of the VAR model
+        
+        % Autoregressive order of the VAR model
         Order (1, 1) double {mustBePositive, mustBeScalarOrEmpty} = 1
-        %
-        % HasIntercept  True if the model includes an intercept (constant) term
+        
+        % True if the model includes an intercept (constant) term
         HasIntercept (1, 1) logical
-        %
-        % NumFactors  Number of factors to be formed from reducibles
+        
+        % Number of factors to be formed from reducibles
         NumFactors (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
 
-        % ShortSpan  Span of fitted data
+        % Span of fitted data
         ShortSpan
     end
 
 
     % Structural model meta information
     properties (SetAccess=protected)
-        % ShockConcepts  Names of structural shock concepts; the entire names
+        % Names of structural shock concepts; the entire names
         % will be created by prepending unit names to shock concepts
         ShockConcepts (1, :) string = string.empty(1, 0)
-        %
-        % IdentificationHorizon  Number of periods for which the VMA
+        
+        % Number of periods for which the VMA
         % representation (shock response matrices) will be drawn
         IdentificationHorizon (1, 1) double = NaN
     end
@@ -49,7 +49,7 @@ classdef Meta < matlab.mixin.Copyable
 
     % Panel model meta information
     properties
-        % HasCrossUnits  True if cross-effects are present in models with multiple units
+        % True if cross-effects are present in models with multiple units
         HasCrossUnits (1, 1) logical = false
     end
 
@@ -94,10 +94,10 @@ classdef Meta < matlab.mixin.Copyable
         HasSeparableUnits
         NumSeparableUnits
 
-        % SeparableEndogenousNames  Endogenous names or endogenous concepts depending on cross-units
+        % Endogenous names or endogenous concepts depending on cross-units
         SeparableEndogenousNames
 
-        % SeparableShockNames  Shock names or shock concepts depending on cross-units
+        % Shock names or shock concepts depending on cross-units
         SeparableShockNames
 
         % NumRowsA  Number of rows in the transition matrix

@@ -21,7 +21,7 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         % ar
         Autoregression (:, 1) double = 0.8 %ar in BEAR5, the prior mean of the first lag
 
-        % Overal tightness of priors
+        % Overall tightness of priors
         % lambda1
         Lambda1 double = 0.1 %lambda1 in BEAR5 , contols the overal tightness of priors
 
