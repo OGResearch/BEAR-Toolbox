@@ -53,7 +53,7 @@ function out = getEstimatorSettings()
                 end
             end
             if isempty(dim)
-                dim = ':';
+                dim = '';
             end
             try
                 type_taxonomy = docgen.getTypeTaxonomy(Type, dim);

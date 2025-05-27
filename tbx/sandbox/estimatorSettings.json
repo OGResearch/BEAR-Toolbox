@@ -26,19 +26,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -50,7 +50,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -94,19 +94,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -118,7 +118,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -136,19 +136,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -180,19 +180,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -204,7 +204,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -248,19 +248,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -272,7 +272,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -290,19 +290,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -334,19 +334,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -358,7 +358,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -376,19 +376,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -420,19 +420,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -444,7 +444,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -462,19 +462,19 @@
     },
     "LoadingVariance": {
       "description": "Loading Variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  L0"
     },
     "SigmaShape": {
       "description": "Sigma shape",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 3,
       "detailedDesc": "  a0"
     },
     "SigmaScale": {
       "description": "Sigma scale",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  b0"
     }
@@ -506,19 +506,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -530,7 +530,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -574,19 +574,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -598,7 +598,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -616,19 +616,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -666,19 +666,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -690,7 +690,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -708,19 +708,19 @@
     },
     "LoadingVariance": {
       "description": "Loading Variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  L0"
     },
     "SigmaShape": {
       "description": "Sigma shape",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 3,
       "detailedDesc": "  a0"
     },
     "SigmaScale": {
       "description": "Sigma scale",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  b0"
     }
@@ -758,19 +758,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -782,7 +782,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -832,19 +832,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -856,7 +856,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -874,19 +874,19 @@
     },
     "LoadingVariance": {
       "description": "Loading Variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  L0"
     },
     "SigmaShape": {
       "description": "Sigma shape",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 3,
       "detailedDesc": "  a0"
     },
     "SigmaScale": {
       "description": "Sigma scale",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  b0"
     }
@@ -924,19 +924,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -948,7 +948,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -992,19 +992,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1016,7 +1016,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1034,19 +1034,19 @@
     },
     "LoadingVariance": {
       "description": "Loading Variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  L0"
     },
     "SigmaShape": {
       "description": "Sigma shape",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 3,
       "detailedDesc": "  a0"
     },
     "SigmaScale": {
       "description": "Sigma scale",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  b0"
     }
@@ -1078,19 +1078,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1102,7 +1102,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1152,19 +1152,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1176,7 +1176,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1194,19 +1194,19 @@
     },
     "LoadingVariance": {
       "description": "Loading Variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  L0"
     },
     "SigmaShape": {
       "description": "Sigma shape",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 3,
       "detailedDesc": "  a0"
     },
     "SigmaScale": {
       "description": "Sigma scale",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  b0"
     }
@@ -1244,19 +1244,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1268,7 +1268,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1288,7 +1288,7 @@
   "RandomInertiaSVFAVAR": {
     "HeteroskedasticityAutoRegressionVariance": {
       "description": "Prior variance of inertia",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.01,
       "detailedDesc": "  zeta0"
     },
@@ -1318,19 +1318,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1342,7 +1342,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1360,19 +1360,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -1404,19 +1404,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1428,7 +1428,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1446,19 +1446,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -1490,19 +1490,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1514,7 +1514,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1532,19 +1532,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -1552,7 +1552,7 @@
   "RandomInertiaSV": {
     "HeteroskedasticityAutoRegressionVariance": {
       "description": "Prior variance of inertia",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.01,
       "detailedDesc": "  zeta0"
     },
@@ -1582,19 +1582,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1606,7 +1606,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1624,19 +1624,19 @@
     },
     "HeteroskedasticityAutoRegression": {
       "description": "AR coefficient on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  gamma"
     },
     "HeteroskedasticityShape": {
       "description": "IG shape on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  alpha0"
     },
     "HeteroskedasticityScale": {
       "description": "IG scale on residual variance",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  delta0"
     }
@@ -1710,19 +1710,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1734,7 +1734,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1790,19 +1790,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1814,7 +1814,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1858,19 +1858,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1882,7 +1882,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -1926,19 +1926,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -1950,7 +1950,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2006,19 +2006,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2030,7 +2030,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2074,19 +2074,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2098,7 +2098,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2142,19 +2142,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2166,7 +2166,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2216,19 +2216,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2240,7 +2240,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2290,19 +2290,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2314,7 +2314,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2358,19 +2358,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2382,7 +2382,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2432,19 +2432,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2456,7 +2456,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2500,19 +2500,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2524,7 +2524,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2544,25 +2544,25 @@
   "GenLargeShockSV": {
     "Mult0": {
       "description": "Initial mean of scaling factors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
     "ScaleMult": {
       "description": "Scale on covariance scaling factors' Pareto distribution",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
     "ShapeMult": {
       "description": "Shape on covariance scaling factors ' Pareto distribution",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
     "PropStdMult": {
       "description": "Scaling factors proposal std",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
@@ -2592,7 +2592,7 @@
     },
     "Turningpoint": {
       "description": "",
-      "type": "undefined",
+      "type": "date",
       "default": "",
       "detailedDesc": ""
     },
@@ -2622,19 +2622,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2646,7 +2646,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2666,31 +2666,31 @@
   "LargeShockSV": {
     "Solver": {
       "description": "",
-      "type": "text matrix",
+      "type": "text",
       "default": "function handle",
       "detailedDesc": ""
     },
     "Mult0": {
       "description": "Initial mean of scaling factors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
     "ScaleMult": {
       "description": "Scale on covariance scaling factors' Pareto distribution",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
     "ShapeMult": {
       "description": "Shape on covariance scaling factors ' Pareto distribution",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
     "PropStdMult": {
       "description": "Scaling factors proposal std",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": "",
       "detailedDesc": ""
     },
@@ -2720,7 +2720,7 @@
     },
     "Turningpoint": {
       "description": "",
-      "type": "undefined",
+      "type": "date",
       "default": "",
       "detailedDesc": ""
     },
@@ -2750,19 +2750,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2774,7 +2774,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },
@@ -2794,37 +2794,37 @@
   "MixedFrequencyBVAR": {
     "KalmanFcastPeriod": {
       "description": "Numeber of periods to forecast in a Kalman filter",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 7,
       "detailedDesc": "  H"
     },
     "MfLambda1": {
       "description": "hyperparameter: lambda1",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": ""
     },
     "MfLambda2": {
       "description": "hyperparameter: lambda2",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 3.4,
       "detailedDesc": ""
     },
     "MfLambda3": {
       "description": "hyperparameter: lambda3",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": ""
     },
     "MfLambda4": {
       "description": "hyperparameter: lambda4",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 3.4,
       "detailedDesc": ""
     },
     "MfLambda5": {
       "description": "hyperparameter: lambda5",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 14.763158,
       "detailedDesc": ""
     },
@@ -2854,19 +2854,19 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
     "Lambda2": {
       "description": "Variable weighting",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.5,
       "detailedDesc": "  lambda2"
     },
     "Lambda3": {
       "description": "Leg decay",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 1,
       "detailedDesc": "  lambda3"
     },
@@ -2878,7 +2878,7 @@
     },
     "Lambda5": {
       "description": "Block exogeneity shrinkage",
-      "type": "numeric matrix",
+      "type": "numeric",
       "default": 0.001,
       "detailedDesc": "  lambda5"
     },

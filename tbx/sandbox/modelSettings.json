@@ -42,7 +42,7 @@
     },
     "ShortSpan": {
       "default": "",
-      "type": "text matrix",
+      "type": "unknown",
       "Description": "Span of fitted data"
     },
     "ShockConcepts": {

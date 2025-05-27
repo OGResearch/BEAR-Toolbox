@@ -11,8 +11,10 @@ function type_taxonomy = getTypeTaxonomy(type, dim)
             type_taxonomy = "text";
         case "function_handle"
             type_taxonomy = "function handle";
+        case "datetime"
+            type_taxonomy = "date";
         otherwise
-            type_taxonomy = "undefined";
+            type_taxonomy = "unknown";
     end
 
     % Check dimension

@@ -33,8 +33,8 @@ function out = getMetaSettings()
         end
         
         % collect type
-        if isempty(prop.Validation)
-            Type = class(DefaultValue);
+        if isempty(prop.Validation) && ~prop.HasDefault
+            Type = "unknown";
         else
             Type = prop.Validation.Class.Name;
         end
@@ -55,7 +55,7 @@ function out = getMetaSettings()
             end
         end
         if isempty(dim)
-            dim = ':';
+            dim = '';
         end
         
         type_taxonomy = docgen.getTypeTaxonomy(Type, dim);
