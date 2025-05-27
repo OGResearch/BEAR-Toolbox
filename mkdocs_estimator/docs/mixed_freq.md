@@ -11,23 +11,23 @@ Mixed-frequency BVAR
 
 
 ### Settings 
-Name | Description | BEAR5 reference
-------|-----------|-
-`Autoregression` | Prior on first-order autoregression |   ar
-`BlockExogenous` | Block exogeneity flag |   bex
-`Burnin` | Number of burn-in draws |   Bu
-`Exogenous` | Priors on exogenous variables flag |   priorexogenous
-`KalmanFcastPeriod` | Numeber of periods to forecast in a Kalman filter |   H
-`Lambda1` | Overal tightness of priors |   lambda1
-`Lambda2` | Variable weighting |   lambda2
-`Lambda3` | Leg decay |   lambda3
-`Lambda4` | Exogenous variable tightness |   lambda4
-`Lambda5` | Block exogeneity shrinkage |   lambda5
-`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts | 
-`MfLambda1` | hyperparameter: lambda1 | 
-`MfLambda2` | hyperparameter: lambda2 | 
-`MfLambda3` | hyperparameter: lambda3 | 
-`MfLambda4` | hyperparameter: lambda4 | 
-`MfLambda5` | hyperparameter: lambda5 | 
-`StabilityThreshold` | Threshold for maximum eigenvalue magnitude | 
+Name | Description | Default value | Type | BEAR5 reference
+---|----|----|---|---
+`Autoregression` | Prior on first-order autoregression| 0.8| numeric vector|   ar
+`BlockExogenous` | Block exogeneity flag| false| logical matrix|   bex
+`Burnin` | Number of burn-in draws| 0| numeric scalar|   Bu
+`Exogenous` | Priors on exogenous variables flag| false| logical matrix|   priorexogenous
+`KalmanFcastPeriod` | Numeber of periods to forecast in a Kalman filter| 7| numeric matrix|   H
+`Lambda1` | Overall tightness of priors| 0.1| numeric matrix|   lambda1
+`Lambda2` | Variable weighting| 0.5| numeric matrix|   lambda2
+`Lambda3` | Leg decay| 1| numeric matrix|   lambda3
+`Lambda4` | Exogenous variable tightness| 100| numeric matrix|   lambda4
+`Lambda5` | Block exogeneity shrinkage| 0.001| numeric matrix|   lambda5
+`MaxNumUnstableAttempts` | Maximum number of unstable sampling attempts| 1000| numeric scalar| 
+`MfLambda1` | hyperparameter: lambda1| 0.1| numeric matrix| 
+`MfLambda2` | hyperparameter: lambda2| 3.4| numeric matrix| 
+`MfLambda3` | hyperparameter: lambda3| 1| numeric matrix| 
+`MfLambda4` | hyperparameter: lambda4| 3.4| numeric matrix| 
+`MfLambda5` | hyperparameter: lambda5| 14.7632| numeric matrix| 
+`StabilityThreshold` | Threshold for maximum eigenvalue magnitude| Inf| numeric scalar| 
 
