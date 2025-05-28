@@ -13,7 +13,7 @@ function outputString = createForm(inputStruct, Header)
     fieldNames = sort(fieldNames);
 
     lines(end+1) = "<h2>"+Header+"</h2>";
-    lines(end+1) = "<form>";
+    lines(end+1) = "<form method='get'>";
     % lines(end+1) = "<thead>";
     % lines(end+1) = "<tr>";
     % lines(end+1) = "<th>Name</th>";
@@ -34,5 +34,7 @@ function outputString = createForm(inputStruct, Header)
     lines(end+1) = "<input style='color:black' style='background-color:gray' type='submit' value='Submit'>";
     % lines(end+1) = "</tbody>";
     lines(end+1) = "</form>";
+    lines(end+1) = "<a href='matlab:gui.collectUserData()'>Process user inputs</a></p>";
+    
     outputString = join(lines, newline());
 end

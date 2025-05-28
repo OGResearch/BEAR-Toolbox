@@ -698,7 +698,7 @@
 
 <h2 id="show-meta-settings">Show Meta Settings</h2>
 <p><h2>Meta Settings</h2>
-<form>
+<form method='get'>
 <label for='EndogenousConcepts'>EndogenousConcepts</label><br>
 <input style='color:black' type='text' id='EndogenousConcepts' name='EndogenousConcepts' value=''><br>
 <label for='ExogenousNames'>ExogenousNames</label><br>
@@ -724,7 +724,8 @@
 <label for='Units'>Units</label><br>
 <input style='color:black' type='text' id='Units' name='Units' value=''><br>
 <input style='color:black' style='background-color:gray' type='submit' value='Submit'>
-</form></p>
+</form>
+<a href='matlab:gui.collectUserData()'>Process user inputs</a></p></p>
 
 
 
