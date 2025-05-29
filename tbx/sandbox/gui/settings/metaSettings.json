@@ -1,61 +1,61 @@
 {
   "EndogenousConcepts": {
-    "default": "",
+    "value": "",
     "type": "text list",
     "Description": "Endogenous concepts; the entire names will be created"
   },
   "Units": {
-    "default": "",
+    "value": "",
     "type": "text list",
     "Description": "Names of units in panel models"
   },
   "ExogenousNames": {
-    "default": "",
+    "value": "",
     "type": "text list",
     "Description": "Names of exogenous variables"
   },
   "ReducibleNames": {
-    "default": [],
+    "value": [],
     "type": "text list",
     "Description": "Names of reducible variables in factor models"
   },
   "ResidualPrefix": {
-    "default": "resid",
+    "value": "resid",
     "type": "text",
     "Description": "Prefix prepended to residual names"
   },
   "Order": {
-    "default": 1,
+    "value": 1,
     "type": "numeric scalar",
     "Description": "Autoregressive order of the VAR model"
   },
   "HasIntercept": {
-    "default": "",
+    "value": "",
     "type": "logical",
     "Description": "True if the model includes an intercept (constant) term"
   },
   "NumFactors": {
-    "default": 0,
+    "value": 0,
     "type": "numeric scalar",
     "Description": "Number of factors to be formed from reducibles"
   },
   "ShortSpan": {
-    "default": "",
+    "value": "",
     "type": "unknown",
     "Description": "Span of fitted data"
   },
   "ShockConcepts": {
-    "default": [],
+    "value": [],
     "type": "text list",
     "Description": "Names of structural shock concepts; the entire names"
   },
   "IdentificationHorizon": {
-    "default": null,
+    "value": null,
     "type": "numeric scalar",
     "Description": "Number of periods for which the VMA"
   },
   "HasCrossUnits": {
-    "default": false,
+    "value": false,
     "type": "logical",
     "Description": "True if cross-effects are present in models with multiple units"
   }

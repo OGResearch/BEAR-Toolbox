@@ -13,7 +13,7 @@ function outputString = createForm(inputStruct, Header)
     fieldNames = sort(fieldNames);
 
     lines(end+1) = "<h2>"+Header+"</h2>";
-    lines(end+1) = "<form method='get'>";
+    lines(end+1) = "<form action='matlab:collectMetaData '>";
     % lines(end+1) = "<thead>";
     % lines(end+1) = "<tr>";
     % lines(end+1) = "<th>Name</th>";
@@ -24,17 +24,17 @@ function outputString = createForm(inputStruct, Header)
     for i = 1:numFields
         fieldName = fieldNames{i};
         lines(end+1) = "<label for='" + fieldName + "'>" + fieldName + "</label><br>";
-        defaultValue = inputStruct.(fieldName).default;
-        if isempty(defaultValue)
-            defaultValue = "";
+        Value = inputStruct.(fieldName).value;
+        if isempty(Value)
+            Value = "";
         else
         end
-        lines(end+1) = "<input style='color:black' type='text' id='" + fieldName + "' name='" + fieldName + "' value='" + defaultValue + "'><br>";
+        lines(end+1) = "<input style='color:black' type='text' id='" + fieldName + "' name='" + fieldName + "' value='" + Value + "'><br>";
     end
     lines(end+1) = "<input style='color:black' style='background-color:gray' type='submit' value='Submit'>";
     % lines(end+1) = "</tbody>";
     lines(end+1) = "</form>";
-    lines(end+1) = "<a href='matlab:gui.collectUserData()'>Process user inputs</a></p>";
+    % lines(end+1) = "<a href='matlab:gui.collectUserData()'>Process user inputs</a></p>";
     
     outputString = join(lines, newline());
 end

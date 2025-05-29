@@ -26,7 +26,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -94,7 +94,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -180,7 +180,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -248,7 +248,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -334,7 +334,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -420,7 +420,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -506,7 +506,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -574,7 +574,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -666,7 +666,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -758,7 +758,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -832,7 +832,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -924,7 +924,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -992,7 +992,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1078,7 +1078,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1152,7 +1152,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1244,7 +1244,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1318,7 +1318,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1404,7 +1404,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1490,7 +1490,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1582,7 +1582,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1710,7 +1710,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1790,7 +1790,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1858,7 +1858,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -1926,7 +1926,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2006,7 +2006,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2074,7 +2074,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2142,7 +2142,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2216,7 +2216,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2290,7 +2290,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2358,7 +2358,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2432,7 +2432,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2500,7 +2500,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2622,7 +2622,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2750,7 +2750,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
@@ -2854,7 +2854,7 @@
     },
     "Lambda1": {
       "description": "Overall tightness of priors",
-      "type": "numeric",
+      "type": "numeric scalar",
       "default": 0.1,
       "detailedDesc": "  lambda1"
     },
