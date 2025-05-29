@@ -14,19 +14,12 @@ classdef MatlabToForm
             arguments
                 matlab (1, :) string
             end
-            form = matlab;
+            form = join(matlab, " ");
         end%
 
         function form = string(matlab)
             arguments
                 matlab (1, 1) string
-            end
-            form = matlab;
-        end%
-
-        function form = strings(matlab)
-            arguments
-                matlab (1, :) string
             end
             form = matlab;
         end%
@@ -43,6 +36,7 @@ classdef MatlabToForm
                 matlab (1, :) double
             end
             form = string(matlab);
+            form = join(form, " ");
         end%
 
         function form = logical(matlab)
