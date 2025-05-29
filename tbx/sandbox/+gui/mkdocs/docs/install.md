@@ -1,5 +1,0 @@
-
-Installing the BEAR Toolbox
-============================
-
-
