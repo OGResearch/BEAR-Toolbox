@@ -4,13 +4,13 @@ function out = getMetaSettings()
     ModelDir = docgen.getDirectory("model.Tracer");
     files = dir(fullfile(ModelDir, "Meta.m"));
     out = struct();
-    for i = 1 : numel(files)
-        name = extractBefore(files(i).name, ".m");
-        try
-            modelMC = eval(['?' 'model.' name]);
-        catch
-            continue
-        end
+    name = extractBefore(files.name, ".m");
+
+    try
+        modelMC = eval(['?' 'model.' name]);
+    catch
+        modelMC = struct();
+        modelMC.PropertyList = [];
     end
 
     % collect the properties of the model class
@@ -60,8 +60,8 @@ function out = getMetaSettings()
         
         type_taxonomy = docgen.getTypeTaxonomy(Type, dim);
 
-        out.(name).(prop.Name) = struct(...
-            'default', DefaultValue, ...
+        out.(prop.Name) = struct(...
+            'value', DefaultValue, ...
             'type', type_taxonomy, ...
             'Description', prop.Description ...
         );

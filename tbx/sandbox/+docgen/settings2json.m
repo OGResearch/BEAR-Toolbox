@@ -5,6 +5,8 @@ function out = settings2json()
     currentFile = which('docgen.settings2json');
     sandboxDir = fileparts(fileparts(currentFile));
 
+    guiDir = fullfile(sandboxDir, 'gui','settings');
+
     estimatorSettings = docgen.getEstimatorSettings();
     % repack the settings into a simple struct
     estimatorSettingsPackage = struct();
@@ -20,10 +22,14 @@ function out = settings2json()
 
     saveStruct2Json(estimatorSettingsPackage, ...
         fullfile(sandboxDir, 'estimatorSettings.json'));
+    saveStruct2Json(estimatorSettingsPackage, ...
+        fullfile(guiDir, 'estimatorSettings.json'));
 
-    modelSettings = docgen.getMetaSettings();
-    saveStruct2Json(modelSettings, ...
-        fullfile(sandboxDir, 'modelSettings.json'));
+    metaSettings = docgen.getMetaSettings();
+    saveStruct2Json(metaSettings, ...
+        fullfile(sandboxDir, 'metaSettings.json'));
+    saveStruct2Json(metaSettings, ...
+        fullfile(guiDir, 'metaSettings.json'));
 
 end
 
