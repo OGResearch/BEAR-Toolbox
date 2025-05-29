@@ -1,0 +1,20 @@
+
+nav:
+    - Home:
+        - index.md
+        - Install: install.md
+        - Overview: overview.md
+    - Model specification:
+        - Meta: meta.md
+        - Estimators: estimator.md
+        - Structural identification: structural_identifications.md
+    - Tasks:
+        - List of tasks: tasks.md
+    # - Model specification: specs
+    # - Graphical user interface: gui
+    # - Command line interface: cli
+    # - Algorithms: algorithms
+    # - Examples: examples
+    # - Tutorials: tutorials
+    # - Other resources: resources
+

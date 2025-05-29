@@ -19,7 +19,54 @@ function out = getEstimatorSettings()
             if prop.Hidden || prop.Constant
                 continue
             end
-            settings.(prop.Name) = {prop.DefaultValue, prop.Description, prop.DetailedDescription};
+            % collect default value
+            if prop.HasDefault
+                DefaultValue = prop.DefaultValue;
+            else 
+                DefaultValue = '';
+            end
+            % Deal with the function handler as a dirty fix for now
+            if isa(DefaultValue, 'function_handle')
+                DefaultValue = 'function handle';
+            end
+            
+            % collect type
+            if isempty(prop.Validation)
+                Type = class(DefaultValue);
+            else
+                Type = prop.Validation.Class.Name;
+            end
+
+            % collect Size
+            if isempty(prop.Validation)
+                sz = '';
+            else
+                sz = prop.Validation.Size;
+            end
+            len = length(sz);
+            dim = cell(1:len);
+            for k = 1:len
+                if isa(sz(k),'meta.FixedDimension') 
+                    dim{k} = sz(k).Length;
+                else
+                    dim{k} = ':';
+                end
+            end
+            if isempty(dim)
+                dim = '';
+            end
+            try
+                type_taxonomy = docgen.getTypeTaxonomy(Type, dim);
+            catch
+                keyboard
+            end
+            dim = "[" + join(textual.stringify(dim),",") + "]";
+
+            % settings.(prop.Name) = {prop.Description, DefaultValue, Type, dim, type_taxonomy, prop.DetailedDescription};
+            settings.(prop.Name).description = prop.Description;
+            settings.(prop.Name).type = type_taxonomy;
+            settings.(prop.Name).default = DefaultValue;
+            settings.(prop.Name).detailedDesc = prop.DetailedDescription;
         end
         try 
             estimatorReference = estimator.(name).getModelReference();
@@ -35,4 +82,5 @@ function out = getEstimatorSettings()
     end
 
 end%
+
 

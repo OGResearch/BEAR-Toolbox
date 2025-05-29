@@ -14,7 +14,8 @@ function out = markdownEstimatorSettings()
         "panel",...
         "favar",...
         "time_varying",...
-        "mixed_freq"...
+        "mixed_freq",...
+        "large_scale"...
     ];
 
     pageTitles = [
@@ -23,7 +24,8 @@ function out = markdownEstimatorSettings()
         "Panel",...
         "FAVAR",...
         "Time-varying BVAR",...
-        "Mixed frequency BVAR"...
+        "Mixed frequency BVAR",...
+        "Large scale BVAR"...
     ];
 
     for page_ind = 1:numel(pages)
@@ -51,15 +53,20 @@ function out = markdownEstimatorSettings()
             lines(end+1) = estimator.detailedDesc;
             lines(end+1) = "";
             lines(end+1) = "### Settings ";
-            lines(end+1) = "Name | Default | Description | BEAR5 reference";
-            lines(end+1) = "------|-------:|-----------|-";
+            lines(end+1) = "Name | Description | Default value | Type | BEAR5 reference";
+            % lines(end+1) = "------|-----------|-";
+            lines(end+1) = "---|----|----|---|---";
             settings = estimator.settings;
             settingNames = textual.stringify(fieldnames(settings));
             settingNames = sort(settingNames);
             for j = 1 : numel(settingNames)
                 settingName = settingNames(j);
                 setting = settings.(settingName);
-                lines(end+1) = sprintf("`%s` | `%s` | %s | %s", settingName, printSetting(setting{1}), setting{2},setting{3});
+                try
+                lines(end+1) = sprintf("`%s` | %s| %s| %s| %s", settingName, printSetting(setting.description), printSetting(setting.default), printSetting(setting.type), printSetting(setting.detailedDesc));
+                catch
+                    keyboard
+                end
             end
         end
 
@@ -73,10 +80,11 @@ end%
 
 
 function out = printSetting(value)
-    if isstring(value) || ischar(value)
-        out = """" + string(value) + """";
-        return
-    end
+    % if ~(isstring(value) || ischar(value))
+    %     out = """" + string(value) + """";
+    %     % out = string(value);
+    %     return
+    % end
     out = string(value);
 end%
 
