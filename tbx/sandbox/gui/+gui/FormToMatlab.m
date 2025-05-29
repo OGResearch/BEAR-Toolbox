@@ -55,7 +55,8 @@ classdef FormToMatlab
         function matlab = names(form)
             form = gui.FormToMatlab.receive(form);
             if isempty(form)
-                error("Invalid names: %s", "");
+                matlab = string.empty(1, 0);
+                return
             end
             matlab = regexp(form, "[a-zA-Z_]\w*", "match", "once");
             matlab = reshape(matlab, 1, []);
@@ -85,6 +86,10 @@ classdef FormToMatlab
 
         function matlab = numbers(form)
             form = gui.FormToMatlab.receive(form);
+            if isempty(form)
+                matlab = double.empty(1, 0);
+                return
+            end
             matlab = double(form);
             if any(isnan(matlab))
                 error("Invalid number: %s", join(form, " "));
