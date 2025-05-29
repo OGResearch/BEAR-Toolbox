@@ -20,13 +20,29 @@ function result = resolveFormSubmission(submission, specs)
         key = strip(pair(1));
         submissionValue = strip(pair(2));
         type = string(specs.(key).type);
-        %try
+        try
             value = ftm.(type)(submissionValue);
-        %catch
-        %    error("Error processing value for %s", key);
-        %end
+        catch
+            error("Error processing this value: %s", key);
+        end
         result.(key) = value;
     end
 
-end%
+    % Exception: Missing "logical" results in false
+    specsKeys = reshape(string(fieldnames(specs)), 1, []);
+    submissionKeys = reshape(string(fieldnames(result)), 1, []);
+    for key = setdiff(specsKeys, submissionKeys)
+        type = string(specs.(key).type);
+        if type == "logical"
+            result.(key) = false;
+        end
+    end
 
+    % Report keys not delivered by form
+    submissionKeys = reshape(string(fieldnames(result)), 1, []);
+    missingKeys = setdiff(specsKeys, submissionKeys);
+    if ~isempty(missingKeys)
+        error("Form failed to deliver the following values: %s", join(missingKeys, " "));
+    end
+
+end%
