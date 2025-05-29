@@ -1,0 +1,11 @@
+function updateDataPage(input_file,output_file, data)
+
+    % Check if input_file and output_file are provided
+    if nargin < 3
+        error('Input file, output file, and data must be provided.');
+    end
+% updateMetaPage - Update the metadata page in the User folder
+
+    dataList = gui.createForm(data,submitText = "Submit Data", action="collectData");
+    gui.changeHtmlFile(input_file,output_file, "$data_file_name", dataList);
+end

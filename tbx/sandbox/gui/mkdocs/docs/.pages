@@ -6,12 +6,15 @@ nav:
         - Overview: overview.md
     - Data:
         - Data: data.md
-    - Model:
-        - Meta: meta.md
-        - Estimators: estimator.md
-        - Structural identification: structural_identifications.md
+    - Meta:
+        - Meta Settings: meta.md
+    - Estimation:
+        - Estimator selection: estimator_select.md
+        - Estimator settings: estimator_settings.md
+    - Identification:
+        - Structural identification: identifications.md
     - Tasks:
-        - List of tasks: tasks.md
+        - Forecast: forecast.md
     # - Model specification: specs
     # - Graphical user interface: gui
     # - Command line interface: cli

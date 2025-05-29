@@ -20,27 +20,23 @@ function out = settings2json()
         end
     end
 
-    saveStruct2Json(estimatorSettingsPackage, ...
+    json.write(estimatorSettingsPackage, ...
         fullfile(sandboxDir, 'estimatorSettings.json'));
-    saveStruct2Json(estimatorSettingsPackage, ...
+        json.write(estimatorSettingsPackage, ...
         fullfile(guiDir, 'estimatorSettings.json'));
 
     metaSettings = docgen.getMetaSettings();
-    saveStruct2Json(metaSettings, ...
+    json.write(metaSettings, ...
         fullfile(sandboxDir, 'metaSettings.json'));
-    saveStruct2Json(metaSettings, ...
+        json.write(metaSettings, ...
         fullfile(guiDir, 'metaSettings.json'));
 
-end
+    dataSettings = struct();
+    dataSettings.FileName.value = '';
+    dataSettings.FileName.type = 'string';
+    json.write(dataSettings, ...
+        fullfile(sandboxDir, 'dataSettings.json'));
+    json.write(dataSettings, ...
+        fullfile(guiDir, 'dataSettings.json'));
 
-function saveStruct2Json(settings, jsonFilePath)
-    jsonStr = jsonencode(settings, ...
-        'PrettyPrint', true);
-    % save the JSON string to a file
-    fid = fopen(jsonFilePath, 'w');
-    if fid == -1
-        error('Could not open file %s for writing.', jsonFilePath);
-    end
-    fprintf(fid, '%s', jsonStr);
-    fclose(fid);
 end

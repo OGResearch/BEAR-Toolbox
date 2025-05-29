@@ -16,6 +16,6 @@ function updateMetaPage(input_file,output_file, meta)
         error('Input file, output file, and metaList must be provided.');
     end
 % updateMetaPage - Update the metadata page in the User folder
-    metaList = gui.createForm(meta,"Meta Settings");
+    metaList = gui.createForm(meta,action="collectMetaData");
     gui.changeHtmlFile(input_file,output_file, "$Meta_settings", metaList);
 end

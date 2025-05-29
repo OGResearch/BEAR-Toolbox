@@ -14,6 +14,10 @@ classdef MatlabToForm
             arguments
                 matlab (1, :) string
             end
+            if isempty(matlab)
+                form = "";
+                return
+            end
             form = join(matlab, " ");
         end%
 
@@ -21,19 +25,31 @@ classdef MatlabToForm
             arguments
                 matlab (1, 1) string
             end
-            form = matlab;
+            if isempty(matlab)
+                form = "";
+            else
+                form = matlab;
+            end
         end%
 
         function form = number(matlab)
             arguments
-                matlab (1, 1) double
+                matlab double {mustBeScalarOrEmpty(matlab)} = []
             end
-            form = string(matlab);
+            if isempty(matlab)
+                form = "";
+            else
+                form = string(matlab);
+            end
         end%
 
         function form = numbers(matlab)
             arguments
-                matlab (1, :) double
+                matlab (1, :) double = []
+            end
+            if isempty(matlab)
+                form = "";
+                return
             end
             form = string(matlab);
             form = join(form, " ");

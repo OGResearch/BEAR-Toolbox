@@ -11,15 +11,15 @@ function collectMetaData(varargin)
     gui_folder = gui.getDirectory("gui.Tracer");
     gui_folder = fileparts(gui_folder);
 
-    userData = gui.parseFromUrl(url);
-    % userData is a struct with keys and values from the URL query string
-    
-    % data cleanup
-    % TODO: implement data cleanup
-
     % read current metadata
     meta = json.read(fullfile(user_dir_settings,"metaSettings.json"));
     
+    % userData = gui.parseFromUrl(url);
+    % userData is a struct with keys and values from the URL query string
+    
+    % data cleanup
+    userData = gui.resolveFormSubmission(url, meta);
+
     % update metadata with userData
     meta = gui.updateData(meta, userData);
 
