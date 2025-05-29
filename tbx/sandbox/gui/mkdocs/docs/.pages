@@ -4,7 +4,9 @@ nav:
         - index.md
         - Install: install.md
         - Overview: overview.md
-    - Model specification:
+    - Data:
+        - Data: data.md
+    - Model:
         - Meta: meta.md
         - Estimators: estimator.md
         - Structural identification: structural_identifications.md

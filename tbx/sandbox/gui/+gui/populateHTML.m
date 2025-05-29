@@ -3,6 +3,7 @@ function targetDir = populateHTML()
     % Copy the content of mkdoc/site to html folder (keep the structure)
     % gui folder
     gui_folder = gui.getDirectory("gui.Tracer");
+    gui_folder = fileparts(gui_folder);
     sourceDir = fullfile(gui_folder,'mkdocs', 'site');
     targetDir = fullfile(gui_folder, 'html');
     
