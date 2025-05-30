@@ -23,7 +23,8 @@ function collectMeta(submission)
 
     gui.updateExactZerosXLSX();
 
-    gui.populateMetaHTML();
+    metaPath = gui.populateMetaHTML();
+    web(metaPath);
 
 end%
 
