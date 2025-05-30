@@ -5,8 +5,8 @@ function start()
 
     gui.createUserFolders();
 
+    gui.populateInputDataHTML();
     gui.populateMetaHTML();
-    gui.populateDataHTML();
     gui.populateEstimatorSelectionHTML();
     gui.populateIdentificationSelectionHTML();
 

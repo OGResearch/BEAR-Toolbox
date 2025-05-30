@@ -3,8 +3,8 @@ nav:
     - Home:
         - index.md
         - details.md
-    - Data:
-        - Data: data.md
+    - Input Data:
+        - Input Data: input_data.md
     - Meta:
         - Meta Settings: meta.md
     - Estimation:
@@ -14,5 +14,7 @@ nav:
         - Identification selection: identification_selection.md
         - Identification settings: identification_settings.md
     - Tasks:
-        - Forecast: forecast.md
+        - Run: run.md
+        - Unconditional forecast: unconditional_forecast.md
+        - Conditional forecast: conditional_forecast.md
 
