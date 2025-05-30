@@ -1,15 +1,19 @@
-function populateMeta()
-    gui_folder = gui.getDirectory("gui.Tracer");
-    gui_folder = fileparts(gui_folder);
 
-    user_dir_settings = fullfile(pwd, 'settings');
-    if ~exist(user_dir_settings, 'dir')
-        mkdir(user_dir_settings);
+function populateMeta()
+
+    guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
+
+    userSettingsDir = "settings";
+    if ~exist(userSettingsDir, "dir")
+        mkdir(userSettingsDir);
     end
-    copyfile(fullfile(gui_folder, "settings", "metaSettings.json"), fullfile(user_dir_settings, "metaSettings.json"));
-    meta = json.read(fullfile(user_dir_settings,"metaSettings.json"));
-    
-    input_file = fullfile(gui_folder, 'html', 'meta.html');
-    output_file = fullfile(pwd, 'html', 'meta.html');
-    gui.updateMetaPage(input_file,output_file, meta);
-end
+
+    copyfile(fullfile(guiFolder, "settings", "metaSettings.json"), fullfile(userSettingsDir, "metaSettings.json"));
+    meta = json.read(fullfile(userSettingsDir,"metaSettings.json"));
+
+    inputFile = fullfile(guiFolder, "html", "meta.html");
+    outputFile = fullfile("html", "meta.html");
+    gui.updateMetaPage(inputFile, outputFile, meta);
+
+end%
+

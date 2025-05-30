@@ -1,15 +1,26 @@
-function populateEstimatorSelection()
-    gui_folder = gui.getDirectory("gui.Tracer");
-    gui_folder = fileparts(gui_folder);
 
-    user_dir_settings = fullfile(pwd, 'settings');
-    if ~exist(user_dir_settings, 'dir')
-        mkdir(user_dir_settings);
+function populateEstimatorSelection()
+
+    guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
+    userSettingsFolder = "settings";
+    if ~exist(userSettingsFolder, "dir")
+        mkdir(userSettingsFolder);
     end
-    copyfile(fullfile(gui_folder, "settings", "estimatorSettings.json"), fullfile(user_dir_settings, "estimatorSettings.json"));
-    estimators = json.read(fullfile(user_dir_settings,"estimatorSettings.json"));
-    
-    input_file = fullfile(gui_folder, 'html', 'estimator_select.html');
-    output_file = fullfile(pwd, 'html', 'estimator_select.html');
-    gui.updateEstimatorSelectPage(input_file,output_file, estimators);
-end
+    copyfile(fullfile(guiFolder, "settings", "estimatorSettings.json"), fullfile(userSettingsFolder, "estimatorSettings.json"));
+    estimatorSettings = json.read(fullfile(userSettingsFolder, "estimatorSettings.json"));
+
+    shortList = ["Minnesota", "NormalDiffuse", "NormalWishart", "GenLargeShockSV"];
+    shortSettings = struct();
+    for n = shortList
+        shortSettings.(n) = [];
+    end
+    currentSelection = gui.querySelection("Estimator");
+    form = gui.generateRadioButtonsForm(shortSettings, "Estimator", currentSelection, "collectEstimatorSelection");
+
+    inputFile = fullfile(guiFolder, "html", "estimator_select.html");
+    outputFile = fullfile("html", "estimator_select.html");
+    % TODO: $ESTIMATOR_LIST --> $ESTIMATOR_SELECTION_FORM
+    gui.changeHtmlFile(inputFile, outputFile, "$ESTIMATOR_LIST", form);
+
+end%
+

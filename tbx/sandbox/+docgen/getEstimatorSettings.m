@@ -4,6 +4,7 @@ function out = getEstimatorSettings()
 
     settingsDir = docgen.getDirectory("estimator.settings.Tracer");
     files = dir(fullfile(settingsDir, "*.m"));
+
     out = struct();
     for i = 1 : numel(files)
         name = extractBefore(files(i).name, ".m");
@@ -13,6 +14,7 @@ function out = getEstimatorSettings()
         catch
             continue
         end
+
         settings = struct();
         for i = 1 : numel(setttingsMC.PropertyList)
             prop = setttingsMC.PropertyList(i);
@@ -29,7 +31,7 @@ function out = getEstimatorSettings()
             if isa(DefaultValue, 'function_handle')
                 DefaultValue = 'function handle';
             end
-            
+
             % collect type
             if isempty(prop.Validation)
                 Type = class(DefaultValue);
@@ -68,11 +70,13 @@ function out = getEstimatorSettings()
             settings.(prop.Name).default = DefaultValue;
             settings.(prop.Name).detailedDesc = prop.DetailedDescription;
         end
+
         try 
             estimatorReference = estimator.(name).getModelReference();
         catch
             estimatorReference = [];
         end
+
         if ~isempty(estimatorReference) && isfield(estimatorReference, "category")
             out.(estimatorReference.category).(name).settings = settings;
             out.(estimatorReference.category).(name).description = estimatorMC.Description;

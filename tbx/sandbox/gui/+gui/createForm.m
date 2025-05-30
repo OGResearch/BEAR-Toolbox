@@ -1,60 +1,66 @@
+
 function outputString = createForm(inputStruct, options)
+
     arguments
         inputStruct struct
-        options.header (1,1) string = ""
-        options.submitText (1,1) string = "Submit"
-        options.action (1,1) string = ""
+        options.header (1, 1) string = ""
+        options.submitText (1, 1) string = "Submit"
+        options.action (1, 1) string = ""
     end
-% Create a string representation of a table from a structure. To be used in HTML
-    
+
+    ELEMENT_CREATORS = struct(...
+        name=@createTextField_, ...
+        names=@createTextField_, ...
+        string=@createTextField_, ...
+        number=@createTextField_, ...
+        numbers=@createTextField_, ...
+        date=@createTextField_, ...
+        logical=@createCheckbox_ ...
+    );
+
     mtf = gui.MatlabToForm;
 
-    lines = string.empty(0, 1);
-    fieldNames = fieldnames(inputStruct);
-    numFields = numel(fieldNames);
-    if numFields == 0
-        outputString = "No data available.";
-        return;
+    fieldNames = sort(textual.fields(inputStruct));
+
+    lines = string.empty(1, 0);
+
+    if strlength(options.header) > 0
+        lines(end+1) = "<h2>" + options.header + "</h2>";
     end
 
-    fieldNames = textual.stringify(fieldNames);
-    fieldNames = sort(fieldNames);
-
-    lines(end+1) = "<h2>"+options.header+"</h2>";
     lines(end+1) = "<form action='matlab:" + options.action + " '>";
-    % lines(end+1) = "<thead>";
-    % lines(end+1) = "<tr>";
-    % lines(end+1) = "<th>Name</th>";
-    % lines(end+1) = "</tr>";
-    % lines(end+1) = "</thead>";
-    % lines(end+1) = "<tbody>";
-    % Iterate over field names to create table rows
-    for i = 1:numFields
-        fieldName = fieldNames{i};
-        lines(end+1) = "<label for='" + fieldName + "'>" + fieldName + "</label><br>";
-        Value = inputStruct.(fieldName).value;
-%         if isempty(Value)
-%             Value = "";
-%         end
-        if strcmpi(inputStruct.(fieldName).type,"logical")
-            check_string = "";
-            if islogical(Value)
-                if Value
-                    check_string = "checked"; 
-                end
-            elseif strcmpi(Value, "true")
-                check_string = "checked";
-            end
-            % If the field is a boolean, create a checkbox
-            lines(end+1) = "<input type='checkbox' id='" + fieldName + "' name='" + fieldName + "' value='true' " + check_string + "><br>";
-        else
-            lines(end+1) = "<input style='color:black' type='text' id='" + fieldName + "' name='" + fieldName + "' value='" + mtf.(inputStruct.(fieldName).type)(Value) + "'><br>";
-        end
+
+    for n = fieldNames
+        type = inputStruct.(n).type;
+        matlabValue = inputStruct.(n).value;
+        formValue = mtf.(type)(matlabValue);
+        elementCreator = ELEMENT_CREATORS.(type);
+        elementLines = elementCreator(n, formValue);
+        lines = [lines, elementLines];
     end
+
     lines(end+1) = "<input style='color:black' style='background-color:gray' type='submit' value='" + options.submitText + "'>";
-    % lines(end+1) = "</tbody>";
     lines(end+1) = "</form>";
-    % lines(end+1) = "<a href='matlab:gui.collectUserData()'>Process user inputs</a></p>";
-    
+
     outputString = join(lines, newline());
-end
+
+end%
+
+
+function lines = createTextField_(name, value)
+    lines = string.empty(0, 1);
+    lines(end+1) = sprintf("<label for='%s'>%s</label><br/>", name, name);
+    lines(end+1) = sprintf("<input style='color:black' type='text' id='%s' name='%s' value='%s'><br/>", name, name, value);
+end%
+
+
+function lines = createCheckbox_(name, value)
+    lines = string.empty(0, 1);
+    checked = "";
+    if value
+        checked = "checked";
+    end
+    lines(end+1) = sprintf("<input type='checkbox' id='%s' name='%s' value='true' %s>&nbsp;", name, name, checked);
+    lines(end+1) = sprintf("<label for='%s'>%s</label><br/>", name, name);
+end%
+

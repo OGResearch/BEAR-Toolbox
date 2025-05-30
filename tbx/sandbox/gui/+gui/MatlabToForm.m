@@ -56,10 +56,7 @@ classdef MatlabToForm
         end%
 
         function form = logical(matlab)
-            arguments
-                matlab (1, 1) logical
-            end
-            form = string(matlab);
+            form = isequal(matlab, true) || isequal(matlab, 1) || isequal(matlab, "true") || isequal(matlab, "1");
         end%
 
     end

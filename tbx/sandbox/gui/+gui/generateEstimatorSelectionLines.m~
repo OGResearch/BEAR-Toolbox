@@ -1,0 +1,33 @@
+
+function lines = generateEstimatorSelectionLines(estimatorSettings)
+
+    arguments
+        estimatorSettings (1, 1) struct
+    end
+
+    % Generate the HTML content for the estimator selection page
+    lines = string.empty(0, 1);
+    fieldNames = fieldnames(estimatorSettings);
+    numFields = numel(fieldNames);
+    if numFields == 0
+        outputString = "No data available.";
+        return;
+    end
+    fieldNames = textual.stringify(fieldNames);
+    fieldNames = sort(fieldNames);
+    lines(end+1) = "<form action='matlab:collectEstimator '>";
+
+    % TODO: hardcoded for only 3 estimators for now
+    for fieldName = ["Minnesota", "NormanDiffuse", "NormalWishart"]
+        lines(end+1) = "<input type='radio' id='" + fieldName + "' name='" + fieldName + "' value=" + fieldName + ">&nbsp;";
+        lines(end+1) = "<label for='" + fieldName + "'>" + fieldName + "</label><br>";
+    end
+
+    lines(end+1) = "<br>";
+    lines(end+1) = "<input style='color:black' style='background-color:gray' type='submit' value='Select Estimator'>";
+    lines(end+1) = "</form>";
+
+    lines = join(lines, newline());
+
+end%
+

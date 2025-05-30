@@ -1,0 +1,21 @@
+
+function populateIdentificationSelection()
+
+    guiFolder = gui.getDirectory("gui.Tracer");
+    guiFolder = fileparts(guiFolder);
+
+    userDirSettings = fullfile(pwd, "settings");
+    if ~exist(userDirSettings, "dir")
+        mkdir(userDirSettings);
+    end
+    % copyfile(fullfile(guiFolder, "settings", "estimatorSettings.json"), fullfile(userDirSettings, "estimatorSettings.json"));
+    % estimators = json.read(fullfile(userDirSettings,"estimatorSettings.json"));
+    identifications = struct();
+    identifications.Cholesky = struct();
+    identifications.ExactZero = struct();
+
+    inputFile = fullfile(guiFolder, "html", "identifications.html");
+    outputFile = fullfile("html", "identifications.html");
+    gui.updateIdentificationPage(inputFile, outputFile, identifications);
+
+end%

@@ -101,13 +101,7 @@ classdef FormToMatlab
             if numel(form) ~= 1
                 error("Invalid logical value: %s", join(form, " "));
             end
-            if form == "true" || form == "1"
-                matlab = true;
-            elseif form == "false" || form == "0"
-                matlab = false;
-            else
-                error("Invalid logical value: %s", join(form, " "));
-            end
+            matlab = isequal(form, "true") || isequal(form, "1") || isequal(form, true) || isequal(form, 1);
         end%
 
     end

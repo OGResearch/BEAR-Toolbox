@@ -1,6 +1,10 @@
-function changeHtmlFile(input_filename, output_filename, oldText, newText)
-    x = fileread(input_filename);
+
+function changeHtmlFile(inputFilename, outputFilename, oldText, newText)
+
+    x = fileread(inputFilename);
     x = replace(x,oldText, newText);
-    writematrix(x, output_filename, fileType="text", quoteStrings=false);
-    web(output_filename);
-end
+    writematrix(x, outputFilename, fileType="text", quoteStrings=false);
+    web(outputFilename);
+
+end%
+
