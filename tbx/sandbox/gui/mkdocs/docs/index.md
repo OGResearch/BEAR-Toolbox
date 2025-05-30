@@ -1,4 +1,4 @@
 
-Welcome to the BEAR Toolbox Graphical User Interface
-=====================================================
+Welcome to the BEAR Graphical User Interface
+==============================================
 

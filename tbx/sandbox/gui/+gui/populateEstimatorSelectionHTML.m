@@ -10,7 +10,7 @@ function populateEstimatorSelectionHTML()
         shortSettings.(n) = [];
     end
     currentSelection = gui.querySelection("Estimator");
-    form = gui.generateRadioButtonsForm(shortSettings, "Estimator", currentSelection, "collectEstimatorSelection");
+    form = gui.generateRadioButtonsForm(shortSettings, "Estimator", currentSelection, "gui_collectEstimatorSelection");
 
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
     inputFile = fullfile(guiFolder, "html", "estimator_selection.html");

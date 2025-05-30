@@ -1,5 +1,5 @@
 
-function collectEstimatorSelection(submission)
+function gui_collectEstimatorSelection(submission)
 
     arguments
         submission (1, 1) string

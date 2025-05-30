@@ -1,5 +1,5 @@
 
-function collectEstimatorSettings(submission)
+function gui_collectEstimatorSettings(submission)
 
     arguments
         submission (1, 1) string

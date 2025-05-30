@@ -5,5 +5,6 @@ Structural Identification Settings
 ExactZeros
 -----------
 
-[Edit exact zero restrictions table](file://tables/ExactZeros.xlsx)
+[Edit and save the exact zero restrictions table]($XXX)
+
 

@@ -8,14 +8,13 @@ function targetPath = populateEstimatorSettingsHTML()
     form = "";
     if estimatorSelection ~= ""
         settings = estimatorSettings.(estimatorSelection);
-        form = gui.createForm(settings, header=estimatorSelection, action="collectEstimatorSettings");
+        form = gui.createForm(settings, header=estimatorSelection, action="gui_collectEstimatorSettings");
     end
 
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
     sourcePath = fullfile(guiFolder, "html", "estimator_settings.html");
     targetPath = fullfile(".", "html", "estimator_settings.html");
 
-    % TODO: $INDEX_CONTENT --> $ESTIMATOR_SETTINGS_FORM
-    gui.changeHtmlFile(sourcePath, targetPath, "$INDEX_CONTENT", form);
+    gui.changeHtmlFile(sourcePath, targetPath, "$ESTIMATOR_SETTINGS_FORM", form);
 
 end%

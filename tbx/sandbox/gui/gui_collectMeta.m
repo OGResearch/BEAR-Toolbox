@@ -1,5 +1,5 @@
 
-function collectMeta(submission)
+function gui_collectMeta(submission)
 
     arguments
         submission (1, 1) string
@@ -12,9 +12,6 @@ function collectMeta(submission)
     jsonFilePath = fullfile(userSettingsDir, "metaSettings.json");
     meta = json.read(jsonFilePath);
 
-    % userData = gui.parseFromUrl(submission);
-    % userData is a struct with keys and values from the URL query string
-
     % data cleanup
     userData = gui.resolveCleanFormSubmission(submission, meta);
 
@@ -22,14 +19,12 @@ function collectMeta(submission)
     meta = gui.updateData(meta, userData);
 
     % save updated metadata to file
-    json.write(meta, jsonFilePath);
+    json.write(meta, jsonFilePath, prettyPrint=true);
 
-    % regenerate Meta page
-    gui.updateMetaPage(...
-        fullfile(guiFolder, "html", "meta.html"), ...
-        fullfile(pwd, "html", "meta.html"), ...
-        meta ...
-    );
+    gui.updateExactZerosXLSX();
+
+    metaPath = gui.populateMetaHTML();
+    web(metaPath);
 
 end%
 

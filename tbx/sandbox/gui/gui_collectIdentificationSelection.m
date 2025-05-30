@@ -1,5 +1,5 @@
 
-function collectIdentificationSelection(submission)
+function gui_collectIdentificationSelection(submission)
 
     arguments
         submission (1, 1) string

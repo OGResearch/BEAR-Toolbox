@@ -1,3 +1,3 @@
 ## Select data
 
-$data_file_name
+[Select input data file](matlab:gui_SelectInputDataFile)

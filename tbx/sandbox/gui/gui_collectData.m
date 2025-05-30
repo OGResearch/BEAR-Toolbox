@@ -1,4 +1,4 @@
-function collectData(varargin)
+function gui_collectData(varargin)
 
     % Extract varargin if provided
     if nargin > 0
