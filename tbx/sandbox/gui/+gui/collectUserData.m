@@ -1,4 +1,4 @@
-function collectUserData()
+function gui_collectUserData()
 
     % Read the URL from the web browser and parse the data
     [~,~,url] = web();

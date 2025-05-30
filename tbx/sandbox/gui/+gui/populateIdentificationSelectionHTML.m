@@ -11,7 +11,7 @@ function populateIdentificationSelectionHTML()
     identifications.ExactZero = struct();
 
     currentSelection = gui.querySelection("Identification");
-    form = gui.generateRadioButtonsForm(identifications, "Identification", currentSelection, "collectIdentificationSelection");
+    form = gui.generateRadioButtonsForm(identifications, "Identification", currentSelection, "gui_collectIdentificationSelection");
 
     inputFile = fullfile(guiFolder, "html", "identification_selection.html");
     outputFile = fullfile(".", "html", "identification_selection.html");

@@ -1,5 +1,5 @@
 
-function collectMeta(submission)
+function gui_collectMeta(submission)
 
     arguments
         submission (1, 1) string
@@ -23,7 +23,8 @@ function collectMeta(submission)
 
     gui.updateExactZerosXLSX();
 
-    gui.populateMetaHTML();
+    metaPath = gui.populateMetaHTML();
+    web(metaPath);
 
 end%
 
