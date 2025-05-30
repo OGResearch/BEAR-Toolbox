@@ -21,12 +21,9 @@ function collectMeta(submission)
     % save updated metadata to file
     json.write(meta, jsonFilePath, prettyPrint=true);
 
-    % regenerate Meta page
-    gui.updateMetaPage(...
-        fullfile(guiFolder, "html", "meta.html"), ...
-        fullfile(pwd, "html", "meta.html"), ...
-        meta ...
-    );
+    gui.updateExactZerosXLSX();
+
+    gui.populateMetaHTML();
 
 end%
 

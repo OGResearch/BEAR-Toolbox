@@ -3,25 +3,33 @@
 
 function start()
 
-    % Copy selection.json
+    % Create user settings folder
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
     guiSettingsFolder = fullfile(guiFolder, "settings");
     userSettingsFolder = fullfile(".", "settings");
     gui.createFolder(userSettingsFolder);
-    copyfile(fullfile(guiSettingsFolder, "selection.json"), fullfile(userSettingsFolder, "selection.json"));
 
-    % Copy ExactZeros.xlsx
-    guiTabularFolder = fullfile(guiFolder, "tabular");
-    userTabularFolder = fullfile(".", "tabular");
-    gui.createFolder(userTabularFolder);
-    copyfile(fullfile(guiTabularFolder, "ExactZeros.xlsx"), fullfile(userTabularFolder, "ExactZeros.xlsx"));
+    % Copy all *.json files from guiSettingsFolder to userSettingsFolder
+    for fileName = ["dataSettings", "metaSettings", "estimatorSettings", "selection"] + ".json"
+        copyfile(fullfile(guiSettingsFolder, fileName), fullfile(userSettingsFolder, fileName));
+    end
 
-    htmlDir = gui.populateHTML();
+    % Create user tables folder
+    guiTablesFolder = fullfile(guiFolder, "tables");
+    userTablesFolder = fullfile(".", "tables");
+    gui.createFolder(userTablesFolder);
 
-    gui.populateMeta();
-    gui.populateData();
-    gui.populateEstimatorSelection();
-    gui.populateIdentificationSelection();
+    % Copy all *.xlsx files from guiTablesFolder to userTablesFolder
+    for fileName = ["ExactZeros", ] + ".xlsx"
+        copyfile(fullfile(guiTablesFolder, fileName), fullfile(userTablesFolder, fileName));
+    end
+
+    htmlDir = gui.copyHTML();
+
+    gui.populateMetaHTML();
+    gui.populateDataHTML();
+    gui.populateEstimatorSelectionHTML();
+    gui.populateIdentificationSelectionHTML();
 
     % Open Matlab web browser
     indexPath = fullfile(htmlDir, 'index.html');

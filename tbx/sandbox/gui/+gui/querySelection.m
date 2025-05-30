@@ -5,7 +5,7 @@ function selected = querySelection(topic)
         topic (1, 1) string
     end
 
-    selectionPath = fullfile("settings", "selection.json");
+    selectionPath = fullfile(".", "settings", "selection.json");
     selection = jsondecode(fileread(selectionPath));
 
     if ~isfield(selection, topic)

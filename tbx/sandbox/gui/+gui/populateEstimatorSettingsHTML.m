@@ -1,7 +1,7 @@
 
 function populateEstimatorSettingsHTML()
 
-    estimatorSettingsPath = fullfile("settings", "estimatorSettings.json");
+    estimatorSettingsPath = fullfile(".", "settings", "estimatorSettings.json");
     estimatorSettings = jsondecode(fileread(estimatorSettingsPath));
 
     estimatorSelection = gui.querySelection("Estimator");
@@ -13,7 +13,7 @@ function populateEstimatorSettingsHTML()
 
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
     inputFile = fullfile(guiFolder, "html", "estimator_settings.html");
-    outputFile = fullfile("html", "estimator_settings.html");
+    outputFile = fullfile(".", "html", "estimator_settings.html");
 
     % TODO: $INDEX_CONTENT --> $ESTIMATOR_SETTINGS_FORM
     gui.changeHtmlFile(inputFile, outputFile, "$INDEX_CONTENT", form);

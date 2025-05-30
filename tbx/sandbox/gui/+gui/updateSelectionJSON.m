@@ -5,7 +5,7 @@ function updateSelectionJSON(update)
         update (1, 1) struct
     end
 
-    selectionPath = fullfile("settings", "selection.json");
+    selectionPath = fullfile(".", "settings", "selection.json");
     selection = jsondecode(fileread(selectionPath));
 
     for key = textual.fields(update)

@@ -1,12 +1,7 @@
 
-function populateEstimatorSelection()
+function populateEstimatorSelectionHTML()
 
-    guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
-    userSettingsFolder = "settings";
-    if ~exist(userSettingsFolder, "dir")
-        mkdir(userSettingsFolder);
-    end
-    copyfile(fullfile(guiFolder, "settings", "estimatorSettings.json"), fullfile(userSettingsFolder, "estimatorSettings.json"));
+    userSettingsFolder = fullfile(".", "settings");
     estimatorSettings = json.read(fullfile(userSettingsFolder, "estimatorSettings.json"));
 
     shortList = ["Minnesota", "NormalDiffuse", "NormalWishart", "GenLargeShockSV"];
@@ -17,8 +12,9 @@ function populateEstimatorSelection()
     currentSelection = gui.querySelection("Estimator");
     form = gui.generateRadioButtonsForm(shortSettings, "Estimator", currentSelection, "collectEstimatorSelection");
 
+    guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
     inputFile = fullfile(guiFolder, "html", "estimator_select.html");
-    outputFile = fullfile("html", "estimator_select.html");
+    outputFile = fullfile(".", "html", "estimator_select.html");
     % TODO: $ESTIMATOR_LIST --> $ESTIMATOR_SELECTION_FORM
     gui.changeHtmlFile(inputFile, outputFile, "$ESTIMATOR_LIST", form);
 
