@@ -1,2 +1,4 @@
-$INDEX_CONTENT
-[Click here](matlab:changeIndexFile())
+
+Welcome to the BEAR Toolbox Graphical User Interface
+=====================================================
+

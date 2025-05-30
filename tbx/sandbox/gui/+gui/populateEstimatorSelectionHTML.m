@@ -13,8 +13,8 @@ function populateEstimatorSelectionHTML()
     form = gui.generateRadioButtonsForm(shortSettings, "Estimator", currentSelection, "collectEstimatorSelection");
 
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
-    inputFile = fullfile(guiFolder, "html", "estimator_select.html");
-    outputFile = fullfile(".", "html", "estimator_select.html");
+    inputFile = fullfile(guiFolder, "html", "estimator_selection.html");
+    outputFile = fullfile(".", "html", "estimator_selection.html");
     % TODO: $ESTIMATOR_LIST --> $ESTIMATOR_SELECTION_FORM
     gui.changeHtmlFile(inputFile, outputFile, "$ESTIMATOR_LIST", form);
 

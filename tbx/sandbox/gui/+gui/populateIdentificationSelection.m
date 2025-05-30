@@ -13,9 +13,10 @@ function populateIdentificationSelectionHTML()
     currentSelection = gui.querySelection("Identification");
     form = gui.generateRadioButtonsForm(identifications, "Identification", currentSelection, "collectIdentificationSelection");
 
-    inputFile = fullfile(guiFolder, "html", "identifications.html");
-    outputFile = fullfile(".", "html", "identifications.html");
+    inputFile = fullfile(guiFolder, "html", "identification_selection.html");
+    outputFile = fullfile(".", "html", "identification_selection.html");
     % TODO: $IDENTIFICATION_CONTENT --> $IDENTIFICATION_SELECTION_FORM
     gui.changeHtmlFile(inputFile, outputFile, "$IDENTIFICATION_CONTENT", form);
 
 end%
+

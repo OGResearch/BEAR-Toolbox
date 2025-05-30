@@ -1,4 +1,4 @@
-site_name: Bear Toolbox
+site_name: Bear Toolbox GUI
 
 theme:
     name: material
@@ -20,6 +20,7 @@ theme:
         - content.code.select
 
 docs_dir: docs
+site_dir: ../html
 repo_url: https://github.com/european-central-bank/BEAR-toolbox-6.git
 repo_name: european-central-bank/BEAR-toolbox-6
 
