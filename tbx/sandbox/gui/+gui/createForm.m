@@ -50,7 +50,7 @@ end%
 function lines = createTextField_(name, value)
     lines = string.empty(0, 1);
     lines(end+1) = sprintf("<label for='%s'>%s</label><br/>", name, name);
-    lines(end+1) = sprintf("<input style='color:black' type='text' id='%s' name='%s' value='%s'><br/>", name, name, value);
+    lines(end+1) = sprintf("<input style='color:black; background-color:lightgray' type='text' id='%s' name='%s' value='%s'><br/>", name, name, value);
 end%
 
 
