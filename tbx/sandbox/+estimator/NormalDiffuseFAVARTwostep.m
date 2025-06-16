@@ -1,7 +1,7 @@
 
 classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
-% BFAVAR with Normal-Wishart prior
-% FAVAR version of prior =41 BEAR5
+%% BFAVAR with Normal-Diffuse prior and two-step estimation
+% FAVAR version of prior = 41 BEAR5
 
     methods (Static)
         function info = getModelReference()

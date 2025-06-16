@@ -1,6 +1,7 @@
 
 classdef GeneralTVFAVAR < estimator.Base
-%FAVAR verison of General TV model tvbvar = 2
+%% FAVAR verison of model with time-varying parameters and stochastic volatility, 
+% FAVAR with tvbvar = 2 in BEAR5
 
     methods (Static)
         function info = getModelReference()

@@ -1,7 +1,7 @@
 
 classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
-% BFAVAR with Individual Normal-Wishart prior
-% FAVAR version of prior =31 32 BEAR5
+%% BFAVAR with Indenpendent Normal-Wishart prior and one-step estimation
+% FAVAR with prior 31 and 32 in BEAR5
 
     methods (Static)
         function info = getModelReference()

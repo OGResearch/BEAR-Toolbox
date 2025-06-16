@@ -1,5 +1,6 @@
 classdef CogleySargentSVFAVAR < estimator.Base
-%FAVAR version of Standard SV model, in BEAR5,  stvol =1
+%% FAVAR version of Standard Stochastic Volatility model 
+% FAVAR with stvol = 1 in BEAR5
 
     methods (Static)
         function info = getModelReference()

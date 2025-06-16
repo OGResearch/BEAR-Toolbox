@@ -1,7 +1,7 @@
 
 classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
-% BVAR with indenpendent Normal-Wishart priors
-% prior =31, 32 and 33
+%% BVAR with Indenpendent Normal-Wishart priors
+% BVAR with prior = 31, 32 in BEAR5
     
     
     methods (Static)

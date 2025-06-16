@@ -1,6 +1,6 @@
 
 classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
-% BFAVAR with Normal-Wishart prior
+%% BFAVAR with Minnesota prior and one-step estimation
 % FAVAR version of prior =11 12 and 13 BEAR5
 
     methods (Static)

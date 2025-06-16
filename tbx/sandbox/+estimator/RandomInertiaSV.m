@@ -1,6 +1,7 @@
 
 classdef RandomInertiaSV < estimator.Base
-%SV model with random inertia, in BEAR5 stvol=2    
+%% Stochastic Volatility model with random inertia
+% SV model with stvol=2 in BEAR5    
 
     methods (Static)
         function info = getModelReference()
