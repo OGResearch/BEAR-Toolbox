@@ -1,6 +1,6 @@
 classdef CCMMSVO < estimator.Base
-    %SV for large models in BEAR5, stvol=3
-
+%% Stochastic Volatility model with outliers/jumps 
+% SV model with outliers, model nr 3 in the CCMM paper
     properties
         CanHaveDummies = false
         
