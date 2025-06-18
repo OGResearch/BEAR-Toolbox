@@ -17,6 +17,9 @@ classdef BetaTV < estimator.Base
         
         % Cross-unit variation in beta
         HasCrossUnits = false
+
+        %Category
+        Category = "Time-vayring BVAR estimators"
     end
 
 

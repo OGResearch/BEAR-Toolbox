@@ -15,6 +15,8 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Plain BFAVAR estimators"
     end
 
 

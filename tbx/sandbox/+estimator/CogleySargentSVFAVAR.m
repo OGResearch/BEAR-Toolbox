@@ -12,6 +12,8 @@ classdef CogleySargentSVFAVAR < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Time-vayring BFAVAR estimators"
     end
 
 

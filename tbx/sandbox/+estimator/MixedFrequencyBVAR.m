@@ -13,6 +13,8 @@ classdef MixedFrequencyBVAR < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Plain BVAR estimators"
     end
 
     methods

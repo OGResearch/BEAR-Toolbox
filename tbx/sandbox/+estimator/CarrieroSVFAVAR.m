@@ -11,8 +11,8 @@ classdef CarrieroSVFAVAR < estimator.Base
     
     properties
         CanHaveDummies = false
-        
         HasCrossUnits = false
+        Category = "Time-vayring BFAVAR estimators"
     end
 
 

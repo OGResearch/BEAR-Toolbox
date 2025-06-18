@@ -10,6 +10,8 @@ classdef GeneralTVFAVAR < estimator.Base
     end
 
     properties
+        Category = "Time-vayring BFAVAR estimators"
+
         CanHaveDummies = false
         
         HasCrossUnits = false

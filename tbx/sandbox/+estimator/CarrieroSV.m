@@ -13,6 +13,8 @@ classdef CarrieroSV < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Time-vayring BVAR estimators"
     end
 
 

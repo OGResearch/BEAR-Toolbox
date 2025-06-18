@@ -11,6 +11,8 @@ classdef LargeShockSV < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Time-varying estimators"
     end
 
 

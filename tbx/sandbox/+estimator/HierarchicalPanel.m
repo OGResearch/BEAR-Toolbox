@@ -13,6 +13,8 @@ classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Panel BVAR estimators"
     end
 
     methods

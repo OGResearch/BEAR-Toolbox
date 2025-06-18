@@ -13,6 +13,8 @@ classdef RandomInertiaSV < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+        
+        Category = "Time-varying BVAR estimators"
     end
 
 

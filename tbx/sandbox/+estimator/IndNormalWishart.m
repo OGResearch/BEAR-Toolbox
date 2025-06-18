@@ -15,6 +15,8 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
         CanHaveDummies = true
         
         HasCrossUnits = false
+
+        Category = "Plain BVAR estimators"
     end
 
 
@@ -78,7 +80,6 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
 
             % set the value of alphahat, defined in (1.5.16)
             alphahat = estimLength + alpha0;
-
 
             %===============================================================================
 

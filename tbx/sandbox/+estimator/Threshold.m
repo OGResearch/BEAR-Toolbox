@@ -12,6 +12,8 @@ classdef Threshold < estimator.Base
         CanHaveDummies = true
         
         HasCrossUnits = false
+
+        Category = "Time-varying BVAR estimators"
     end
 
 

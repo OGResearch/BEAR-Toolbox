@@ -12,6 +12,8 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
     properties
         DescriptionUX = "BVAR with flat prior"
 
+        Category = "Plain BVAR estimators"
+
         CanHaveDummies = true
         
         HasCrossUnits = false

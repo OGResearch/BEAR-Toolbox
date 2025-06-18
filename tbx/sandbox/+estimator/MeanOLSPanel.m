@@ -14,6 +14,8 @@ classdef MeanOLSPanel < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Panel BVAR estimators"
     end
 
 
