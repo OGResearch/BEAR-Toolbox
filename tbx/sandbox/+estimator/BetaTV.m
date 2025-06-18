@@ -1,7 +1,7 @@
 
 classdef BetaTV < estimator.Base
-%% Time-varying Bayesian VAR model
-% Second line
+%% Bayesian VAR model with time-varying parameters, 
+% tvbvar=1 in BEAR5
 % Third line
 
     methods (Static)
