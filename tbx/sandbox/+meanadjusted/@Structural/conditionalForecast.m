@@ -27,8 +27,10 @@ function [fcastTbl, contribsTbl] = conditionalForecast(this, fcastSpan, options)
     initSpan = datex.initSpanFromShortSpan(shortFcastSpan, meta.Order);
     initYXZ = this.getSomeYXZ(initSpan);
     initY = initYXZ{1};
+    initX = initYXZ{2};
 
-    cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, shortFcastSpan);
+    cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, ...
+        shortFcastSpan);
     cfshocks = conditional.createShocksCF(meta, options.Plan, shortFcastSpan);
     cfblocks = conditional.createBlocksCF(cfconds, cfshocks);
 
@@ -41,57 +43,50 @@ function [fcastTbl, contribsTbl] = conditionalForecast(this, fcastSpan, options)
     numPresampled = this.NumPresampled;
     progressMessage = sprintf("Conditional forecast [%g]", numPresampled);
 
-    if ~isempty(cfconds)
-        cfconds = reshape(cfconds, size(cfconds, 1), [], 1);
-    end
-    if ~isempty(cfshocks)
-        cfshocks = reshape(cfshocks, size(cfshocks, 1), [], 1);
-    end
-    if ~isempty(cfblocks)
-        cfblocks = reshape(cfblocks, size(cfblocks, 1), [], 1);
-    end
-
     fcastY = cell(1, numPresampled);
     fcastE = cell(1, numPresampled);
-
     
-    % if options.Contributions
-    %     [contributor, contribs, precontribs] ...
-    %         = this.prepareForContributions(shortFcastSpan, options.Precontributions);
-    % end
+    if options.Contributions
+        [contributor, contribs, precontribs] ...
+            = this.prepareForContributions(shortFcastSpan, options.Precontributions);
+    end
 
-    pbar = progress.Bar(progressMessage, numPresampled*numUnits);
+    pbar = progress.Bar(progressMessage, numPresampled);
     for i = 1 : numPresampled
         sample = this.Presampled{i};
         draw = this.ConditionalDrawer(sample, fcastStartIndex, fcastHorizon);
         if ~isempty(cfconds)
-            legacyOptions.cfconds = cfconds(:, :, 1);
+            legacyOptions.cfconds = cfconds;
         end
         if ~isempty(cfshocks)
-            legacyOptions.cfshocks = cfshocks(:, :, 1);
+            legacyOptions.cfshocks = cfshocks;
         end
         if ~isempty(cfblocks)
-            legacyOptions.cfblocks = cfblocks(:, :, 1);
+            legacyOptions.cfblocks = cfblocks;
         end
-        unitInitY = initY(:, :, 1);
-        unitD = sample.D(:, :, 1);
-        unitBeta = meta.extractUnitFromCells(draw.beta, 1, dim=2);
-        unitB = reshape(unitBeta{:}, [], numY);
-        [unitY, unitE] = conditional.forecastMA(transpose(unitD), unitB, unitInitY, fcastHorizon, legacyOptions);
-        fcastY{i} = [fcastY{i}, unitY];
-        fcastE{i} = [fcastE{i}, unitE];
+        beta = meta.extractUnitFromCells(draw.beta, 1, dim=2);
+        
+        B = reshape(beta{1}, [], numY);
+        A = B(1:numL, :);
+        C = B(numL+1:end, :);
+        initY = initY - initX*C; 
 
-        %{
+        [Y, E] = conditional.forecastMA(transpose(sample.D), A, ...
+            initY, fcastHorizon, legacyOptions);
+        fcastY{i} = [fcastY{i}, Y];
+        fcastE{i} = [fcastE{i}, E];
+
+        % {
         if options.Contributions
-            unitA = cell(1, fcastHorizon);
-            unitC = cell(1, fcastHorizon);
+            A = cell(1, fcastHorizon);
+            C = cell(1, fcastHorizon);
             for k = 1 : fcastHorizon
-                unitB = reshape(unitBeta{k}, [], numY);
-                unitA{k} = unitB(1:numL, :);
-                unitC{k} = unitB(numL+1:end, :);
+                B = reshape(beta{k}, [], numY);
+                A{k} = B(1:numL, :);
+                C{k} = B(numL+1:end, :);
             end
-            unitContribs = contributor(unitA, unitC, unitD, unitE, fcastX, unitInitY, precontribs(:, :, :, i));
-            contribs{i} = [contribs{i}, unitContribs];
+            Contribs = contributor(A, C, D, E, [], initY, precontribs(:, :, :));
+            contribs{i} = [contribs{i}, Contribs];
         end
 
         %}

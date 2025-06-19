@@ -17,7 +17,7 @@ classdef MeanAdjusted < estimator.Base
         Category = "Time-varying BVAR estimators"
 
         %Struct identification
-        CanBeIdentified = false
+        CanBeIdentified = true
     end
 
 
@@ -182,6 +182,7 @@ classdef MeanAdjusted < estimator.Base
                 gamma_vec_full = zeros(sum(trendCount) * numEn, 1);
                 gamma_vec_full(CMask) = theta;
                 sample.C = reshape(gamma_vec_full, [], numEn);
+
                 sample.Sigma = sigma;
 
             end%
