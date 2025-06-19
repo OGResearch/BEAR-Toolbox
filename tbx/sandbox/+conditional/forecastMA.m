@@ -14,15 +14,17 @@ function [fcastY, fcastE] = forecastMA(D, A, initY, fcastHorizon, options)
 
     fcastY = NaN(fcastHorizon, numEndog);
 
+  
     % if there are conditions
     if flagCond
         % step 2: compute regular forecasts for the data (without shocks)
-        fmat = bear.ogrTVEmaforecastsim(initY, A, order, n, fcastHorizon);
-        [~,ortirfmat] = bear.mairfsim(A, D, order, n, fcastHorizon);
+        fmat = bear.ogrTVEmaforecastsim(initY, A, order, numEndog, fcastHorizon);
+        
+        [~,ortirfmat] = bear.mairfsim(A, D, order, numEndog, fcastHorizon);
 
         if ~isSelective
 
-            fcastE = bear.shocksim1(cfconds, fcastHorizon, numEndog, fmat, ortirfmat);
+            fcastE = bear.ogrshocksim1(cfconds, fcastHorizon, numEndog, fmat, ortirfmat);
 
         else
 
@@ -42,7 +44,7 @@ function [fcastY, fcastE] = forecastMA(D, A, initY, fcastHorizon, options)
 
             % loop over periods up the the one currently considered
             for kk = 1:indPeriod
-                temp = temp + ortirfmat(:, :, jj - kk + 1)*fcastE(:, kk);
+                temp = temp + ortirfmat(:, :, indPeriod - kk + 1)*fcastE(:, kk);
             end
 
             % compute the conditional forecast as the sum of the regular predicted component, plus shock contributions
@@ -52,7 +54,7 @@ function [fcastY, fcastE] = forecastMA(D, A, initY, fcastHorizon, options)
 
         % then go for next iteration
     end
-
+    
     fcastE = transpose(fcastE);
 
 end%

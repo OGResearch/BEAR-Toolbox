@@ -1,12 +1,12 @@
 function out = settings2json()
     % clear cache of all classes
     clear classes
+    rehash path
 
     currentFile = which('docgen.settings2json');
     sandboxDir = fileparts(fileparts(currentFile));
 
     estimatorSettings = docgen.getEstimatorSettings();
-    keyboard
     % repack the settings into a simple struct
     estimatorSettingsPackage = struct();
     categories = fieldnames(estimatorSettings);
