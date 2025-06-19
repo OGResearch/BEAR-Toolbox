@@ -6,7 +6,10 @@ classdef CCMMSVOT < estimator.Base
         
         HasCrossUnits = false
 
-        Category = "Time-vayring BVAR estimators"
+        Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

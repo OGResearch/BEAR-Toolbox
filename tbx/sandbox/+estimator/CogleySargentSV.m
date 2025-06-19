@@ -13,7 +13,10 @@ classdef CogleySargentSV < estimator.Base
         
         HasCrossUnits = false
 
-        Category = "Time-vayring BVAR estimators"
+        Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 
@@ -270,7 +273,6 @@ classdef CogleySargentSV < estimator.Base
             %sizes
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
-            numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
 

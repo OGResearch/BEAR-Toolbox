@@ -13,7 +13,10 @@ classdef CogleySargentSVFAVAR < estimator.Base
         
         HasCrossUnits = false
 
-        Category = "Time-vayring BFAVAR estimators"
+        Category = "Time-varying BFAVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

@@ -15,6 +15,10 @@ classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
         HasCrossUnits = false
 
         Category = "Panel BVAR estimators"
+        
+        %Struct identification
+        CanBeIdentified = true
+
     end
 
 

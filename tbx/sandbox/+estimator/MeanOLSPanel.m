@@ -16,6 +16,9 @@ classdef MeanOLSPanel < estimator.Base
         HasCrossUnits = false
 
         Category = "Panel BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

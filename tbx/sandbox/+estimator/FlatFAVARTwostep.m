@@ -17,6 +17,9 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

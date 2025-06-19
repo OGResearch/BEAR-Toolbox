@@ -15,6 +15,9 @@ classdef MeanAdjusted < estimator.Base
         HasCrossUnits = false
 
         Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = false
     end
 
 
@@ -212,34 +215,20 @@ classdef MeanAdjusted < estimator.Base
 
         function createDrawers(this, meta)
             %[
-            numCountries = meta.NumUnits;
-            numEndog = meta.NumEndogenousConcepts;
-            numRowsA = numEndog*meta.Order;
-            numExog = sum(meta.NumTrendParams);
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
             wrap = @(x, horizon) repmat({x}, horizon, 1);
 
             function [A, C] = betaDrawer(sample, horizon)
-                A = nan(numRowsA, numEndog, numCountries);
-                C = nan(numExog, numEndog, numCountries);
-                for ii = 1 : numCountries
-                    A(:,:, ii) = sample.A;
-                    C(:,:, ii) = sample.C;
-                end
                 if horizon > 0
-                    A = wrap(A, horizon);
-                    C = wrap(C, horizon);
+                    A = wrap(sample.A, horizon);
+                    C = wrap(sample.C, horizon);
                 end
             end%
 
             function Sigma = sigmaDrawer(sample, horizon)
-                Sigma = nan(numEndog, numEndog, numCountries);
-                for ii = 1 : numCountries
-                    Sigma(:, :, ii) = sample.Sigma;
-                end
                 if horizon > 0
-                    Sigma = wrap(Sigma, horizon);
+                    Sigma = wrap(sample.Sigma, horizon);
                 end
             end
 
@@ -251,8 +240,9 @@ classdef MeanAdjusted < estimator.Base
 
             function draw = identificationDrawer(sample)
                 draw = struct();
-                [draw.A, draw.C] = betaDrawer(sample, identificationHorizon);
-                draw.Sigma = sigmaDrawer(sample, 0);
+                horizon = identificationHorizon;
+                [draw.A, draw.C] = betaDrawer(sample, horizon);
+                draw.Sigma = sigmaDrawer(sample, 1);
             end%
 
             function draw = historyDrawer(sample)
@@ -262,8 +252,9 @@ classdef MeanAdjusted < estimator.Base
             end%
 
             function draw = conditionalDrawer(sample, startingIndex, forecastHorizon)
+                B = [sample.A; sample.C];
                 draw = struct();
-                draw.beta = wrap(sample.A(:), forecastHorizon);
+                draw.beta = wrap(B(:), forecastHorizon);
             end%
 
             this.IdentificationDrawer = @identificationDrawer;

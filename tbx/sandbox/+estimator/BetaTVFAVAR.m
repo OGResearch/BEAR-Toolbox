@@ -13,6 +13,11 @@ classdef BetaTVFAVAR < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        %Struct identification
+        CanBeIdentified = true
+
+        Category = "Time-varying BFAVAR estimators"
     end
 
 

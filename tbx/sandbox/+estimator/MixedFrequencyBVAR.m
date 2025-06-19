@@ -15,6 +15,9 @@ classdef MixedFrequencyBVAR < estimator.Base
         HasCrossUnits = false
 
         Category = "Plain BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
     methods

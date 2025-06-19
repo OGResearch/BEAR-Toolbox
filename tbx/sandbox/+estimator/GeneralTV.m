@@ -10,11 +10,14 @@ classdef GeneralTV < estimator.Base
     end
     
     properties
-        Category = "Time-vayring BVAR estimators"
+        Category = "Time-varying BVAR estimators"
 
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
     methods

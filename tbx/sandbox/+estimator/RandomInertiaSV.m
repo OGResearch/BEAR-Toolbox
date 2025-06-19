@@ -15,6 +15,9 @@ classdef RandomInertiaSV < estimator.Base
         HasCrossUnits = false
         
         Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true        
     end
 
 

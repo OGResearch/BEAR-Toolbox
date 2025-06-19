@@ -13,6 +13,9 @@ classdef LargeShockSV < estimator.Base
         HasCrossUnits = false
 
         Category = "Time-varying estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

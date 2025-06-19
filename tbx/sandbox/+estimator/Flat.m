@@ -17,6 +17,9 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
         CanHaveDummies = true
         
         HasCrossUnits = false
+
+        %Struct identification
+        CanBeIdentified = true
     end
     
 

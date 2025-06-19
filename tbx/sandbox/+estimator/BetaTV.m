@@ -13,13 +13,17 @@ classdef BetaTV < estimator.Base
     properties
         % Dummies in the model
         CanHaveDummies = false
-        % FAVAR model
         
         % Cross-unit variation in beta
         HasCrossUnits = false
 
         %Category
-        Category = "Time-vayring BVAR estimators"
+        Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
+
+        
     end
 
 

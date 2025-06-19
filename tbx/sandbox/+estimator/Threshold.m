@@ -14,6 +14,9 @@ classdef Threshold < estimator.Base
         HasCrossUnits = false
 
         Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = false        
     end
 
 
