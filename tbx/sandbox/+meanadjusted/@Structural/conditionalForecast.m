@@ -26,7 +26,7 @@ function [fcastTbl, contribsTbl] = conditionalForecast(this, fcastSpan, options)
     fcastHorizon = numel(shortFcastSpan);
     initSpan = datex.initSpanFromShortSpan(shortFcastSpan, meta.Order);
     initYXZ = this.getSomeYXZ(initSpan);
-    initY = initYXZ{1};
+    initorigY = initYXZ{1};
     initX = initYXZ{2};
 
     cfconds = conditional.createConditionsCF(meta, options.Plan, options.Conditions, ...
@@ -69,7 +69,7 @@ function [fcastTbl, contribsTbl] = conditionalForecast(this, fcastSpan, options)
         B = reshape(beta{1}, [], numY);
         A = B(1:numL, :);
         C = B(numL+1:end, :);
-        initY = initY - initX*C; 
+        initY = initorigY - initX*C; 
 
         [Y, E] = conditional.forecastMA(transpose(sample.D), A, ...
             initY, fcastHorizon, legacyOptions);
@@ -92,7 +92,7 @@ function [fcastTbl, contribsTbl] = conditionalForecast(this, fcastSpan, options)
         %}
         pbar.increment();
     end
-
+    
     fcastY = cat(VARIANT_DIM, fcastY{:});
     fcastE = cat(VARIANT_DIM, fcastE{:});
     outNames = [meta.EndogenousNames, meta.ShockNames];

@@ -230,6 +230,8 @@ classdef MeanAdjusted < estimator.Base
             function Sigma = sigmaDrawer(sample, horizon)
                 if horizon > 0
                     Sigma = wrap(sample.Sigma, horizon);
+                else
+                    Sigma = sample.Sigma;
                 end
             end
 
@@ -243,7 +245,7 @@ classdef MeanAdjusted < estimator.Base
                 draw = struct();
                 horizon = identificationHorizon;
                 [draw.A, draw.C] = betaDrawer(sample, horizon);
-                draw.Sigma = sigmaDrawer(sample, 1);
+                draw.Sigma = sigmaDrawer(sample, 0);
             end%
 
             function draw = historyDrawer(sample)
