@@ -15,9 +15,6 @@ classdef Meta < matlab.mixin.Copyable
         % Names of exogenous variables
         ExogenousNames (1, :) string %Names of exogenous variables
 
-        % Names of reducible variables in factor models
-        ReducibleNames (1, :) string = string.empty(1, 0)
-
         % Prefix prepended to residual names
         ResidualPrefix (1, 1) string = "resid"
 
@@ -26,9 +23,6 @@ classdef Meta < matlab.mixin.Copyable
 
         % True if the model includes an intercept (constant) term
         HasIntercept (1, 1) logical
-
-        % Number of factors to be formed from reducibles
-        NumFactors (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
 
         % Span of fitted data
         ShortSpan

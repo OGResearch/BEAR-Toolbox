@@ -81,7 +81,7 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
-            XZ0mean          = zeros(numEn * p,1);
+            XZ0mean = zeros(numEn * p,1);
             XZ0var = opt.L0*eye(numEn * p);
             XY = favar.XY;
             LD = favar.L;
@@ -92,7 +92,6 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
 
             L0 = opt.L0*eye(numEn);
             sigmahat = (1 / estimLength) * (EPS' * EPS);
-            B = Bhat;
             %===============================================================================
 
             function sample = sampler()
@@ -120,12 +119,12 @@ classdef MinnesotaFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMix
                 stationary=0;
                 while stationary==0
                     beta = betabar + chol(bear.nspd(omegabar), 'lower')*mvnrnd(zeros(sizeB, 1), eye(sizeB))';
-                    [stationary] = bear.checkstable(beta, numEn, p, size(B,1) ); %switches stationary to 0, if the draw is not stationary
+                    [stationary] = bear.checkstable(beta, numEn, p, numBRows ); %switches stationary to 0, if the draw is not stationary
                 end
 
                 % update matrix B with each draw
 
-                B = reshape(beta, size(B));
+                B = reshape(beta, numBRows, []);
                 B_ss(1:numEn,:) = B';
                 % Sample Sigma and L
                 [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X, FY, ...
