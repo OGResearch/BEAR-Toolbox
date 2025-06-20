@@ -1,4 +1,4 @@
-function [data_endo,favar]=ogr_favar_gensample3(data_endo, favar)
+function [data_endo, favar]=ogr_favar_gensample3(data_endo, favar)
 
 % determine the numbers of variables other than factors
 favar.numdata_exfactors=size(favar.data_exfactors,2);
@@ -43,15 +43,15 @@ if favar.onestep==1
     favar.Sigma = favar.evf'*favar.evf/size(favar.X,1);
     favar.Sigma = diag(diag(favar.Sigma));
     favar.Sigma = diag([diag(favar.Sigma);zeros(favar.numdata_exfactors,1)]);
-    
+
     % % from here proceed with non-standardised data
-    % favar.data_exfactors=favar.data_exfactors_temp;
-    % favar.X=favar.X_temp;
+    favar.data_exfactors = favar.Y_dm;
+    favar.X = favar.X_dm;
     % 
     % % replace standardised data with not-standardised data in endo
-    % for ii=1:size(favar.variablestrings_exfactors)
-    %     data_endo(:,favar.variablestrings_exfactors(ii))=favar.data_exfactors(:,ii);
-    % end
+    for ii=1:numel(favar.variablestrings_exfactors)
+         data_endo(:,favar.variablestrings_exfactors(ii))=favar.data_exfactors(:,ii);
+    end
     
     % state-space representation
     favar.XY = [favar.X, favar.data_exfactors];
