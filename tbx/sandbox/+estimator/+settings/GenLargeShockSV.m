@@ -26,6 +26,7 @@ classdef (CaseInsensitiveProperties=true) GenLargeShockSV < estimator.settings.B
         %Scaling factors's  AR parameter's proposal std
         PropStdAR (1,1) double
 
+        %Start date of the high-volatility period
         Turningpoint (1,1) datetime
     end
 

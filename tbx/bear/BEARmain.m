@@ -472,7 +472,8 @@ try
     %-----------------------|
 
     % generate the strings and decimal vectors of dates
-    [decimaldates1,decimaldates2,stringdates1,stringdates2,stringdates3,Fstartlocation,Fendlocation]=bear.gendates(names,lags,frequency,startdate,enddate,Fstartdate,Fenddate,Fcenddate,Fendsmpl,F,CF,favar);
+    [decimaldates1,decimaldates2,stringdates1,stringdates2,stringdates3,Fstartlocation,Fendlocation]=
+    bear.gendates(names,lags,frequency,startdate,enddate,Fstartdate,Fenddate,Fcenddate,Fendsmpl,F,CF,favar);
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -755,8 +756,6 @@ try
                 end
                 % compute posterior estimates
                 [beta_median,beta_std,beta_lbound,beta_ubound,sigma_median]=bear.mestimates(betabar,omegabar,sigma,q,cband);
-
-keyboard
                 % estimation of BVAR if a normal-Wishart prior has been chosen (i.e., prior has been set to 21 or 22)
             elseif opts.prior==21||opts.prior==22
                 if IRFt<=4

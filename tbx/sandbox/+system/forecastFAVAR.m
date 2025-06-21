@@ -5,12 +5,12 @@
 %
 %}
 
-function [shortY, initY, shortX] = forecastFAVAR(A, C, FY, longX, U, options)
+function [shortY, initY, shortX] = forecastFAVAR(A, C, initY, longX, U, options)
 
     arguments
         A (:, 1) cell
         C (:, 1) cell
-        FY
+        initY
         longX
         U (:, :, :) double
         options.HasIntercept % (1, 1) logical
@@ -26,7 +26,6 @@ function [shortY, initY, shortX] = forecastFAVAR(A, C, FY, longX, U, options)
     shortX = longX(order+1:end, :);
     shortXI = system.addInterceptWhenNeeded(shortX, hasIntercept);
 
-    initY = FY(1:order, :, :);
 
     if numel(C) ~= horizon || size(U, 1) ~= horizon || size(shortXI, 1) ~= horizon
         error("Invalid dimensions of input data");

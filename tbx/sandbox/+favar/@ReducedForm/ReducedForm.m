@@ -38,6 +38,7 @@ classdef ReducedForm < model.ReducedForm
                 shortY = cat(3, shortY{:});
                 shortU = cat(3, shortU{:});
                 shortX = cat(3, shortX{:});
+
                 if options.IncludeInitial
                     outSpan = longFcastSpan;
                     initY = cat(3, initY{:});
@@ -78,8 +79,9 @@ classdef ReducedForm < model.ReducedForm
             %
             % Run unit-specific forecast
             %
+            initY = sample.FY(forecastStartIndex:options.Order+forecastStartIndex-1,:);
             [shortY, initY, shortX] = system.forecastFAVAR( ...
-                draw.A, draw.C, sample.FY, longX, shortU ...
+                draw.A, draw.C, initY, longX, shortU ...
                 , hasIntercept=options.HasIntercept ...
                 , order=options.Order ...
             );
