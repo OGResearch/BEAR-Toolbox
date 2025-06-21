@@ -1,7 +1,7 @@
 
 classdef Flat < estimator.Base & estimator.PlainDrawersMixin
-% BVAR with flat prior
-% prior =41 in BEAR5 with lambda1>999
+%% BVAR with flat prior
+% prior = 41 in BEAR5 with lambda1>999
     
     methods (Static)
         function info = getModelReference()

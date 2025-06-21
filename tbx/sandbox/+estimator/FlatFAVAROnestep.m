@@ -1,7 +1,8 @@
 
 classdef FlatFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
-%FAVAR version of prior =41 within lambda> 999 BEAR5
-
+%% BFAVAR with flat prior and one-step estimation
+% FAVAR with prior = 41 in BEAR5 with lambda1>999
+    
     methods (Static)
         function info = getModelReference()
             info.category = "favar";

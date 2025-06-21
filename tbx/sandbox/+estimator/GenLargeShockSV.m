@@ -1,5 +1,5 @@
 classdef GenLargeShockSV < estimator.Base
-    %SV for large models in BEAR5, stvol=3
+%% General Stochastic Volatility model for large shocks
 
     methods (Static)
         function info = getModelReference()

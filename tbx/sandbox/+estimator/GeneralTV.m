@@ -1,6 +1,7 @@
 
 classdef GeneralTV < estimator.Base
-%general time varying in bear5, tvbvar=2
+%% Bayesian VAR model with time-varying parameters and stochastic volatility, 
+% tvbvar = 2 in BEAR5
 
     methods (Static)
         function info = getModelReference()

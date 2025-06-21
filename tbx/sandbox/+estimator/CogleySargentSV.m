@@ -1,5 +1,6 @@
 classdef CogleySargentSV < estimator.Base
-%Standard model, in BEAR5,  stvol =1
+%% Standard Stochastic volatility model 
+% Cogley-Sargent, stvol = 1 in BEAR5
     
     methods (Static)
         function info = getModelReference()

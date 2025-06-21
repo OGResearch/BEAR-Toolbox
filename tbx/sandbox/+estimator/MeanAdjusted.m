@@ -132,8 +132,8 @@ classdef MeanAdjusted < estimator.Base
                 theta = mT + chol(bear.nspd(CT), 'lower')*randn(q2, 1);
 
                 % recover equilibrium values from psi
-                for it=1:T+p
-                    eq(it,:) = (squeeze(TVEH(:, :, it))*theta)'; % compute the equilibrium values given theta
+                for it = 1:T + p
+                    eq(it, :) = (squeeze(TVEH(:, :, it))*theta)'; % compute the equilibrium values given theta
                 end
 
                 % step 4: now that psi/F has been drawn, it is possible to generate Yhat, Lhat and yhat
@@ -169,6 +169,8 @@ classdef MeanAdjusted < estimator.Base
                 % draw from N(betabar,omegabar);
                 beta = betabar + chol(bear.nspd(omegabar),'lower')*randn(sizeB, 1);
                 
+                sample.ss = eq(p+1:end,:);
+  
                 % reshape to obtain B
                 B = reshape(beta, numBRows, numEn);
                 sample.A = B;

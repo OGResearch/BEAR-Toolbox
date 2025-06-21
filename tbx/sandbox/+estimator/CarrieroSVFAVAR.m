@@ -1,5 +1,6 @@
 classdef CarrieroSVFAVAR < estimator.Base
-%FAVAR version of SV for large models in BEAR5, stvol=3
+%% FAVAR version of large scale stochastic volatility models 
+% FAVAR with stvol=3 in BEAR5
 % 
 
     methods (Static)

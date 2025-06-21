@@ -1,6 +1,6 @@
 classdef BetaTVFAVAR < estimator.Base
-%% FAVAR verison of TV coefficients model, tvbvar=1 in BEAR5
-% ...
+%% BFAVAR verison of time-varying coefficients model 
+% FAVAR with tvbvar=1 in BEAR5
 
 
     methods (Static)
