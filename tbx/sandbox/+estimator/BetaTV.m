@@ -1,7 +1,7 @@
 
 classdef BetaTV < estimator.Base
-%% Time-varying Bayesian VAR model
-% Second line
+%% Bayesian VAR model with time-varying parameters, 
+% tvbvar=1 in BEAR5
 % Third line
 
     methods (Static)
@@ -13,10 +13,17 @@ classdef BetaTV < estimator.Base
     properties
         % Dummies in the model
         CanHaveDummies = false
-        % FAVAR model
         
         % Cross-unit variation in beta
         HasCrossUnits = false
+
+        %Category
+        Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
+
+        
     end
 
 

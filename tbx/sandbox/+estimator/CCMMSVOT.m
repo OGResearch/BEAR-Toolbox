@@ -1,10 +1,15 @@
 classdef CCMMSVOT < estimator.Base
-    %SV for large models in BEAR5, stvol=3
-
+%% Stochastic Volatility model with jumps and large shocks 
+% SV model with outliers and fat tail ("t") distributed shocks, most generic model nr 3 in the CCMM paper
     properties
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

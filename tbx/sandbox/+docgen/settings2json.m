@@ -8,6 +8,7 @@ function out = settings2json()
     guiDir = fullfile(sandboxDir, 'gui','settings');
 
     estimatorSettings = docgen.getEstimatorSettings();
+    keyboard
     % repack the settings into a simple struct
     estimatorSettingsPackage = struct();
     categories = fieldnames(estimatorSettings);
@@ -40,3 +41,4 @@ function out = settings2json()
         fullfile(guiDir, 'dataSettings.json'));
 
 end
+

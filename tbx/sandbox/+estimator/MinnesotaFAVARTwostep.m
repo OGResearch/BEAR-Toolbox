@@ -15,6 +15,11 @@ classdef MinnesotaFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMix
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Plain BFAVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

@@ -1,4 +1,4 @@
-function cholSigma = randCholIWIsh(cholScale, df)
+function cholSigma = randCholIWish(cholScale, df)
 
 n = size(cholScale, 1);
 

@@ -15,6 +15,11 @@ classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
         CanHaveDummies = true
         
         HasCrossUnits = false
+
+        Category = "Plain BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true        
     end
 
     methods

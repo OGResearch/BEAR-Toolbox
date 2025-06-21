@@ -13,6 +13,11 @@ classdef MeanAdjusted < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
 
@@ -177,6 +182,7 @@ classdef MeanAdjusted < estimator.Base
                 gamma_vec_full = zeros(sum(trendCount) * numEn, 1);
                 gamma_vec_full(CMask) = theta;
                 sample.C = reshape(gamma_vec_full, [], numEn);
+
                 sample.Sigma = sigma;
 
             end%
@@ -210,34 +216,22 @@ classdef MeanAdjusted < estimator.Base
 
         function createDrawers(this, meta)
             %[
-            numCountries = meta.NumUnits;
-            numEndog = meta.NumEndogenousConcepts;
-            numRowsA = numEndog*meta.Order;
-            numExog = sum(meta.NumTrendParams);
             estimationHorizon = numel(meta.ShortSpan);
             identificationHorizon = meta.IdentificationHorizon;
             wrap = @(x, horizon) repmat({x}, horizon, 1);
 
             function [A, C] = betaDrawer(sample, horizon)
-                A = nan(numRowsA, numEndog, numCountries);
-                C = nan(numExog, numEndog, numCountries);
-                for ii = 1 : numCountries
-                    A(:,:, ii) = sample.A;
-                    C(:,:, ii) = sample.C;
-                end
                 if horizon > 0
-                    A = wrap(A, horizon);
-                    C = wrap(C, horizon);
+                    A = wrap(sample.A, horizon);
+                    C = wrap(sample.C, horizon);
                 end
             end%
 
             function Sigma = sigmaDrawer(sample, horizon)
-                Sigma = nan(numEndog, numEndog, numCountries);
-                for ii = 1 : numCountries
-                    Sigma(:, :, ii) = sample.Sigma;
-                end
                 if horizon > 0
-                    Sigma = wrap(Sigma, horizon);
+                    Sigma = wrap(sample.Sigma, horizon);
+                else
+                    Sigma = sample.Sigma;
                 end
             end
 
@@ -249,7 +243,8 @@ classdef MeanAdjusted < estimator.Base
 
             function draw = identificationDrawer(sample)
                 draw = struct();
-                [draw.A, draw.C] = betaDrawer(sample, identificationHorizon);
+                horizon = identificationHorizon;
+                [draw.A, draw.C] = betaDrawer(sample, horizon);
                 draw.Sigma = sigmaDrawer(sample, 0);
             end%
 
@@ -260,8 +255,9 @@ classdef MeanAdjusted < estimator.Base
             end%
 
             function draw = conditionalDrawer(sample, startingIndex, forecastHorizon)
+                B = [sample.A; sample.C];
                 draw = struct();
-                draw.beta = wrap(sample.A(:), forecastHorizon);
+                draw.beta = wrap(B(:), forecastHorizon);
             end%
 
             this.IdentificationDrawer = @identificationDrawer;

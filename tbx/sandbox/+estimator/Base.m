@@ -28,6 +28,8 @@ classdef (Abstract) Base < handle
     properties (Abstract)
         CanHaveDummies
         HasCrossUnits
+        Category 
+        CanBeIdentified 
     end
 
     methods (Abstract)

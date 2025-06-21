@@ -11,8 +11,11 @@ classdef CarrieroSVFAVAR < estimator.Base
     
     properties
         CanHaveDummies = false
-        
         HasCrossUnits = false
+        Category = "Time-varying BFAVAR estimators"
+        
+        %Struct identification
+        CanBeIdentified = true
     end
 
 

@@ -15,6 +15,11 @@ classdef NormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Plain BFAVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true        
     end
 
 

@@ -13,6 +13,11 @@ classdef DynamicCrossPanel < estimator.Base
         CanHaveDummies = false
         
         HasCrossUnits = true
+
+        Category = "Panel BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
     end
 
     methods

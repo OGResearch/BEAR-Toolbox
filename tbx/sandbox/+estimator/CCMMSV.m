@@ -1,10 +1,17 @@
 classdef CCMMSV < estimator.Base
-    %SV for large models in BEAR5, stvol=3
+%% Stochastic Volatility model with random walk heteroscedasticity 
+% standard SV model,model nr 2 in the CCMM paper
 
     properties
         CanHaveDummies = false
         
         HasCrossUnits = false
+
+        Category = "Time-varying BVAR estimators"
+
+        %Struct identification
+        CanBeIdentified = true
+    
     end
 
 
