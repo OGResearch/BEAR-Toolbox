@@ -2,7 +2,7 @@ function [B, sigma, tmp] = drawBSigma(sigma, threshold, delay, thresholdvar,...
                 Y, LX, dummiesYLX)            
     for r = 1:2
 
-        regimeInd = threshold_model.getRegimeInd(threshold, delay, thresholdvar, r);
+        regimeInd = threshold.getRegimeInd(threshold, delay, thresholdvar, r);
 
         [Yreg, LXreg] = dummies.addDummiesToData(Y(regimeInd, :), LX(regimeInd, :), ...
             dummiesYLX);
