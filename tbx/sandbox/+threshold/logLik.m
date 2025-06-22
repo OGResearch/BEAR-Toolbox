@@ -1,7 +1,7 @@
-function y = logLik(B, sigma, threshold, delay, thresholdvar, Y, LX)
+function y = logLik(B, sigma, th, delay, thresholdvar, Y, LX)
     y = 0;
     for r = 1 : 2
-        regimeInd = threshold.getRegimeInd(threshold, delay, thresholdvar, r);
+        regimeInd = threshold.getRegimeInd(th, delay, thresholdvar, r);
         Yreg = Y(regimeInd, :);
         LXreg = LX(regimeInd, :);
         Breg = B(:, :, r);

@@ -65,31 +65,31 @@ classdef Threshold < estimator.Base
             thresholdvar = LX(:, thInd:numEn:thInd + (opt.maxDelay - 1)*numEn);
 
             delay = 1;
-            threshold = meanThreshold;
+            th = meanThreshold;
             %===============================================================================
 
             function sample = sampler()
 
-                [B, sigma, sample] = threshold.drawBSigma(sigma, threshold, ...
+                [B, sigma, sample] = threshold.drawBSigma(sigma, th, ...
                     delay, thresholdvar, Y, LX, dummiesYLX); 
 
-                threshold = threshold.drawThreshold(B, sigma, threshold, delay,...
+                th = threshold.drawThreshold(B, sigma, th, delay,...
                     thresholdvar, meanThreshold, opt.varThreshold, Y, LX,...
                     opt.thresholdPropStd); 
 
-                delay = threshold.drawDelay(opt.maxDelay, B, sigma, threshold, thresholdvar,...
+                delay = threshold.drawDelay(opt.maxDelay, B, sigma, th, thresholdvar,...
                     meanThreshold, opt.varThreshold, Y, LX);
 
                 sample.beta = cell(estimLength, 1);
                 sample.sigma_t = cell(estimLength, 1);
                 for r = 1:2
-                    regimeInd = threshold.getRegimeInd(threshold, delay, ... 
+                    regimeInd = threshold.getRegimeInd(th, delay, ... 
                         thresholdvar, r);    
                     sample.beta(regimeInd,1)= {sample.("B" + string(r))(:)};
                     sample.sigma_t(regimeInd,1) = {sample.("sigma" + string(r))(:)};
                 end
                 sample.delay = delay;
-                sample.threshold = threshold;
+                sample.threshold = th;
 
             end
 

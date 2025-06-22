@@ -1,5 +1,5 @@
-function y = logPriorPDF(threshold, meanThreshold, varThreshold)
+function y = logPriorPDF(th, meanThreshold, varThreshold)
 
-    y = largeshocksv.mvnlpdf(threshold - meanThreshold, sqrt(varThreshold));
+    y = largeshocksv.mvnlpdf(th - meanThreshold, sqrt(varThreshold));
 
 end

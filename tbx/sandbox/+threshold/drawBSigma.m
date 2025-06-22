@@ -1,8 +1,8 @@
-function [B, sigma, tmp] = drawBSigma(sigma, threshold, delay, thresholdvar,...
+function [B, sigma, tmp] = drawBSigma(sigma, th, delay, thresholdvar,...
                 Y, LX, dummiesYLX)            
     for r = 1:2
 
-        regimeInd = threshold.getRegimeInd(threshold, delay, thresholdvar, r);
+        regimeInd = threshold.getRegimeInd(th, delay, thresholdvar, r);
 
         [Yreg, LXreg] = dummies.addDummiesToData(Y(regimeInd, :), LX(regimeInd, :), ...
             dummiesYLX);

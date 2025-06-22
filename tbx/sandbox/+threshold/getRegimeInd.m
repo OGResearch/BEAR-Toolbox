@@ -1,5 +1,5 @@
-function regimeInd = getRegimeInd(threshold, delay, thresholdvar, r)
-      regimeInd = (thresholdvar(:, delay) <= threshold);
+function regimeInd = getRegimeInd(th, delay, thresholdvar, r)
+      regimeInd = (thresholdvar(:, delay) <= th);
       if r == 2
         regimeInd = ~regimeInd;
       end
