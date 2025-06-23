@@ -1,4 +1,4 @@
-classdef BetaTVFAVAR < estimator.Base
+classdef BetaTVFAVAR < estimator.BaseFAVAR
 %% BFAVAR verison of time-varying coefficients model 
 % FAVAR with tvbvar=1 in BEAR5
 
@@ -23,25 +23,24 @@ classdef BetaTVFAVAR < estimator.Base
 
     methods %(Access = protected)
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
 
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = false;
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);

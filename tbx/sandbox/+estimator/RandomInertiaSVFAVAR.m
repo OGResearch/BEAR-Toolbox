@@ -1,5 +1,5 @@
 
-classdef RandomInertiaSVFAVAR < estimator.Base
+classdef RandomInertiaSVFAVAR < estimator.BaseFAVAR
 %% FAVAR version of Stochastic Volatility model with random inertia
 %  FAVAR version of SV model with stvol=2 in BEAR5  
     methods (Static)
@@ -22,16 +22,15 @@ classdef RandomInertiaSVFAVAR < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -51,8 +50,8 @@ classdef RandomInertiaSVFAVAR < estimator.Base
             opt.bex = this.Settings.BlockExogenous;
             opt.ar = this.Settings.Autoregression;
 
-            favar.onestep = false;
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);

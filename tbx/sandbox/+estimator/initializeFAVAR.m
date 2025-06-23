@@ -1,4 +1,10 @@
-function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar, p , meta)
+function [favar] = initializeFAVAR(meta, longYXZ, onestep)
+
+    favar.onestep = onestep;
+    longY = longYXZ{1};
+    longZ = longYXZ{3};
+    p = meta.Order;
+
 
     if strcmp(meta.BlockType, "blocks")
        favar.blocks = true;
@@ -8,7 +14,6 @@ function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar, p , meta)
 
     favar.nfactorvar = meta.NumReducibleNames;
     
-
     [favar.X_std, favar.X_mean] = std(longZ, 0, 1);
 
     favar.X_dm = longZ - favar.X_mean;
@@ -29,10 +34,10 @@ function [FY, favar, indexnM] = initializeFAVAR(longY, longZ, favar, p , meta)
 
     %gensample2
     endo = [meta.FactorNames, meta.EndogenousNames];     
-    [data, favar, indexnM] = bear.ogr_favar_gensample2(favar.Y, endo, p, favar);
+    [data, favar] = bear.ogr_favar_gensample2(favar.Y, endo, p, favar);
 
     % gensample 3
-    [FY, favar] = bear.ogr_favar_gensample3(data, favar);
+    [favar] = bear.ogr_favar_gensample3(data, favar);
     
 
     

@@ -1,5 +1,5 @@
 
-classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
+classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
 %% BFAVAR with Indenpendent Normal-Wishart prior and two-step estimation
 % FAVAR with prior 31 and 32 in BEAR5
 
@@ -25,16 +25,15 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
@@ -64,8 +63,8 @@ classdef IndNormalWishartFAVARTwostep < estimator.Base & estimator.PlainFAVARDra
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = false;
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);

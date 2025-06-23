@@ -1,5 +1,5 @@
 
-classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
+classdef IndNormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
 %% BFAVAR with Indenpendent Normal-Wishart prior and one-step estimation
 % FAVAR with prior 31 and 32 in BEAR5
 
@@ -24,16 +24,15 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
@@ -66,8 +65,8 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = true;
-            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
@@ -76,16 +75,16 @@ classdef IndNormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDra
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
             XZ0mean = zeros(numEn * p, 1);
-            XZ0var  = opt.L0*eye(numEn * p);
-            XY      = favar.XY;
+            XZ0var = opt.L0*eye(numEn * p);
+            L0 = opt.L0*eye(numEn);            
+
+            XY = favar.XY;
             LD = favar.L;
-            Sigma   = bear.nspd(favar.Sigma);
-            favar_X = longZ;
+            Sigma = bear.nspd(favar.Sigma);
+            favar_X = favar.X;
             nfactorvar = favar.nfactorvar;
-            numpc   = favar.numpc;
-
-            L0      = opt.L0*eye(numEn);
-
+            numpc = favar.numpc;
+            indexnM = favar.indexnM;
             %===============================================================================
 
             function sample = sampler()

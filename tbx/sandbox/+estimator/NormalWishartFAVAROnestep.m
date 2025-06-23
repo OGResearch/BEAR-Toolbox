@@ -1,5 +1,5 @@
 
-classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawersMixin
+classdef NormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
 %% BFAVAR with Normal-Wishart prior and one-step estimation
 % FAVAR version of prior =21 22 inBEAR5
 
@@ -27,16 +27,15 @@ classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -63,8 +62,8 @@ classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = true;
-            [FY, favar, indexnM] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
           
             [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
@@ -77,11 +76,12 @@ classdef NormalWishartFAVAROnestep < estimator.Base & estimator.PlainFAVARDrawer
             XZ0var = opt.L0*eye(numEn * p);
             XY = favar.XY;
             LD = favar.L;
-            Sigma            = bear.nspd(favar.Sigma);
-            favar_X          = longZ;
-            nfactorvar       = favar.nfactorvar;
+            Sigma = bear.nspd(favar.Sigma);
+            favar_X = favar.X;
+            nfactorvar = favar.nfactorvar;
             numpc = favar.numpc;
-            L0               = opt.L0*eye(numEn);
+            L0 = opt.L0*eye(numEn);
+            indexnM = favar.indexnM;
             %===============================================================================
 
             function sample = sampler()

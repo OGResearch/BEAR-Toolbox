@@ -1,5 +1,5 @@
 
-classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
+classdef NormalDiffuseFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
 %% BFAVAR with Normal-Diffuse prior and two-step estimation
 % FAVAR version of prior = 41 BEAR5
 
@@ -25,16 +25,15 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -60,8 +59,8 @@ classdef NormalDiffuseFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawer
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = false;
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [Bhat, ~, ~, LX, ~, Y, y, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
