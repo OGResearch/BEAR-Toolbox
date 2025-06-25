@@ -1,38 +1,42 @@
-function type_taxonomy = getTypeTaxonomy(type, dim)
+
+function typeTaxonomy = getTypeTaxonomy(type, dim)
+
     % Check type
     switch type
         case "double"
-            type_taxonomy = "number";
+            typeTaxonomy = "number";
         case "logical"
-            type_taxonomy = "logical";
+            typeTaxonomy = "logical";
         case "string"
-            type_taxonomy = "name";
+            typeTaxonomy = "name";
         case "char"
-            type_taxonomy = "name";
+            typeTaxonomy = "name";
         case "function_handle"
-            type_taxonomy = "string";
+            typeTaxonomy = "string";
         case "datetime"
-            type_taxonomy = "string";
+            typeTaxonomy = "string";
         otherwise
-            type_taxonomy = "string";
+            typeTaxonomy = "string";
     end
 
     % Check dimension
     if ~isempty(dim)
         if length(dim) > 1
-            if isnumeric([dim{:}]) && type_taxonomy == "numeric"
-                type_taxonomy ;
+            if isnumeric([dim{:}]) && typeTaxonomy == "numeric"
+                typeTaxonomy ;
             elseif isnumeric([dim{:}])
-                    type_taxonomy = type_taxonomy;          
+                    typeTaxonomy = typeTaxonomy;
             elseif isnumeric(dim{1}) 
-                    type_taxonomy = type_taxonomy + "s";
+                    typeTaxonomy = typeTaxonomy + "s";
             elseif isnumeric(dim{2})
-                type_taxonomy = type_taxonomy + "s";
+                typeTaxonomy = typeTaxonomy + "s";
             else
-                type_taxonomy = type_taxonomy + "s";
+                typeTaxonomy = typeTaxonomy + "s";
             end
         else
-            type_taxonomy = type_taxonomy + "s";
+            typeTaxonomy = typeTaxonomy + "s";
         end
     end
-end
+
+end%
+

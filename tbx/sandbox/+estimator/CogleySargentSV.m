@@ -1,16 +1,18 @@
+
 classdef CogleySargentSV < estimator.Base
-%% Standard Stochastic volatility model 
-% Cogley-Sargent, stvol = 1 in BEAR5
-    
+
+    %% Standard Stochastic volatility model
+    % Cogley-Sargent, stvol = 1 in BEAR5
+
     methods (Static)
         function info = getModelReference()
             info.category = "stochastic_volatility";
         end
     end
-    
+
     properties
         CanHaveDummies = false
-        
+
         HasCrossUnits = false
 
         Category = "Time-varying BVAR estimators"
@@ -51,7 +53,7 @@ classdef CogleySargentSV < estimator.Base
             opt.bex = this.Settings.BlockExogenous;
             opt.ar = this.Settings.Autoregression;
 
-            
+
 
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
@@ -370,4 +372,6 @@ classdef CogleySargentSV < estimator.Base
         end%
 
     end
+
 end
+
