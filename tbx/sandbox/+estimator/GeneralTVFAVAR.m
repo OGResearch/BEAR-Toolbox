@@ -1,5 +1,5 @@
 
-classdef GeneralTVFAVAR < estimator.Base
+classdef GeneralTVFAVAR < estimator.BaseFAVAR
 %% FAVAR verison of model with time-varying parameters and stochastic volatility, 
 % FAVAR with tvbvar = 2 in BEAR5
 
@@ -22,16 +22,15 @@ classdef GeneralTVFAVAR < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -41,8 +40,8 @@ classdef GeneralTVFAVAR < estimator.Base
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
             opt.delta0 = this.Settings.HeteroskedasticityScale;
             
-            favar.onestep = false;
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, ~, p, estimLength, ~, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);

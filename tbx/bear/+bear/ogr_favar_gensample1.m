@@ -44,7 +44,7 @@ function [favar] = ogr_favar_gensample1(favar, meta)
     
     else
 
-        numF = meta.NumFactors.(slow);
+        numF = meta.NumFactors.slow;
         [favar.l_slow] = pca(favar.X_block{2,1},'NumComponents', numF);
     
         %identify factors: normalise loadings, compute factors following BBE 2005

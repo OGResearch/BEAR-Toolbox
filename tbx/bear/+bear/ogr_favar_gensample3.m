@@ -1,7 +1,7 @@
-function [data_endo, favar]=ogr_favar_gensample3(data_endo, favar)
+function [favar] = ogr_favar_gensample3(data_endo, favar)
 
 % determine the numbers of variables other than factors
-favar.numdata_exfactors=size(favar.data_exfactors,2);
+favar.numdata_exfactors = size(favar.data_exfactors, 2);
 
 if favar.onestep==1
     % initalise variables
@@ -11,7 +11,7 @@ if favar.onestep==1
     Lf = favar.l;
     % identify factors in the case of onestep estimation: rotate the
     % factors and the loadings matrix following Bernanke, Boivin, Eliasz (2005)
-    Lfy = bear.favar_olssvd(favar.X(:,numpc+1:nfactorvar),data_endo)';% upper KxM block of Ly set to zero
+    Lfy = bear.favar_olssvd(favar.X(:, numpc+1:nfactorvar), data_endo)';% upper KxM block of Ly set to zero
     Lf = [Lf(1:numpc,:);Lfy(:,1:numpc)];
     Ly = [zeros(numpc,favar.numdata_exfactors);Lfy(:,numpc+1:numpc+favar.numdata_exfactors)];
     
@@ -28,7 +28,7 @@ if favar.onestep==1
     favar.L = [Lf Ly;zeros(favar.numdata_exfactors,numpc),eye(favar.numdata_exfactors)];
     
     %replace factors with factors rotated in data_endo
-    for ii = 1:size(favar.variablestrings_factorsonly)
+    for ii = 1:numel(favar.variablestrings_factorsonly)
         data_endo(:,favar.variablestrings_factorsonly(ii)) = favar.XZ_rotated(:,ii);
     end
     
@@ -96,4 +96,8 @@ else
     favar.evf = favar.XY - data_endo*favar.L';
     favar.Sigma = favar.evf'*favar.evf/size(favar.XY,1); %
     favar.Sigma = diag(diag(favar.Sigma));
+end
+
+    favar.FY = data_endo;
+
 end

@@ -1,5 +1,5 @@
 
-classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
+classdef FlatFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
 %% BFAVAR with flat prior and two-step estimation
 % FAVAR with prior = 41 in BEAR5 with lambda1>999
 
@@ -25,16 +25,15 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.bex = this.Settings.BlockExogenous;
 
@@ -43,9 +42,8 @@ classdef FlatFAVARTwostep < estimator.Base & estimator.PlainFAVARDrawersMixin
 
             %% FAVAR settings, maybe we can move this to a separate function
 
-            favar.onestep = false;
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
-
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, p, estimLength, ~, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);

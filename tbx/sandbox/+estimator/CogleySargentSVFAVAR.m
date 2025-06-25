@@ -1,4 +1,4 @@
-classdef CogleySargentSVFAVAR < estimator.Base
+classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
 %% FAVAR version of Standard Stochastic Volatility model 
 % FAVAR with stvol = 1 in BEAR5
 
@@ -22,17 +22,16 @@ classdef CogleySargentSVFAVAR < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYXZ)
             %[
 
             arguments
                 this
                 meta (1, 1) model.Meta
                 longYXZ (1, 3) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, longZ] = longYXZ{:};
+            longX = longYXZ{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -51,10 +50,8 @@ classdef CogleySargentSVFAVAR < estimator.Base
             opt.bex = this.Settings.BlockExogenous;
             opt.ar = this.Settings.Autoregression;
 
-            
-
-            favar.onestep = false;
-            [FY, favar] = estimator.initializeFAVAR(longY, longZ, favar, opt.p, meta);
+            favar = this.FAVAR;
+            FY = favar.FY;
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numY, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);

@@ -1,12 +1,12 @@
-function threshold = drawThreshold(B, sigma, threshold, delay, thresholdvar,...
+function th = drawThreshold(B, sigma, th, delay, thresholdvar,...
     meanThreshold, varThreshold, Y, LX, propStd)
         
-    currLPDF  = threshold_model.logPostPDF(B, sigma, threshold, delay,...
+    currLPDF  = threshold.logPostPDF(B, sigma, th, delay,...
         thresholdvar,meanThreshold, varThreshold, Y, LX);
     
 
-    cand      = threshold + propStd * randn();
-    candLPDF  = threshold_model.logPostPDF(B, sigma, cand, delay,...
+    cand      = th + propStd * randn();
+    candLPDF  = threshold.logPostPDF(B, sigma, cand, delay,...
         thresholdvar, meanThreshold, varThreshold, Y, LX);
 
     alpha     = min(1, exp(candLPDF - currLPDF));
@@ -15,7 +15,7 @@ function threshold = drawThreshold(B, sigma, threshold, delay, thresholdvar,...
     accepted  =  u < alpha;
     
     if accepted
-        threshold = cand;
+        th = cand;
     end
    
 
