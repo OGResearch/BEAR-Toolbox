@@ -7,11 +7,14 @@ function out = getEstimatorSettings()
 
     out = struct();
     for i = 1 : numel(files)
-        name = extractBefore(files(i).name, ".m");
+        fileName = string(files(i).name);
+        estimatorClassName = extractBefore(files(i).name, ".m");
         try
-            estimatorMC = metaclass(estimator.(name));
-            setttingsMC = metaclass(estimator.settings.(name));
-        catch
+            estimatorObject = estimator.(estimatorClassName);
+            estimatorSettingsObject = estimator.settings.(estimatorClassName);
+            estimatorMC = metaclass(estimatorObject);
+            setttingsMC = metaclass(estimatorSettingsObject);
+        catch Exc
             continue
         end
 
@@ -25,11 +28,11 @@ function out = getEstimatorSettings()
             if prop.HasDefault
                 DefaultValue = prop.DefaultValue;
             else 
-                DefaultValue = '';
+                DefaultValue = "";
             end
             % Deal with the function handler as a dirty fix for now
-            if isa(DefaultValue, 'function_handle')
-                DefaultValue = 'function handle';
+            if isa(DefaultValue, "function_handle")
+                DefaultValue = "function handle";
             end
 
             % collect type
@@ -41,47 +44,49 @@ function out = getEstimatorSettings()
 
             % collect Size
             if isempty(prop.Validation)
-                sz = '';
+                sz = "";
             else
                 sz = prop.Validation.Size;
             end
             len = length(sz);
             dim = cell(1:len);
             for k = 1:len
-                if isa(sz(k),'meta.FixedDimension') 
+                if isa(sz(k),"meta.FixedDimension") 
                     dim{k} = sz(k).Length;
                 else
-                    dim{k} = ':';
+                    dim{k} = ":";
                 end
             end
             if isempty(dim)
-                dim = '';
+                dim = "";
             end
             try
-                type_taxonomy = docgen.getTypeTaxonomy(Type, dim);
+                typeTaxonomy = docgen.getTypeTaxonomy(Type, dim);
             catch
                 keyboard
             end
             dim = "[" + join(textual.stringify(dim),",") + "]";
 
-            % settings.(prop.Name) = {prop.Description, DefaultValue, Type, dim, type_taxonomy, prop.DetailedDescription};
+            % settings.(prop.Name) = {prop.Description, DefaultValue, Type, dim, typeTaxonomy, prop.DetailedDescription};
             settings.(prop.Name).description = prop.Description;
-            settings.(prop.Name).type = type_taxonomy;
+            settings.(prop.Name).type = typeTaxonomy;
             settings.(prop.Name).default = DefaultValue;
             settings.(prop.Name).detailedDesc = prop.DetailedDescription;
+            settings.Category = string(estimatorObject.Category);
         end
 
         try 
-            estimatorReference = estimator.(name).getModelReference();
+            estimatorReference = estimator.(estimatorClassName).getModelReference();
         catch
             estimatorReference = [];
         end
 
-        if ~isempty(estimatorReference) && isfield(estimatorReference, "category")
-            out.(estimatorReference.category).(name).settings = settings;
-            out.(estimatorReference.category).(name).description = estimatorMC.Description;
-            out.(estimatorReference.category).(name).detailedDesc = estimatorMC.DetailedDescription;
-        end
+        % if ~isempty(estimatorReference) && isfield(estimatorReference, "category")
+        %     out.(estimatorReference.category).(estimatorClassName).settings = settings;
+        %     out.(estimatorReference.category).(estimatorClassName).description = estimatorMC.Description;
+        %     out.(estimatorReference.category).(estimatorClassName).detailedDesc = estimatorMC.DetailedDescription;
+        % end
+        out.(estimatorClassName) = settings;
 
     end
 

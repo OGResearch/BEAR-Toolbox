@@ -1,6 +1,8 @@
 {
   "FileName": {
     "value": "",
-    "type": "string"
+    "type": "string",
+    "description": "Input data file name"
   }
 }
+
