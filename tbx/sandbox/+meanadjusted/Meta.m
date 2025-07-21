@@ -1,7 +1,4 @@
-
-% model.Meta  Meta information about reduced-form and structural models
-
-classdef Meta < model.Meta
+classdef Meta < base.Meta
 
     % Reduced-form model meta information
     properties (SetAccess=protected)
@@ -30,6 +27,7 @@ classdef Meta < model.Meta
 
 
     methods
+
         function this = Meta(options)
 
             arguments
@@ -55,7 +53,7 @@ classdef Meta < model.Meta
             options.exogenousNames = string.empty(1, 0); %No exo is allowed
             options.intercept  = false;
 
-            this@model.Meta( ...
+            this@base.Meta( ...
                 'endogenousConcepts', options.endogenousConcepts, ...
                 'estimationSpan', options.estimationSpan, ...
                 'exogenousNames', options.exogenousNames, ...
@@ -84,27 +82,36 @@ classdef Meta < model.Meta
             switch freq
 
                 case 12
+
                     latestEnd = datex.m(1800,1);
                     earliestStart = datex.m(18000,1);
+
                 case 4
+
                     latestEnd = datex.q(1800,1);
                     earliestStart = datex.q(18000,1);
+
                 case 1
+
                     latestEnd = datex.y(1800,1);
                     earliestStart = datex.y(18000,1);
+
             end
 
             for r = 1:nRegs
+
                 spans = regimeSpans{r}{1};
 
                 % Track latest end date
                 thisMax = max(spans(end));
+                
                 if thisMax > latestEnd
                     latestEnd = thisMax;
                     latestRegimeIdx = r;
                 end
 
                 thisMin = min(spans(1));
+                
                 if thisMin < earliestStart
                     earliestStart = thisMin;
                     earliestRegimeIdx = r;
@@ -124,54 +131,6 @@ classdef Meta < model.Meta
 
 
         end
-
-
-
-        % function populateRegime(this, regimeSpans)
-        %
-        %     nRegs = size(regimeSpans, 2);
-        %     freq = datex.frequency(this.EstimationSpan);
-        %
-        %     switch freq
-        %
-        %         case 12
-        %             latestEnd = datex.m(1800,1);
-        %         case 4
-        %             latestEnd = datex.q(1800,1);
-        %         case 1
-        %             latestEnd = datex.y(1800,1);
-        %     end
-        %
-        %     this.Regimes = cell(nRegs, 1);
-        %     latestRegimeIdx = NaN;
-        %
-        %     for r = 1:nRegs
-        %         spans = regimeSpans{r};
-        %         regDates = [];
-        %         for s = 1:size(spans,1)
-        %             regDates = [regDates datex.span(spans(s,1),spans(s,2))];
-        %         end
-        %         this.Regimes{r} = regDates;
-        %
-        %         % Track latest end date
-        %         thisMax = max(spans(:,2));
-        %         if thisMax > latestEnd
-        %             latestEnd = thisMax;
-        %             latestRegimeIdx = r;
-        %         end
-        %     end
-        %     extStart = datex.shift(latestEnd, 1);
-        %     extEnd = datex.shift(latestEnd, 100*freq);
-        %     this.Regimes{latestRegimeIdx} = [this.Regimes{latestRegimeIdx} datex.span(extStart, extEnd)];
-        %
-        % end
-
-        function someYXZ = getSomeYXZ(this, someSpanFromShortSpan, dataTable, shortSpan, varargin)
-
-            someYXZ = getSomeYXZ@model.Meta(this, someSpanFromShortSpan, dataTable, shortSpan, varargin{:});
-            someYXZ{2} = this.getX(this, someSpanFromShortSpan);
-
-        end%
 
 
         function X = getX(this, someSpan)
@@ -208,26 +167,42 @@ classdef Meta < model.Meta
                     end
 
                     if nRegs == 1
+
                         reg = 1;  % no regime split for this variable
+                    
                     else
+                    
                         for r = 1:nRegs
+                        
                             if any(regimes{r}{1} == currentDate)
+                            
                                 reg = r;
                                 break;
+                            
                             end
+                        
                         end
+                    
                     end
 
                     for tr = 1:nTrends
+                        
                         col = baseCol + (reg - 1) * nTrends + (tr - 1);
+                        
                         switch tr
+                     
                             case 1, X(t,col) = 1;
                             case 2, X(t,col) = timeVal;
                             case 3, X(t,col) = timeVal^2;
+                        
                         end
+                    
                     end
+                
                 end
+            
             end
+        
         end
 
     end
@@ -273,11 +248,16 @@ classdef Meta < model.Meta
                 nTrends = trendCount(v)/numRegimes(v);
 
                 for r = 1:numRegimes(v)
+                    
                     for t = 1:nTrends
+                    
                         mask(row, v) = true;
                         row = row + 1;
+                    
                     end
+                
                 end
+            
             end
 
         end

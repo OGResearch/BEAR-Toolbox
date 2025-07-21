@@ -1,8 +1,7 @@
-function [favar] = initializeFAVAR(meta, longYXZ, onestep)
+function [favar] = initializeFAVAR(meta, longYX, longZ, onestep)
 
     favar.onestep = onestep;
-    longY = longYXZ{1};
-    longZ = longYXZ{3};
+    longY = longYX{1};
     p = meta.Order;
 
 

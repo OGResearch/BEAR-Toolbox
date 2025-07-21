@@ -24,15 +24,15 @@ classdef IndNormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAV
 
     methods
 
-        function initializeSampler(this, meta, longYXZ)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) model.Meta
-                longYXZ (1, 3) cell
+                meta (1, 1) base.Meta
+                longYX (1, 2) cell
             end
 
-            longX = longYXZ{2};
+            longX = longYX{2};
 
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
@@ -151,7 +151,6 @@ classdef IndNormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAV
                     FY, opt.a0, opt.b0, estimLength, p, L0);
 
                 % update matrix B with each draw
-
 
                 sample.beta = beta;
                 sample.sigma = sigma;

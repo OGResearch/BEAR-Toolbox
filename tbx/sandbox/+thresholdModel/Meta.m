@@ -1,7 +1,7 @@
 
 % model.Meta  Meta information about reduced-form and structural models
 
-classdef Meta < model.Meta
+classdef Meta < base.Meta
 
     % Reduced-form model meta information
     properties (SetAccess=protected)
@@ -30,7 +30,7 @@ classdef Meta < model.Meta
             options.thresholdVarName (1, :) string = string.empty(1, 0)
         end
 
-            this@model.Meta( ...
+            this@base.Meta( ...
                 'endogenousConcepts', options.endogenousConcepts, ...
                 'estimationSpan', options.estimationSpan, ...
                 'exogenousNames', options.exogenousNames, ...
@@ -44,7 +44,7 @@ classdef Meta < model.Meta
 
             this.ThresholdVarName = options.thresholdVarName;
 
-        end%    end
+        end% 
 
     end
 end

@@ -9,6 +9,7 @@ function U = calculateResidualsFAVAR(A, C, FY, longX, options)
     arguments
         A (:, 1) cell
         C (:, 1) cell
+        FY
         longX
         %
         options.HasIntercept (1, 1) logical

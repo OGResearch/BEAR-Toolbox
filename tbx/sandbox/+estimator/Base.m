@@ -33,7 +33,7 @@ classdef (Abstract) Base < handle
     end
 
     methods (Abstract)
-        initializeSampler(this, meta, longYXZ, dummiesYLX)
+        initializeSampler(this, meta, longYX, dummiesYLX)
         createDrawers(this, meta)
     end
 
@@ -42,11 +42,11 @@ classdef (Abstract) Base < handle
             this.Settings = estimator.settings.(this.ShortClassName)(varargin{:});
         end%
 
-        function initialize(this, meta, longYXZ, dummiesYLX)
+        function initialize(this, meta, longYX, dummiesYLX)
             if this.BeenInitialized
                 return
             end
-            this.initializeSampler(meta, longYXZ, dummiesYLX);
+            this.initializeSampler(meta, longYX, dummiesYLX);
             this.createDrawers(meta);
             this.BeenInitialized = true;
         end%

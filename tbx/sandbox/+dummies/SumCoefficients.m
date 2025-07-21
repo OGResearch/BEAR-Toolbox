@@ -7,13 +7,13 @@ classdef (CaseInsensitiveProperties=true) SumCoefficients < settings.Base
 
     methods
 
-        function dummiesYLX = generate(this, meta, longYXZ)
+        function dummiesYLX = generate(this, meta, longYX)
             numY = meta.NumEndogenousNames;
             numX = double(meta.HasIntercept) + meta.NumExogenousNames;
             order = meta.Order;
             lambda = this.Lambda;
             %
-            [longY, ~, ~] = longYXZ{:};
+            [longY] = longYX{:};
             initY = longY(1:order, :);
             %
             dummiesY = diag(mean(initY, 1, "omitNaN") / lambda);

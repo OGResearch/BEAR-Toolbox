@@ -22,16 +22,16 @@ classdef MixedFrequencyBVAR < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
             arguments
                 this
-                meta (1, 1) model.Meta
-                longYXZ (1, 3) cell
+                meta (1, 1) base.Meta
+                longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYXZ{:};
+            [longY, longX, ~] = longYX{:};
 
             const = meta.HasIntercept;
             numLags = meta.Order;

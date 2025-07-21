@@ -25,15 +25,15 @@ classdef NormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARD
 
     methods
 
-        function initializeSampler(this, meta, longYXZ)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) model.Meta
-                longYXZ (1, 3) cell
+                meta (1, 1) base.Meta
+                longYX (1, 2) cell
             end
 
-            longX = longYXZ{2};
+            longX = longYX{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;

@@ -25,15 +25,15 @@ classdef FlatFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
 
     methods
 
-        function initializeSampler(this, meta, longYXZ)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) model.Meta
-                longYXZ (1, 3) cell
+                meta (1, 1) base.Meta
+                longYX (1, 2) cell
             end
 
-            longX = longYXZ{2};
+            longX = longYX{2};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -113,14 +113,12 @@ classdef FlatFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
                     [stationary] = bear.checkstable(beta, numEn, p, size(B, 1)); %switches stationary to 0,  if the draw is not stationary
                 end
 
-
                 % update matrix B with each draw
                 Beta = reshape(beta, size(B));
                 B_ss(1:numEn, :) = Beta';
                 % Sample Sigma and L
                 [Sigma, LD] = bear.favar_SigmaL(Sigma, LD, nfactorvar, numpc, true, numEn, favar_X, FY, opt.a0, opt.b0, ...
                     estimLength, p, L0);
-
 
                 % update matrix B with each draw
                 sample.beta = beta;

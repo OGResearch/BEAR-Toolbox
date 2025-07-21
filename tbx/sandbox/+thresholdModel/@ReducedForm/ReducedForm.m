@@ -1,24 +1,22 @@
 
-classdef ReducedForm < model.ReducedForm
+classdef ReducedForm < base.ReducedForm
 
     methods
 
-        function [shortY, shortU, initY, shortX, draw] = forecast4S(this, sample, longYXZ, forecastStartIndex, forecastHorizon, options)
+        function [shortY, shortU, initY, shortX, draw] = forecast4S(this, sample, longYX, forecastStartIndex, forecastHorizon, options)
             arguments
                 this
                 sample
-                longYXZ
+                longYX (1, 2) cell
                 forecastStartIndex (1, 1) double
                 forecastHorizon (1, 1) double
+
                 options.StochasticResiduals (1, 1) logical
                 options.HasIntercept (1, 1) logical
                 options.Order (1, 1) double {mustBeInteger, mustBePositive}
             end
-            meta = this.Meta;
-            match = meta.EndogenousNames == meta.ThresholdVarName;
-            thresholdIndex = find(match);
-            draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
 
+            draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
             shortU1 = system.generateResiduals( ...
                 draw.Sigma1 ...
                 , stochasticResiduals=options.StochasticResiduals ...
@@ -29,20 +27,28 @@ classdef ReducedForm < model.ReducedForm
                 , stochasticResiduals=options.StochasticResiduals ...
             );
 
+
+            order = options.Order;
+       
+            [longY, longX] = longYX{:};
+            initY = this.getInitY(longY, order, sample, forecastStartIndex);
+            shortX = longX(order+1:end, :);
+
+            meta = this.Meta;
+            match = meta.EndogenousNames == meta.ThresholdVarName;
+            thresholdIndex = find(match);
+
             %
             % Run forecast
             %
             [shortY, shortU, initY, shortX] = system.forecastTH( ...
-                draw.A1, draw.A2, draw.C1, draw.C2, longYXZ, shortU1, shortU2 ...
+                draw.A1, draw.A2, draw.C1, draw.C2, initY, shortX, shortU1, shortU2 ...
                 , delay = draw.delay ...
                 , threshold = draw.threshold ...
                 , thresholdIndex = thresholdIndex ...
                 , hasIntercept = options.HasIntercept ...
-                , order=options.Order ...
             );
-            shortY = cat(2, shortY);
-            shortU = cat(2, shortU);
-            initY = cat(2, initY);
+
         end%
 
     end

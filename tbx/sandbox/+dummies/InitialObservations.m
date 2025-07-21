@@ -7,13 +7,13 @@ classdef (CaseInsensitiveProperties=true) InitialObservations < settings.Base
 
     methods
 
-        function dummiesYLX = generate(this, meta, longYXZ)
+        function dummiesYLX = generate(this, meta, longYX)
         % generate  Generate dummy data for initial observations dummies
             %
             order = meta.Order;
             lambda = this.Lambda;
             %
-            [longY, longX, ~] = longYXZ{:};
+            [longY, longX] = longYX{:};
             initY = longY(1:order, :);
             initX = longX(1:order, :);
             initX = system.addInterceptWhenNeeded(initX, meta.HasIntercept);
