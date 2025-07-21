@@ -2,19 +2,11 @@
 nav:
     - Home:
         - index.md
-        - details.md
-    - Input Data:
-        - Input Data: input_data.md
-    - Meta:
-        - Meta Settings: meta.md
-    - Estimation:
-        - Estimator selection: estimator_selection.md
-        - Estimator settings: estimator_settings.md
-    - Identification:
-        - Identification selection: identification_selection.md
-        - Identification settings: identification_settings.md
-    - Tasks:
-        - Run: run.md
-        - Unconditional forecast: unconditional_forecast.md
-        - Conditional forecast: conditional_forecast.md
+        - Details of the GUI: details.md
+        - Your notes on this model: notes.md
+    - Input data: data
+    - Meta info: meta
+    - Estimation: estimation
+    - Identification: identification
+    - Tasks: tasks
 

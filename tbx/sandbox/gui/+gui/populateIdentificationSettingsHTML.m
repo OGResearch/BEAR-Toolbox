@@ -9,9 +9,10 @@ function targetPath = populateIdentificationSettingsHTML()
     xxx = "file://localhost//Users/myself/Documents/ogr-external-projects/ecb-bear/BEAR-toolbox/tbx/gui_poc/tables/ExactZeros.xlsx";
     % xxx = "<a href='file://localhost//Users/myself/Documents/ogr-external-projects/ecb-bear/BEAR-toolbox/tbx/gui_poc/tables/ExactZeros.xlsx'>Exact Zeros Table</a>";
 
-    sourcePath = fullfile(guiFolder, "html", "identification_settings.html");
-    targetPath = fullfile(".", "html", "identification_settings.html");
+    endPath = {"html", "identification", "settings.html"};
+    sourcePath = fullfile(guiFolder, endPath{:});
+    targetPath = fullfile(".", endPath{:});
     % TODO: $IDENTIFICATION_CONTENT --> $IDENTIFICATION_SELECTION_FORM
-    gui.changeHtmlFile(sourcePath, targetPath, "$XXX", xxx);
+    gui.changeHtmlFile(sourcePath, targetPath, "$IDENTIFICATION_SETTING", xxx);
 
 end%

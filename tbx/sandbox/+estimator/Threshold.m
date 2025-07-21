@@ -64,8 +64,9 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
 
             delay = 1;
             th = meanThreshold;
-            %===============================================================================
 
+
+            %===============================================================================
             function sample = sampler()
 
                 [B, sigma, sample] = thresholdUtils.drawBSigma(sigma, th, ...
@@ -88,35 +89,29 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
                 end
                 sample.delay = delay;
                 sample.threshold = th;
+            end%
+            %===============================================================================
 
-            end
 
             function A = retriever(sample, t)
                 B = reshape(sample.beta{t}, [], numEn);
                 A = B(1:numARows, :);
             end%
 
-            stabilityThreshold = this.Settings.StabilityThreshold;
-            maxNumUnstableAttempts = this.Settings.MaxNumUnstableAttempts;
-            needsStabilityCheck = stabilityThreshold < Inf;
+            this.Sampler = estimator.wrapInStabilityCheck( ...
+                sampler=@sampler, ...
+                retriever=@retriever, ...
+                threshold=this.Settings.StabilityThreshold, ...
+                numY=numEn, ...
+                order=order, ...
+                numPeriodsToCheck=estimLength, ...
+                maxNumAttempts=this.Settings.MaxNumUnstableAttempts ...
+            );
 
-            this.Sampler = @sampler;
+        end%
 
-            if needsStabilityCheck
-                this.Sampler = estimator.wrapInStabilityCheck( ...
-                    sampler=this.Sampler, ...
-                    retriever=@retriever, ...
-                    threshold=stabilityThreshold, ...
-                    numY=numEn, ...
-                    order=order, ...
-                    numPeriodsToCheck=estimLength, ...
-                    maxNumAttempts=maxNumUnstableAttempts ...
-                );
-            end
 
-        end
 
-            %===============================================================================
         function createDrawers(this, meta)
             %[
 

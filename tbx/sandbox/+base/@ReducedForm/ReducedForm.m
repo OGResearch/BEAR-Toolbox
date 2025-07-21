@@ -125,7 +125,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
                 options.StochasticResiduals
                 options.IncludeInitial
             end
-        
+
             variantDim = 3;
             meta = this.Meta;
             fcastStart = shortFcastSpan(1);
@@ -135,11 +135,11 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
             forecastHorizon = numel(shortFcastSpan);
             longFcastSpan = datex.longSpanFromShortSpan(shortFcastSpan, meta.Order);
             longYX = this.getSomeYX(longFcastSpan);
-        
+
             outNames = this.getForecastVarNames(meta);
             order = meta.Order;
             numX = meta.NumExogenousNames;
-        
+
             function [shortY, shortU, initY, shortX, draw] = forecaster__(sample)
 
                 meta = this.Meta;
@@ -151,13 +151,13 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
                 );
 
             end%
-        
+
             function outTable = tabulator__(shortY, shortU, initY, shortX)
                 numPresampled = numel(shortY);
                 shortY = cat(variantDim, shortY{:});
                 shortU = cat(variantDim, shortU{:});
                 shortX = cat(variantDim, shortX{:});
-        
+
                 if options.IncludeInitial
                     outSpan = longFcastSpan;
                     initY = cat(variantDim, initY{:});
@@ -168,12 +168,13 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
                     outSpan = shortFcastSpan;
                     outData = this.assembleOutData([], [], [], shortY, shortU, shortX);
                 end
-        
+
                 outTable = tablex.fromNumericArray(outData, outNames, outSpan, variantDim=variantDim);
             end%
-        
+
             forecaster = @forecaster__;
             tabulator = @tabulator__;
+        
         end%
 
 
@@ -185,26 +186,26 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
                 options.StochasticResiduals (1, 1) logical = false
                 options.IncludeInitial (1, 1) logical = false
             end
-        
+
             fcastSpan = datex.ensureSpan(fcastSpan);
-        
+
             [forecaster, tabulator] = this.prepareForecaster( ...
                 fcastSpan, ...
                 stochasticResiduals=options.StochasticResiduals, ...
                 includeInitial=options.IncludeInitial ...
             );
-        
+
             numPresampled = this.NumPresampled;
             shortY = cell(1, numPresampled);
             shortU = cell(1, numPresampled);
             initY = cell(1, numPresampled);
             shortX = cell(1, numPresampled);
-        
+
             for i = 1 : numPresampled
                 sample = this.Presampled{i};
                 [shortY{i}, shortU{i}, initY{i}, shortX{i}] = forecaster(sample);
             end
-        
+
             [varargout{1:nargout}] = tabulator(shortY, shortU, initY, shortX);
 
         end%
@@ -223,7 +224,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
                 options.HasIntercept (1, 1) logical
                 options.Order (1, 1) double {mustBeInteger, mustBePositive}
             end
-            
+
             draw = this.Estimator.UnconditionalDrawer(sample, forecastStartIndex, forecastHorizon);
             shortU = system.generateResiduals( ...
                 draw.Sigma ...
@@ -231,7 +232,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
             );
 
             order = options.Order;
-            
+
             % Run forecast
             [longY, longX] = longYX{:};
             initY = this.getInitY(longY, order, sample, forecastStartIndex);
@@ -268,7 +269,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
 
 
         function forecastVarNames = getForecastVarNames(this, meta)
-                
+
                 forecastVarNames = [meta.EndogenousNames meta.getResidualNames, meta.ExogenousNames];
 
         end
@@ -315,7 +316,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
             function [Y4S, sample] = calculate4S(sample)
                 [Y4S, sample] = this.estimateResiduals4S(sample, longYX);
             end%
-            
+
             options = [{"includeInitial", true}, varargin];
             [varargout{1:nargout}] = this.tabulateSamples( ...
                 "calculator", @calculate4S, ...

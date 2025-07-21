@@ -2,7 +2,7 @@
 function gui_selectInputDataFile()
 
     FILTER = ["*.csv"; "*.xls"; "*.xlsx"];
-    PROMPT = "Select an input data file";
+    PROMPT = "Select input data file";
 
     [fileName, filePath] = uigetfile(FILTER, PROMPT);
 
@@ -10,9 +10,14 @@ function gui_selectInputDataFile()
         return
     end
 
-    gui.updateSelectionJSON(struct(InputDataFile=string(fileName)));
-    inputDataPath = gui.populateInputDataHTML();
-    web(inputDataPath);
+    fullFilePath = fullfile(filePath, fileName);
+
+    dataSource = gui.readSettingsFile("dataSource");
+    dataSource.FileName.value = fullFilePath;
+    gui.writeSettingsFile(dataSource, "dataSource", PrettyPrint=true);
+
+    currentHTML = gui.populateDataSourceHTML();
+    web(currentHTML);
 
 end%
 

@@ -1,6 +1,7 @@
 {
     "InputDataFile": "",
     "Estimator": "",
+    "EstimatorSettings": {},
     "Identification": ""
 }
 

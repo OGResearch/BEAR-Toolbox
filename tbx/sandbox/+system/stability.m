@@ -1,7 +1,7 @@
 
 function flag = stability(A, threshold)
 
-    if isequal(threshold, Inf)
+    if isequal(threshold, Inf) || isequaln(threshold, NaN) || isempty(threshold)
         flag = true;
         return
     end

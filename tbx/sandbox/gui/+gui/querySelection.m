@@ -5,14 +5,13 @@ function selected = querySelection(topic)
         topic (1, 1) string
     end
 
-    selectionPath = fullfile(".", "settings", "selection.json");
-    selection = jsondecode(fileread(selectionPath));
+    selection = gui.readSettingsFile("selection");
 
     if ~isfield(selection, topic)
         error("Topic '%s' does not exist in selection.json", topic);
     end
 
-    selected = string(selection.(topic));
+    selected = selection.(topic);
 
 end%
 

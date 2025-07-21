@@ -14,15 +14,15 @@ function clean = resolveCleanFormSubmission(submission, specs)
     for key = keys
         rawValue = raw.(key);
         type = string(specs.(key).type);
-        %try
+        try
             cleanValue = ftm.(type)(rawValue);
-        %catch
-        %    error("Error processing this value: %s", key);
-        %end
+        catch
+            error("Error processing this value: %s", key);
+        end
         clean.(key) = cleanValue;
     end
 
-    % Exception: Missing "logical" results in false
+    % Exception: Missing "logical" results are converted to false
     specsKeys = reshape(string(fieldnames(specs)), 1, []);
     submissionKeys = reshape(string(fieldnames(clean)), 1, []);
     for key = setdiff(specsKeys, submissionKeys)
@@ -30,13 +30,6 @@ function clean = resolveCleanFormSubmission(submission, specs)
         if type == "logical"
             clean.(key) = false;
         end
-    end
-
-    % Report keys not delivered by form
-    submissionKeys = reshape(string(fieldnames(clean)), 1, []);
-    missingKeys = setdiff(specsKeys, submissionKeys);
-    if ~isempty(missingKeys)
-        error("Form failed to deliver the following values: %s", join(missingKeys, " "));
     end
 
 end%

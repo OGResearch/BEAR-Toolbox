@@ -34,7 +34,7 @@ classdef Meta < matlab.mixin.Copyable
         % Names of structural shock concepts; the entire names
         % will be created by prepending unit names to shock concepts
         ShockConcepts (1, :) string = string.empty(1, 0)
-        
+
         % Number of periods for which the VMA
         % representation (shock response matrices) will be drawn
         IdentificationHorizon (1, 1) double = NaN
@@ -42,7 +42,7 @@ classdef Meta < matlab.mixin.Copyable
 
 
     % Panel model meta information
-    properties
+    properties (Hidden)
         % True if cross-effects are present in models with multiple units
         HasCrossUnits (1, 1) logical = false
     end
@@ -94,17 +94,15 @@ classdef Meta < matlab.mixin.Copyable
 
         % NumRowsA  Number of rows in the transition matrix
         NumRowsTransition
-
     end
 
 
     methods
         function this = Meta(options)
-            
+
             arguments
                 options.endogenousConcepts (1, :) string {mustBeNonempty}
-                options.estimationSpan (1, :) datetime {mustBeNonempty}
-
+                options.estimationSpan (1, :) = []
                 options.exogenousNames (1, :) string = string.empty(1, 0)
                 options.units (1, :) string = ""
                 options.order (1, 1) double {mustBePositive, mustBeInteger} = 1
@@ -115,10 +113,6 @@ classdef Meta < matlab.mixin.Copyable
             end
             %
             this.EndogenousConcepts = options.endogenousConcepts;
-            this.ShortSpan = datex.span(options.estimationSpan(1), options.estimationSpan(end));
-            if isempty(this.ShortSpan)
-                error("Estimation span must be non-empty");
-            end
             %
             this.Units = options.units;
             this.ExogenousNames = options.exogenousNames;
@@ -132,7 +126,11 @@ classdef Meta < matlab.mixin.Copyable
             this.IdentificationHorizon = options.identificationHorizon;
             %
             this.catchDuplicateNames();
-        end%s
+            %
+            if ~isempty(options.estimationSpan)
+                this.ShortSpan = datex.span(options.estimationSpan(1), options.estimationSpan(end));
+            end
+        end%
 
 
         function populateShockConcepts(this, shockConcepts)

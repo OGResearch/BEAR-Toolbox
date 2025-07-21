@@ -3,19 +3,18 @@ function populateIdentificationSelectionHTML()
 
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
 
-    userSettingsFolder = "settings";
-    gui.createFolder(userSettingsFolder);
+    identificationSelection = gui.readSettingsFile("identificationSelection");
 
-    identifications = struct();
-    identifications.Cholesky = struct();
-    identifications.ExactZero = struct();
+    form = gui.generateFlatButtons( ...
+        identificationSelection.Choices ...
+        , "IdentificationSelection" ...
+        , identificationSelection.Selection ...
+        , "gui_collectIdentificationSelection" ...
+    );
 
-    currentSelection = gui.querySelection("Identification");
-    form = gui.generateRadioButtonsForm(identifications, "Identification", currentSelection, "gui_collectIdentificationSelection");
-
-    inputFile = fullfile(guiFolder, "html", "identification_selection.html");
-    outputFile = fullfile(".", "html", "identification_selection.html");
-    % TODO: $IDENTIFICATION_CONTENT --> $IDENTIFICATION_SELECTION_FORM
-    gui.changeHtmlFile(inputFile, outputFile, "$IDENTIFICATION_CONTENT", form);
+    endPath = {"html", "identification", "selection.html"};
+    inputFile = fullfile(guiFolder, endPath{:});
+    outputFile = fullfile(".", endPath{:});
+    gui.changeHtmlFile(inputFile, outputFile, "$IDENTIFICATION_SELECTION", form);
 
 end%

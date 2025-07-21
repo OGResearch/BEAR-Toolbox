@@ -38,6 +38,8 @@ classdef MatlabToForm
             end
             if isempty(matlab)
                 form = "";
+            elseif isnan(matlab)
+                form = "NaN";
             else
                 form = string(matlab);
             end
@@ -52,11 +54,49 @@ classdef MatlabToForm
                 return
             end
             form = string(matlab);
+            form(isnan(matlab)) = "NaN";
             form = join(form, " ");
         end%
 
         function form = logical(matlab)
-            form = isequal(matlab, true) || isequal(matlab, 1) || isequal(matlab, "true") || isequal(matlab, "1");
+            form = gui.isTrue(matlab);
+        end%
+
+        function form = logicals(matlab)
+            form = repmat("", 1, numel(matlab));
+            for i = 1:numel(matlab)
+                form(i) = string(gui.isTrue(matlab(i)));
+            end
+            form = join(form, " ");
+        end%
+
+        function form = date(matlab)
+            arguments
+                matlab (1, 1) string
+            end
+            form = strip(matlab);
+        end%
+
+        function form = dates(matlab)
+            arguments
+                matlab (:, :) string
+            end
+            form = reshape(strip(matlab), 1, []);
+            form = join(form, " ");
+        end%
+
+        function form = span(matlab)
+            arguments
+                matlab (1, 2) string
+            end
+            form = join(strip(matlab), " ");
+        end%
+
+        function form = filename(matlab)
+            arguments
+                matlab (1, 1) string
+            end
+            form = strip(matlab);
         end%
 
     end

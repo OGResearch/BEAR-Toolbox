@@ -1,0 +1,12 @@
+
+nav:
+    - Task selection: selection.md
+    - Matlab script: script.md
+    - Uncondition forecast: unconditional.md
+    - Shock responses: responses.md
+    - Shock contributions: contributions.md
+    - Forecast variance decomposition: fevd.md
+    - Conditional forecast: conditional.md
+    - Parameter assessment: parameters.md
+    - Your notes on tasks: notes.md
+

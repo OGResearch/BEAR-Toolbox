@@ -3,12 +3,15 @@ classdef FormToMatlab
 
     methods (Static)
 
-        function out = separate(in)
+        function out = separate(in, opt)
             arguments
                 in (1, 1) string
+                opt.RemoveEmpty (1, 1) logical = true
             end
             out = reshape(split(in, "+"), 1, []);
-            out(out=="") = [];
+            if opt.RemoveEmpty
+                out(out=="") = [];
+            end
         end%
 
         function out = resolveSpecialCharacters(in)
@@ -101,14 +104,71 @@ classdef FormToMatlab
             if numel(form) ~= 1
                 error("Invalid logical value: %s", join(form, " "));
             end
-            matlab = isequal(form, "true") || isequal(form, "1") || isequal(form, true) || isequal(form, 1);
+            matlab = gui.isTrue(form);
+        end%
+
+        function matlab = logicals(form)
+            form = gui.FormToMatlab.receive(form);
+            matlab = true(1, numel(form));
+            for i = 1 : numel(form)
+                matlab(i) = gui.isTrue(form(i));
+            end
+        end%
+
+        function matlab = date(form)
+            form = gui.FormToMatlab.receive(form);
+            if numel(form) ~= 1
+                error("Invalid date: %s", join(form, " "));
+            end
+            try
+                datex(form);
+            catch
+                error("Invalid date: %s", join(form, " "));
+            end
+            matlab = form;
+        end%
+
+        function matlab = dates(form)
+            form = gui.FormToMatlab.receive(form);
+            try
+                datex(form);
+            catch
+                error("Invalid dates: %s", join(form, " "));
+            end
+            matlab = form;
+        end%
+
+        function matlab = span(form)
+            form = gui.FormToMatlab.receive(form);
+            if numel(form) ~= 2
+                error("Invalid date span: %s", join(form, " "));
+            end
+            try
+                d = datex(form);
+            catch
+                error("Invalid date span: %s", join(form, " "));
+            end
+            if datex.frequency(d(1)) ~= datex.frequency(d(2))
+                error("Invalid date span: %s", join(form, " "));
+            end
+            matlab = form;
+        end%
+
+        function matlab = filename(form)
+            form = gui.FormToMatlab.receive(form);
+            if numel(form) ~= 1
+                error("Invalid filename: %s", join(form, " "));
+            end
+            matlab = form;
         end%
 
     end
 
 
-    properties (Constant)
+    properties (Constant, Hidden)
         RESOLUTION_TABLE = struct( ...
+            x0D=sprintf("\r"), ...
+            x0A=sprintf("\n"), ...
             x20=" ", ...
             x21="!", ...
             x22="""", ...

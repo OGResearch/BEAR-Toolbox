@@ -1,22 +1,25 @@
 
-function populateEstimatorSelectionHTML()
+function outputFile = populateEstimatorSelectionHTML()
 
-    userSettingsFolder = fullfile(".", "settings");
-    estimatorSettings = json.read(fullfile(userSettingsFolder, "estimatorSettings.json"));
-
-    shortList = ["Minnesota", "NormalDiffuse", "NormalWishart", "GenLargeShockSV"];
-    shortSettings = struct();
-    for n = shortList
-        shortSettings.(n) = [];
-    end
+    estimatorCategories = gui.readSettingsFile("estimatorCategories");
     currentSelection = gui.querySelection("Estimator");
-    form = gui.generateRadioButtonsForm(shortSettings, "Estimator", currentSelection, "gui_collectEstimatorSelection");
+
+    form = gui.generateCategorizedButtons(estimatorCategories, "Estimator", currentSelection, "gui_collectEstimatorSelection");
 
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
-    inputFile = fullfile(guiFolder, "html", "estimator_selection.html");
-    outputFile = fullfile(".", "html", "estimator_selection.html");
-    % TODO: $ESTIMATOR_LIST --> $ESTIMATOR_SELECTION_FORM
-    gui.changeHtmlFile(inputFile, outputFile, "$ESTIMATOR_LIST", form);
+    endPath = {"html", "estimation", "selection.html"};
+    inputFile = fullfile(guiFolder, endPath{:});
+    outputFile = fullfile(".", endPath{:});
+
+    if currentSelection == ""
+        currentSelection = "[No estimator selected]";
+    end
+
+    gui.changeHtmlFile( ...
+        inputFile, outputFile, ...
+        "$ESTIMATOR_LIST", form, ...
+        "$SELECTED_ESTIMATOR", currentSelection ...
+    );
 
 end%
 
