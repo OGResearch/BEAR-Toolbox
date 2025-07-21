@@ -11,9 +11,15 @@ function out = wrapInStabilityCheck(options)
         options.MaxNumAttempts (1, 1) double
     end
 
-    sampler = options.Sampler;
-    retriever = options.Retriever;
     threshold = options.Threshold;
+    sampler = options.Sampler;
+
+    if isequal(threshold, Inf) || isequaln(threshold, NaN) || isempty(threshold)
+        out = sampler;
+        return
+    end
+
+    retriever = options.Retriever;
     numY = options.NumY;
     order = options.Order;
     numPeriodsToCheck = options.NumPeriodsToCheck;

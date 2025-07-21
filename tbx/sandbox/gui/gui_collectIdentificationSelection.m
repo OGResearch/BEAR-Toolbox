@@ -5,8 +5,9 @@ function gui_collectIdentificationSelection(submission)
         submission (1, 1) string
     end
 
-    selection = gui.resolveRawFormSubmission(submission);
-    gui.updateSelectionJSON(selection);
+    submission = gui.resolveRawFormSubmission(submission);
+    selectedIdentification = submission.Identification;
+    gui.updateSelection(Identification=selectedIdentification);
 
     identificationSettingsPath = gui.populateIdentificationSettingsHTML();
     web(identificationSettingsPath);

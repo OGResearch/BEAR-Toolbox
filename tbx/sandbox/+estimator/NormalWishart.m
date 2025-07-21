@@ -1,9 +1,8 @@
 
 classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
-%% BVAR with Normal-Wishart prior
+% BVAR with Normal-Wishart prior
 % prior =21 and 22 in BEAR5
 
-    
     methods (Static)
         function info = getModelReference()
             info.category = "basic_bvar";
@@ -13,13 +12,12 @@ classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
         DescriptionUX = "BVAR with Normal-Wishart prior"
 
         CanHaveDummies = true
-        
+
         HasCrossUnits = false
 
         Category = "Plain BVAR estimators"
 
-        %Struct identification
-        CanBeIdentified = true        
+        CanBeIdentified = true
     end
 
     methods

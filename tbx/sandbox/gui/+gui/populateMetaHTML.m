@@ -5,12 +5,13 @@ function targetPath = populateMetaHTML()
     meta = json.read(fullfile(userSettingsDir,"metaSettings.json"));
 
     guiFolder = fileparts(gui.getDirectory("gui.Tracer"));
-    sourcePath = fullfile(guiFolder, "html", "meta.html");
-    targetPath = fullfile(".", "html", "meta.html");
+    endPath = {"html", "meta", "settings.html"};
+    sourcePath = fullfile(guiFolder, endPath{:});
+    targetPath = fullfile(".", endPath{:});
 
-    form = gui.createForm(meta, action="gui_collectMeta");
+    form = gui.generateFreeForm(meta, action="gui_collectMeta");
     % TODO: $Meta_settings --> $META_SETTINGS_FORM
-    gui.changeHtmlFile(sourcePath, targetPath, "$Meta_settings", form);
+    gui.changeHtmlFile(sourcePath, targetPath, "$META_SETTINGS", form);
 
 end%
 

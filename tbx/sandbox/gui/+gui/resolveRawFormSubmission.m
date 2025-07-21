@@ -8,7 +8,6 @@ function raw = resolveRawFormSubmission(submission)
     LEAD_CHAR = "?";
     SEPARATOR = "&";
     ASSIGNMENT = "=";
-    ftm = gui.FormToMatlab;
 
     submission = erase(submission, LEAD_CHAR);
     entries = reshape(string(split(submission, SEPARATOR)), 1, []);

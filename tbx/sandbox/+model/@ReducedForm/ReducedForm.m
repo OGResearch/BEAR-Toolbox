@@ -1,15 +1,6 @@
 
 classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
-    properties (Constant, Hidden)
-        DEFAULT_STABILITY_THRESHOLD = Inf % 1 - 1e-10
-        %
-        ESTIMATOR_DISPATCHER = struct( ...
-            lower("NormalWishart"), @red.NormalWishartEstimator ...
-        )
-    end
-
-
     properties
         Meta
         DataHolder
@@ -24,13 +15,7 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
     end
 
 
-    properties (Hidden)
-        StabilityThreshold (1, 1) double = model.ReducedForm.DEFAULT_STABILITY_THRESHOLD
-    end
-
-
     properties (Dependent)
-        StabilityThresholdString (1, 1) string
         HasDummies (1, 1) logical
         NumDummies (1, 1) double
 
@@ -53,18 +38,37 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
                 options.DataHolder (:, :) model.DataHolder
                 options.Estimator (1, 1) estimator.Base
                 options.Dummies (1, :) cell = cell.empty(1, 0)
-                options.StabilityThreshold (1, 1) double = NaN
+                options.StabilityThreshold % Legacy
             end
             %
             this.Meta = options.Meta;
             this.DataHolder = options.DataHolder;
             this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
-            if ~isnan(options.StabilityThreshold)
-                this.StabilityThreshold = options.StabilityThreshold;
-            end
             this.Estimator.checkConsistency(this.Meta, this.Dummies);
             this.Meta.HasCrossUnits = this.Estimator.HasCrossUnits;
+            %
+            this.resolveEstimationSpan();
+        end%
+
+
+        function resolveEstimationSpan(this)
+            emptyMetaSpan = isempty(this.Meta.ShortSpan);
+            emptyDataHolderSpan = isempty(this.DataHolder.ShortEstimationSpan);
+            if emptyMetaSpan && emptyDataHolderSpan
+                error("No estimation span provided in Meta or DataHolder.");
+            end
+            if ~emptyMetaSpan && ~emptyDataHolderSpan
+                if ~isequal(this.Meta.ShortSpan, this.DataHolder.ShortEstimationSpan)
+                    error("Inconsistent estimation spans in Meta and DataHolder.");
+                end
+            end
+            if emptyMetaSpan
+                this.Meta.ShortSpan = this.DataHolder.ShortEstimationSpan;
+            end
+            if emptyDataHolderSpan
+                this.DataHolder.ShortEstimationSpan = this.Meta.ShortSpan;
+            end
         end%
 
 
@@ -155,9 +159,6 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
         function sampler = getSampler(this)
             sampler = this.Estimator.Sampler;
-            % if this.StabilityThreshold < Inf
-            %     sampler = this.decorateStability(sampler);
-            % end
         end%
 
 
@@ -172,24 +173,6 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
             %
             out = @systemSampler;
         end%
-
-
-        % function outSampler = decorateStability(this, inSampler)
-        %     meta = this.Meta;
-        %     threshold = this.StabilityThreshold;
-        %     %
-        %     function sample = samplerWithStabilityCheck()
-        %         while true
-        %             sample = inSampler();
-        %             A = meta.ayeFromSample(sample);
-        %             if system.stability(A, threshold)
-        %                 break
-        %             end
-        %         end
-        %     end%
-        %     %
-        %     outSampler = @samplerWithStabilityCheck;
-        % end%
 
 
         function [forecaster, tabulator] = prepareForecaster(this, shortFcastSpan, options)
@@ -329,10 +312,6 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
 
     methods
-        function str = get.StabilityThresholdString(this)
-            str = sprintf("%.16f", this.StabilityThreshold);
-        end%
-
         function flag = get.HasDummies(this)
             flag = ~isempty(this.Dummies);
         end%
@@ -347,9 +326,6 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
         function out = get.Sampler(this)
             out = this.Estimator.Sampler;
-            % if this.StabilityThreshold < Inf
-            %     out = this.decorateStability(out);
-            % end
         end%
 
         function out = get.SampleCounter(this)

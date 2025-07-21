@@ -5,23 +5,29 @@ classdef DataHolder < handle
         Span
         Endogenous
         Exogenous
+
+        % LongEstimationSpan  Estimation date span including initial condition periods
+        ShortEstimationSpan
     end
 
 
     methods
 
-        function this = DataHolder(meta, dataTable, varargin)
+        function this = DataHolder(meta, dataTable, options)
             arguments
                 meta (1, 1) model.Meta
                 dataTable (:, :) timetable
-            end
-            arguments (Repeating)
-                varargin
+                options.estimationSpan (1, :) = []
+                options.variant (1, 1) double = 1
             end
             %
             this.Span = tablex.span(dataTable);
-            this.Endogenous = tablex.retrieveData(dataTable, meta.EndogenousNames, this.Span, varargin{:});
-            this.Exogenous = tablex.retrieveData(dataTable, meta.ExogenousNames, this.Span, varargin{:});
+            this.Endogenous = tablex.retrieveData(dataTable, meta.EndogenousNames, this.Span, variant=options.variant);
+            this.Exogenous = tablex.retrieveData(dataTable, meta.ExogenousNames, this.Span, variant=options.variant);
+            %
+            if ~isempty(options.estimationSpan)
+                this.ShortEstimationSpan = datex.span(options.estimationSpan(1), options.estimationSpan(end));
+            end
         end%
 
 
@@ -36,10 +42,12 @@ classdef DataHolder < handle
             end
             startPeriod = span(1);
             endPeriod = span(end);
-            startIndex = datex.diff(startPeriod, this.Span(1)) + 1;
-            endIndex = datex.diff(endPeriod, this.Span(1)) + 1;
-            if startIndex < 1 || startIndex > numel(this.Span)
-                error("Start period out of range");
+            dataStartPeriod = this.Span(1);
+            numDataPeriods = numel(this.Span);
+            startIndex = datex.diff(startPeriod, dataStartPeriod) + 1;
+            endIndex = datex.diff(endPeriod, dataStartPeriod) + 1;
+            if startIndex < 1 || startIndex > numDataPeriods
+                error("Start period out of data availability span.");
             end
             index = transpose(startIndex : endIndex);
         end%

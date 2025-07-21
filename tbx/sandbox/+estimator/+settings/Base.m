@@ -11,11 +11,11 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
 
         % Priors on exogenous variables flag
         % priorexogenous
-        Exogenous (:, :) logical = false %% priorexogenous in BEAR5, controls wheter to use priors on exogenous
+        Exogenous (:, :) logical = false %% priorexogenous in BEAR5, controls whether to use priors on exogenous
 
         % Block exogeneity flag
         % bex
-        BlockExogenous (:, :) logical = false %bex in BEAR5, controls wheter to use block exogenity
+        BlockExogenous (1, 1) logical = false %bex in BEAR5, controls whether to use block exogenity
 
         % Prior on first-order autoregression
         % ar
@@ -28,7 +28,7 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         % Variable weighting
         % lambda2
         Lambda2 double = 0.5 %lambda2 in BEAR5, controls cross variable weightning
-        
+
         % Leg decay
         % lambda3
         Lambda3 double = 1 %lambda 3 in BEAR5, controls leg decay
@@ -42,7 +42,7 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
         Lambda5 double = 0.001 %lambda5 block exogeneity shrinkage hyperparameter
 
         % Threshold for maximum eigenvalue magnitude
-        StabilityThreshold (1, 1) double = Inf
+        StabilityThreshold (1, :) double = []
 
         % Maximum number of unstable sampling attempts
         MaxNumUnstableAttempts (1, 1) double = 1000
@@ -81,6 +81,9 @@ classdef (CaseInsensitiveProperties=true) Base < settings.Base
             end
             if isscalar(this.Autoregression)
                 this.Autoregression = repmat(this.Autoregression, numY, 1);
+            end
+            if isempty(this.StabilityThreshold) || isequaln(this.StabilityThreshold, NaN)
+                this.StabilityThreshold = Inf;
             end
         end%
 

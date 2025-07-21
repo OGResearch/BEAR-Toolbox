@@ -30,6 +30,7 @@ function out = getEstimatorSettings()
             else 
                 DefaultValue = "";
             end
+
             % Deal with the function handler as a dirty fix for now
             if isa(DefaultValue, "function_handle")
                 DefaultValue = "function handle";
@@ -70,9 +71,8 @@ function out = getEstimatorSettings()
             % settings.(prop.Name) = {prop.Description, DefaultValue, Type, dim, typeTaxonomy, prop.DetailedDescription};
             settings.(prop.Name).description = prop.Description;
             settings.(prop.Name).type = typeTaxonomy;
-            settings.(prop.Name).default = DefaultValue;
-            settings.(prop.Name).detailedDesc = prop.DetailedDescription;
-            settings.Category = string(estimatorObject.Category);
+            settings.(prop.Name).value = DefaultValue;
+            settings.(prop.Name).details = prop.DetailedDescription;
         end
 
         try 

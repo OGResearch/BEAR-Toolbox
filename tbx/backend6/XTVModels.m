@@ -67,6 +67,8 @@ modelR1.Estimator.Settings
 modelR1.initialize();
 modelR1.presample(50);
 
+return
+
 s = [];
 for i = 1 : 50
     s = [s, modelR1.Presampled{i}.AbsMaxEigval];
