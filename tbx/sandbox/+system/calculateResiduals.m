@@ -4,12 +4,13 @@
 %
 %}
 
-function U = calculateResiduals(A, C, longYXZ, options)
+function U = calculateResiduals(A, C, longY, longX, options)
 
     arguments
         A (:, 1) cell
         C (:, 1) cell
-        longYXZ (1, 3) cell
+        longY (:, :) double
+        longX (:, :) double
         %
         options.HasIntercept (1, 1) logical
         options.Order (1, 1) double {mustBeInteger, mustBePositive}
@@ -17,8 +18,6 @@ function U = calculateResiduals(A, C, longYXZ, options)
 
     hasIntercept = options.HasIntercept;
     order = options.Order;
-
-    [longY, longX, ~] = longYXZ{:};
 
     T = order+1 : size(longY, 1);
     numT = numel(T);

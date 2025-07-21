@@ -22,17 +22,17 @@ classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
     methods
 
-        function initializeSampler(this, meta, longYXZ3, dummiesYLX)
+        function initializeSampler(this, meta, longYX3, dummiesYLX)
             %[
 
             arguments
                 this
-                meta (1, 1) model.Meta
-                longYXZ3 (1, 3) cell
+                meta (1, 1) base.Meta
+                longYX3 (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYXZ3{:};
+            [longY, longX, ~] = longYX3{:};
 
             const = meta.HasIntercept;
             numLags = meta.Order;

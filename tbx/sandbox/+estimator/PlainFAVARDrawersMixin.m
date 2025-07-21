@@ -5,7 +5,7 @@ classdef (Abstract) PlainFAVARDrawersMixin < handle
         function createDrawers(this, meta)
             arguments
                 this
-                meta (1, 1) model.Meta
+                meta (1, 1) base.Meta
             end
             %[
             %

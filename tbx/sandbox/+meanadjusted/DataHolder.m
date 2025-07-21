@@ -1,5 +1,5 @@
 
-classdef DataHolder < model.DataHolder
+classdef DataHolder < base.DataHolder
 
 end
 

@@ -12,7 +12,7 @@ classdef (CaseInsensitiveProperties=true) Minnesota < settings.Base
 
     methods
 
-        function dummiesYLX = generate(this, meta, longYXZ)
+        function dummiesYLX = generate(this, meta, longYX)
 
             numY = meta.NumEndogenousNames;
             numX = double(meta.HasIntercept) + meta.NumExogenousNames;
@@ -37,7 +37,7 @@ classdef (CaseInsensitiveProperties=true) Minnesota < settings.Base
             ar = this.Autoregression;
             priorexo = this.Exogenous;
 
-            [longY, ~, ~] = longYXZ{:};
+            [longY] = longYX{:};
 
             %variance from univariate OLS for priors
             arvar = bear.arloop(longY, const, order, numY);

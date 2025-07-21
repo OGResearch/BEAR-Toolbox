@@ -35,17 +35,17 @@ classdef BetaTV < estimator.Base
         end%
 
 
-        function initializeSampler(this, meta, longYXZ, dummiesYLX)
+        function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
 
             arguments
                 this
-                meta (1, 1) model.Meta
-                longYXZ (1, 3) cell
+                meta (1, 1) base.Meta
+                longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYXZ{:};
+            [longY, longX, ~] = longYX{:};
 
             order = meta.Order;
             opt.const = meta.HasIntercept;

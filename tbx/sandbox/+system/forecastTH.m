@@ -4,7 +4,7 @@
 %
 %}
 
-function [shortY, shortU, initY, shortX] = forecastTH(A1, A2, C1, C2, longYXZ, ...
+function [shortY, shortU, initY, shortX] = forecastTH(A1, A2, C1, C2, initY, shortX, ...
     U1, U2, options)
 
     arguments
@@ -12,7 +12,8 @@ function [shortY, shortU, initY, shortX] = forecastTH(A1, A2, C1, C2, longYXZ, .
         A2 (:, 1) cell
         C1 (:, 1) cell
         C2 (:, 1) cell
-        longYXZ (1, 3) cell
+        initY(:, :) double
+        shortX(:, :) double
         U1 (:, :, :) double
         U2 (:, :, :) double
         options.HasIntercept % (1, 1) logical
@@ -23,19 +24,14 @@ function [shortY, shortU, initY, shortX] = forecastTH(A1, A2, C1, C2, longYXZ, .
     end
 
     hasIntercept = options.HasIntercept;
-    order = options.Order;
     threshold = options.Threshold;
     thresholdIndex = options.ThresholdIndex;
     delay = options.Delay;
 
     horizon = numel(A1);
-    [longY, longX, ~] = longYXZ{:};
     numY = size(A1{1}, 2);
 
-    shortX = longX(order+1:end, :);
     shortXI = system.addInterceptWhenNeeded(shortX, hasIntercept);
-
-    initY = longY(1:order, :, :);
 
     if numel(C1) ~= horizon || size(U1, 1) ~= horizon ||numel(C2) ~= horizon || size(U2, 1) ~= horizon || size(shortXI, 1) ~= horizon
         error("Invalid dimensions of input data");

@@ -1,15 +1,15 @@
 %{
 %
-% system.forecast  Calculate forecast for reduced-form VARX model
+% system.forecastMA  Calculate forecast for reduced-form MA VARX model
 %
 %}
 
-function [shortY, initY] = forecastMA(A, C, longYXZ, U, options)
+function [shortY, initY] = forecastMA(A, C, longYX, U, options)
 
     arguments
         A (:, 1) cell
         C (:, 1) cell
-        longYXZ (1, 3) cell
+        longYX (1, 2) cell
         U (:, :, :) double
         options.Order % (1, 1) double {mustBeInteger, mustBePositive}
     end
@@ -17,7 +17,7 @@ function [shortY, initY] = forecastMA(A, C, longYXZ, U, options)
     order = options.Order;
 
     horizon = numel(A);
-    [longY, longX, ~] = longYXZ{:};
+    [longY, longX] = longYX{:};
     numY = size(A{1}, 2);
     numUnits = size(A{1}, 3);
 
@@ -33,17 +33,22 @@ function [shortY, initY] = forecastMA(A, C, longYXZ, U, options)
 
     shortY = cell(1, numUnits);
     for n = 1 : numUnits
+    
         shortY{n} = nan(horizon, numY);
         initSS = initX* C{1}(:, :, n); 
         lt = system.reshapeInit(initY(:, :, n) - initSS);
 
         for t = 1 : horizon
+    
             sst = shortXI(t, :) * C{t}(:, :, n); 
             yt = lt * A{t}(:, :, n)  + U(t, :, n);
             lt = [yt, lt(:, 1:end-numY)];
             shortY{n}(t, :) = yt + sst;
+        
         end
+    
     end
+
     shortY = cat(3, shortY{:});
 
 end%

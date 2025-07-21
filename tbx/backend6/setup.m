@@ -28,7 +28,7 @@ meta = meanadjusted.Meta( ...
 );
 
 
-dataH = model.DataHolder(meta, inputTbx);
+dataH = meanadjusted.DataHolder(meta, inputTbx);
 
 estimatorR = estimator.MeanAdjusted(meta,...
     ScaleUp = 100);

@@ -1,7 +1,7 @@
 
 % model.Meta  Meta information about reduced-form and structural models
 
-classdef Meta < model.Meta
+classdef Meta < base.Meta
 
     % Reduced-form model meta information
     properties (SetAccess=protected)
@@ -53,11 +53,10 @@ classdef Meta < model.Meta
             options.numFactors struct = struct()
         end
 
-            this@model.Meta( ...
+            this@base.Meta( ...
                 'endogenousConcepts', options.endogenousConcepts, ...
                 'estimationSpan', options.estimationSpan, ...
                 'exogenousNames', options.exogenousNames, ...
-                'units', options.units, ...
                 'order', options.order, ...
                 'intercept', options.intercept, ...
                 'shockConcepts', options.shockConcepts, ...
@@ -76,6 +75,14 @@ classdef Meta < model.Meta
 
         end%
 
+
+        function ResidualNames = getResidualNames(this)
+
+                ResidualNames = meta.concatenate(this.ResidualPrefix, [this.FactorNames, this.EndogenousNames]);
+                
+        end
+
+
         function populateShockConcepts(this, shockConcepts)
             if ~isempty(shockConcepts)
                 this.ShockConcepts = shockConcepts;
@@ -87,26 +94,12 @@ classdef Meta < model.Meta
                 error("Number of shock names must match number of endogenous variables, including factors");
             end
         end%
+    
 
-        function someYXZ = getSomeYXZ(this, someSpanFromShortSpan, dataTable, shortSpan, varargin)
-        
-            someYXZ = getSomeYXZ@model.Meta(this, someSpanFromShortSpan, dataTable, shortSpan, varargin{:});
-            someYXZ{3} = tablex.retrieveData(dataTable, this.ReducibleNames, someSpan, varargin{:});
-
-        end%
-
-
-        function emptyYXZ = createEmptyYXZ(this)
-        
-            emptyYXZ = createEmptyYXZ@model.Meta(this);
-            
-            numZ = this.NumReducibleNames;
-            emptyYXZ{3} = zeros(0, numZ);
-            
-        end%
     end
 
     methods (Access=protected)
+
         function catchDuplicateNames(this)
             allNames = [ ...
                 this.EndogenousNames, ...
