@@ -1,9 +1,0 @@
-function lpdf = iwlpdf(cholX, scale, df)
-
-p = size(cholX, 1);
-lpdf = ...
-  + df/2 * sum(log(eig(scale))) - p*df/2*log(2) - largeshocksv.multgammaln(df/2, p) ...
-  - 0.5 * trace(scale / cholX' / cholX) ...
-  - (df + p + 1) * sum(log(diag(cholX)));
-
-end

@@ -11,8 +11,6 @@ classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAV
 
     properties
         DescriptionUX = "BFAVAR with Individual Normal-Wishart prior"
-
-        CanHaveDummies = false
         
         HasCrossUnits = false
 

@@ -10,9 +10,7 @@ classdef MinnesotaFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawe
     end
 
     properties
-        DescriptionUX = "BFAVAR with Normal-Wishart prior"
-
-        CanHaveDummies = false
+        DescriptionUX = "BFAVAR with Minnesota prior"
         
         HasCrossUnits = false
 

@@ -1,5 +1,5 @@
 
-classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
+classdef Minnesota < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
 %% BVAR with Minnesota prior
 % prior =11 12 and 13 in BEAR5
 
@@ -11,8 +11,6 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
 
     properties
         DescriptionUX = "BVAR with Minnesota prior"
-
-        CanHaveDummies = true
         
         HasCrossUnits = false
 
@@ -34,7 +32,7 @@ classdef Minnesota < estimator.Base & estimator.PlainDrawersMixin
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;

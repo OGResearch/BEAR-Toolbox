@@ -10,9 +10,7 @@ classdef NormalDiffuseFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARD
     end
 
     properties
-        DescriptionUX = "BFAVAR with Normal-Wishart prior"
-
-        CanHaveDummies = false
+        DescriptionUX = "BFAVAR with Normal-Diffuse prior"
         
         HasCrossUnits = false
 

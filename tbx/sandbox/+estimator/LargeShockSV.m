@@ -1,4 +1,4 @@
-classdef LargeShockSV < estimator.Base
+classdef LargeShockSV < estimator.Base & estimator.NoDummyMixin
 %Stochastic volatility model for large shocks
 
     methods (Static)
@@ -8,29 +8,28 @@ classdef LargeShockSV < estimator.Base
     end
 
     properties
-        CanHaveDummies = false
-        
+
         HasCrossUnits = false
 
         Category = "Time-varying estimators"
 
         %Struct identification
         CanBeIdentified = true
+    
     end
 
 
     methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -59,17 +58,17 @@ classdef LargeShockSV < estimator.Base
             T0SS = find(meta.ShortSpan == opt.TP);
 
             varScale = bear.arloop(longY(1:T0LS-1,:), opt.const, 1, numEn);
-            prior = largeshocksv.get_MH_Prior(opt, numEn, numBRows, varScale);
+            prior = largeshockUtils.get_MH_Prior(opt, numEn, numBRows, varScale);
 
             %Get initial theta as a vector maximizing the posterior
-            targFun = @(x) -largeshocksv.postlmpdf(x, opt, prior, Y, LX, T0SS);
+            targFun = @(x) -largeshockUtils.postlmpdf(x, opt, prior, Y, LX, T0SS);
 
             inits =  [opt.mult0, opt.AR0];
             % [initTheta] = fminsearch(targFun, hypers, optimopts);
 
             [initTheta] = solver(targFun, inits);
 
-            H = largeshocksv.DERIVESTsuite.hessian(@(x)targFun(x), initTheta);
+            H = largeshockUtils.DERIVESTsuite.hessian(@(x)targFun(x), initTheta);
 
             %getting proposals for the MH algo
             propCholCov = chol(inv(H), "lower");
@@ -98,11 +97,11 @@ classdef LargeShockSV < estimator.Base
                 prevLogTargetPDF = candLogTargetPDF;
 
                 %Get conditional Sigma and B
-                [scY, scX] = largeshocksv.scaleData(Y, LX, T0SS, sample.theta);
-                posterior = largeshocksv.get_NIW_Posterior(prior, scY, scX);
+                [scY, scX] = largeshockUtils.scaleData(Y, LX, T0SS, sample.theta);
+                posterior = largeshockUtils.get_NIW_Posterior(prior, scY, scX);
     
-                [sample.B, sample.Sigma_avg] = largeshocksv.sample_posterior(posterior);
-                sample.sf = largeshocksv.scaleFactor(sample.theta, estimLength, T0SS);
+                [sample.B, sample.Sigma_avg] = largeshockUtils.sample_posterior(posterior);
+                sample.sf = largeshockUtils.scaleFactor(sample.theta, estimLength, T0SS);
     
                 for zz = 1:estimLength
                     sample.Sigma_t{zz, 1} = sample.sf(zz)^2*sample.Sigma_avg;

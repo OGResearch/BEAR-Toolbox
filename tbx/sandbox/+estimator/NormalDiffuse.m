@@ -1,5 +1,5 @@
 
-classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
+classdef NormalDiffuse < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
 %% BVAR with Normal-Diffuse prior
 % prior = 41 in BEAR5
     
@@ -11,8 +11,6 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
     
     properties
         DescriptionUX = "BVAR with Normal-Diffuse prior"
-
-        CanHaveDummies = true
         
         HasCrossUnits = false
 
@@ -34,7 +32,7 @@ classdef NormalDiffuse < estimator.Base & estimator.PlainDrawersMixin
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             priorexo = this.Settings.Exogenous;
             

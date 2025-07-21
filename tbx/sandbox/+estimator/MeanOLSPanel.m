@@ -1,5 +1,5 @@
 
-classdef MeanOLSPanel < estimator.Base
+classdef MeanOLSPanel < estimator.Base & estimator.DummyMixin
 % Mean OLS Panel BVAR
 
     methods (Static)
@@ -10,8 +10,6 @@ classdef MeanOLSPanel < estimator.Base
 
     properties
         DescriptionUX = "Mean OLS Panel BVAR"
-
-        CanHaveDummies = false
         
         HasCrossUnits = false
 
@@ -40,7 +38,7 @@ classdef MeanOLSPanel < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             const = meta.HasIntercept;
             numLags = meta.Order;

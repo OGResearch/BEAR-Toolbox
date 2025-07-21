@@ -1,5 +1,5 @@
 
-classdef MeanAdjusted < estimator.Base 
+classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin 
 
     methods (Static)
         function info = getModelReference()
@@ -9,8 +9,6 @@ classdef MeanAdjusted < estimator.Base
 
     properties
         DescriptionUX = "Mean-adjusted model"
-
-        CanHaveDummies = false
         
         HasCrossUnits = false
 
@@ -22,13 +20,12 @@ classdef MeanAdjusted < estimator.Base
 
 
     methods
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
             [longY, longX] = longYX{:};

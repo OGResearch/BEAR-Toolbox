@@ -1,5 +1,5 @@
 
-classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
+classdef IndNormalWishart < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
 %% BVAR with Indenpendent Normal-Wishart priors
 % BVAR with prior = 31, 32 in BEAR5
     
@@ -11,8 +11,6 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
     end
     properties
         DescriptionUX = "BVAR with indenpendent Normal-Wishart priors"
-
-        CanHaveDummies = true
         
         HasCrossUnits = false
 
@@ -34,7 +32,7 @@ classdef IndNormalWishart < estimator.Base & estimator.PlainDrawersMixin
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;

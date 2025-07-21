@@ -1,10 +1,8 @@
-classdef CCMMSV < estimator.Base
+classdef CCMMSV < estimator.Base & estimator.NoDummyMixin
 %% Stochastic Volatility model with random walk heteroscedasticity 
 % standard SV model,model nr 2 in the CCMM paper
 
-    properties
-        CanHaveDummies = false
-        
+    properties        
         HasCrossUnits = false
 
         Category = "Time-varying BVAR estimators"
@@ -26,7 +24,7 @@ classdef CCMMSV < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -58,7 +56,7 @@ classdef CCMMSV < estimator.Base
             modelfreq = datex.frequency(meta.EstimationStart);
 
             prior = ...
-                largeshocksv.get_MH_Prior_CCMM(opt, numEn, numBRows, numEx, arvar, modelfreq);
+                largeshockUtils.get_MH_Prior_CCMM(opt, numEn, numBRows, numEx, arvar, modelfreq);
 
 
             %Setting up initial values for the loop
@@ -71,19 +69,19 @@ classdef CCMMSV < estimator.Base
             pars.logLambda = log(Lambda0);
 
             Phi0 = 0.0001*eye(numEn);
-            pars.cholPhi = largeshocksv.vech(chol(Phi0, "lower"));
+            pars.cholPhi = largeshockUtils.vech(chol(Phi0, "lower"));
 
 
             function sample  =  sampler()
 
-                pars = largeshocksv.drawB(pars, prior, numEn, sizeB,numBRows, estimLength, Y, LX);
-                pars = largeshocksv.drawF(pars, prior, numEn, Y, LX);
-                pars = largeshocksv.drawLogLambdaSV(pars, prior, numEn, estimLength, Y, LX);
-                pars = largeshocksv.drawPhi(pars, prior, numEn, estimLength);
+                pars = largeshockUtils.drawB(pars, prior, numEn, sizeB,numBRows, estimLength, Y, LX);
+                pars = largeshockUtils.drawF(pars, prior, numEn, Y, LX);
+                pars = largeshockUtils.drawLogLambdaSV(pars, prior, numEn, estimLength, Y, LX);
+                pars = largeshockUtils.drawPhi(pars, prior, numEn, estimLength);
 
                 sample = pars;
-                sample.F = largeshocksv.unvech(sample.F, 0, 1);
-                H = largeshocksv.get_H(sample);
+                sample.F = largeshockUtils.unvech(sample.F, 0, 1);
+                H = largeshockUtils.get_H(sample);
                 sample.sigmaAvg = sample.F * Lambda * sample.F';
 
                 for kk = 1:estimLength
@@ -117,7 +115,7 @@ classdef CCMMSV < estimator.Base
             F = sparse(sample.F(:,:));
 
             % step 4: draw phi and gamma from their posteriors
-            cholphi = largeshocksv.unvech(sample.cholPhi);
+            cholphi = largeshockUtils.unvech(sample.cholPhi);
             lambda =  sample.logLambda(:, startingIndex-1);
 
             draw.Sigma = cell(forecastHorizon, 1);

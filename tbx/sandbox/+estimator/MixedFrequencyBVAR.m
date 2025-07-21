@@ -9,8 +9,6 @@ classdef MixedFrequencyBVAR < estimator.Base
     
     properties
         DescriptionUX = "Mixed-frequency BVAR"
-
-        CanHaveDummies = false
         
         HasCrossUnits = false
 
@@ -31,7 +29,7 @@ classdef MixedFrequencyBVAR < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             const = meta.HasIntercept;
             numLags = meta.Order;

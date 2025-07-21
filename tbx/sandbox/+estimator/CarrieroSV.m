@@ -1,4 +1,4 @@
-classdef CarrieroSV < estimator.Base
+classdef CarrieroSV < estimator.Base & estimator.NoDummyMixin
 %% Estimator for Large Scale Stochastic Volatility models 
 %  stvol=3 in BEAR5
 
@@ -10,7 +10,6 @@ classdef CarrieroSV < estimator.Base
     end
 
     properties
-        CanHaveDummies = false
         
         HasCrossUnits = false
 
@@ -23,16 +22,15 @@ classdef CarrieroSV < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;

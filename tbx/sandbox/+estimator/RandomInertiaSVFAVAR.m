@@ -8,9 +8,7 @@ classdef RandomInertiaSVFAVAR < estimator.BaseFAVAR
         end
     end
 
-    properties
-        CanHaveDummies = false
-        
+    properties       
         HasCrossUnits = false
 
         Category = "Time-varying BFAVAR estimators"

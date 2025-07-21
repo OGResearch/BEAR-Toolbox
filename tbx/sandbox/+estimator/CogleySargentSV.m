@@ -1,5 +1,5 @@
 
-classdef CogleySargentSV < estimator.Base
+classdef CogleySargentSV < estimator.Base & estimator.NoDummyMixin
 
     %% Standard Stochastic volatility model
     % Cogley-Sargent, stvol = 1 in BEAR5
@@ -11,8 +11,6 @@ classdef CogleySargentSV < estimator.Base
     end
 
     properties
-        CanHaveDummies = false
-
         HasCrossUnits = false
 
         Category = "Time-varying BVAR estimators"
@@ -24,17 +22,16 @@ classdef CogleySargentSV < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
 
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;

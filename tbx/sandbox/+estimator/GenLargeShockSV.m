@@ -1,4 +1,4 @@
-classdef GenLargeShockSV < estimator.Base
+classdef GenLargeShockSV < estimator.Base & estimator.NoDummyMixin
 %% General Stochastic Volatility model for large shocks
 
     methods (Static)
@@ -8,8 +8,7 @@ classdef GenLargeShockSV < estimator.Base
     end
     
     properties
-        CanHaveDummies = false
-        
+
         HasCrossUnits = false
 
         Category = "Time-varying BVAR estimators"
@@ -21,16 +20,15 @@ classdef GenLargeShockSV < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -59,21 +57,21 @@ classdef GenLargeShockSV < estimator.Base
             T0SS = find(meta.ShortSpan == opt.TP);
 
             varScale = bear.arloop(longY(1:T0LS-1,:), opt.const, 1, numEn);
-            prior = largeshocksv.get_MH_Prior(opt, numEn, numBRows, varScale);
+            prior = largeshockUtils.get_MH_Prior(opt, numEn, numBRows, varScale);
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             initTheta = [opt.mult0, opt.AR0];
             numTheta = numel(initTheta);
-            [scY, scX] = largeshocksv.scaleData(Y, LX, T0SS, initTheta);
-            posterior = largeshocksv.get_NIW_Posterior(prior, scY, scX);
+            [scY, scX] = largeshockUtils.scaleData(Y, LX, T0SS, initTheta);
+            posterior = largeshockUtils.get_NIW_Posterior(prior, scY, scX);
 
             initChain = 1e4;
             sizeCholSigma = numEn*(numEn + 1 )/2;
             smpl = nan(sizeB + sizeCholSigma, initChain);
  
             for ii = 1:initChain
-                [B, Sigma] = largeshocksv.sample_posterior(posterior);
-                chSigma = largeshocksv.vech(chol(Sigma, "lower"));
+                [B, Sigma] = largeshockUtils.sample_posterior(posterior);
+                chSigma = largeshockUtils.vech(chol(Sigma, "lower"));
                 smpl(:, ii) = [B(:); chSigma(:)];
             end
 
@@ -94,7 +92,7 @@ classdef GenLargeShockSV < estimator.Base
             propGen = @()scaledPropCholCov * randn(numel(init), 1);
 
             %Get initial theta as a vector maximizing the posterior
-            targFun = @(x) -largeshocksv.postlpdf(x, opt, prior, Y, LX, T0SS, numBRows, sizeB, numTheta);
+            targFun = @(x) -largeshockUtils.postlpdf(x, opt, prior, Y, LX, T0SS, numBRows, sizeB, numTheta);
             prevAccepted = init;
             prevLogTargetPDF = -targFun(prevAccepted);
 
@@ -111,13 +109,13 @@ classdef GenLargeShockSV < estimator.Base
                     accepted = rand() < alpha;
                 end
 
-                [sample.B, cholSigma, sample.theta]  = largeshocksv.pars2mat(cand, numBRows, sizeB, numTheta);
+                [sample.B, cholSigma, sample.theta]  = largeshockUtils.pars2mat(cand, numBRows, sizeB, numTheta);
                 sample.Sigma_avg = cholSigma*cholSigma';
 
                 prevAccepted = cand;
                 prevLogTargetPDF = candLogTargetPDF;
 
-                sample.sf = largeshocksv.scaleFactor(sample.theta, estimLength, T0SS);
+                sample.sf = largeshockUtils.scaleFactor(sample.theta, estimLength, T0SS);
                 for zz = 1:estimLength
                     sample.Sigma_t{zz, 1} = sample.sf(zz)^2*sample.Sigma_avg;
                 end

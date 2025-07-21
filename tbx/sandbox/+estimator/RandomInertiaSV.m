@@ -1,5 +1,5 @@
 
-classdef RandomInertiaSV < estimator.Base
+classdef RandomInertiaSV < estimator.Base & estimator.NoDummyMixin
 %% Stochastic Volatility model with random inertia
 % SV model with stvol=2 in BEAR5    
 
@@ -9,9 +9,7 @@ classdef RandomInertiaSV < estimator.Base
         end
     end
 
-    properties
-        CanHaveDummies = false
-        
+    properties        
         HasCrossUnits = false
         
         Category = "Time-varying BVAR estimators"
@@ -23,16 +21,15 @@ classdef RandomInertiaSV < estimator.Base
 
     methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;

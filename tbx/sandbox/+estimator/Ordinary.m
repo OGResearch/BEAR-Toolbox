@@ -1,5 +1,5 @@
 
-classdef Ordinary < estimator.Base & estimator.PlainDrawersMixin
+classdef Ordinary < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,8 +9,6 @@ classdef Ordinary < estimator.Base & estimator.PlainDrawersMixin
 
     properties
         DescriptionUX = "Ordinary least squares VAR"
-
-        CanHaveDummies = true
         
         HasCrossUnits = false
 
@@ -33,7 +31,7 @@ classdef Ordinary < estimator.Base & estimator.PlainDrawersMixin
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
 
             opt.const = meta.HasIntercept;

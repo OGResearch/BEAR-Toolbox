@@ -31,7 +31,7 @@ classdef StaticCrossPanel < estimator.Base
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             const = meta.HasIntercept;
             numLags = meta.Order;

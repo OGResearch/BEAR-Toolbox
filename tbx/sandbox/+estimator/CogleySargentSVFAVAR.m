@@ -9,7 +9,6 @@ classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
     end
 
     properties
-        CanHaveDummies = false
         
         HasCrossUnits = false
 

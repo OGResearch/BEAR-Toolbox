@@ -1,5 +1,5 @@
 
-classdef NormalWishart < estimator.Base & estimator.PlainDrawersMixin
+classdef NormalWishart < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
 %% BVAR with Normal-Wishart prior
 % prior =21 and 22 in BEAR5
 

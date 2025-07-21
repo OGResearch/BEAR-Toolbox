@@ -1,5 +1,5 @@
 
-classdef Flat < estimator.Base & estimator.PlainDrawersMixin
+classdef Flat < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
 %% BVAR with flat prior
 % prior = 41 in BEAR5 with lambda1>999
     
@@ -13,8 +13,6 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
         DescriptionUX = "BVAR with flat prior"
 
         Category = "Plain BVAR estimators"
-
-        CanHaveDummies = true
         
         HasCrossUnits = false
 
@@ -33,12 +31,7 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
                 dummiesYLX (1, 2) cell
             end
 
-
-
-
-            [longY, longX, ~] = longYX{:};
-
-
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
@@ -47,6 +40,8 @@ classdef Flat < estimator.Base & estimator.PlainDrawersMixin
 
             [Bhat, ~, ~, LX, ~, Y, ~, ~, ~, numEn, ~, ~, ~, ~, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);
+
+            [Y, LX] = dummies.addDummiesToData(Y, LX, dummiesYLX);
 
             B = Bhat;
 

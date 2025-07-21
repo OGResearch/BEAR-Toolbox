@@ -10,11 +10,9 @@ classdef FlatFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
     end
 
     properties
-        DescriptionUX = "BFAVAR with Individual Normal-Wishart prior"
+        DescriptionUX = "BFAVAR with Flat prior"
 
         Category = "Plain BFAVAR estimators"
-
-        CanHaveDummies = false
         
         HasCrossUnits = false
 

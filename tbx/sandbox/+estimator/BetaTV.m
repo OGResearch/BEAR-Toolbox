@@ -1,5 +1,5 @@
 
-classdef BetaTV < estimator.Base
+classdef BetaTV < estimator.Base & estimator.NoDummyMixin
 %% Bayesian VAR model with time-varying parameters, 
 % tvbvar=1 in BEAR5
 % Third line
@@ -11,8 +11,6 @@ classdef BetaTV < estimator.Base
     end
 
     properties
-        % Dummies in the model
-        CanHaveDummies = false
         
         % Cross-unit variation in beta
         HasCrossUnits = false
@@ -35,17 +33,16 @@ classdef BetaTV < estimator.Base
         end%
 
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
 
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             order = meta.Order;
             opt.const = meta.HasIntercept;

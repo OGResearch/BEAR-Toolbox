@@ -33,19 +33,19 @@ classdef ReducedForm < base.ReducedForm
 
             initY = sample.FY(startindex:order+startindex-1,:);
 
-        end
+        end%
 
         function longY = getLongY4Resid(this, ~, sample)
 
             longY = sample.FY;
             
-        end
+        end%
 
         function forecastVarNames = getForecastVarNames(this, meta)
                 
             forecastVarNames = [meta.FactorNames meta.EndogenousNames meta.getResidualNames, meta.ExogenousNames];
 
-        end
+        end%
 
     end
 

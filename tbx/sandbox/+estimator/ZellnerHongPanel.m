@@ -32,7 +32,7 @@ classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
                 dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             const = meta.HasIntercept;
             numLags = meta.Order;

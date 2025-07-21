@@ -51,7 +51,7 @@ classdef Meta < base.Meta
             options.reducibleBlocks (1, :) string = string.empty(1, 0)
             options.blockType (1,1) string {mustBeMember(options.blockType, ["blocks", "slowfast"])} = "blocks"
             options.numFactors struct = struct()
-        end
+        end%
 
             this@base.Meta( ...
                 'endogenousConcepts', options.endogenousConcepts, ...
@@ -80,19 +80,22 @@ classdef Meta < base.Meta
 
                 ResidualNames = meta.concatenate(this.ResidualPrefix, [this.FactorNames, this.EndogenousNames]);
                 
-        end
+        end%
 
 
         function populateShockConcepts(this, shockConcepts)
+
             if ~isempty(shockConcepts)
                 this.ShockConcepts = shockConcepts;
             else
                 this.ShockConcepts = meta.autogenerateShockConcepts(this.NumEndogenousConcepts + ...
                     this.NumFactorNames);
             end
+            
             if this.NumShockNames ~= this.NumEndogenousNames + this.NumFactorNames
                 error("Number of shock names must match number of endogenous variables, including factors");
             end
+        
         end%
     
 
@@ -134,10 +137,10 @@ classdef Meta < base.Meta
 
         function num = get.NumFactorNames(this)
             num = numel(this.FactorNames);
-        end
-        
+        end%
 
-        end
+
+    end
 
 end
 

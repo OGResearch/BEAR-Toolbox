@@ -10,7 +10,6 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
     properties
         Meta
         DataHolder
-        Dummies (1, :) cell = cell.empty(1, 0)
         Estimator
     end
 
@@ -27,8 +26,6 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
 
     properties (Dependent)
         StabilityThresholdString (1, 1) string
-        HasDummies (1, 1) logical
-        NumDummies (1, 1) double
 
         Sampler
         IdentificationDrawer
@@ -44,31 +41,38 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
     methods
 
         function this = ReducedForm(options)
+            
             arguments
                 options.Meta (1, 1) base.Meta
                 options.DataHolder (:, :) base.DataHolder
                 options.Estimator (1, 1) estimator.Base
-                options.Dummies (1, :) cell = cell.empty(1, 0)
                 options.StabilityThreshold (1, 1) double = NaN
             end
-            %
+            
             this.Meta = options.Meta;
             this.DataHolder = options.DataHolder;
-            this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
+            
             if ~isnan(options.StabilityThreshold)
                 this.StabilityThreshold = options.StabilityThreshold;
             end
-            this.Estimator.checkConsistency(this.Meta, this.Dummies);
+            
+        end%
+
+        function [longYX] = initialize(this)
+            longYX = this.getLongYX();
+            this.Estimator.initialize(this.Meta, longYX);
         end%
 
 
         function resetPresampled(this, numToPresample)
+        
             arguments
                 this
                 numToPresample (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
             end
             this.Presampled = cell(1, numToPresample);
+        
         end%
 
 
@@ -102,23 +106,6 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
 
         function someYX = getSomeYX(this, span)
             someYX = this.DataHolder.getYX(span=span);
-        end%
-
-
-        function [longYX, dummiesYLX, indivDummiesYLX] = initialize(this)
-            longYX = this.getLongYX();
-            [dummiesYLX, indivDummiesYLX] = this.generateDummiesYLX(longYX);
-            this.Estimator.initialize(this.Meta, longYX, dummiesYLX);
-        end%
-
-
-        function [allDummiesYLX, indivDummiesYLX] = generateDummiesYLX(this, longYLX)
-            indivDummiesYLX = cell(1, this.NumDummies);
-            for i = 1 : this.NumDummies
-                indivDummiesYLX{i} = this.Dummies{i}.generate(this.Meta, longYLX);
-            end
-            allDummiesYLX = this.Meta.createEmptyYLX();
-            allDummiesYLX = system.mergeDataCells(allDummiesYLX, indivDummiesYLX{:});
         end%
 
 
@@ -163,7 +150,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
                     , order=order ...
                 );
 
-            end
+            end%
         
             function outTable = tabulator__(shortY, shortU, initY, shortX)
                 numPresampled = numel(shortY);
@@ -183,11 +170,11 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
                 end
         
                 outTable = tablex.fromNumericArray(outData, outNames, outSpan, variantDim=variantDim);
-            end
+            end%
         
             forecaster = @forecaster__;
             tabulator = @tabulator__;
-        end
+        end%
 
 
         function varargout = forecast(this, fcastSpan, options)
@@ -220,7 +207,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
         
             [varargout{1:nargout}] = tabulator(shortY, shortU, initY, shortX);
 
-        end
+        end%
 
 
         function [shortY, shortU, initY, shortX, draw] = forecast4S(this, sample, longYX, forecastStartIndex, forecastHorizon, options)
@@ -292,13 +279,6 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
 
     methods
 
-        function flag = get.HasDummies(this)
-            flag = ~isempty(this.Dummies);
-        end%
-
-        function num = get.NumDummies(this)
-            num = numel(this.Dummies);
-        end%
 
         function out = get.IdentificationDrawer(this)
             out = this.Estimator.IdentificationDrawer;

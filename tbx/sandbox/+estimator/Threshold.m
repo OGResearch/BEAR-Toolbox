@@ -1,4 +1,4 @@
-classdef Threshold < estimator.Base
+classdef Threshold < estimator.Base & estimator.DummyMixin
 %% BVAR with regime switches based on threshold using minnesota priors    
     
     methods (Static)
@@ -8,8 +8,6 @@ classdef Threshold < estimator.Base
     end
     properties
         DescriptionUX = "BVAR with regime switching"
-
-        CanHaveDummies = true
         
         HasCrossUnits = false
 
@@ -70,20 +68,20 @@ classdef Threshold < estimator.Base
 
             function sample = sampler()
 
-                [B, sigma, sample] = threshold.drawBSigma(sigma, th, ...
+                [B, sigma, sample] = thresholdUtils.drawBSigma(sigma, th, ...
                     delay, thresholdvar, Y, LX, dummiesYLX); 
 
-                th = threshold.drawThreshold(B, sigma, th, delay,...
+                th = thresholdUtils.drawThreshold(B, sigma, th, delay,...
                     thresholdvar, meanThreshold, opt.varThreshold, Y, LX,...
                     opt.thresholdPropStd); 
 
-                delay = threshold.drawDelay(opt.maxDelay, B, sigma, th, thresholdvar,...
+                delay = thresholdUtils.drawDelay(opt.maxDelay, B, sigma, th, thresholdvar,...
                     meanThreshold, opt.varThreshold, Y, LX);
 
                 sample.beta = cell(estimLength, 1);
                 sample.sigma_t = cell(estimLength, 1);
                 for r = 1:2
-                    regimeInd = threshold.getRegimeInd(th, delay, ... 
+                    regimeInd = thresholdUtils.getRegimeInd(th, delay, ... 
                         thresholdvar, r);    
                     sample.beta(regimeInd,1)= {sample.("B" + string(r))(:)};
                     sample.sigma_t(regimeInd,1) = {sample.("sigma" + string(r))(:)};

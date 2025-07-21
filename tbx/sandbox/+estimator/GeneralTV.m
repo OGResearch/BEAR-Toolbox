@@ -1,5 +1,5 @@
 
-classdef GeneralTV < estimator.Base
+classdef GeneralTV < estimator.Base & estimator.NoDummyMixin
 %% Bayesian VAR model with time-varying parameters and stochastic volatility, 
 % tvbvar = 2 in BEAR5
 
@@ -11,8 +11,6 @@ classdef GeneralTV < estimator.Base
     
     properties
         Category = "Time-varying BVAR estimators"
-
-        CanHaveDummies = false
         
         HasCrossUnits = false
 
@@ -28,16 +26,15 @@ classdef GeneralTV < estimator.Base
         end%
 
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
                 meta (1, 1) base.Meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
-            [longY, longX, ~] = longYX{:};
+            [longY, longX] = longYX{:};
 
             opt.const = meta.HasIntercept;
             opt.p = meta.Order;
