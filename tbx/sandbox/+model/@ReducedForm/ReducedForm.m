@@ -1,5 +1,8 @@
 
-classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
+classdef ReducedForm ...
+    < handle ...
+    & model.PresampleMixin ...
+    & model.TabulateMixin
 
     properties
         Meta
@@ -45,10 +48,18 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
             this.DataHolder = options.DataHolder;
             this.Dummies = options.Dummies;
             this.Estimator = options.Estimator;
-            this.Estimator.checkConsistency(this.Meta, this.Dummies);
             this.Meta.HasCrossUnits = this.Estimator.HasCrossUnits;
             %
+            this.checkConsistency();
+            %
             this.resolveEstimationSpan();
+        end%
+
+
+        function checkConsistency(this)
+            if ~this.Estimator.CanHaveDummies && ~isempty(this.Dummies)
+                error("Estimator does not support dummies, but dummies are provided.");
+            end
         end%
 
 
@@ -116,6 +127,8 @@ classdef ReducedForm < handle & model.PresampleMixin & model.TabulateMixin
 
 
         function [longYXZ, dummiesYLX, indivDummiesYLX] = initialize(this)
+            % initialize  Initialize the reduced-form model estimator
+            %
             shortSpan = this.Meta.ShortSpan;
             longYXZ = this.getLongYXZ();
             this.estimateExogenousMean(longYXZ);

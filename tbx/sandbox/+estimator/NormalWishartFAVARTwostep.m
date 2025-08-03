@@ -1,7 +1,10 @@
 
-classdef NormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with Normal-Wishart prior and two-step estimation
+% FAVAR with Normal-Wishart prior and two-step estimation
 % FAVAR version of prior =21 22 in BEAR5
+
+classdef NormalWishartFAVARTwostep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,25 +12,22 @@ classdef NormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARD
         end
     end
 
-    properties
-        DescriptionUX = "BFAVAR with Normal-Wishart prior"
-        
+
+    properties (Constant)
+        Description = "Two-step FAVAR with Normal-Wishart prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BFAVAR estimators"
-
-        %Struct identification
-        CanBeIdentified = true        
+        CanBeIdentified = true
+        OneStepFactors = false
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -67,7 +67,7 @@ classdef NormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARD
             [Bbar, ~, phibar, Sbar, alphabar, alphatilde] = bear.nwpost(B0, phi0, S0, alpha0, LX, Y, numEn, estimLength, numBRows);
 
             LD = favar.L;
-            
+
             %===============================================================================
 
             function sample = sampler()
@@ -96,7 +96,6 @@ classdef NormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARD
 
             %]
         end%
-
     end
 
 end

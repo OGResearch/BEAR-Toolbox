@@ -1,33 +1,33 @@
 
-classdef NormalDiffuse < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
-%% BVAR with Normal-Diffuse prior
+% VAR with Normal-Diffuse prior
 % prior = 41 in BEAR5
-    
+
+classdef NormalDiffuse ...
+    < estimator.Base ...
+    & estimator.DummyMixin ...
+    & estimator.PlainDrawersMixin
+
     methods (Static)
         function info = getModelReference()
             info.category = "basic_bvar";
         end
     end
-    
+
+
     properties
-        DescriptionUX = "BVAR with Normal-Diffuse prior"
-        
+        Description = "VAR with Normal-Diffuse prior"
+        Category = "Plain VAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
@@ -35,7 +35,7 @@ classdef NormalDiffuse < estimator.Base & estimator.DummyMixin & estimator.Plain
             [longY, longX] = longYX{:};
 
             priorexo = this.Settings.Exogenous;
-            
+
             opt.lambda1 = this.Settings.Lambda1;
             opt.lambda2 = this.Settings.Lambda2;
             opt.lambda3 = this.Settings.Lambda3;
@@ -54,7 +54,7 @@ classdef NormalDiffuse < estimator.Base & estimator.DummyMixin & estimator.Plain
 
             opt.bex = this.Settings.BlockExogenous;
             ar = this.Settings.Autoregression;
-            
+
             arvar =  bear.arloop(longY, opt.const, p, numEn);
 
             blockexo  =  [];
@@ -114,7 +114,6 @@ classdef NormalDiffuse < estimator.Base & estimator.DummyMixin & estimator.Plain
 
             %]
         end%
-
     end
 
 end

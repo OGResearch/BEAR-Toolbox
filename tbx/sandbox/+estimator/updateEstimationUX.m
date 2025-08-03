@@ -56,7 +56,7 @@ function excelData = createExcelData(estimatorClass)
     excelData{1, 2} = false;
     excelData{2, 2} = estimatorClass.ShortClassName;
     try
-        excelData{3, 2} = estimatorClass.DescriptionUX;
+        excelData{3, 2} = estimatorClass.Description;
     catch
         excelData{3, 2} = excelData{2, 1};
     end

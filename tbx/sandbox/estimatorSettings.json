@@ -2951,7 +2951,7 @@
       "detailedDesc": ""
     }
   },
-  "MixedFrequencyBVAR": {
+  "MixedFrequency": {
     "KalmanFcastPeriod": {
       "description": "Numeber of periods to forecast in a Kalman filter",
       "type": "numeric",

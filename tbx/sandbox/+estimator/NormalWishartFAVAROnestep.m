@@ -1,7 +1,10 @@
 
-classdef NormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with Normal-Wishart prior and one-step estimation
+% FAVAR with Normal-Wishart prior and one-step estimation
 % FAVAR version of prior =21 22 inBEAR5
+
+classdef NormalWishartFAVAROnestep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,27 +12,22 @@ classdef NormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARD
         end
     end
 
-    properties
-        DescriptionUX = "BFAVAR with Normal-Wishart prior"
-        
+
+    properties (Constant)
+        Description = "One-step FAVAR with Normal-Wishart prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BFAVAR estimators"
-        
-        %Struct identification
         CanBeIdentified = true
-
+        OneStepFactors = true
     end
 
 
-
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -47,7 +45,6 @@ classdef NormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARD
             opt.b0 = this.Settings.SigmaScale;
 
 
-
             sigmaAdapter = struct();
             sigmaAdapter.eye = 22;
             sigmaAdapter.ar = 21;
@@ -62,7 +59,7 @@ classdef NormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARD
 
             favar = this.FAVAR;
             FY = favar.FY;
-          
+
             [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(FY, longX, opt.const, opt.p);
 
@@ -141,7 +138,6 @@ classdef NormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARD
 
             %]
         end%
-
     end
 
 end

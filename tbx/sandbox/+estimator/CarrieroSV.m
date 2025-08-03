@@ -1,7 +1,10 @@
-classdef CarrieroSV < estimator.Base & estimator.NoDummyMixin
-%% Estimator for Large Scale Stochastic Volatility models 
+
+% Estimator for Large Scale Stochastic Volatility models
 %  stvol=3 in BEAR5
 
+classdef CarrieroSV ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,13 +12,11 @@ classdef CarrieroSV < estimator.Base & estimator.NoDummyMixin
         end
     end
 
-    properties
-        
+
+    properties (Constant)
+        Description = "Carriero stochastic volatility VAR"
+        Category = "Time-varying VAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
@@ -26,7 +27,7 @@ classdef CarrieroSV < estimator.Base & estimator.NoDummyMixin
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -48,7 +49,7 @@ classdef CarrieroSV < estimator.Base & estimator.NoDummyMixin
 
             opt.ar = this.Settings.Autoregression;
 
-            
+
 
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
@@ -358,7 +359,7 @@ classdef CarrieroSV < estimator.Base & estimator.NoDummyMixin
             end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.ConditionalDrawer = @conditionalDrawer;            
+            this.ConditionalDrawer = @conditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
 
@@ -366,4 +367,5 @@ classdef CarrieroSV < estimator.Base & estimator.NoDummyMixin
         end%
 
     end
+
 end

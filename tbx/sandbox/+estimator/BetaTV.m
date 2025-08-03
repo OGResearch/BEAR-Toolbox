@@ -1,8 +1,10 @@
 
-classdef BetaTV < estimator.Base & estimator.NoDummyMixin
-%% Bayesian VAR model with time-varying parameters, 
-% tvbvar=1 in BEAR5
+% Bayesian VAR model with time-varying parameters, tvbvar=1 in BEAR5
 % Third line
+
+classdef BetaTV ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
@@ -10,22 +12,16 @@ classdef BetaTV < estimator.Base & estimator.NoDummyMixin
         end
     end
 
-    properties
-        
-        % Cross-unit variation in beta
+
+    properties (Constant)
+        Description = "Time-varying VAR"
+        Category = "Time-varying VAR estimators"
         HasCrossUnits = false
-
-        %Category
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
-
-        
     end
 
 
-    methods %(Access = protected)
+    methods
 
         function this = BetaTV(varargin)
             this = this@estimator.Base(varargin{:});
@@ -38,7 +34,7 @@ classdef BetaTV < estimator.Base & estimator.NoDummyMixin
 
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -167,7 +163,7 @@ classdef BetaTV < estimator.Base & estimator.NoDummyMixin
 
 
         function createDrawers(this, meta)
-
+            %[
             numEn = meta.NumEndogenousNames;
             numARows = numEn * meta.Order;
             numBRows = numARows + meta.NumExogenousNames + meta.HasIntercept;
@@ -231,7 +227,6 @@ classdef BetaTV < estimator.Base & estimator.NoDummyMixin
 
 
             function [draw] = identificationDrawer(sample)
-                %[
                 horizon = identificationHorizon;
 
                 %draw beta, omega from their posterior distribution
@@ -258,19 +253,18 @@ classdef BetaTV < estimator.Base & estimator.NoDummyMixin
                 end
 
                 draw.Sigma = reshape(sample.sigma, numEn, numEn);
-                %]
             end%
 
+
             function draw = historyDrawer(sample)
-                %[
                 for jj = 1 : estimationHorizon
                     B = reshape(sample.beta{jj}, [], numEn);
                     draw.A{jj}(:, :) = B(1:numARows, :);
                     draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
                 draw.Sigma = repmat({reshape(sample.sigma, numEn, numEn)}, estimationHorizon, 1);
-                %]
             end%
+
 
             this.UnconditionalDrawer = @unconditionalDrawer;
             this.ConditionalDrawer = @conditionalDrawer;
@@ -281,5 +275,6 @@ classdef BetaTV < estimator.Base & estimator.NoDummyMixin
         end%
 
     end
+
 end
 

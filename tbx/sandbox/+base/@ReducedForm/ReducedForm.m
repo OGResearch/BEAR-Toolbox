@@ -41,22 +41,22 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
     methods
 
         function this = ReducedForm(options)
-            
+
             arguments
                 options.Meta (1, 1) base.Meta
                 options.DataHolder (:, :) base.DataHolder
                 options.Estimator (1, 1) estimator.Base
                 options.StabilityThreshold (1, 1) double = NaN
             end
-            
+
             this.Meta = options.Meta;
             this.DataHolder = options.DataHolder;
             this.Estimator = options.Estimator;
-            
+
             if ~isnan(options.StabilityThreshold)
                 this.StabilityThreshold = options.StabilityThreshold;
             end
-            
+
         end%
 
         function [longYX] = initialize(this)
@@ -66,13 +66,13 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
 
 
         function resetPresampled(this, numToPresample)
-        
+
             arguments
                 this
                 numToPresample (1, 1) double {mustBeInteger, mustBeNonnegative} = 0
             end
             this.Presampled = cell(1, numToPresample);
-        
+
         end%
 
 
@@ -174,7 +174,7 @@ classdef ReducedForm < handle & base.PresampleMixin & base.TabulateMixin
 
             forecaster = @forecaster__;
             tabulator = @tabulator__;
-        
+
         end%
 
 

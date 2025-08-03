@@ -3,11 +3,11 @@ classdef (Abstract) PlainFAVARDrawersMixin < handle
 
     methods
         function createDrawers(this, meta)
+            %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
             end
-            %[
             %
             numEn = meta.NumEndogenousNames;
             numPC = meta.NumFactorNames;

@@ -1,15 +1,16 @@
-classdef CCMMSV < estimator.Base & estimator.NoDummyMixin
-%% Stochastic Volatility model with random walk heteroscedasticity 
+
+% Stochastic Volatility model with random walk heteroscedasticity
 % standard SV model,model nr 2 in the CCMM paper
 
-    properties        
+classdef CCMMSV ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
+
+    properties (Constant)
+        Description = "CCMM stochastic volatility VAR with random walk heteroscedasticity"
+        Category = "Time-varying VAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
-    
     end
 
 
@@ -19,7 +20,7 @@ classdef CCMMSV < estimator.Base & estimator.NoDummyMixin
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
@@ -73,119 +74,118 @@ classdef CCMMSV < estimator.Base & estimator.NoDummyMixin
 
 
             function sample  =  sampler()
-
                 pars = largeshockUtils.drawB(pars, prior, numEn, sizeB,numBRows, estimLength, Y, LX);
                 pars = largeshockUtils.drawF(pars, prior, numEn, Y, LX);
                 pars = largeshockUtils.drawLogLambdaSV(pars, prior, numEn, estimLength, Y, LX);
                 pars = largeshockUtils.drawPhi(pars, prior, numEn, estimLength);
-
+                %
                 sample = pars;
                 sample.F = largeshockUtils.unvech(sample.F, 0, 1);
                 H = largeshockUtils.get_H(sample);
                 sample.sigmaAvg = sample.F * Lambda * sample.F';
-
+                %
                 for kk = 1:estimLength
                     sample.sigma_t{kk, 1} = sample.F * diag(H(:,kk)) * sample.F';
                 end
+            end%
 
-            end
-        
-                    
+
             this.Sampler = @sampler;
-        %]
-    end%
-
-
-    function createDrawers(this, meta)
-        %[
-
-        %sizes
-        numEn = meta.NumEndogenousNames;
-        numARows = numEn * meta.Order;
-        estimationHorizon = numel(meta.ShortSpan);
-        identificationHorizon = meta.IdentificationHorizon;
-
-
-        function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon)
-
-            % reshape it to obtain B
-            B = sample.B;
-
-            % draw F from its posterior distribution
-            F = sparse(sample.F(:,:));
-
-            % step 4: draw phi and gamma from their posteriors
-            cholphi = largeshockUtils.unvech(sample.cholPhi);
-            lambda =  sample.logLambda(:, startingIndex-1);
-
-            draw.Sigma = cell(forecastHorizon, 1);
-
-            A = B(1:numARows, :);
-            C = B(numARows + 1:end, :);
-            draw.A = repmat({A}, forecastHorizon, 1);
-            draw.C = repmat({C}, forecastHorizon, 1);
-
-            % then generate forecasts recursively
-            % for each iteration ii, repeat the process for periods estimLength+1 to estimLength+h
-            for jj = 1:forecastHorizon
-
-                n = length(lambda);
-                z = randn(n, 1);         % standard normal column vector
-                error = cholphi * z;         % apply Cholesky to get desired covariance
-                lambda = lambda + error;
-
-                % obtain Lambda_t
-                Lambda = sparse(diag(exp(lambda)));
-
-                % recover sigma_t and draw the residuals
-                draw.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
-            end
-        end
-
-        function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
-
-            beta = sample.B(:);
-            draw.beta = repmat({beta}, forecastHorizon, 1);
-
+            %]
         end%
 
 
-        function draw = identificationDrawer(sample)
+        function createDrawers(this, meta)
+            %[
 
-            horizon = identificationHorizon;
-            % reshape it to obtain B
-            B = sample.B;
-            A = B(1:numARows, :);
-            C = B(numARows + 1:end, :);
+            %sizes
+            numEn = meta.NumEndogenousNames;
+            numARows = numEn * meta.Order;
+            estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
-            draw.A = repmat({A}, horizon, 1);
-            draw.C = repmat({C}, horizon, 1);
-            draw.Sigma = sample.sigmaAvg;
 
-        end
+            function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon)
 
-        function draw = historyDrawer(sample)
+                % reshape it to obtain B
+                B = sample.B;
 
-            % reshape it to obtain B
-            B = sample.B;
-            A = B(1:numARows, :);
-            C = B(numARows + 1:end, :);
-            draw.A = repmat({A}, estimationHorizon, 1);
-            draw.C = repmat({C}, estimationHorizon, 1);
+                % draw F from its posterior distribution
+                F = sparse(sample.F(:,:));
 
-            for jj = 1:estimationHorizon
-                draw.Sigma{jj,1}(:, :) = sample.sigma_t{jj, 1}(:, :);
+                % step 4: draw phi and gamma from their posteriors
+                cholphi = largeshockUtils.unvech(sample.cholPhi);
+                lambda =  sample.logLambda(:, startingIndex-1);
+
+                draw.Sigma = cell(forecastHorizon, 1);
+
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+                draw.A = repmat({A}, forecastHorizon, 1);
+                draw.C = repmat({C}, forecastHorizon, 1);
+
+                % then generate forecasts recursively
+                % for each iteration ii, repeat the process for periods estimLength+1 to estimLength+h
+                for jj = 1:forecastHorizon
+
+                    n = length(lambda);
+                    z = randn(n, 1);         % standard normal column vector
+                    error = cholphi * z;         % apply Cholesky to get desired covariance
+                    lambda = lambda + error;
+
+                    % obtain Lambda_t
+                    Lambda = sparse(diag(exp(lambda)));
+
+                    % recover sigma_t and draw the residuals
+                    draw.Sigma{jj, 1}(:, :) = full(F * Lambda * F');
+                end
             end
 
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
+
+                beta = sample.B(:);
+                draw.beta = repmat({beta}, forecastHorizon, 1);
+
+            end%
+
+
+            function draw = identificationDrawer(sample)
+
+                horizon = identificationHorizon;
+                % reshape it to obtain B
+                B = sample.B;
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
+                draw.Sigma = sample.sigmaAvg;
+
+            end
+
+            function draw = historyDrawer(sample)
+
+                % reshape it to obtain B
+                B = sample.B;
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+                draw.A = repmat({A}, estimationHorizon, 1);
+                draw.C = repmat({C}, estimationHorizon, 1);
+
+                for jj = 1:estimationHorizon
+                    draw.Sigma{jj,1}(:, :) = sample.sigma_t{jj, 1}(:, :);
+                end
+
+            end%
+
+            this.UnconditionalDrawer = @unconditionalDrawer;
+            this.ConditionalDrawer = @conditionalDrawer;
+            this.IdentificationDrawer = @identificationDrawer;
+            this.HistoryDrawer = @historyDrawer;
+
+            %]
         end%
 
-        this.UnconditionalDrawer = @unconditionalDrawer;
-        this.ConditionalDrawer = @conditionalDrawer;
-        this.IdentificationDrawer = @identificationDrawer;
-        this.HistoryDrawer = @historyDrawer;
+    end
 
-        %]
-    end%
-
-end
 end

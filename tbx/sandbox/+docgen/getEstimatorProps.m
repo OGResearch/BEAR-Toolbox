@@ -6,7 +6,7 @@ function out = getEstimatorProps()
     out = struct();
     propstoIgnore = ["SampleCounter","BeenInitialized", "HasCrossUnitVariationInBeta",...
         "HasCrossUnitVariationInSigma","HasTimeVariationInBeta", ...
-        "Description","DescriptionUX"];
+        "Description"];
     for i = 1 : numel(files)
         name = extractBefore(files(i).name, ".m");
         cname = "estimator." + name ;

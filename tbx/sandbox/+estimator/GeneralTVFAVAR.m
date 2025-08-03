@@ -1,7 +1,9 @@
 
-classdef GeneralTVFAVAR < estimator.BaseFAVAR
-%% FAVAR verison of model with time-varying parameters and stochastic volatility, 
+% FAVAR verison of model with time-varying parameters and stochastic volatility,
 % FAVAR with tvbvar = 2 in BEAR5
+
+classdef GeneralTVFAVAR ...
+    < estimator.BaseFAVAR
 
     methods (Static)
         function info = getModelReference()
@@ -9,16 +11,15 @@ classdef GeneralTVFAVAR < estimator.BaseFAVAR
         end
     end
 
-    properties
-        Category = "Time-varying BFAVAR estimators"
 
-        CanHaveDummies = false
-        
+    properties (Constant)
+        Description = "Two-step FAVAR with time-varying parameters and stochastic volatility"
+        Category = "Time-varying FAVAR estimators"
         HasCrossUnits = false
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = false
     end
+
 
     methods
 
@@ -26,7 +27,7 @@ classdef GeneralTVFAVAR < estimator.BaseFAVAR
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -39,7 +40,7 @@ classdef GeneralTVFAVAR < estimator.BaseFAVAR
             opt.gamma = this.Settings.HeteroskedasticityAutoRegression;
             opt.alpha0 = this.Settings.HeteroskedasticityShape;
             opt.delta0 = this.Settings.HeteroskedasticityScale;
-            
+
             favar = this.FAVAR;
             FY = favar.FY;
 
@@ -104,7 +105,7 @@ classdef GeneralTVFAVAR < estimator.BaseFAVAR
             sigma_t   =  repmat(sigmahat, 1, 1, estimLength);
             epst = zeros(numY , 1 , estimLength);
 
-            
+
             LD = favar.L;
             %===============================================================================
             function sample  =  sampler()
@@ -272,7 +273,7 @@ classdef GeneralTVFAVAR < estimator.BaseFAVAR
                 sample.LD = LD;
 
             end
-                
+
             this.Sampler = @sampler;
 
             %]
@@ -421,4 +422,6 @@ classdef GeneralTVFAVAR < estimator.BaseFAVAR
         end%
 
     end
+
 end
+

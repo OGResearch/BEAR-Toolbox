@@ -15,6 +15,7 @@ classdef (Abstract) Base < handle
         IdentificationDrawer
     end
 
+
     properties
         BeenInitialized (1, 1) logical = false
         HasCrossUnitVariationInBeta (1, 1) logical = false
@@ -22,22 +23,29 @@ classdef (Abstract) Base < handle
         HasTimeVariationInBeta (1, 1) logical = false
     end
 
+
     properties (Dependent)
         ShortClassName
     end
 
-    properties (Abstract)
+
+    properties (Abstract, Constant)
+        Description
+        Category
+        CanHaveDummies
         HasCrossUnits
-        Category 
-        CanBeIdentified 
+        CanBeIdentified
     end
+
 
     methods (Abstract)
-        createDrawers(this, meta)
+        initialize(this, varargin)
+        initializeSampler(this, varargin)
+        createDrawers(this, varargin)
     end
 
-    methods
 
+    methods
         function this = Base(varargin)
             this.Settings = estimator.settings.(this.ShortClassName)(varargin{:});
         end%
@@ -46,7 +54,6 @@ classdef (Abstract) Base < handle
         function name = get.ShortClassName(this)
             name = extractAfter(class(this), "estimator.");
         end%
-
     end
 
 end

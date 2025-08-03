@@ -1,32 +1,30 @@
-classdef NormalWishartPanel < estimator.Base
+
+classdef NormalWishartPanel ...
+    < estimator.Base
 
     methods (Static)
         function info = getModelReference()
             info.category = "panel";
         end
     end
-    properties
-        DescriptionUX = "Normal-Wishart Panel BVAR"
 
-        CanHaveDummies = false
-        
+
+    properties (Constant)
+        Description = "Normal-Wishart Panel VAR"
+        Category = "Panel VAR estimators"
         HasCrossUnits = false
-        
-        Category = "Panel BVAR estimators"
-
-        %Struct identification
-        CanBeIdentified = true        
+        CanBeIdentified = true
     end
+
 
     methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
             [longY, longX] = longYX{:};
@@ -70,7 +68,8 @@ classdef NormalWishartPanel < estimator.Base
             this.Sampler = @sampler;
 
             %]
-        end
+        end%
+
 
         function createDrawers(this, meta)
             %[
@@ -123,7 +122,7 @@ classdef NormalWishartPanel < estimator.Base
 
             function draw = conditionalDrawer(sample, startIndex, forecastHorizon)
                 draw = struct();
-                draw.beta = wrap(repmat(sample.beta,1,meta.NumSeparableUnits),forecastHorizon); 
+                draw.beta = wrap(repmat(sample.beta,1,meta.NumSeparableUnits),forecastHorizon);
                 % draw.beta = wrap(sample.beta, forecastHorizon);
             end%
 
@@ -133,6 +132,8 @@ classdef NormalWishartPanel < estimator.Base
             this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
+
     end
+
 end
 

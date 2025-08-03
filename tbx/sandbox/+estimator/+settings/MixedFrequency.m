@@ -1,7 +1,8 @@
 
-classdef (CaseInsensitiveProperties=true) MixedFrequencyBVAR < estimator.settings.Base
+classdef (CaseInsensitiveProperties=true) MixedFrequency ...
+    < estimator.settings.Base
 
-    properties     
+    properties
         % Numeber of periods to forecast in a Kalman filter
         % H
         KalmanFcastPeriod double = 7

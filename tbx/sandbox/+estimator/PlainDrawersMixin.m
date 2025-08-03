@@ -3,11 +3,11 @@ classdef (Abstract) PlainDrawersMixin < handle
 
     methods
         function createDrawers(this, meta)
+            %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
             end
-            %[
             %
             % numBRows = numY * meta.Order + meta.NumExogenousNames + double(meta.HasIntercept);
             numY = meta.NumEndogenousNames;

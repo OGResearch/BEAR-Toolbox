@@ -1,5 +1,8 @@
 
-classdef Ordinary < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
+classdef Ordinary ...
+    < estimator.Base ...
+    & estimator.DummyMixin ...
+    & estimator.PlainDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -7,26 +10,22 @@ classdef Ordinary < estimator.Base & estimator.DummyMixin & estimator.PlainDrawe
         end
     end
 
-    properties
-        DescriptionUX = "Ordinary least squares VAR"
-        
+
+    properties (Constant)
+        Description = "Ordinary least squares VAR"
+        Category = "Plain VAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BVAR estimators"
-
-        %Struct identification
-        CanBeIdentified = true        
+        CanBeIdentified = true
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
 
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
@@ -67,7 +66,6 @@ classdef Ordinary < estimator.Base & estimator.DummyMixin & estimator.PlainDrawe
 
             %]
         end%
-
     end
 
 end

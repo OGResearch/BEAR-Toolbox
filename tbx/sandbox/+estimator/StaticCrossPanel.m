@@ -1,34 +1,30 @@
-classdef StaticCrossPanel < estimator.Base
+
+classdef StaticCrossPanel ...
+    < estimator.Base
 
     methods (Static)
         function info = getModelReference()
             info.category = "panel";
         end
     end
-    
-    properties
-        DescriptionUX = "Static Cross-Sectional Panel BVAR"
 
-        CanHaveDummies = false
-        
+
+    properties (Constant)
+        Description = "Static cross-sectional panel bvar"
+        Category = "Panel VAR estimators"
         HasCrossUnits = true
-
-        Category = "Panel BVAR estimators"
-
-        %Struct identification
-        CanBeIdentified = true        
+        CanBeIdentified = true
     end
 
 
     methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
             [longY, longX] = longYX{:};
@@ -144,8 +140,9 @@ classdef StaticCrossPanel < estimator.Base
             %]
         end%
 
-        
+
         function createDrawers(this, meta)
+            %[
             numTotalEndog = meta.NumUnits*meta.NumEndogenousConcepts;
             numARows = numTotalEndog*meta.Order;
             numExog = meta.NumExogenousNames+double(meta.HasIntercept);

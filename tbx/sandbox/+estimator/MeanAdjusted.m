@@ -1,5 +1,7 @@
 
-classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin 
+classdef MeanAdjusted ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
@@ -7,24 +9,22 @@ classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin
         end
     end
 
-    properties
-        DescriptionUX = "Mean-adjusted model"
-        
+
+    properties (Constant)
+        Description = "Mean-adjusted model"
+        Category = "Time-varying VAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
 
     methods
+
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -45,19 +45,19 @@ classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin
             numRegimes = meta.NumRegimes;
             estimStart = meta.EstimationSpan(1);
             CMask = meta.CMask;
-            
+
             opt.bex = this.Settings.BlockExogenous;
             blockexo  =  [];
             if  opt.bex == 1
                 [blockexo] = bear.loadbex(endo, pref);
             end
-            
+
             [~, ~, ~, L, ~, Y, ~, ~, ~, numEn, ~, p, T , numBRows, sizeB] = ...
                 bear.olsvar(longY, [], false, opt.p);
 
             %variance from univariate OLS for priors
             arvar = bear.arloop(longY, true, opt.p, numEn);
-            
+
             [beta0, omega0] = bear.ogrmaprior(ar, arvar, opt.lambda1, opt.lambda2, ...
                 opt.lambda3, opt.lambda5, numEn, p, numBRows, sizeB, opt.bex, blockexo);
 
@@ -68,38 +68,38 @@ classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin
 
             % Fill in compressed matrix
             for tt = 1:T + p
-                X_big_t = kron(eye(numEn), longX(tt, :));           
-                TVEH(:, :, tt) = X_big_t(:, CMask); 
+                X_big_t = kron(eye(numEn), longX(tt, :));
+                TVEH(:, :, tt) = X_big_t(:, CMask);
             end
 
-            %% initialize sample 
+            %% initialize sample
             % invert omega0
             invomega0 = diag(1./diag(omega0));
-            
+
             % invert lambda0
             invlambda0 = lambda0\eye(length(lambda0));
-            
+
             % step 2: set initial values
             % set initial values for B, beta and sigma; as no OLS estimates are available, simply set the value as zeros for B and beta, and identity for sigma
             B = zeros(numBRows, numEn);
-            
+
             % define the initial value for the inverse of sigma: beacause sigma is identity, this is also identity
             invsigma = eye(numEn);
-            
+
             % preallocate space for the matrix with the equilibrium values
             eq = zeros(T+p, numEn);
-            
+
             q2 = length(psi0);
-            
+
             %===============================================================================
 
             function sample = sampler()
                 Ybar = (Y - L*B)';
                 Ypsi = bear.vec(Ybar);
-                
+
                 % Initialize Fsimple for the first time period, using L(t+p,:)
                 Fsimple = TVEH(:, :, 1 + p);
-                
+
                 % Loop over the lags (k = 2 to p+1)
                 for k = 2:p + 1
                     % Get the lagged values using the original L matrix
@@ -111,25 +111,25 @@ classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin
                 for t = 2:T
                     % Initialize Ftemp for the current time period t, using L(t+p,:)
                     Ftemp = TVEH(:, :, t + p);
-                    
+
                     % Loop over the lags (k = 2 to p+1)
                     for k = 2:p + 1
                         % Apply the lag structure using the original L matrix
                         Ftemp = Ftemp - B((k - 2)*numEn + 1:(k - 1)*numEn, :)' * ...
                             TVEH(:, :, t + p - (k - 1));
                     end
-                    
+
                     % Stack Fsimple for all time periods
                     Fsimple = cat(1, Fsimple, Ftemp);
                 end
 
                 % Compute invOmega as before
                 invOmega = kron(eye(T), invsigma);
-                
+
                 % Compute CT and mT as before
                 CT = (invlambda0 + Fsimple' * invOmega * Fsimple) \ eye(length(lambda0));
                 mT = CT * (Fsimple' * invOmega * Ypsi + invlambda0 * psi0);
-                
+
                 % Draw from the multivariate normal distribution
                 theta = mT + chol(bear.nspd(CT), 'lower')*randn(q2, 1);
 
@@ -141,7 +141,7 @@ classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin
                 % step 4: now that psi/F has been drawn, it is possible to generate Yhat, Lhat and yhat
                 temp2 = longY - eq;
                 temp3 = bear.lagx(temp2, p);
-                
+
                 Yhat = temp3(:,1:numEn);
                 yhat = Yhat(:);
                 Lhat = temp3(:,numEn+1:end);
@@ -149,10 +149,10 @@ classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin
                 % step 5: next, at iteration ii, draw sigma from IW, conditional on most recent draw for psi and beta
                 % obtain first Stilde
                 Stilde = (Yhat - Lhat*B)'*(Yhat - Lhat*B);
-                
+
                 % next draw from IW(Stilde,T)
                 sigma = bear.iwdraw(Stilde, T);
-                
+
                 % invert sigma
                 C = bear.trns(chol(bear.nspd(sigma), 'Lower'));
                 invC = C\speye(numEn);
@@ -170,9 +170,9 @@ classdef MeanAdjusted < estimator.Base & estimator.NoDummyMixin
 
                 % draw from N(betabar,omegabar);
                 beta = betabar + chol(bear.nspd(omegabar),'lower')*randn(sizeB, 1);
-                
+
                 sample.ss = eq(p+1:end,:);
-  
+
                 % reshape to obtain B
                 B = reshape(beta, numBRows, numEn);
                 sample.A = B;

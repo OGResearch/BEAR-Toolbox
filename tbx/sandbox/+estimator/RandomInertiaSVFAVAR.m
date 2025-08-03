@@ -1,20 +1,23 @@
 
-classdef RandomInertiaSVFAVAR < estimator.BaseFAVAR
-%% FAVAR version of Stochastic Volatility model with random inertia
-%  FAVAR version of SV model with stvol=2 in BEAR5  
+% FAVAR version of Stochastic Volatility model with random inertia
+% FAVAR version of SV model with stvol=2 in BEAR5
+
+classdef RandomInertiaSVFAVAR ...
+    < estimator.BaseFAVAR
+
     methods (Static)
         function info = getModelReference()
             info.category = "favar";
         end
     end
 
-    properties       
+
+    properties (Constant)
+        Description = "Two-step FAVAR with random-inertia stochastic volatility"
+        Category = "Time-varying FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BFAVAR estimators"
-
-        %Struct identification
-        CanBeIdentified = true        
+        CanBeIdentified = true
+        OneStepFactors = false
     end
 
 
@@ -24,7 +27,7 @@ classdef RandomInertiaSVFAVAR < estimator.BaseFAVAR
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -111,7 +114,7 @@ classdef RandomInertiaSVFAVAR < estimator.BaseFAVAR
             lambda_t = repmat(diag(sbar), 1, 1, estimLength);
             sigma_t = repmat(sigmahat, 1, 1, estimLength);
 
-            
+
             LD = favar.L;
 
             function sample  =  sampler()
@@ -281,7 +284,7 @@ classdef RandomInertiaSVFAVAR < estimator.BaseFAVAR
                 sample.sbar = sbar;
 
                 sample.FY = FY;
-                sample.LD = LD; 
+                sample.LD = LD;
 
 
                 for zz = 1:estimLength
@@ -372,7 +375,7 @@ classdef RandomInertiaSVFAVAR < estimator.BaseFAVAR
                 draw.A = repmat({A}, horizon, 1);
                 draw.C = repmat({C}, horizon, 1);
                 draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
-                % draw.LD = reshape(sample.LD, [], numY);            
+                % draw.LD = reshape(sample.LD, [], numY);
             end%
 
 

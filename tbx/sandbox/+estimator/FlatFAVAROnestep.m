@@ -1,33 +1,33 @@
 
-classdef FlatFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with flat prior and one-step estimation
+% FAVAR with flat prior and one-step estimation
 % FAVAR with prior = 41 in BEAR5 with lambda1>999
-    
+
+classdef FlatFAVAROnestep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
+
     methods (Static)
         function info = getModelReference()
             info.category = "favar";
         end
     end
 
-    properties
-        DescriptionUX = "BFAVAR with Flat prior"
 
-        Category = "Plain BFAVAR estimators"
-        
+    properties (Constant)
+        Description = "One-step FAVAR with Flat prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = true
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -48,7 +48,7 @@ classdef FlatFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
 
             [Bhat, ~, ~, LX, ~, Y, ~, EPS, ~, numEn, ~, p, estimLength, ~, sizeB] = bear.olsvar(FY, longX, ...
                 opt.const, opt.p);
-            
+
             B_ss = [Bhat' ; eye(numEn * (p - 1)) zeros(numEn * (p - 1), numEn)];
             sigma_ss = [(1 / estimLength) * (EPS' * EPS) zeros(numEn, numEn * (p - 1)); zeros(numEn * (p - 1), numEn * p)];
 
@@ -72,7 +72,7 @@ classdef FlatFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
 
                 % demean generated factors
                 FY = bear.favar_demean(FY);
-                
+
                 % Sample autoregressive coefficients B
                 [B, ~, ~, LX, ~, Y, y] = bear.olsvar(FY, longX, opt.const, p);
 
@@ -132,7 +132,6 @@ classdef FlatFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
 
             %]
         end%
-
     end
 
 end

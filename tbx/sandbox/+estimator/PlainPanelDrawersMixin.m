@@ -2,7 +2,6 @@
 classdef (Abstract) PlainPanelDrawersMixin < handle
 
     methods
-
         function createDrawers(this, meta)
             %[
             numCountries = meta.NumUnits;
@@ -68,7 +67,6 @@ classdef (Abstract) PlainPanelDrawersMixin < handle
             this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
-
     end
 
 end

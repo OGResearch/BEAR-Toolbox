@@ -1,35 +1,31 @@
 
-classdef ZellnerHongPanel < estimator.Base & estimator.PlainPanelDrawersMixin
+classdef ZellnerHongPanel ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin ...
+    & estimator.PlainPanelDrawersMixin
 
     methods (Static)
         function info = getModelReference()
             info.category = "panel";
         end
     end
-    
-    properties
-        DescriptionUX = "Zellner-Hong Panel BVAR"
 
-        CanHaveDummies = false
-        
+
+    properties (Constant)
+        Description = "Zellner-Hong Panel VAR"
+        Category = "Panel VAR estimators"
         HasCrossUnits = false
-
-        Category = "Panel BVAR estimators"
-        
-        %Struct identification
         CanBeIdentified = true
-
     end
 
 
     methods
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
             [longY, longX] = longYX{:};

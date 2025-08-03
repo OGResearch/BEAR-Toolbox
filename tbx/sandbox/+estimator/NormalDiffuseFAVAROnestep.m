@@ -1,7 +1,10 @@
 
-classdef NormalDiffuseFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with Normal-Diffuse prior and one-step estimation
+% FAVAR with Normal-Diffuse prior and one-step estimation
 % FAVAR version of prior = 41 BEAR5
+
+classdef NormalDiffuseFAVAROnestep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,25 +12,22 @@ classdef NormalDiffuseFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARD
         end
     end
 
-    properties
-        DescriptionUX = "BFAVAR with Normal-Diffuse prior"
-        
+
+    properties (Constant)
+        Description = "One-step FAVAR with Normal-Diffuse prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BFAVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = true
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -98,7 +98,7 @@ classdef NormalDiffuseFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARD
                 % set prior values
                 [beta0, omega0] = bear.ndprior(ar, arvar, opt.lambda1, opt.lambda2, opt.lambda3, opt.lambda4,...
                     opt.lambda5, numEn, numEx, p, numBRows, sizeB, opt.bex, blockexo, priorexo);
-                
+
                 % invert omega0, as it will be used repeatedly
                 invomega0 = diag(1 ./ diag(omega0));
 
@@ -159,7 +159,6 @@ classdef NormalDiffuseFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARD
 
             %]
         end%
-
     end
 
 end

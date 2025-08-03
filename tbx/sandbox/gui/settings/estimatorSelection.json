@@ -25,7 +25,7 @@
     "Minnesota": "Plain BVAR estimators",
     "MinnesotaFAVAROnestep": "Plain BFAVAR estimators",
     "MinnesotaFAVARTwostep": "Plain BFAVAR estimators",
-    "MixedFrequencyBVAR": "Plain BVAR estimators",
+    "MixedFrequency": "Plain BVAR estimators",
     "NormalDiffuse": "Plain BVAR estimators",
     "NormalDiffuseFAVAROnestep": "Plain BFAVAR estimators",
     "NormalDiffuseFAVARTwostep": "Plain BFAVAR estimators",

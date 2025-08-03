@@ -1,32 +1,33 @@
 
-classdef Flat < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
-%% BVAR with flat prior
+% VAR with flat prior
 % prior = 41 in BEAR5 with lambda1>999
-    
+
+classdef Flat ...
+    < estimator.Base ...
+    & estimator.DummyMixin ...
+    & estimator.PlainDrawersMixin
+
     methods (Static)
         function info = getModelReference()
             info.category = "basic_bvar";
         end
     end
 
-    properties
-        DescriptionUX = "BVAR with flat prior"
 
-        Category = "Plain BVAR estimators"
-        
+    properties (Constant)
+        Description = "VAR with flat prior"
+        Category = "Plain VAR estimators"
         HasCrossUnits = false
-
-        %Struct identification
         CanBeIdentified = true
     end
-    
+
 
     methods
         function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end

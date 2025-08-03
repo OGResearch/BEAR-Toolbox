@@ -1,7 +1,9 @@
-classdef BetaTVFAVAR < estimator.BaseFAVAR
-%% BFAVAR verison of time-varying coefficients model 
+
+% FAVAR verison of time-varying coefficients model
 % FAVAR with tvbvar=1 in BEAR5
 
+classdef BetaTVFAVAR ...
+    < estimator.BaseFAVAR
 
     methods (Static)
         function info = getModelReference()
@@ -9,25 +11,24 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
         end
     end
 
-    properties
-        
+
+    properties (Constant)
+        Description = "Two-step FAVAR with time-varying coefficients"
+        Category = "Time-varying FAVAR estimators"
         HasCrossUnits = false
-
-        %Struct identification
         CanBeIdentified = true
-
-        Category = "Time-varying BFAVAR estimators"
+        OneStepFactors = false
     end
 
 
-    methods %(Access = protected)
+    methods
 
         function initializeSampler(this, meta, longYX)
             %[
 
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -85,7 +86,7 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
             end
 
             LD = favar.L;
-            
+
             %===============================================================================
 
             function sample  =  sampler()
@@ -136,7 +137,7 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
                 sample.omega = diag(omega);
                 sample.sigma = sigma;
                 sample.FY = FY;
-                sample.LD = LD;                
+                sample.LD = LD;
             end
 
             this.Sampler = @sampler;
@@ -146,6 +147,7 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
 
 
         function createDrawers(this, meta)
+            %[
             numEn = meta.NumEndogenousNames;
             numPC = meta.NumFactorNames;
             numY = numEn + numPC;
@@ -199,7 +201,7 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
                 cholomega = sparse(diag(omega));
 
                 draw.beta = cell(forecastHorizon, 1);
-                
+
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:forecastHorizon
@@ -212,7 +214,6 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
 
 
             function [draw] = identificationDrawer(sample)
-                %[
                 horizon = identificationHorizon;
 
                 %draw beta, omega from their posterior distribution
@@ -239,20 +240,17 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
                     draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
 
-                draw.Sigma = reshape(sample.sigma, numY, numY);                
-                % draw.LD = reshape(sample.LD, [], numY); 
-                %]
+                draw.Sigma = reshape(sample.sigma, numY, numY);
+                % draw.LD = reshape(sample.LD, [], numY);
             end%
 
             function draw = historyDrawer(sample)
-                %[
                 for jj = 1:estimationHorizon
                     B = reshape(sample.beta{jj}, [], numY);
                     draw.A{jj}(:, :) = B(1:numARows, :);
                     draw.C{jj}(:, :) = B(numARows + 1:end, :);
                 end
                 draw.Sigma = repmat({reshape(sample.sigma, numY, numY)}, estimationHorizon, 1);
-                %]
             end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;
@@ -264,5 +262,6 @@ classdef BetaTVFAVAR < estimator.BaseFAVAR
         end%
 
     end
+
 end
 

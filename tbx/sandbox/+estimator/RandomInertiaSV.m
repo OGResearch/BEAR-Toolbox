@@ -1,7 +1,10 @@
 
-classdef RandomInertiaSV < estimator.Base & estimator.NoDummyMixin
-%% Stochastic Volatility model with random inertia
-% SV model with stvol=2 in BEAR5    
+% Stochastic Volatility model with random inertia
+% SV model with stvol=2 in BEAR5
+
+classdef RandomInertiaSV ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,13 +12,12 @@ classdef RandomInertiaSV < estimator.Base & estimator.NoDummyMixin
         end
     end
 
-    properties        
-        HasCrossUnits = false
-        
-        Category = "Time-varying BVAR estimators"
 
-        %Struct identification
-        CanBeIdentified = true        
+    properties (Constant)
+        Description = "Stochastic Volatility with Random Inertia"
+        Category = "Time-varying VAR estimators"
+        HasCrossUnits = false
+        CanBeIdentified = true
     end
 
 
@@ -25,7 +27,7 @@ classdef RandomInertiaSV < estimator.Base & estimator.NoDummyMixin
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -48,7 +50,7 @@ classdef RandomInertiaSV < estimator.Base & estimator.NoDummyMixin
 
             opt.bex = this.Settings.BlockExogenous;
             opt.ar = this.Settings.Autoregression;
-            
+
 
             [~, betahat, sigmahat, LX, ~, Y, ~, ~, ~, numEn, numEx, p, estimLength, numBRows, sizeB] = ...
                 bear.olsvar(longY, longX, opt.const, opt.p);

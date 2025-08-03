@@ -1,7 +1,10 @@
 
-classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with Indenpendent Normal-Wishart prior and two-step estimation
+% FAVAR with Indenpendent Normal-Wishart prior and two-step estimation
 % FAVAR with prior 31 and 32 in BEAR5
+
+classdef IndNormalWishartFAVARTwostep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,25 +12,22 @@ classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAV
         end
     end
 
-    properties
-        DescriptionUX = "BFAVAR with Individual Normal-Wishart prior"
-        
+
+    properties (Constant)
+        Description = "Two-step FAVAR with Individual Normal-Wishart prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BFAVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = false
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -53,7 +53,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAV
 
             ar = this.Settings.Autoregression;
 
-            
+
             blockexo  =  [];
             if  opt.bex == 1
                 [blockexo] = bear.loadbex(endo, pref);
@@ -82,7 +82,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAV
             alphahat = estimLength + alpha0;
 
             LD = favar.L;
-            
+
             %===============================================================================
 
             function sample = sampler()
@@ -93,7 +93,7 @@ classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAV
 
                 % Correct potential asymmetries due to rounding errors from Matlab
                 Shat = bear.nspd(Shat);
-                
+
                 % next draw from IW(Shat, alphahat)
                 sigma = bear.iwdraw(Shat, alphahat);
 
@@ -137,7 +137,6 @@ classdef IndNormalWishartFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAV
 
             %]
         end%
-
     end
 
 end

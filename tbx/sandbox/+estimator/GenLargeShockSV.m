@@ -1,19 +1,21 @@
-classdef GenLargeShockSV < estimator.Base & estimator.NoDummyMixin
-%% General Stochastic Volatility model for large shocks
+
+% General Stochastic Volatility model for large shocks
+
+classdef GenLargeShockSV ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
             info.category = "large_scale";
         end
     end
-    
-    properties
 
+
+    properties (Constant)
+        Description = "General stochastic volatility VAR for large shocks"
+        Category = "Time-varying VAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
@@ -24,7 +26,7 @@ classdef GenLargeShockSV < estimator.Base & estimator.NoDummyMixin
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -46,7 +48,7 @@ classdef GenLargeShockSV < estimator.Base & estimator.NoDummyMixin
             opt.AR0 = this.Settings.MultAR0; %scaling factor's AR parameter's initial mean
             opt.alphaAR = this.Settings.AlphaMultAR; %scaling factor's AR parameter's alpha value in beta  distribution
             opt.betaAR = this.Settings.BetaMultAR; %scaling factor's  AR parameter's beta value in beta  distribution
-            opt.propStdAR = this.Settings.PropStdAR; %std of AR parameter's proposal 
+            opt.propStdAR = this.Settings.PropStdAR; %std of AR parameter's proposal
 
             opt.TP = this.Settings.Turningpoint;
 
@@ -68,7 +70,7 @@ classdef GenLargeShockSV < estimator.Base & estimator.NoDummyMixin
             initChain = 1e4;
             sizeCholSigma = numEn*(numEn + 1 )/2;
             smpl = nan(sizeB + sizeCholSigma, initChain);
- 
+
             for ii = 1:initChain
                 [B, Sigma] = largeshockUtils.sample_posterior(posterior);
                 chSigma = largeshockUtils.vech(chol(Sigma, "lower"));
@@ -103,7 +105,7 @@ classdef GenLargeShockSV < estimator.Base & estimator.NoDummyMixin
                 while ~accepted
                     %Getting sampled theta from MH
                     proposal = propGen()';
-                    cand = prevAccepted + proposal;                    
+                    cand = prevAccepted + proposal;
                     candLogTargetPDF = -targFun(cand);
                     alpha = min(1, exp(candLogTargetPDF - prevLogTargetPDF));
                     accepted = rand() < alpha;
@@ -119,96 +121,97 @@ classdef GenLargeShockSV < estimator.Base & estimator.NoDummyMixin
                 for zz = 1:estimLength
                     sample.Sigma_t{zz, 1} = sample.sf(zz)^2*sample.Sigma_avg;
                 end
-    
+
                 this.SampleCounter = this.SampleCounter + 1;
 
-        end
+            end%
 
-        this.Sampler = @sampler;
+            this.Sampler = @sampler;
 
-        %]
-    end%
-
-
-    function createDrawers(this, meta)
-        %[
-
-        %sizes
-        numEn = meta.NumEndogenousNames;
-        numARows = numEn * meta.Order;
-        estimationHorizon = numel(meta.ShortSpan);
-        identificationHorizon = meta.IdentificationHorizon;
-
-
-        function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon)
-
-            B = sample.B;
-            A = B(1:numARows, :);
-            C = B(numARows + 1:end, :);
-            draw.A = repmat({A}, forecastHorizon, 1);
-            draw.C = repmat({C}, forecastHorizon, 1);
-            draw.Sigma = cell(forecastHorizon, 1);
-
-            AR = sample.theta(end);
-            sf = sample.sf(startingIndex-1:end);
-            sf_periods = numel(sf);
-
-            for rng = sf_periods + 1 : forecastHorizon + 1
-                sf(rng) = 1 + (sf(rng-1) - 1) * AR;
-            end
-
-            % then generate Sigma forecasts recursively
-            for jj = 1:forecastHorizon
-                % recover sigma_t and draw the residuals
-                draw.Sigma{jj, 1}(:, :) = sf(jj+1)^2*sample.Sigma_avg;
-            end
-        end
-
-        function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
-
-            beta = sample.B(:);
-            draw.beta = repmat({beta}, forecastHorizon, 1);
-
+            %]
         end%
 
 
-        function draw = identificationDrawer(sample)
+        function createDrawers(this, meta)
+            %[
 
-            horizon = identificationHorizon;
+            %sizes
+            numEn = meta.NumEndogenousNames;
+            numARows = numEn * meta.Order;
+            estimationHorizon = numel(meta.ShortSpan);
+            identificationHorizon = meta.IdentificationHorizon;
 
-            B = sample.B;
-            A = B(1:numARows, :);
-            C = B(numARows + 1:end, :);
 
-            draw.A = repmat({A}, horizon, 1);
-            draw.C = repmat({C}, horizon, 1);
-            draw.Sigma = sample.Sigma_avg;
+            function draw = unconditionalDrawer(sample, startingIndex, forecastHorizon)
 
-        end
+                B = sample.B;
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+                draw.A = repmat({A}, forecastHorizon, 1);
+                draw.C = repmat({C}, forecastHorizon, 1);
+                draw.Sigma = cell(forecastHorizon, 1);
 
-        function draw = historyDrawer(sample)
+                AR = sample.theta(end);
+                sf = sample.sf(startingIndex-1:end);
+                sf_periods = numel(sf);
 
-            % reshape it to obtain B
-            B = sample.B;
-            A = B(1:numARows, :);
-            C = B(numARows + 1:end, :);
-            draw.A = repmat({A}, estimationHorizon, 1);
-            draw.C = repmat({C}, estimationHorizon, 1);
+                for rng = sf_periods + 1 : forecastHorizon + 1
+                    sf(rng) = 1 + (sf(rng-1) - 1) * AR;
+                end
 
-            for jj = 1:estimationHorizon
-                draw.Sigma{jj,1}(:, :) = sample.Sigma_t{jj, 1};
+                % then generate Sigma forecasts recursively
+                for jj = 1:forecastHorizon
+                    % recover sigma_t and draw the residuals
+                    draw.Sigma{jj, 1}(:, :) = sf(jj+1)^2*sample.Sigma_avg;
+                end
             end
 
+            function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
+
+                beta = sample.B(:);
+                draw.beta = repmat({beta}, forecastHorizon, 1);
+
+            end%
+
+
+            function draw = identificationDrawer(sample)
+
+                horizon = identificationHorizon;
+
+                B = sample.B;
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+
+                draw.A = repmat({A}, horizon, 1);
+                draw.C = repmat({C}, horizon, 1);
+                draw.Sigma = sample.Sigma_avg;
+
+            end
+
+            function draw = historyDrawer(sample)
+
+                % reshape it to obtain B
+                B = sample.B;
+                A = B(1:numARows, :);
+                C = B(numARows + 1:end, :);
+                draw.A = repmat({A}, estimationHorizon, 1);
+                draw.C = repmat({C}, estimationHorizon, 1);
+
+                for jj = 1:estimationHorizon
+                    draw.Sigma{jj,1}(:, :) = sample.Sigma_t{jj, 1};
+                end
+
+            end%
+
+            this.UnconditionalDrawer = @unconditionalDrawer;
+            this.ConditionalDrawer = @conditionalDrawer;
+            this.IdentificationDrawer = @identificationDrawer;
+            this.HistoryDrawer = @historyDrawer;
+
+            %]
         end%
 
-        this.UnconditionalDrawer = @unconditionalDrawer;
-        this.ConditionalDrawer = @conditionalDrawer;
-        this.IdentificationDrawer = @identificationDrawer;
-        this.HistoryDrawer = @historyDrawer;
-
-        %]
-    end%
+    end
 
 end
 
-end

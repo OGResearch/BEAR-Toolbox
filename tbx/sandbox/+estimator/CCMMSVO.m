@@ -1,12 +1,15 @@
-classdef CCMMSVO < estimator.Base & estimator.NoDummyMixin
-%% Stochastic Volatility model with outliers/jumps 
+
+% Stochastic Volatility model with outliers/jumps
 % SV model with outliers, model nr 3 in the CCMM paper
-    properties        
+
+classdef CCMMSVO ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
+
+    properties (Constant)
+        Description = "CCMM stochastic volatility VAR with outliers"
+        Category = "Time-varying VAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
@@ -17,7 +20,7 @@ classdef CCMMSVO < estimator.Base & estimator.NoDummyMixin
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -65,7 +68,7 @@ classdef CCMMSVO < estimator.Base & estimator.NoDummyMixin
 
             Lambda0 = (arEPS(opt.p:end, :).^2)';
             pars.logLambda = log(Lambda0);
-            
+
             Phi0 = 0.0001*eye(numEn);
             pars.cholPhi = largeshockUtils.vech(chol(Phi0, "lower"));
 
@@ -189,4 +192,6 @@ classdef CCMMSVO < estimator.Base & estimator.NoDummyMixin
         end%
 
     end
+
 end
+

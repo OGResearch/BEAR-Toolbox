@@ -1,8 +1,10 @@
 
-classdef CogleySargentSV < estimator.Base & estimator.NoDummyMixin
+% Standard Stochastic volatility model
+% Cogley-Sargent, stvol = 1 in BEAR5
 
-    %% Standard Stochastic volatility model
-    % Cogley-Sargent, stvol = 1 in BEAR5
+classdef CogleySargentSV ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
@@ -10,12 +12,11 @@ classdef CogleySargentSV < estimator.Base & estimator.NoDummyMixin
         end
     end
 
-    properties
+
+    properties (Constant)
+        Description = "Cogley-Sargent stochastic-volatility VAR"
         HasCrossUnits = false
-
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
+        Category = "Time-varying VAR estimators"
         CanBeIdentified = true
     end
 
@@ -27,7 +28,7 @@ classdef CogleySargentSV < estimator.Base & estimator.NoDummyMixin
 
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 

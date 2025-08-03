@@ -1,6 +1,9 @@
-classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
-%% FAVAR version of Standard Stochastic Volatility model 
+
+% FAVAR version of Standard Stochastic Volatility model
 % FAVAR with stvol = 1 in BEAR5
+
+classdef CogleySargentSVFAVAR ...
+    < estimator.BaseFAVAR
 
     methods (Static)
         function info = getModelReference()
@@ -8,14 +11,13 @@ classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
         end
     end
 
-    properties
-        
+
+    properties (Constant)
+        Description = "Two-step FAVAR with Cogley-Sargent stochastic-volatility prior"
+        Category = "Time-varying FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BFAVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = false
     end
 
 
@@ -26,7 +28,7 @@ classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
 
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -113,7 +115,7 @@ classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
 
 
             LD = favar.L;
-            
+
             %===============================================================================
 
 
@@ -260,7 +262,7 @@ classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
 
                 sample.FY = FY;
                 sample.LD = LD;
-                
+
                 for zz = 1:estimLength
                     sample.lambda_t{zz, 1} = lambda_t(:, :, zz);
                     sample.sigma_t{zz, 1} = sigma_t(:, :, zz);
@@ -350,7 +352,7 @@ classdef CogleySargentSVFAVAR < estimator.BaseFAVAR
                 draw.A = repmat({A}, horizon, 1);
                 draw.C = repmat({C}, horizon, 1);
                 draw.Sigma = reshape(sample.sigmaAvg, numY, numY);
-                % draw.LD = reshape(sample.LD, [], numY); 
+                % draw.LD = reshape(sample.LD, [], numY);
 
             end
 

@@ -1,38 +1,39 @@
-classdef Threshold < estimator.Base & estimator.DummyMixin
-%% BVAR with regime switches based on threshold using minnesota priors    
-    
+
+% VAR with regime switches based on threshold using minnesota priors
+
+classdef Threshold ...
+    < estimator.Base ...
+    & estimator.DummyMixin
+
     methods (Static)
         function info = getModelReference()
             info.category = "basic_bvar";
         end
     end
-    properties
-        DescriptionUX = "BVAR with regime switching"
-        
+
+
+    properties (Constant)
+        Description = "VAR with threshold-based regime switching"
+        Category = "Time-varying VAR estimators"
         HasCrossUnits = false
-
-        Category = "Time-varying BVAR estimators"
-
-        %Struct identification
-        CanBeIdentified = false        
+        CanBeIdentified = false
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
 
             [longY, longX] = longYX{:};
 
-            opt.varThreshold = this.Settings.VarThreshold; 
-            opt.maxDelay = this.Settings.MaxDelay; 
+            opt.varThreshold = this.Settings.VarThreshold;
+            opt.maxDelay = this.Settings.MaxDelay;
 
             opt.thresholdPropStd = this.Settings.ThresholdPropStd;
 
@@ -40,7 +41,7 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
             opt.p = meta.Order;
             opt.thresholdVarName = meta.ThresholdVarName;
 
-            if opt.maxDelay > opt.p 
+            if opt.maxDelay > opt.p
                opt.maxDelay = opt.p;
             end
 
@@ -70,11 +71,11 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
             function sample = sampler()
 
                 [B, sigma, sample] = thresholdUtils.drawBSigma(sigma, th, ...
-                    delay, thresholdvar, Y, LX, dummiesYLX); 
+                    delay, thresholdvar, Y, LX, dummiesYLX);
 
                 th = thresholdUtils.drawThreshold(B, sigma, th, delay,...
                     thresholdvar, meanThreshold, opt.varThreshold, Y, LX,...
-                    opt.thresholdPropStd); 
+                    opt.thresholdPropStd);
 
                 delay = thresholdUtils.drawDelay(opt.maxDelay, B, sigma, th, thresholdvar,...
                     meanThreshold, opt.varThreshold, Y, LX);
@@ -82,8 +83,8 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
                 sample.beta = cell(estimLength, 1);
                 sample.sigma_t = cell(estimLength, 1);
                 for r = 1:2
-                    regimeInd = thresholdUtils.getRegimeInd(th, delay, ... 
-                        thresholdvar, r);    
+                    regimeInd = thresholdUtils.getRegimeInd(th, delay, ...
+                        thresholdvar, r);
                     sample.beta(regimeInd,1)= {sample.("B" + string(r))(:)};
                     sample.sigma_t(regimeInd,1) = {sample.("sigma" + string(r))(:)};
                 end
@@ -132,15 +133,15 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
                 sigma2 = sample.sigma2;
 
                 draw.A1 = cell(forecastHorizon, 1);
-                draw.A2 = cell(forecastHorizon, 1);                
+                draw.A2 = cell(forecastHorizon, 1);
                 draw.C1 = cell(forecastHorizon, 1);
-                draw.C2 = cell(forecastHorizon, 1); 
+                draw.C2 = cell(forecastHorizon, 1);
                 draw.Sigma1 = cell(forecastHorizon, 1);
-                draw.Sigma2 = cell(forecastHorizon, 1); 
+                draw.Sigma2 = cell(forecastHorizon, 1);
 
                 draw.threshold = sample.threshold;
                 draw.delay = sample.delay;
-                
+
                 % then generate forecasts recursively
                 % for each iteration ii, repeat the process for periods T+1 to T+h
                 for jj = 1:forecastHorizon
@@ -155,7 +156,7 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
                 end
                 %
             end%
-            % 
+            %
 
             % function draw = conditionalDrawer(sample, startingIndex, forecastHorizon )
             %     %
@@ -168,7 +169,7 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
             %     cholomega = sparse(diag(omega));
             %     %
             %     draw.beta = cell(forecastHorizon, 1);
-            % 
+            %
             %     for jj = 1:forecastHorizon
             %         % update beta
             %         beta = beta + cholomega*randn(sizeB, 1);
@@ -231,9 +232,6 @@ classdef Threshold < estimator.Base & estimator.DummyMixin
 
             %]
         end%
-
-           
-
     end
 
 end

@@ -1,7 +1,11 @@
 
-classdef Minnesota < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
-%% BVAR with Minnesota prior
+% VAR with Minnesota prior
 % prior =11 12 and 13 in BEAR5
+
+classdef Minnesota ...
+    < estimator.Base ...
+    & estimator.DummyMixin ...
+    & estimator.PlainDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,16 +13,12 @@ classdef Minnesota < estimator.Base & estimator.DummyMixin & estimator.PlainDraw
         end
     end
 
-    properties
-        DescriptionUX = "BVAR with Minnesota prior"
-        
+
+    properties (Constant)
+        Description = "VAR with Minnesota prior"
+        Category = "Plain VAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
-
     end
 
 
@@ -27,7 +27,7 @@ classdef Minnesota < estimator.Base & estimator.DummyMixin & estimator.PlainDraw
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end

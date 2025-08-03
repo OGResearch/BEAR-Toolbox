@@ -1,33 +1,30 @@
 
-classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
+classdef HierarchicalPanel ...
+    < estimator.Base ...
+    & estimator.PlainPanelDrawersMixin
 
     methods (Static)
         function info = getModelReference()
             info.category = "panel";
         end
     end
-    
-    properties
+
+
+    properties (Constant)
         Description = "Hierarchical Panel"
-
-        CanHaveDummies = false
-        
+        Category = "Panel VAR estimators"
         HasCrossUnits = false
-
-        Category = "Panel BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
-    methods
 
+    methods
         function initializeSampler(this, meta, longYX3, dummiesYLX)
             %[
 
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX3 (1, 3) cell
                 dummiesYLX (1, 2) cell
             end
@@ -175,7 +172,7 @@ classdef HierarchicalPanel < estimator.Base & estimator.PlainPanelDrawersMixin
 
             %]
         end%
-
     end
+
 end
 

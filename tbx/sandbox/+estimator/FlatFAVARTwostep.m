@@ -1,7 +1,10 @@
 
-classdef FlatFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with flat prior and two-step estimation
+% FAVAR with flat prior and two-step estimation
 % FAVAR with prior = 41 in BEAR5 with lambda1>999
+
+classdef FlatFAVARTwostep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
 
     methods (Static)
         function info = getModelReference()
@@ -9,25 +12,22 @@ classdef FlatFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
         end
     end
 
-    properties
-        DescriptionUX = "BFAVAR with Flat prior"
 
-        Category = "Plain BFAVAR estimators"
-        
+    properties (Constant)
+        Description = "Two-step FAVAR with Flat prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = false
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -50,7 +50,7 @@ classdef FlatFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
             B = Bhat;
 
             LD = favar.L;
-            
+
             %===============================================================================
 
             function sample = sampler()
@@ -102,7 +102,6 @@ classdef FlatFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMix
 
             %]
         end%
-
     end
 
 end

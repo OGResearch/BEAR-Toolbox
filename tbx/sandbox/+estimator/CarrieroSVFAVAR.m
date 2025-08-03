@@ -1,21 +1,23 @@
-classdef CarrieroSVFAVAR < estimator.BaseFAVAR
-%% FAVAR version of large scale stochastic volatility models 
+
+% FAVAR version of large scale stochastic volatility models
 % FAVAR with stvol=3 in BEAR5
-% 
+
+classdef CarrieroSVFAVAR ...
+    < estimator.BaseFAVAR
 
     methods (Static)
         function info = getModelReference()
             info.category = "favar";
         end
     end
-    
-    properties
-        CanHaveDummies = false
+
+
+    properties (Constant)
+        Description = "Two-step FAVAR with Carriero stochastic volatility"
+        Category = "Time-varying FAVAR estimators"
         HasCrossUnits = false
-        Category = "Time-varying BFAVAR estimators"
-        
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = false
     end
 
 
@@ -25,7 +27,7 @@ classdef CarrieroSVFAVAR < estimator.BaseFAVAR
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -112,7 +114,7 @@ classdef CarrieroSVFAVAR < estimator.BaseFAVAR
             lambda_t = repmat(diag(sbar), 1, 1, estimLength);
             sigma_t  =  repmat(sigmahat, 1, 1, estimLength);
 
-            
+
             LD = favar.L;
 
 
@@ -264,7 +266,7 @@ classdef CarrieroSVFAVAR < estimator.BaseFAVAR
                 end
 
                 sample.FY = FY;
-                sample.LD = LD;      
+                sample.LD = LD;
 
             end
 
@@ -364,7 +366,7 @@ classdef CarrieroSVFAVAR < estimator.BaseFAVAR
             end%
 
             this.UnconditionalDrawer = @unconditionalDrawer;
-            this.ConditionalDrawer = @conditionalDrawer;            
+            this.ConditionalDrawer = @conditionalDrawer;
             this.IdentificationDrawer = @identificationDrawer;
             this.HistoryDrawer = @historyDrawer;
 
@@ -372,4 +374,5 @@ classdef CarrieroSVFAVAR < estimator.BaseFAVAR
         end%
 
     end
+
 end

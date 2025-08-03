@@ -1,4 +1,8 @@
-classdef NormalWishart < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
+
+classdef NormalWishart ...
+    < estimator.Base ...
+    & estimator.DummyMixin ...
+    & estimator.PlainDrawersMixin
 
 % prior =21 and 22 in BEAR5
 
@@ -7,25 +11,22 @@ classdef NormalWishart < estimator.Base & estimator.DummyMixin & estimator.Plain
             info.category = "basic_bvar";
         end
     end
-    properties
-        DescriptionUX = "BVAR with Normal-Wishart prior"
 
-        CanHaveDummies = true
 
+    properties (Constant)
+        Description = "VAR with Normal-Wishart prior"
+        Category = "Plain VAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BVAR estimators"
-
         CanBeIdentified = true
     end
 
-    methods
 
+    methods
         function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
@@ -85,7 +86,6 @@ classdef NormalWishart < estimator.Base & estimator.DummyMixin & estimator.Plain
             this.Sampler = @sampler_;
             %]
         end%
-
     end
 
 end

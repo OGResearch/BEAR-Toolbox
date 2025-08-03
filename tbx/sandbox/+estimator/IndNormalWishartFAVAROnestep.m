@@ -1,32 +1,33 @@
 
-classdef IndNormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with Indenpendent Normal-Wishart prior and one-step estimation
+% FAVAR with Indenpendent Normal-Wishart prior and one-step estimation
 % FAVAR with prior 31 and 32 in BEAR5
+
+classdef IndNormalWishartFAVAROnestep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
 
     methods (Static)
         function info = getModelReference()
             info.category = "favar";
         end
     end
-    properties
-        DescriptionUX = "BFAVAR with Individual Normal-Wishart prior"
-        
+
+
+    properties (Constant)
+        Description = "One-step FAVAR with independent Normal-Wishart prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BFAVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = true
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -74,7 +75,7 @@ classdef IndNormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAV
 
             XZ0mean = zeros(numEn * p, 1);
             XZ0var = opt.L0*eye(numEn * p);
-            L0 = opt.L0*eye(numEn);            
+            L0 = opt.L0*eye(numEn);
 
             XY = favar.XY;
             LD = favar.L;
@@ -89,10 +90,10 @@ classdef IndNormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAV
 
                 % Sample latent factors using Carter and Kohn (1994)
                 FY = bear.favar_kfgibbsnv(XY, XZ0mean, XZ0var, LD, Sigma, B_ss, sigma_ss, indexnM);
-                
+
                 % demean generated factors
                 FY = bear.favar_demean(FY);
-                
+
                 % Sample autoregressive coefficients B
                 [B, ~, ~, LX, ~, Y, y] = bear.olsvar(FY, longX, opt.const, p);
 
@@ -164,7 +165,6 @@ classdef IndNormalWishartFAVAROnestep < estimator.BaseFAVAR & estimator.PlainFAV
 
             %]
         end%
-
     end
 
 end

@@ -1,6 +1,9 @@
+%
+% Mean OLS Panel VAR
 
-classdef MeanOLSPanel < estimator.Base & estimator.DummyMixin
-% Mean OLS Panel BVAR
+classdef MeanOLSPanel ...
+    < estimator.Base ...
+    & estimator.DummyMixin
 
     methods (Static)
         function info = getModelReference()
@@ -8,20 +11,16 @@ classdef MeanOLSPanel < estimator.Base & estimator.DummyMixin
         end
     end
 
-    properties
-        DescriptionUX = "Mean OLS Panel BVAR"
-        
+
+    properties (Constant)
+        Description = "Mean OLS Panel VAR"
+        Category = "Panel VAR estimators"
         HasCrossUnits = false
-
-        Category = "Panel BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
 
     methods
-
         function this = MeanOLSPanel(varargin)
             this = this@estimator.Base(varargin{:});
             this.HasCrossUnitVariationInBeta = true;
@@ -33,7 +32,7 @@ classdef MeanOLSPanel < estimator.Base & estimator.DummyMixin
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
@@ -135,3 +134,4 @@ classdef MeanOLSPanel < estimator.Base & estimator.DummyMixin
     end
 
 end
+

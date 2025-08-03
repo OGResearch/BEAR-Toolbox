@@ -1,22 +1,25 @@
 
-classdef GeneralTV < estimator.Base & estimator.NoDummyMixin
-%% Bayesian VAR model with time-varying parameters and stochastic volatility, 
+% Bayesian VAR model with time-varying parameters and stochastic volatility,
 % tvbvar = 2 in BEAR5
+
+classdef GeneralTV ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
             info.category = "time_varying";
         end
     end
-    
-    properties
-        Category = "Time-varying BVAR estimators"
-        
-        HasCrossUnits = false
 
-        %Struct identification
+
+    properties (Constant)
+        Description = "VAR with time-varying parameters and stochastic volatility"
+        Category = "Time-varying VAR estimators"
+        HasCrossUnits = false
         CanBeIdentified = true
     end
+
 
     methods
 
@@ -30,7 +33,7 @@ classdef GeneralTV < estimator.Base & estimator.NoDummyMixin
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 

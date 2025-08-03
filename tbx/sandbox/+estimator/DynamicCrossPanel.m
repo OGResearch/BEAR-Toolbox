@@ -1,34 +1,30 @@
 
-classdef DynamicCrossPanel < estimator.Base
+classdef DynamicCrossPanel ...
+    < estimator.Base ...
+    & estimator.NoDummyMixin
 
     methods (Static)
         function info = getModelReference()
             info.category = "panel";
         end
     end
-    
-    properties
-        Description = "Dynamic Cross-Panel Model"
-        %
-        CanHaveDummies = false
-        
+
+
+    properties (Constant)
+        Description = "Dynamic cross-panel model"
+        Category = "Panel VAR estimators"
         HasCrossUnits = true
-
-        Category = "Panel BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
-    methods
 
-        function initializeSampler(this, meta, longYX, dummiesYLX)
+    methods
+        function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
-                dummiesYLX (1, 2) cell
             end
 
             [longY, longX] = longYX{:};
@@ -495,6 +491,7 @@ classdef DynamicCrossPanel < estimator.Base
             this.ConditionalDrawer = @conditionalDrawer;
             %]
         end%
-
     end
+
 end
+

@@ -1,33 +1,33 @@
 
-classdef IndNormalWishart < estimator.Base & estimator.DummyMixin & estimator.PlainDrawersMixin
-%% BVAR with Indenpendent Normal-Wishart priors
-% BVAR with prior = 31, 32 in BEAR5
-    
-    
+% VAR with Independent Normal-Wishart priors
+% VAR with prior = 31, 32 in BEAR5
+
+classdef IndNormalWishart ...
+    < estimator.Base ...
+    & estimator.DummyMixin ...
+    & estimator.PlainDrawersMixin
+
     methods (Static)
         function info = getModelReference()
             info.category = "basic_bvar";
         end
     end
-    properties
-        DescriptionUX = "BVAR with indenpendent Normal-Wishart priors"
-        
+
+
+    properties (Constant)
+        Description = "VAR with indenpendent Normal-Wishart priors"
+        Category = "Plain VAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX, dummiesYLX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
                 dummiesYLX (1, 2) cell
             end
@@ -130,7 +130,6 @@ classdef IndNormalWishart < estimator.Base & estimator.DummyMixin & estimator.Pl
 
             %]
         end%
-
     end
 
 end

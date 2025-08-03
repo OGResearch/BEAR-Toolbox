@@ -1,22 +1,21 @@
+
 classdef (Abstract) NoDummyMixin < handle
 
-
-    methods(Abstract)
-        initializeSampler(this, meta, longYX)
+    properties (Constant)
+        CanHaveDummies = false
     end
-    
-    
-    methods
 
-        function initialize(this, meta, longYX)
+
+    methods
+        function initialize(this, meta, longYX, ~)
             if this.BeenInitialized
-                return
+                error("This estimator has already been initialized.");
             end
             this.initializeSampler(meta, longYX);
             this.createDrawers(meta);
             this.BeenInitialized = true;
         end%
-
     end
 
 end
+

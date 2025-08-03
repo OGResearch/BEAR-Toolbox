@@ -1,33 +1,33 @@
 
-classdef MinnesotaFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawersMixin
-%% BFAVAR with Minnesota prior and two-step estimation
+% FAVAR with Minnesota prior and two-step estimation
 % FAVAR version of prior =11 12 and 13 BEAR5
-    
+
+classdef MinnesotaFAVARTwostep ...
+    < estimator.BaseFAVAR ...
+    & estimator.PlainFAVARDrawersMixin
+
     methods (Static)
         function info = getModelReference()
             info.category = "favar";
         end
     end
 
-    properties
-        DescriptionUX = "BFAVAR with Minnesota prior"
-        
+
+    properties (Constant)
+        Description = "Two-step FAVAR with Minnesota prior"
+        Category = "Plain FAVAR estimators"
         HasCrossUnits = false
-
-        Category = "Plain BFAVAR estimators"
-
-        %Struct identification
         CanBeIdentified = true
+        OneStepFactors = false
     end
 
 
     methods
-
         function initializeSampler(this, meta, longYX)
             %[
             arguments
                 this
-                meta (1, 1) base.Meta
+                meta
                 longYX (1, 2) cell
             end
 
@@ -78,7 +78,7 @@ classdef MinnesotaFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawe
 
             LD = favar.L;
             B = Bhat;
-            
+
             %===============================================================================
 
             function sample = sampler()
@@ -104,7 +104,6 @@ classdef MinnesotaFAVARTwostep < estimator.BaseFAVAR & estimator.PlainFAVARDrawe
 
             %]
         end%
-
     end
 
 end
