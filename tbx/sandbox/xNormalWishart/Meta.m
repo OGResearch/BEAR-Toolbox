@@ -1,7 +1,8 @@
 
 % model.Meta  Meta information about reduced-form and structural models
 
-classdef Meta < baseWithDummies.Meta
-    
+classdef Meta ...
+    < baseWithDummies.Meta
+
 end
 
