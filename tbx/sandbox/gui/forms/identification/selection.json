@@ -1,0 +1,23 @@
+{
+    "None":  {
+        "value": true,
+        "label": "No structural identification",
+        "target": ["identification", "selection"]
+    },
+    "Cholesky":  {
+        "value": false,
+        "label": "Cholesky (triangular) identification",
+        "target": ["identification", "cholesky"]
+    },
+    "ExactZeros":  {
+        "value": false,
+        "label": "Exact zero restrictions on instantaneous impact",
+        "target": ["identification", "zeros"]
+    },
+    "SignRestrictions":  {
+        "value": false,
+        "label": "Inequality (sign) restrictions on shock responses",
+        "target": ["identification", "inequality"]
+    }
+}
+

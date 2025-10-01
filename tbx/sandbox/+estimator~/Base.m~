@@ -1,0 +1,78 @@
+
+classdef (Abstract) Base < handle
+
+    properties
+        Settings
+    end
+
+
+    properties
+        Sampler
+        SampleCounter (1, 1) uint64 = 0
+        HistoryDrawer
+        UnconditionalDrawer
+        ConditionalDrawer
+        IdentificationDrawer
+    end
+
+
+    properties
+        BeenInitialized (1, 1) logical = false
+        HasCrossUnitVariationInBeta (1, 1) logical = false
+        HasCrossUnitVariationInSigma (1, 1) logical = false
+        HasTimeVariationInBeta (1, 1) logical = false
+    end
+
+
+    properties (Dependent)
+        ShortClassName
+    end
+
+
+    properties (Abstract, Constant)
+        Description
+        Category
+        CanHaveDummies
+        HasCrossUnits
+        CanBeIdentified
+    end
+
+
+    methods (Abstract)
+        initializeSampler(this, varargin)
+        createDrawers(this, varargin)
+    end
+
+
+    methods
+        function this = Base(varargin)
+            this.Settings = estimator.settings.(this.ShortClassName)(varargin{:});
+        end%
+
+        function initialize(this, meta, longYX, dummiesYLX)
+            arguments
+                this
+                meta (1, 1) base.Meta
+                longYX (1, 2) cell
+                dummiesYLX (1, 3) cell
+            end
+            if this.BeenInitialized
+                warning("This estimator has already been initialized; skipping initialization.");
+                return
+            end
+            if this.CanHaveDummies
+                this.initializeSampler(meta, longYX, dummiesYLX);
+            else
+                this.initializeSampler(meta, longYX);
+            end
+            this.createDrawers(meta);
+            this.BeenInitialized = true;
+        end%
+
+        function name = get.ShortClassName(this)
+            name = extractAfter(class(this), "estimator.");
+        end%
+    end
+
+end
+

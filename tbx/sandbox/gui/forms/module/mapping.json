@@ -1,0 +1,19 @@
+{
+  "CogleySargentSV": "base",
+  "Flat": "base",
+  "GenLargeShockSV": "base",
+  "GeneralTV": "base",
+  "IndNormalWishart": "base",
+  "LargeShockSV": "base",
+  "Minnesota": "base",
+  "MixedFrequency": "base",
+  "NormalDiffuse": "base",
+  "NormalWishart": "base",
+  "RandomInertiaSV": "base",
+  "Threshold": "base",
+  "DynamicCrossPanel": "panel",
+  "HierarchicalPanel": "panel",
+  "MeanOLSPanel": "panel",
+  "StaticCrossPanel": "panel",
+  "ZellnerHongPanel": "panel"
+}

@@ -1,0 +1,12 @@
+{
+    "identification": {
+        "cholesky": ["tasks", "selection"]
+    },
+    "tasks": {
+        "selection": ["tasks", "prerequisites"],
+        "prerequisites": ["tasks", "selection"],
+        "unconditional": ["tasks", "selection"],
+        "conditional": ["tasks", "selection"]
+    }
+}
+

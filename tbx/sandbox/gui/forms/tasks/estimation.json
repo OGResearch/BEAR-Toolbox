@@ -1,0 +1,8 @@
+{
+    "NumSamples": {
+        "value": 1000,
+        "type": "number",
+        "label": "Number of reduced-form samples to generate"
+    }
+}
+

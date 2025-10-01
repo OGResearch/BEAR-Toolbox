@@ -1,0 +1,14 @@
+
+nav:
+    - Task selection: selection.md
+    - Prerequisites: prerequisites.md
+    - Reduced-form estimation: estimation.md
+    - Structural identification: identification.md
+    - Unconditional forecast: unconditional.md
+    - Shock responses: responses.md
+    - Shock contributions: contributions.md
+    - Forecast variance decomposition: fevd.md
+    - Conditional forecast: conditional.md
+    - Parameter assessment: parameters.md
+    - Your notes: notes.md
+

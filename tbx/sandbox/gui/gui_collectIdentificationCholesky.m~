@@ -1,0 +1,28 @@
+
+function gui_collectIdentificationCholesky(submission)
+
+    arguments
+        submission (1, 1) string
+    end
+
+    FORM_PATH = {"identification", "cholesky"};
+    TARGET_PAGE = {"html", "tasks", "selection.html"};
+
+    % Get information submitted by the user and cleaned up to comply with the
+    % specifications
+    settingsForm = gui.readFormsFile(FORM_PATH);
+    cleanSubmission = gui.resolveCleanFormSubmission(submission, settingsForm);
+    settingsForm = gui.updateValuesFromSubmission(settingsForm, cleanSubmission);
+
+    % Update the settings JSON with the new values
+    gui.writeFormsFile(settingsForm, FORM_PATH);
+
+    % Repopulate the HTML with the cleaned-up settings
+    gui.populateIdentificationCholeskyHTML();
+
+    % Move on to the tasks selection page
+    targetPage = fullfile(".", TARGET_PAGE{:});
+    web(targetPage);
+
+end%
+

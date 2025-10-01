@@ -1,0 +1,40 @@
+
+function populateIdentificationCholeskyHTML()
+
+    FORM_PATH = {"identification", "cholesky"};
+    HTML_END_PATH = {"html", "identification", "cholesky.html"};
+    CALLBACK_ACTION = "gui_collectIdentificationCholesky";
+
+    NO_ESTIMATOR_FORM = "<p>You need to choose a reduced-form estimator first</p>";
+    CANNOT_IDENTIFY_FORM = "<p>The selected reduced-form estimator cannot be identified</p>";
+
+    guiFolder = gui_getFolder();
+    sourcePath = fullfile(guiFolder, HTML_END_PATH{:});
+    targetPath = fullfile(".", HTML_END_PATH{:});
+
+    function copyCustomHTML_(htmlForm)
+        gui.copyCustomHTML( ...
+            sourcePath, targetPath ...
+            , "?FORM?", htmlForm ...
+        );
+    end%
+
+    if gui.getCurrentModule() == ""
+        copyCustomHTML_(NO_ESTIMATOR_FORM);
+        return
+    end
+
+    if ~gui.canBeIdentified()
+        copyCustomHTML_(CANNOT_IDENTIFY_FORM);
+        return
+    end
+
+    form = gui.readFormsFile(FORM_PATH);
+    htmlForm = gui.generateFreeForm( ...
+        form ...
+        , action=CALLBACK_ACTION ...
+    );
+    copyCustomHTML_(htmlForm);
+
+end%
+

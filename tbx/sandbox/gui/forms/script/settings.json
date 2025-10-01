@@ -1,0 +1,27 @@
+{
+    "ScriptName": {
+        "description": "Name of the Matlab script to create",
+        "type": "string",
+        "value": "master.m",
+        "details": ""
+    },
+    "OverwriteExisting": {
+        "description": "Overwrite existing file",
+        "type": "logical",
+        "value": true,
+        "details": ""
+    },
+    "PrintObjects": {
+        "description": "Print newly created objects to console",
+        "type": "logical",
+        "value": true,
+        "details": ""
+    },
+    "PrintTables": {
+        "description": "Print newly created tables to console",
+        "type": "logical",
+        "value": true,
+        "details": ""
+    }
+}
+

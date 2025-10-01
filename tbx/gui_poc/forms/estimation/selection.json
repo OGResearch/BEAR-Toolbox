@@ -1,0 +1,70 @@
+{
+  "CogleySargentSV": {
+    "category": "Time-varying estimators",
+    "value": false
+  },
+  "Flat": {
+    "category": "Plain estimators",
+    "value": false
+  },
+  "GenLargeShockSV": {
+    "category": "Time-varying estimators",
+    "value": false
+  },
+  "GeneralTV": {
+    "category": "Time-varying estimators",
+    "value": false
+  },
+  "IndNormalWishart": {
+    "category": "Plain estimators",
+    "value": false
+  },
+  "LargeShockSV": {
+    "category": "Time-varying estimators",
+    "value": false
+  },
+  "Minnesota": {
+    "category": "Plain estimators",
+    "value": false
+  },
+  "MixedFrequency": {
+    "category": "Plain estimators",
+    "value": false
+  },
+  "NormalDiffuse": {
+    "category": "Plain estimators",
+    "value": false
+  },
+  "NormalWishart": {
+    "category": "Plain estimators",
+    "value": true
+  },
+  "RandomInertiaSV": {
+    "category": "Time-varying estimators",
+    "value": false
+  },
+  "Threshold": {
+    "category": "Time-varying estimators",
+    "value": false
+  },
+  "DynamicCrossPanel": {
+    "category": "Panel estimators",
+    "value": false
+  },
+  "HierarchicalPanel": {
+    "category": "Panel estimators",
+    "value": false
+  },
+  "MeanOLSPanel": {
+    "category": "Panel estimators",
+    "value": false
+  },
+  "StaticCrossPanel": {
+    "category": "Panel estimators",
+    "value": false
+  },
+  "ZellnerHongPanel": {
+    "category": "Panel estimators",
+    "value": false
+  }
+}

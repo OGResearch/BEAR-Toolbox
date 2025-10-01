@@ -1,0 +1,8 @@
+
+nav:
+    - Identification scheme selection: selection.md
+    - Cholesky (triangular): cholesky.md
+    - Exact zeros restrictions: zeros.md
+    - Inequality (sign) restrictions: inequality.md
+    - Your notes: notes.md
+

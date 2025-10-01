@@ -1,0 +1,8 @@
+{
+  "Percentiles": {
+    "description": "Percentiles to report",
+    "type": "numbers",
+    "value": [10, 50, 90],
+    "details": ""
+  }
+}

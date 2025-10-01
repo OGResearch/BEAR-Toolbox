@@ -1,0 +1,28 @@
+{
+    "ForecastSpan": {
+        "value": "",
+        "type": "span",
+        "label": "Forecast date span"
+    },
+    "UsePlan": {
+        "value": false,
+        "type": "logical",
+        "label": "Use a conditioning plan"
+    },
+    "SaveXLSX": {
+        "value": true,
+        "type": "logical",
+        "label": "Save forecast table as an XLSX file"
+    },
+    "SaveMAT": {
+        "value": false,
+        "type": "logical",
+        "label": "Save forecast table as a MAT file"
+    },
+    "DrawCharts": {
+        "value": false,
+        "type": "logical",
+        "label": "Draw and save forecast charts as PDF files"
+    }
+}
+

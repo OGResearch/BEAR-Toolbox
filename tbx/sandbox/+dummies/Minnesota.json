@@ -1,0 +1,27 @@
+{
+    "Lambda": {
+        "value": 0.1,
+        "type": "number",
+        "description": "Tightness of the endogenous dummy observations"
+    },
+    "LagDecay": {
+        "value": 1,
+        "type": "number",
+        "description": "Decay factor for the lagged coefficients"
+    },
+    "Autoregression": {
+        "value": 0.8,
+        "type": "number",
+        "description": "Coefficient for the autoregressive term"
+    },
+    "Exogenous": {
+        "value": false,
+        "type": "logical",
+        "description": "True or false to include exogenous dummy observations"
+    },
+    "ExogenousLambda": {
+        "value": 100,
+        "type": "number",
+        "description": "Tightness of the exogenous dummy observations"
+    }
+}

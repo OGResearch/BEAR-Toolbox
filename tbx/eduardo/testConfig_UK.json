@@ -1,0 +1,119 @@
+{
+    "DataSource_Format": "CSV",
+    "DataSource_FilePath": "exampleData.csv",
+    "Tasks_Percentiles": [
+        true,
+        "5 50 95",
+        null,
+        null
+    ],
+    "Tasks_ParameterTables": [
+        false,
+        "output/parameters.csv",
+        null,
+        null
+    ],
+    "Tasks_AsymptoticMeanTables": [
+        false,
+        "output/asymptoticMeans.csv",
+        null,
+        null
+    ],
+    "Tasks_ResidualEstimates": [
+        true,
+        "output/residualEstimates.csv",
+        null,
+        null
+    ],
+    "Tasks_UnconditionalForecast": [
+        true,
+        "output/unconditionalForecast.csv",
+        "2024-Q3",
+        "2027-Q4"
+    ],
+    "Tasks_ShockEstimates": [
+        true,
+        "output/shockEstimates.csv",
+        null,
+        null
+    ],
+    "Tasks_ShockResponses": [
+        true,
+        "output/shockResponses.csv",
+        null,
+        null
+    ],
+    "Tasks_ConditionalForecast": [
+        false,
+        "output/conditionalForecast.csv",
+        "2024-Q3",
+        "2027-Q4"
+    ],
+    "Tasks_SaveResults": [
+        true,
+        "output/results.mat",
+        null,
+        null
+    ],
+    "Tasks_SaveConfig": [
+        true,
+        "output/config.json",
+        null,
+        null
+    ],
+    "Meta_Units": "",
+    "Meta_EndogenousConcepts": [
+        "Y_UK",
+		"P_UK",
+		"I_UK",
+		"NEER_UK",
+		"Y",
+		"P",
+		"I",
+		"OIL"
+    ],
+    "Meta_ExogenousNames": [
+	"dummy_20q2",
+	"dummy_20q3",
+	"dummy_21q2"
+	],
+    "Meta_HasIntercept": true,
+    "Meta_Order": 2,
+    "Meta_EstimationStart": "1996-Q4",
+    "Meta_EstimationEnd": "2024-Q2",
+    "Meta_NumDraws": 5000,
+    "Estimator_Name": "Minnesota",
+    "Estimator_Settings": [
+        "Sigma",
+        "full",
+        "Burnin",
+        2000,
+        "Exogenous",
+        true,
+        "BlockExogenous",
+        false,
+        "Autoregression",
+        0.3,
+        "Lambda1",
+        0.16,
+        "Lambda2",
+        0.5,
+        "Lambda3",
+        1,
+        "Lambda4",
+        100,
+        "Lambda5",
+        0
+    ],
+    "Meta_ShockConcepts": [
+        "DD",
+		"DS",
+		"DMP",
+		"UD",
+		"FD",
+		"FS",
+		"FMP",
+		"OILS"
+    ],
+    "Meta_IdentificationHorizon": 16
+}
