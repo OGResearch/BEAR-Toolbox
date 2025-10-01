@@ -37,7 +37,7 @@
   },
   "NormalWishart": {
     "category": "Plain estimators",
-    "value": true
+    "value": false
   },
   "RandomInertiaSV": {
     "category": "Time-varying estimators",
