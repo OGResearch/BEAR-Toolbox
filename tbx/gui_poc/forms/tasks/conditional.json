@@ -9,10 +9,20 @@
         "type": "logical",
         "label": "Use a conditioning plan"
     },
-    "SaveXLSX": {
+    "IncludeInitial": {
+        "value": false,
+        "type": "logical",
+        "label": "Include initial conditions in forecast output"
+    },
+    "SaveXLS": {
         "value": true,
         "type": "logical",
-        "label": "Save forecast table as an XLSX file"
+        "label": "Save forecast table as an Excel file"
+    },
+    "SaveCSV": {
+        "value": true,
+        "type": "logical",
+        "label": "Save forecast table as a CSV file"
     },
     "SaveMAT": {
         "value": false,

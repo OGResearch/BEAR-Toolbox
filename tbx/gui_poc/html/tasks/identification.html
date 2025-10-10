@@ -20,7 +20,7 @@
     
     
       
-        <title>Structural identification - Bear Toolbox GUI</title>
+        <title>Structural estimation - Bear Toolbox GUI</title>
       
     
     
@@ -99,7 +99,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Structural identification
+              Structural estimation
             
           </span>
         </div>
@@ -1318,7 +1318,7 @@
         
   
   <span class="md-ellipsis">
-    Structural identification
+    Structural estimation
     
   </span>
   
@@ -1670,9 +1670,21 @@
   
 
 
-  <h1>Structural identification</h1>
+  <h1>Structural estimation</h1>
 
-
+<p>Configure structural estimation and identification</p>
+<hr />
+<p><form action='matlab:gui_collectVanillaForm tasks identification  '>
+<input style='color:black' style='background-color:gray' type='submit' value='Submit'>
+<br/>
+<br/>
+<label for='NumSamples'>Number of structurally identified samples to generate from posterior</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='NumSamples' name='NumSamples' value='1000' size='20'><br/>
+<input style='margin-top:1em; margin-bottom:1em; margin-left:-0.1em' type='checkbox' id='SaveMAT' name='SaveMAT' value='true' >&nbsp;
+<label for='SaveMAT'>Save estimated structural model object as a MAT file</label><br/>
+<br/>
+<input style='color:black' style='background-color:gray' type='submit' value='Submit'>
+</form></p>
 
 
 

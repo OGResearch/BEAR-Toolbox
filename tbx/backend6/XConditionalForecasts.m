@@ -81,7 +81,6 @@ modelR = base.ReducedForm( ...
 modelR.initialize();
 infoR = modelR.presample(100);
 
-return
 
 %% Identify a SVAR using Cholesky with reordering 
 %

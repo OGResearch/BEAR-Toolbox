@@ -1,23 +1,45 @@
 {
-    "ForecastSpan": {
-        "value": "",
-        "type": "span",
-        "label": "Forecast date span"
-    },
-    "SaveXLSX": {
-        "value": true,
-        "type": "logical",
-        "label": "Save forecast table as an XLSX file"
-    },
-    "SaveMAT": {
-        "value": false,
-        "type": "logical",
-        "label": "Save forecast table as a MAT file"
-    },
-    "DrawCharts": {
-        "value": false,
-        "type": "logical",
-        "label": "Draw and save forecast charts as PDF files"
-    }
+  "ForecastSpan": {
+    "value": [
+      "2015-Q1",
+      "2016-Q4"
+    ],
+    "type": "span",
+    "label": "Forecast date span"
+  },
+  "UseReducedForm": {
+    "value": false,
+    "type": "logical",
+    "label": "Use reduced-form model object for unconditional forecast"
+  },
+  "StochasticResiduals": {
+    "value": true,
+    "type": "logical",
+    "label": "Draw stochastic residuals in unconditional forecast"
+  },
+  "IncludeInitial": {
+    "value": true,
+    "type": "logical",
+    "label": "Include initial conditions in forecast output"
+  },
+  "SaveXLS": {
+    "value": true,
+    "type": "logical",
+    "label": "Save forecast table as an Excel file"
+  },
+  "SaveCSV": {
+    "value": true,
+    "type": "logical",
+    "label": "Save forecast table as a CSV file"
+  },
+  "SaveMAT": {
+    "value": false,
+    "type": "logical",
+    "label": "Save forecast table as a MAT file"
+  },
+  "DrawCharts": {
+    "value": false,
+    "type": "logical",
+    "label": "Draw and save forecast charts as PDF files"
+  }
 }
-

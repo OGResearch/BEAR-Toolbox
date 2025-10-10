@@ -29,6 +29,9 @@ classdef Cholesky ...
             arguments
                 options.Order (1, :) string = string.empty(1, 0)
             end
+            if isequal(options.Order, "")
+                options.Order = string.empty(1, 0);
+            end
             if numel(options.Order) ~= numel(unique(options.Order))
                 error("Duplicate names found in the Cholesky order.");
             end

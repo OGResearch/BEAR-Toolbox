@@ -1,6 +1,6 @@
 
 classdef ReducedForm ...
-    < handle ...
+    < matlab.mixin.Copyable ...
     & base.PresampleMixin ...
     & base.TabulateMixin
 
@@ -176,8 +176,8 @@ classdef ReducedForm ...
             arguments
                 this
                 fcastSpan (1, :) datetime
-                options.StochasticResiduals (1, 1) logical = false
-                options.IncludeInitial (1, 1) logical = false
+                options.StochasticResiduals (1, 1) logical = true
+                options.IncludeInitial (1, 1) logical = true
             end
 
             fcastSpan = datex.ensureSpan(fcastSpan);

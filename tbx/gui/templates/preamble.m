@@ -19,6 +19,9 @@ close all
 % Rehash Matlab search path
 rehash path
 
+% Import the correct module
+import ?MODULE?.*
+
 
 %% Define convenience functions for future use 
 
@@ -30,7 +33,18 @@ prctilesFunc = @(x) prctile(x, percentiles, 2);
 medianFunc = @(x) median(x, 2);
 extremesFunc = @(x) [min(x, [], 2), max(x, [], 2)];
 
-% Print functions
-printObject = ?PRINT_OBJECT?;
+
+%% Prepare output folder 
+
+outputFolder = fullfile(".", ?OUTPUT_FOLDER?);
+if ~isfolder(outputFolder)
+    mkdir(outputFolder);
+end
+
+
+%% Set up print functions
+
+printInfo = ?PRINT_INFO?;
 printTable = ?PRINT_TABLE?;
+printObject = ?PRINT_OBJECT?;
 

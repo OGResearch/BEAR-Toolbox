@@ -21,12 +21,12 @@ function gui_collectMetaSettings(submission)
     % Update the meta settings JSON with the new values
     gui.writeFormsFile(settingsForm, settingsPath);
 
-    % Update tables
+    % Update tables if there has been changes in the relevant meta settings
     metaObject = eval(currentModule + ".Meta()");
     [~, cellValues] = gui.extractValuesFromForm(settingsForm);
     metaObject.update(cellValues{:});
-    gui.updateExactZerosXLSX(metaObject);
-    gui.updateInequalityXLSX(metaObject);
+    gui.updateExactZerosTable(metaObject);
+    gui.updateInequalityTable(metaObject);
 
     % Repopulate the structural identification selection page
     % gui.populateIdentificationSelectionHTML();

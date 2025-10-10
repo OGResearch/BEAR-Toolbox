@@ -1,5 +1,6 @@
 
-classdef DataHolder < handle
+classdef DataHolder ...
+    < matlab.mixin.Copyable
 
     properties
         Span

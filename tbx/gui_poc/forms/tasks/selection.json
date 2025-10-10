@@ -1,36 +1,30 @@
 {
-    "Setup": {
-        "value": true,
-        "label": "Create a model object",
-        "readonly": true
-    },
-    "Estimate": {
-        "value": true,
-        "label": "Sample from reduced-form model posterior"
-    },
-    "Identify": {
-        "value": false,
-        "label": "Sample from identified structural model posterior"
-    },
-    "Forecast": {
-        "value": false,
-        "label": "Run unconditional forecast"
-    },
-    "Responses": {
-        "value": false,
-        "label": "Calculate structural shock responses"
-    },
-    "Conditional": {
-        "value": false,
-        "label": "Run conditional forecast"
-    },
-    "Contributions": {
-        "value": false,
-        "label": "Calculate contributions of structural shocks"
-    },
-    "FEVD": {
-        "value": false,
-        "label": "Calculate forecast error variance decomposition"
-    }
+  "ReducedFormEstimation": {
+    "value": true,
+    "label": "Estimate reduced-form model (sample from reduced-form posterior)"
+  },
+  "StructuralEstimation": {
+    "value": true,
+    "label": "Estimate structurally identified model (sample from structurally identified posterior)"
+  },
+  "UnconditionalForecast": {
+    "value": true,
+    "label": "Run unconditional forecast"
+  },
+  "ShockResponses": {
+    "value": false,
+    "label": "Calculate structural shock responses"
+  },
+  "ConditionalForecast": {
+    "value": false,
+    "label": "Run conditional forecast"
+  },
+  "ShockContributions": {
+    "value": false,
+    "label": "Calculate contributions of structural shocks"
+  },
+  "FEVD": {
+    "value": false,
+    "label": "Calculate forecast error variance decomposition"
+  }
 }
-

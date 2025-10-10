@@ -1,0 +1,8 @@
+{
+    "IncludeInitial": {
+        "value": true,
+        "type": "logical",
+        "label": "Include initial conditions in simulation output"
+    }
+}
+

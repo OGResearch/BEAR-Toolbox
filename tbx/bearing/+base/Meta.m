@@ -1,6 +1,5 @@
 
-classdef Meta ...
-    < matlab.mixin.Copyable
+classdef Meta < matlab.mixin.Copyable
 
     % Reduced-form model meta information
     properties (SetAccess=protected)

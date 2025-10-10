@@ -1319,7 +1319,7 @@
         
   
   <span class="md-ellipsis">
-    Structural identification
+    Structural estimation
     
   </span>
   
@@ -1679,20 +1679,18 @@ repeatedly.</p>
 <p><form action='matlab:gui_collectTasksSelection'>
 <input style='color:black' style='background-color:gray' type='submit' value='Submit'>
 <br/><br/>
-<input type='checkbox' id='Setup' name='selection' value='Setup' checked disabled>&nbsp;
-<label for='Setup'>Create a model object</label><br/>
-<input type='checkbox' id='Estimate' name='selection' value='Estimate' checked >&nbsp;
-<label for='Estimate'>Sample from reduced-form model posterior</label><br/>
-<input type='checkbox' id='Identify' name='selection' value='Identify'  >&nbsp;
-<label for='Identify'>Sample from identified structural model posterior</label><br/>
-<input type='checkbox' id='Forecast' name='selection' value='Forecast'  >&nbsp;
-<label for='Forecast'>Run unconditional forecast</label><br/>
-<input type='checkbox' id='Responses' name='selection' value='Responses'  >&nbsp;
-<label for='Responses'>Calculate structural shock responses</label><br/>
-<input type='checkbox' id='Conditional' name='selection' value='Conditional'  >&nbsp;
-<label for='Conditional'>Run conditional forecast</label><br/>
-<input type='checkbox' id='Contributions' name='selection' value='Contributions'  >&nbsp;
-<label for='Contributions'>Calculate contributions of structural shocks</label><br/>
+<input type='checkbox' id='ReducedFormEstimation' name='selection' value='ReducedFormEstimation' checked >&nbsp;
+<label for='ReducedFormEstimation'>Estimate reduced-form model (sample from reduced-form posterior)</label><br/>
+<input type='checkbox' id='StructuralEstimation' name='selection' value='StructuralEstimation' checked >&nbsp;
+<label for='StructuralEstimation'>Estimate structurally identified model (sample from structurally identified posterior)</label><br/>
+<input type='checkbox' id='UnconditionalForecast' name='selection' value='UnconditionalForecast' checked >&nbsp;
+<label for='UnconditionalForecast'>Run unconditional forecast</label><br/>
+<input type='checkbox' id='ShockResponses' name='selection' value='ShockResponses'  >&nbsp;
+<label for='ShockResponses'>Calculate structural shock responses</label><br/>
+<input type='checkbox' id='ConditionalForecast' name='selection' value='ConditionalForecast'  >&nbsp;
+<label for='ConditionalForecast'>Run conditional forecast</label><br/>
+<input type='checkbox' id='ShockContributions' name='selection' value='ShockContributions'  >&nbsp;
+<label for='ShockContributions'>Calculate contributions of structural shocks</label><br/>
 <input type='checkbox' id='FEVD' name='selection' value='FEVD'  >&nbsp;
 <label for='FEVD'>Calculate forecast error variance decomposition</label><br/>
 <br/>

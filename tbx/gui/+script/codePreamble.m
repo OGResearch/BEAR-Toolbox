@@ -1,18 +1,17 @@
 
-function code = codePreamble(options)
-
-    arguments
-        options.Prerequisites (1, 1) struct
-    end
+function code = codePreamble()
 
     mts = gui.MatlabToScript();
     timestamp = datetime();
+    settings = gui.getCurrentPrerequisites();
+    module = gui.getCurrentModule();
 
     place = struct();
     place.TIMESTAMP = string(timestamp);
-    place.PERCENTILES = mts.numbers(options.Prerequisites.Percentiles.value);
-
-    place = setupPrintFunctions_(place);
+    place.MODULE = string(module);
+    place.PERCENTILES = mts.numbers(settings.Percentiles.value);
+    place.OUTPUT_FOLDER = mts.string(settings.OutputFolder.value);
+    place = setupPrintFunctions_(place, settings);
 
     code = script.readTemplate("preamble");
     code = script.replaceInCode(code, place);
@@ -20,19 +19,24 @@ function code = codePreamble(options)
 end%
 
 
-function place = setupPrintFunctions_(place)
+function place = setupPrintFunctions_(place, settings)
     %[
-    scriptSettings = gui.getCurrentScriptSettings();
-    printFunction = "@(x) disp(x)";
-    silentFunction = "@(x) []";
+    printFunction = "@display; % @(x) []";
+    silentFunction = "@(x) []; % @display";
     %
-    if scriptSettings.PrintTables
+    if settings.PrintInfo.value
+        place.PRINT_INFO = printFunction;
+    else
+        place.PRINT_INFO = silentFunction;
+    end
+    %
+    if settings.PrintTables.value
         place.PRINT_TABLE = printFunction;
     else
         place.PRINT_TABLE = silentFunction;
     end
     %
-    if scriptSettings.PrintObjects
+    if settings.PrintObjects.value
         place.PRINT_OBJECT = printFunction;
     else
         place.PRINT_OBJECT = silentFunction;

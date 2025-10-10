@@ -1,8 +1,7 @@
 {
-    "Ordering": {
-        "value": "",
-        "type": "names",
-        "label": "Ordering of variables for Cholesky decomposition (empty means original ordering)"
-    }
+  "Order": {
+    "value": [],
+    "type": "names",
+    "label": "Ordering of variables for Cholesky decomposition (empty means original ordering)"
+  }
 }
-

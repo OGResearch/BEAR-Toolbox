@@ -3,7 +3,7 @@ nav:
     - Task selection: selection.md
     - Prerequisites: prerequisites.md
     - Reduced-form estimation: estimation.md
-    - Structural estimation and identification: identification.md
+    - Structural estimation: identification.md
     - Unconditional forecast: unconditional.md
     - Shock responses: responses.md
     - Shock contributions: contributions.md

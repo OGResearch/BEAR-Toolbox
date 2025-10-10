@@ -1,16 +1,14 @@
 {
     "FilePath": {
-        "description": "Path to the input data file in XLSX or CSV format",
+        "label": "Path to the input data file in Excel or CSV format",
         "type": "filename",
         "value": "",
-        "show": false,
-        "details": ""
+        "show": false
     },
     "Transformations": {
-        "description": "List of new transformed series to calculate in data table",
+        "label": "List of new transformed series to calculate in data table",
         "type": "names",
-        "value": [],
-        "details": ""
+        "value": []
     }
 }
 

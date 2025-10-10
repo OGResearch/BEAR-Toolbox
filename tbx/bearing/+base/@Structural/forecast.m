@@ -54,6 +54,7 @@ function [outputTbl, contribTbl] = forecast(this, fcastSpan, options)
     end
 
     outputTbl = tabulator(shortY, shortU, initY, shortX);
+
     contribTbl = [];
     if options.Contributions
         contribTbl = this.tabulateContributions(contribs, fcastSpan);

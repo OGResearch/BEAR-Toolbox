@@ -1319,7 +1319,7 @@
         
   
   <span class="md-ellipsis">
-    Structural identification
+    Structural estimation
     
   </span>
   
@@ -1672,7 +1672,27 @@
 
   <h1>Meta settings</h1>
 
-<p><p>You need to choose a reduced-form estimator first</p></p>
+<p><form action='matlab:gui_collectMetaSettings '>
+<input style='color:black' style='background-color:gray' type='submit' value='Submit'>
+<br/>
+<br/>
+<label for='EndogenousNames'>Names of endogenous variables</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='EndogenousNames' name='EndogenousNames' value='GDP CPI STR' size='60'><br/>
+<label for='ExogenousNames'>Names of exogenous variables</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='ExogenousNames' name='ExogenousNames' value='Oil' size='60'><br/>
+<label for='ShockNames'>Names of structural shocks</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='ShockNames' name='ShockNames' value='DEM SUP POL' size='60'><br/>
+<label for='Order'>Autoregressive order of the VAR model</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='Order' name='Order' value='2' size='20'><br/>
+<input style='margin-top:1em; margin-bottom:1em; margin-left:-0.1em' type='checkbox' id='Intercept' name='Intercept' value='true' checked>&nbsp;
+<label for='Intercept'>True if the model includes an intercept (constant) term</label><br/>
+<label for='EstimationSpan'>Date range for estimation, not including initial conditions</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='EstimationSpan' name='EstimationSpan' value='1977-Q1 2014-Q4' size='20'><br/>
+<label for='IdentificationHorizon'>Number of periods for shock responses</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='IdentificationHorizon' name='IdentificationHorizon' value='4' size='20'><br/>
+<br/>
+<input style='color:black' style='background-color:gray' type='submit' value='Submit'>
+</form></p>
 
 
 

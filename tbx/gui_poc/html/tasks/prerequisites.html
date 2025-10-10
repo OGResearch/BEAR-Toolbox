@@ -1319,7 +1319,7 @@
         
   
   <span class="md-ellipsis">
-    Structural identification
+    Structural estimation
     
   </span>
   
@@ -1676,8 +1676,16 @@
 <input style='color:black' style='background-color:gray' type='submit' value='Submit'>
 <br/>
 <br/>
-<label for='Percentiles'>Percentiles</label><br/>
-<input style='color:black; background-color:lightgray' type='text' id='Percentiles' name='Percentiles' value='10, 50, 90' size='20'><br/>
+<label for='OutputFolder'>Output folder</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='OutputFolder' name='OutputFolder' value='output' size='20'><br/>
+<label for='Percentiles'>Percentiles to report</label><br/>
+<input style='color:black; background-color:lightgray' type='text' id='Percentiles' name='Percentiles' value='10 50 90' size='20'><br/>
+<input style='margin-top:1em; margin-bottom:1em; margin-left:-0.1em' type='checkbox' id='PrintInfo' name='PrintInfo' value='true' checked>&nbsp;
+<label for='PrintInfo'>Print information structures to console</label><br/>
+<input style='margin-top:1em; margin-bottom:1em; margin-left:-0.1em' type='checkbox' id='PrintObjects' name='PrintObjects' value='true' checked>&nbsp;
+<label for='PrintObjects'>Print newly created objects to console</label><br/>
+<input style='margin-top:1em; margin-bottom:1em; margin-left:-0.1em' type='checkbox' id='PrintTables' name='PrintTables' value='true' checked>&nbsp;
+<label for='PrintTables'>Print newly created tables to console</label><br/>
 <br/>
 <input style='color:black' style='background-color:gray' type='submit' value='Submit'>
 </form></p>

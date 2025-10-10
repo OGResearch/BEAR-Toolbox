@@ -5,26 +5,21 @@ function code = assemble(options)
         options.saveToFile (1, 1) string = ""
     end
 
-    prerequisites = gui.getCurrentPrerequisites();
-    module = gui.getCurrentModule();
-    estimator = gui.getCurrentEstimator();
-    estimatorSettings = gui.getCurrentEstimatorSettings();
-    metaSettings = gui.getCurrentMetaSettings();
-    dataSource = gui.getCurrentDataSource();
+    taskSelection = gui.getCurrentTaskSelection();
 
     snippets = string.empty(0, 1);
 
-    snippets(end+1) = script.codePreamble( ...
-        prerequisites=prerequisites ...
-    );
+    snippets = [snippets; script.codePreamble()];
 
-    snippets(end+1) = script.codeReducedFormModel( ...
-        module=module ...
-        , metaSettings=metaSettings ...
-        , dataSource=dataSource ...
-        , estimator=estimator ...
-        , estimatorSettings=estimatorSettings ...
-    );
+    snippets = [snippets; script.codeReducedFormModel()];
+
+    snippets = [snippets; script.codeReducedFormEstimation(taskSelection)];
+
+    snippets = [snippets; script.codeStructuralEstimation(taskSelection)];
+
+    snippets = [snippets; script.codeUnconditionalForecast(taskSelection)];
+
+    % snippets = [snippets; script.codeConditionalForecast(taskSelection)];
 
     code = join(snippets, "");
 

@@ -4,7 +4,7 @@
 % Graphical User Interface. Feel free to edit and adapt it furthere to your
 % needs.
 %
-% Generated 30-Sep-2025 19:51:46
+% Generated 10-Oct-2025 11:19:45
 %
 
 
@@ -19,11 +19,14 @@ close all
 % Rehash Matlab search path
 rehash path
 
+% Import the correct module
+import base.*
+
 
 %% Define convenience functions for future use 
 
 % User choice of percentiles
-percentiles = [10, 50, 90];
+percentiles = [10 50 90];
 
 % Aggregation functions used to summarize distributions
 prctilesFunc = @(x) prctile(x, percentiles, 2);
@@ -31,10 +34,25 @@ medianFunc = @(x) median(x, 2);
 extremesFunc = @(x) [min(x, [], 2), max(x, [], 2)];
 
 
+%% Prepare output folder 
+
+outputFolder = fullfile(".", "output");
+if ~isfolder(outputFolder)
+    mkdir(outputFolder);
+end
+
+
+%% Set up print functions
+
+printInfo = @display; % @(x) [];
+printTable = @display; % @(x) [];
+printObject = @display; % @(x) [];
+
+
 %% Prepare meta information 
 
 % Create a meta information object
-meta = base.Meta( ...
+meta = Meta( ...
     EndogenousNames=["GDP", "CPI", "STN"] ...
     , ExogenousNames="Oil" ...
     , ShockNames=["DEM", "SUP", "POL"] ...
@@ -48,16 +66,17 @@ meta = base.Meta( ...
 %% Prepare input data holder 
 
 % Load the input data table
-inputTbl = tablex.fromCsv("/Users/myself/Documents/ogr-external-projects/ecb-bear/BEAR-toolbox/tbx/gui_poc/exampleData.csv");
+inputTbl = tablex.fromCsv("/Users/myself/Documents/ogr-external-projects/ecb-bear/BEAR-toolbox/tbx/gui_poc/exampleDataX.csv");
+printTable(inputTbl);
 
 % Create a data holder object
-dataHolder = base.DataHolder(meta, inputTbl);
+dataHolder = DataHolder(meta, inputTbl);
 
 
 %% Prepare reduced-form estimator 
 
 % Create a reduced-form estimator object
-estimator = base.estimator.NormalWishart( ...
+estimator = estimator.NormalWishart( ...
     meta ...
     , Sigma="ar" ...
     , Burnin=0 ...
@@ -77,10 +96,58 @@ estimator = base.estimator.NormalWishart( ...
 %% Create reduced-form model 
 
 % Assemble a reduced-form model from the components
-redModel = base.ReducedForm( ...
+redModel = ReducedForm( ...
     Meta=meta ...
     , DataHolder=dataHolder ...
     , Estimator=estimator ...
 );
+printObject(redModel);
+
+
+%% Initialize and presample the reduced-form model 
+
+redModel.initialize();
+info = redModel.presample(1000);
+printInfo(info);
+
+
+%% Create an identification object 
+
+identifier = identifier.Cholesky( ...
+    Order=string.empty(1, 0) ...
+);
+
+
+%% Create a structural model 
+
+structModel = Structural( ...
+    reducedForm=redModel ...
+    , identifier=identifier ...
+);
+printObject(structModel);
+
+
+%% Initialize and presample the structural model 
+
+structModel.initialize();
+info = structModel.presample(1000);
+printInfo(info);
+
+% save(fullfile(outputFolder, "structuralModel.mat"), "structModel");
+
+
+%% Run unconditional forecast 
+
+uncForecastTbl = structModel.forecast( ...
+    datex.span("2015-Q1", "2016-Q4") ...
+    , stochasticResiduals=true ...
+    , includeInitial=true ...
+);
+
+uncForecastPercentilesTbl = tablex.apply(uncForecastTbl, prctilesFunc);
+
+% save(fullfile(outputFolder, "uncForecastPercentiles.mat"), "uncForecastPercentilesTbl");
+tablex.writetimetable(uncForecastPercentilesTbl, fullfile(outputFolder, "uncForecastPercentiles.csv"));
+tablex.writetimetable(uncForecastPercentilesTbl, fullfile(outputFolder, "uncForecastPercentiles.xls"));
 
 

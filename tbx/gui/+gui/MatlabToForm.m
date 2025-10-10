@@ -22,7 +22,7 @@ classdef MatlabToForm
                 form = "";
                 return
             end
-            form = join(matlab, ", ");
+            form = join(matlab, " ");
         end%
 
         function form = string(matlab)
@@ -49,7 +49,7 @@ classdef MatlabToForm
             end
             form = compose(gui.MatlabToForm.NUMERIC_FORMAT, matlab);
             if numel(matlab) > 1
-                form = join(form, ", ");
+                form = join(form, " ");
                 return
             end
         end%
@@ -63,7 +63,7 @@ classdef MatlabToForm
             for i = 1 : numel(matlab)
                 form(i) = string(gui.isTrue(matlab(i)));
             end
-            form = join(form, ", ");
+            form = join(form, " ");
         end%
 
         function form = date(matlab)
@@ -78,7 +78,7 @@ classdef MatlabToForm
                 matlab (:, :) string
             end
             form = reshape(strip(matlab), 1, []);
-            form = join(form, ", ");
+            form = join(form, " ");
         end%
 
         function form = span(matlab)

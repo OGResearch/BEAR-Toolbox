@@ -36,8 +36,11 @@ function resume()
     % Tasks to execute tab
     gui.populateTasksSelectionHTML();
     gui.populateVanillaFormHTML({"tasks", "prerequisites"});
+    gui.populateVanillaFormHTML({"tasks", "estimation"});
+    gui.populateVanillaFormHTML({"tasks", "identification"});
     gui.populateVanillaFormHTML({"tasks", "unconditional"});
     gui.populateVanillaFormHTML({"tasks", "conditional"});
+    gui.populateVanillaFormHTML({"tasks", "responses"});
 
     % Matlab script tab
     gui.populateScriptSettingsHTML();

@@ -1,6 +1,6 @@
 
 classdef (Abstract) Estimator ...
-    < handle
+    < matlab.mixin.Copyable
 
     properties (Abstract)
         Settings

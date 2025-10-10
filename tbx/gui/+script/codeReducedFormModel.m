@@ -1,27 +1,25 @@
 
-function code = codeReducedFormModel(options)
+function code = codeReducedFormModel()
 
-    arguments
-        options.Module (1, 1) string
-        options.MetaSettings (1, 1) struct
-        options.DataSource (1, 1) struct
-        options.Estimator (1, 1) string
-        options.EstimatorSettings (1, 1) struct
-    end
+    module = gui.getCurrentModule();
+    estimator = gui.getCurrentEstimator();
+    estimatorSettings = gui.getCurrentEstimatorSettings();
+    metaSettings = gui.getCurrentMetaSettings();
+    dataSource = gui.getCurrentDataSource();
 
     mts = gui.MatlabToScript();
 
     place = struct();
 
     % Parts of the code
-    place.MODULE = string(options.Module);
-    place.ESTIMATOR = string(options.Estimator);
+    place.ESTIMATOR = string(estimator);
 
     % Settings as code
-    place.META_SETTINGS = script.printFormAsSettings(options.MetaSettings);
-    place.INPUT_DATA_PATH = mts.string(options.DataSource.FilePath.value);
-    place.ESTIMATOR_SETTINGS = script.printFormAsSettings(options.EstimatorSettings);
+    place.META_SETTINGS = script.printFormAsSettings(metaSettings);
+    place.INPUT_DATA_PATH = mts.string(dataSource.FilePath.value);
+    place.ESTIMATOR_SETTINGS = script.printFormAsSettings(estimatorSettings);
 
+    % Create the code from the template
     code = script.readTemplate("reducedFormModel");
     code = script.replaceInCode(code, place);
 

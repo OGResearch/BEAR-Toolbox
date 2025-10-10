@@ -1,21 +1,29 @@
 {
   "EndogenousNames": {
-    "value": "",
+    "value": [
+      "GDP",
+      "CPI",
+      "STR"
+    ],
     "type": "names",
     "label": "Names of endogenous variables"
   },
   "ExogenousNames": {
-    "value": "",
+    "value": "Oil",
     "type": "names",
     "label": "Names of exogenous variables"
   },
   "ShockNames": {
-    "value": [],
+    "value": [
+      "DEM",
+      "SUP",
+      "POL"
+    ],
     "type": "names",
     "label": "Names of structural shocks"
   },
   "Order": {
-    "value": 1,
+    "value": 2,
     "type": "number",
     "label": "Autoregressive order of the VAR model"
   },
@@ -25,7 +33,10 @@
     "label": "True if the model includes an intercept (constant) term"
   },
   "EstimationSpan": {
-    "value": "",
+    "value": [
+      "1977-Q1",
+      "2014-Q4"
+    ],
     "type": "span",
     "label": "Date range for estimation, not including initial conditions"
   },
@@ -35,4 +46,3 @@
     "label": "Number of periods for shock responses"
   }
 }
-

@@ -4,10 +4,30 @@
         "type": "span",
         "label": "Forecast date span"
     },
-    "SaveXLSX": {
+    "UseReducedForm": {
+        "value": false,
+        "type": "logical",
+        "label": "Use reduced-form model object for unconditional forecast"
+    },
+    "StochasticResiduals": {
         "value": true,
         "type": "logical",
-        "label": "Save forecast table as an XLSX file"
+        "label": "Draw stochastic residuals in unconditional forecast"
+    },
+    "IncludeInitial": {
+        "value": true,
+        "type": "logical",
+        "label": "Include initial conditions in forecast output"
+    },
+    "SaveXLS": {
+        "value": true,
+        "type": "logical",
+        "label": "Save forecast table as an Excel file"
+    },
+    "SaveCSV": {
+        "value": true,
+        "type": "logical",
+        "label": "Save forecast table as a CSV file"
     },
     "SaveMAT": {
         "value": false,
